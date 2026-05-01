@@ -53,3 +53,5 @@ Thumbs.db
 
 # IDE
 .vscode/
+
+git remote add origin https://github.com/Zee-tere/remnant.git

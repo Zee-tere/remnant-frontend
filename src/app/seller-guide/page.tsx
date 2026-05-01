@@ -140,7 +140,7 @@ export default function SellerGuidePage() {
     <div className="container mx-auto px-4 py-8">
       {/* Hero Section */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold mb-6">Seller's Guide</h1>
+        <h1 className="text-4xl md:text-5xl font-bold mb-6">Seller&apos;s Guide</h1>
         <p className="text-xl text-neutral-600 dark:text-neutral-400 mb-8 max-w-3xl mx-auto">
           Everything you need to know to sell successfully on Remnant. 
           Turn your unwanted items into cash with our proven strategies.
@@ -389,7 +389,7 @@ export default function SellerGuidePage() {
                     </div>
 
                     <div>
-                      <h4 className="font-semibold mb-2">Photo Do's & Don'ts</h4>
+                      <h4 className="font-semibold mb-2">Photo Do&apos;s &amp; Don&apos;ts</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <h5 className="font-medium text-green-600 mb-1">✅ Do</h5>
@@ -401,7 +401,7 @@ export default function SellerGuidePage() {
                           </ul>
                         </div>
                         <div>
-                          <h5 className="font-medium text-red-600 mb-1">❌ Don't</h5>
+                          <h5 className="font-medium text-red-600 mb-1">❌ Don&apos;t</h5>
                           <ul className="space-y-1 text-sm">
                             <li>Use blurry photos</li>
                             <li>Hide defects</li>
@@ -430,7 +430,7 @@ export default function SellerGuidePage() {
                         <p className="text-sm mb-2">Condition: [New/Like New/Good/Fair]</p>
                         <p className="text-sm mb-2">Includes: [Accessories included]</p>
                         <p className="text-sm mb-2">Defects: [Any flaws or issues]</p>
-                        <p className="text-sm mb-2">Reason for selling: [Why you're selling]</p>
+                        <p className="text-sm mb-2">Reason for selling: [Why you&apos;re selling]</p>
                         <p className="text-sm">Location: [Meeting area]</p>
                       </div>
                     </div>
@@ -506,7 +506,7 @@ export default function SellerGuidePage() {
                       <ul className="space-y-2">
                         <li className="flex items-start">
                           <Shield className="h-4 w-4 text-green-500 mr-2 mt-1" />
-                          <span>Always use Remnant's secure payment system</span>
+                          <span>Always use Remnant&apos;s secure payment system</span>
                         </li>
                         <li className="flex items-start">
                           <Shield className="h-4 w-4 text-green-500 mr-2 mt-1" />

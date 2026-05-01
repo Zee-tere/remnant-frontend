@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useState } from 'react';
-import { Search, Calendar, User, Eye, MessageSquare, Share2, Bookmark, Tag, ArrowRight } from 'lucide-react';
+import { Search, Calendar, User, Eye, MessageSquare, Bookmark, Tag, ArrowRight } from 'lucide-react';
 
 export default function BlogPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');

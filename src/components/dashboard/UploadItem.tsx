@@ -15,15 +15,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { uploadApi, listingsApi } from '@/lib/api';
 
-// Mock upload function - replace with your actual backend endpoint
-const mockUploadToBackend = async (file: File): Promise<string> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(`https://picsum.photos/seed/${file.name}/400/300`);
-    }, 1000);
-  });
-};
+const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 const UploadItem = () => {
   const [step, setStep] = useState(1);
@@ -97,15 +92,31 @@ const UploadItem = () => {
     if (!files) return;
 
     const fileArray = Array.from(files);
-    if (images.length + fileArray.length > 10) {
-      toast.error('Maximum 10 images allowed');
+    if (images.length + fileArray.length > 8) {
+      toast.error('Maximum 8 images allowed');
       return;
     }
 
-    const newImages = [...images, ...fileArray];
+    // Validate file size and type
+    const validFiles: File[] = [];
+    for (const file of fileArray) {
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`${file.name} exceeds the 3MB limit (${(file.size / (1024 * 1024)).toFixed(1)}MB)`);
+        continue;
+      }
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        toast.error(`${file.name} is not a supported format. Use JPEG, PNG, or WebP.`);
+        continue;
+      }
+      validFiles.push(file);
+    }
+
+    if (validFiles.length === 0) return;
+
+    const newImages = [...images, ...validFiles];
     setImages(newImages);
 
-    const previews = fileArray.map((file) => URL.createObjectURL(file));
+    const previews = validFiles.map((file) => URL.createObjectURL(file));
     setPreviewUrls(prev => [...prev, ...previews]);
   };
 
@@ -127,13 +138,29 @@ const UploadItem = () => {
     if (!files) return;
 
     const fileArray = Array.from(files);
-    if (images.length + fileArray.length > 10) {
-      toast.error('Maximum 10 images allowed');
+    if (images.length + fileArray.length > 8) {
+      toast.error('Maximum 8 images allowed');
       return;
     }
 
-    setImages(prev => [...prev, ...fileArray]);
-    const previews = fileArray.map((file) => URL.createObjectURL(file));
+    // Validate file size and type
+    const validFiles: File[] = [];
+    for (const file of fileArray) {
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`${file.name} exceeds the 3MB limit (${(file.size / (1024 * 1024)).toFixed(1)}MB)`);
+        continue;
+      }
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        toast.error(`${file.name} is not a supported format. Use JPEG, PNG, or WebP.`);
+        continue;
+      }
+      validFiles.push(file);
+    }
+
+    if (validFiles.length === 0) return;
+
+    setImages(prev => [...prev, ...validFiles]);
+    const previews = validFiles.map((file) => URL.createObjectURL(file));
     setPreviewUrls(prev => [...prev, ...previews]);
   };
 
@@ -176,7 +203,7 @@ const UploadItem = () => {
         setUploadProgress(Math.round(((index + 1) / images.length) * 60) + 10);
         
         try {
-          const imageUrl = await mockUploadToBackend(image);
+          const imageUrl = await uploadApi.uploadFile(image);
           uploadedImageUrls.push(imageUrl);
         } catch (error) {
           console.error('Image upload failed:', error);
@@ -186,8 +213,25 @@ const UploadItem = () => {
   
       setUploadProgress(80);
   
-      // Simulate API call to save listing
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Map purpose to backend IntentionTag
+      const purposeMap: Record<string, string> = {
+        'sell': 'SELL', 'trade': 'TRADE', 'donate': 'DONATE', 'fix': 'FIX', 'recycle': 'RECYCLE',
+      };
+      const conditionMap: Record<string, string> = {
+        'New': 'NEW', 'Used - Like New': 'LIKE_NEW', 'Used - Good': 'GOOD', 'Used - Fair': 'FAIR', 'For Parts': 'POOR',
+      };
+      const purposeValue = purposes.find(p => p.label === formData.purpose)?.value || 'sell';
+
+      await listingsApi.createListing({
+        title: formData.name,
+        description: formData.description,
+        category: formData.category,
+        condition: conditionMap[formData.condition] || 'GOOD',
+        intentionTag: purposeMap[purposeValue] || 'SELL',
+        price: formData.price || undefined,
+        city: formData.location || undefined,
+        images: uploadedImageUrls,
+      });
   
       // Complete upload
       setUploadProgress(100);
@@ -487,7 +531,7 @@ const UploadItem = () => {
                       <h4 className="text-lg font-semibold mb-2">Drag & drop photos here</h4>
                       <p className="text-neutral-500 mb-4">or click to browse files</p>
                       <p className="text-sm text-neutral-400">
-                        Supported: JPG, PNG, WebP • Max 5MB each
+                        Supported: JPG, PNG, WebP • Max 3MB each
                       </p>
                       <Input
                         ref={fileInputRef}
@@ -502,7 +546,7 @@ const UploadItem = () => {
                     {previewUrls.length > 0 && (
                       <div className="mt-8">
                         <h4 className="font-semibold mb-4">
-                          Photos ({previewUrls.length}/10)
+                          Photos ({previewUrls.length}/8)
                         </h4>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                           {previewUrls.map((url, index) => (
@@ -536,7 +580,7 @@ const UploadItem = () => {
                               )}
                             </motion.div>
                           ))}
-                          {previewUrls.length < 10 && (
+                          {previewUrls.length < 8 && (
                             <div
                               onClick={() => fileInputRef.current?.click()}
                               className="aspect-square rounded-xl border-2 border-dashed border-neutral-300 flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50/50"

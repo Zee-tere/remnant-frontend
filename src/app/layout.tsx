@@ -3,15 +3,16 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Providers } from "@/providers/Providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: "Remnant | Africa's C2C Marketplace for Single Items",
+    default: "Remnant | The Marketplace for Incomplete, Broken, or Singular Things",
     template: "%s | Remnant",
   },
-  description: "Buy, sell, and trade single items, mismatched pairs, and unwanted products. Join Africa's first circular economy marketplace.",
+  description: "The marketplace for incomplete, broken, or singular things. Stop throwing things away because one piece is missing — sell, trade, donate, or find a match.",
   keywords: ["marketplace", "C2C", "Nigeria", "Africa", "secondhand", "sustainable", "circular economy", "single items"],
   authors: [{ name: "Remnant Team" }],
   creator: "Remnant",
@@ -33,8 +34,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://remnant.africa",
-    title: "Remnant | Africa's C2C Marketplace",
-    description: "Connect with buyers and sellers of single items across Africa",
+    title: "Remnant | The Marketplace for Incomplete, Broken, or Singular Things",
+    description: "Stop throwing things away because one piece is missing. Sell, trade, donate, or find a match.",
     siteName: "Remnant",
     images: [
       {
@@ -47,8 +48,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Remnant | Africa's C2C Marketplace",
-    description: "Buy, sell, and trade single items across Africa",
+    title: "Remnant | The Marketplace for Incomplete, Broken, or Singular Things",
+    description: "Stop throwing things away because one piece is missing.",
     images: ["/twitter-image.png"],
     creator: "@remnant_market",
   },
@@ -114,7 +115,7 @@ export default function RootLayout({
         />
         
         {/* Theme color for mobile browsers */}
-        <meta name="theme-color" content="#000000" />
+        <meta name="theme-color" content="#4a7c6f" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         
@@ -141,6 +142,7 @@ export default function RootLayout({
       </head>
       
       <body className="flex flex-col min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 antialiased">
+        <Providers>
         {/* Skip to main content link for accessibility */}
         <a
           href="#main-content"
@@ -150,7 +152,7 @@ export default function RootLayout({
         </a>
         
         {/* Progress bar for page transitions */}
-        <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 to-emerald-500 z-[60] progress-bar" />
+        {/* Progress bar removed — replaced by clean header */}
         
         {/* Navbar with safe area support */}
         <div className="safe-top">
@@ -192,6 +194,7 @@ export default function RootLayout({
             `,
           }}
         />
+        </Providers>
       </body>
     </html>
   );

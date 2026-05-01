@@ -13,7 +13,7 @@ import {
   User, Bell, Shield, CreditCard, 
   Globe, Smartphone, Palette, Trash2,
   Save, Upload, Eye, EyeOff,
-  Mail, Phone, MapPin
+  Phone, MapPin
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -487,7 +487,7 @@ export default function SettingsPage() {
                 <CardHeader>
                   <CardTitle>Active Devices</CardTitle>
                   <CardDescription>
-                    Manage devices where you're logged in
+                    Manage devices where you&apos;re logged in
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">

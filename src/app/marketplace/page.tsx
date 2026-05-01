@@ -1,317 +1,294 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Search, Bell, Heart } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
+import {
+  Search, Package, MapPin, Filter,
+  RefreshCw, HandHeart, Wrench, Recycle, DollarSign, Loader2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { listingsApi } from "@/lib/api";
 
-// Mock data for now
-const mockItems = [
-  {
-    id: "1",
-    name: "Vintage Wooden Chair",
-    description: "A classic wooden chair, perfect for your living room.",
-    image: "https://via.placeholder.com/400x300.png?text=Chair",
-    category: "Furniture",
-    location: "Lagos",
-    condition: "Used - Good",
-    price: 25,
-    type: "🔄 Donate or give away",
-  },
-  {
-    id: "2",
-    name: "Electric Drill",
-    description: "Powerful electric drill, lightly used, includes bits.",
-    image: "https://via.placeholder.com/400x300.png?text=Drill",
-    category: "Tools",
-    location: "Abuja",
-    condition: "Used - Like New",
-    price: 50,
-    type: "🔧 Looking for someone to fix/repurpose",
-  },
-  {
-    id: "3",
-    name: "Leather Backpack",
-    description: "Genuine leather, perfect condition, stylish and durable.",
-    image: "https://via.placeholder.com/400x300.png?text=Backpack",
-    category: "Accessories",
-    location: "Port Harcourt",
-    condition: "New",
-    price: 80,
-    type: "🤝 Looking to trade/barter",
-  },
+interface Listing {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  condition: string;
+  intentionTag: string;
+  price: string | null;
+  images: string[];
+  city: string | null;
+  slug: string;
+  user?: { id: string; name: string; avatarUrl: string | null; trustTier: string };
+}
+
+const intentionMeta: Record<string, { icon: React.ElementType; label: string; color: string }> = {
+  SELL: { icon: DollarSign, label: "For Sale", color: "text-emerald-700" },
+  TRADE: { icon: RefreshCw, label: "Trade", color: "text-blue-600" },
+  DONATE: { icon: HandHeart, label: "Free", color: "text-amber-600" },
+  FIX: { icon: Wrench, label: "Needs Fix", color: "text-orange-600" },
+  RECYCLE: { icon: Recycle, label: "Recycle", color: "text-teal-600" },
+};
+
+const conditionLabels: Record<string, string> = {
+  NEW: "New",
+  LIKE_NEW: "Like New",
+  GOOD: "Good",
+  FAIR: "Fair",
+  POOR: "Poor",
+};
+
+const categories = [
+  "Electronics & Gadgets", "Clothing & Fashion", "Shoes & Footwear",
+  "Accessories & Jewelry", "Furniture & Home Decor", "Kitchen & Home Essentials",
+  "Vehicles & Auto Parts", "Tools & DIY", "Sports & Outdoor",
+  "Books & Education", "Toys & Games", "Other",
 ];
 
-type ItemType = typeof mockItems[0];
-
 export default function MarketplacePage() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get("search") || "";
+
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [category, setCategory] = useState("");
-  const [location, setLocation] = useState("");
-  const [condition, setCondition] = useState("");
-  const [priceRange, setPriceRange] = useState([0, 100]);
-  const [selectedItem, setSelectedItem] = useState<ItemType | null>(null);
-  const [alertModalOpen, setAlertModalOpen] = useState(false);
-  const [alertForm, setAlertForm] = useState({ email: "", item: "" });
+  const [intentionTag, setIntentionTag] = useState("");
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [showFilters, setShowFilters] = useState(false);
 
-  const filteredItems = mockItems.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = category ? item.category === category : true;
-    const matchesLocation = location ? item.location === location : true;
-    const matchesCondition = condition ? item.condition === condition : true;
-    const matchesPrice = item.price >= priceRange[0] && item.price <= priceRange[1];
+  const fetchListings = async () => {
+    setLoading(true);
+    try {
+      const params: Record<string, string> = { page: page.toString(), limit: "12" };
+      if (searchTerm) params.search = searchTerm;
+      if (category) params.category = category;
+      if (intentionTag) params.intentionTag = intentionTag;
 
-    return matchesSearch && matchesCategory && matchesLocation && matchesCondition && matchesPrice;
-  });
+      const data = await listingsApi.getListings(params);
+      setListings(data.listings || []);
+      setTotal(data.total || 0);
+      setTotalPages(data.totalPages || 1);
+    } catch {
+      setListings([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleAlertSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetchListings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, category, intentionTag]);
+
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Alert created:", alertForm);
-    setAlertForm({ email: "", item: "" });
-    setAlertModalOpen(false);
-    alert("Alert Created! We'll notify you when we find a match.");
+    setPage(1);
+    fetchListings();
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f3ef] text-black px-4 py-16 md:px-20">
-      {/* Header Section */}
-      <div className="text-center mb-12">
-        <motion.h1
-          initial={{ y: -30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6 }}
-          className="text-5xl font-extrabold text-[#3b2f2f]"
-        >
-          The Marketplace
-        </motion.h1>
-        <p className="text-gray-700 mt-2 text-lg">Give, trade, or sell. Let's make things useful again!</p>
-      </div>
-
-      {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-14">
-        {/* Search Bar */}
-        <div className="col-span-2 relative">
-          <input
-            type="text"
-            placeholder="Search items..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full p-4 pr-12 rounded-xl border border-gray-300 focus:ring-2 focus:ring-black focus:outline-none"
-          />
-          <Search className="absolute right-4 top-4 text-gray-400" />
+    <div className="min-h-screen py-6 md:py-10 px-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-2">
+            The marketplace
+          </h1>
+          <p className="text-neutral-500">
+            Browse incomplete, broken, and singular things waiting for their next purpose.
+          </p>
         </div>
 
-        {/* Category Filter */}
-        <div className="col-span-1">
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-black focus:outline-none"
-          >
-            <option value="">All Categories</option>
-            <option value="Electronics & Gadgets">Electronics & Gadgets</option>
-            <option value="Furniture & Home Decor">Furniture & Home Decor</option>
-            <option value="Clothing & Fashion">Clothing & Fashion</option>
-            <option value="Vehicles & Auto Parts">Vehicles & Auto Parts</option>
-            <option value="Books & Education">Books & Education</option>
-            <option value="Hobbies & Leisure">Hobbies & Leisure</option>
-            <option value="Sports & Outdoor">Sports & Outdoor</option>
-            <option value="Kitchen & Home Essentials">Kitchen & Home Essentials</option>
-            <option value="Tools & DIY">Tools & DIY</option>
-            <option value="Real Estate & Property">Real Estate & Property</option>
-            <option value="Health & Beauty">Health & Beauty</option>
-            <option value="Pets & Animals">Pets & Animals</option>
-            <option value="Business & Industrial">Business & Industrial</option>
-            <option value="Toys & Games">Toys & Games</option>
-            <option value="Musical Instruments">Musical Instruments</option>
-            <option value="Office & Stationery">Office & Stationery</option>
-            <option value="Collectibles & Antiques">Collectibles & Antiques</option>
-            <option value="Baby & Kids">Baby & Kids</option>
-            <option value="Garden & Outdoor">Garden & Outdoor</option>
-            <option value="Event & Party Supplies">Event & Party Supplies</option>
-
-          </select>
-        </div>
-
-        {/* Price Range */}
-        <div className="col-span-1 flex flex-col justify-center">
-          <label className="text-sm text-gray-600 mb-1">Price: ${priceRange[0]} - ${priceRange[1]}</label>
-          <input
-            type="range"
-            min={0}
-            max={100}
-            value={priceRange[1]}
-            onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-            className="w-full"
-          />
-        </div>
-
-        {/* Smart Search Placeholder */}
-        <div className="col-span-1 flex items-center justify-center border-2 border-dashed border-gray-400 rounded-xl p-4">
-          <p className="text-sm text-gray-500 text-center">🔍 Smart Search (Coming Soon!)</p>
-        </div>
-      </div>
-
-      {/* Items Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {filteredItems.length === 0 && (
-          <div className="col-span-full text-center text-gray-500">No items found. Try changing your filters!</div>
-        )}
-
-        {filteredItems.map((item) => (
-          <motion.div
-            key={item.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-3xl shadow-xl overflow-hidden border border-black hover:shadow-2xl transition-all duration-300"
-          >
-            <img src={item.image} alt={item.name} className="h-56 w-full object-cover" />
-
-            <div className="p-6 flex flex-col justify-between min-h-[320px]">
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <h2 className="text-xl font-bold text-[#3b2f2f]">{item.name}</h2>
-                  <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">{item.type}</span>
-                </div>
-
-                <p className="text-gray-600 mb-4">{item.description}</p>
-
-                <div className="text-sm text-gray-500 mb-4">
-                  📍 {item.location} • {item.condition}
-                </div>
-
-                <p className="text-lg font-bold text-black">${item.price}</p>
-              </div>
-
-              <div className="flex flex-col space-y-2 mt-6">
-                <button
-                  onClick={() => setSelectedItem(item)}
-                  className="bg-black hover:bg-[#3b2f2f] text-white font-semibold py-3 rounded-xl transition"
-                >
-                  Contact Seller
-                </button>
-                <button
-                  onClick={() => {
-                    setAlertModalOpen(true);
-                    setAlertForm((prev) => ({ ...prev, item: item.name }));
-                  }}
-                  className="flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 rounded-xl transition"
-                >
-                  <Bell size={18} /> Set an Alert
-                </button>
-              </div>
+        {/* Search & Filters */}
+        <div className="mb-8">
+          <form onSubmit={handleSearch} className="flex gap-2 mb-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
+              <Input
+                type="text"
+                placeholder="Search for items..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 border-neutral-200 focus:border-[#4a7c6f] focus:ring-[#4a7c6f]/20"
+              />
             </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Contact Seller Modal */}
-      <AnimatePresence>
-        {selectedItem && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-          >
-            <motion.div
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
-              className="bg-white rounded-2xl p-8 w-full max-w-lg shadow-2xl space-y-6"
+            <Button type="submit" className="bg-[#4a7c6f] hover:bg-[#3d6b5f] text-white">
+              Search
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="border-neutral-200 md:hidden"
+              onClick={() => setShowFilters(!showFilters)}
             >
-              <h2 className="text-2xl font-bold text-black">Contact Seller</h2>
-              <p className="text-gray-700">You’re interested in: <span className="font-semibold">{selectedItem.name}</span></p>
+              <Filter size={16} />
+            </Button>
+          </form>
 
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  alert("Message sent to seller!");
-                  setSelectedItem(null);
-                }}
-                className="space-y-4"
+          {/* Filter Row */}
+          <div className={`flex flex-wrap gap-2 ${showFilters ? 'block' : 'hidden md:flex'}`}>
+            <select
+              value={category}
+              onChange={(e) => { setCategory(e.target.value); setPage(1); }}
+              className="px-3 py-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#4a7c6f] bg-white"
+            >
+              <option value="">All Categories</option>
+              {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+
+            <select
+              value={intentionTag}
+              onChange={(e) => { setIntentionTag(e.target.value); setPage(1); }}
+              className="px-3 py-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#4a7c6f] bg-white"
+            >
+              <option value="">All Intents</option>
+              <option value="SELL">For Sale</option>
+              <option value="TRADE">For Trade</option>
+              <option value="DONATE">Free / Donate</option>
+              <option value="FIX">Needs Repair</option>
+              <option value="RECYCLE">Recycle</option>
+            </select>
+
+            {(category || intentionTag || searchTerm) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => { setCategory(""); setIntentionTag(""); setSearchTerm(""); setPage(1); }}
+                className="text-neutral-500 text-sm"
               >
-                <input
-                  type="text"
-                  placeholder="Your Name"
-                  required
-                  className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-black"
-                />
-                <input
-                  type="email"
-                  placeholder="Your Email"
-                  required
-                  className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-black"
-                />
-                <textarea
-                  rows={4}
-                  placeholder="Your Message"
-                  required
-                  className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-black"
-                />
+                Clear filters
+              </Button>
+            )}
 
-                <div className="flex gap-2">
-                  <button type="submit" className="flex-1 bg-black hover:bg-[#3b2f2f] text-white py-3 rounded-xl">
-                    Send
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedItem(null)}
-                    className="flex-1 bg-gray-300 hover:bg-gray-400 text-black py-3 rounded-xl"
+            <span className="ml-auto text-sm text-neutral-400 self-center">
+              {total} item{total !== 1 && 's'} found
+            </span>
+          </div>
+        </div>
+
+        {/* Listings Grid */}
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 size={28} className="animate-spin text-[#4a7c6f]" />
+          </div>
+        ) : listings.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {listings.map((item) => {
+                const intent = intentionMeta[item.intentionTag] || intentionMeta.SELL;
+                const IntentIcon = intent.icon;
+                return (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ y: -3 }}
+                    className="group"
                   >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
+                    <Card className="overflow-hidden border border-neutral-100 hover:border-[#4a7c6f]/30 hover:shadow-lg transition-all duration-300">
+                      <div className="relative aspect-square overflow-hidden bg-neutral-50">
+                        {item.images && item.images.length > 0 ? (
+                          <img
+                            src={item.images[0]}
+                            alt={item.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-neutral-200">
+                            <Package size={48} />
+                          </div>
+                        )}
+                        <div className="absolute top-3 left-3">
+                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-white/90 backdrop-blur-sm ${intent.color}`}>
+                            <IntentIcon size={12} />
+                            {intent.label}
+                          </span>
+                        </div>
+                        {item.condition && (
+                          <div className="absolute top-3 right-3">
+                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-black/50 text-white backdrop-blur-sm">
+                              {conditionLabels[item.condition] || item.condition}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <CardContent className="p-4">
+                        <h3 className="font-semibold text-neutral-900 mb-1 line-clamp-1 text-sm">
+                          {item.title}
+                        </h3>
+                        <p className="text-xs text-neutral-400 line-clamp-2 mb-3">
+                          {item.description}
+                        </p>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[#4a7c6f] font-bold text-sm">
+                            {item.price ? `₦${Number(item.price).toLocaleString()}` : 'Free'}
+                          </span>
+                          {item.city && (
+                            <span className="text-xs text-neutral-400 flex items-center gap-1">
+                              <MapPin size={10} />
+                              {item.city}
+                            </span>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center gap-2 mt-10">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page <= 1}
+                  onClick={() => setPage(page - 1)}
+                >
+                  Previous
+                </Button>
+                <span className="flex items-center px-3 text-sm text-neutral-500">
+                  Page {page} of {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage(page + 1)}
+                >
+                  Next
+                </Button>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-20">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#4a7c6f]/10 mb-4">
+              <Package className="text-[#4a7c6f]" size={28} />
+            </div>
+            <h3 className="text-xl font-semibold mb-2 text-neutral-900">No items found</h3>
+            <p className="text-neutral-500 mb-6 max-w-md mx-auto">
+              {searchTerm || category || intentionTag
+                ? "Try adjusting your filters or search for something else."
+                : "The marketplace is empty! Be the first to list an item."}
+            </p>
+            <Link href="/sell-item">
+              <Button className="bg-[#4a7c6f] hover:bg-[#3d6b5f] text-white">
+                List the first item
+              </Button>
+            </Link>
+          </div>
         )}
-      </AnimatePresence>
-
-      {/* Set Alert Modal */}
-      <AnimatePresence>
-        {alertModalOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-          >
-            <motion.div
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
-              className="bg-white rounded-2xl p-8 w-full max-w-lg shadow-2xl space-y-6"
-            >
-              <h2 className="text-2xl font-bold text-yellow-600">Set an Alert</h2>
-              <p className="text-gray-700">We’ll notify you about: <span className="font-semibold">{alertForm.item}</span></p>
-
-              <form onSubmit={handleAlertSubmit} className="space-y-4">
-                <input
-                  type="email"
-                  placeholder="Your Email"
-                  value={alertForm.email}
-                  onChange={(e) => setAlertForm((prev) => ({ ...prev, email: e.target.value }))}
-                  required
-                  className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-yellow-500"
-                />
-
-                <div className="flex gap-2">
-                  <button type="submit" className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-xl">
-                    Create Alert
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAlertModalOpen(false)}
-                    className="flex-1 bg-gray-300 hover:bg-gray-400 text-black py-3 rounded-xl"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 }

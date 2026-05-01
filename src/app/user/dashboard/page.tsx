@@ -13,7 +13,7 @@ import { Toaster } from 'sonner';
 
 
 export default function UserDashboard() {
-  const [activeSection, setActiveSection] = useState<'listings' | 'messages' | 'alerts' | 'upload'>('listings');
+  const [activeSection, setActiveSection] = useState<'listings' | 'messages' | 'alerts' | 'upload' | 'profile' | 'settings'>('listings');
 
   const renderSection = () => {
     switch (activeSection) {

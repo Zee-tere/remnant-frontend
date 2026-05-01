@@ -8,30 +8,13 @@ import { useState, useEffect } from 'react';
 import { 
   Bell, Check, X, ExternalLink, 
   MessageSquare, ShoppingBag, Package, 
-  Heart, Star, TrendingUp, AlertTriangle,
-  CheckCircle, XCircle, Info, Filter
+  Heart, TrendingUp, AlertTriangle,
+  CheckCircle, XCircle, Info
 } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
 
 
-// Remove: import { format } from 'date-fns';
-// Add helper function instead:
 
-const formatTime = (date: Date) => {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMins / 60);
-  const diffDays = Math.floor(diffHours / 24);
-
-  if (diffMins < 1) return 'Just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-  
-  // Simple date formatting without date-fns
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-};
 
 // Alert types and categories
 type AlertType = 'match' | 'message' | 'sale' | 'offer' | 'warning' | 'system';
@@ -333,7 +316,7 @@ export default function AlertsSection() {
         <Card className="text-center py-12">
           <Bell className="mx-auto text-neutral-400" size={48} />
           <h3 className="mt-4 text-lg font-semibold">No alerts found</h3>
-          <p className="text-neutral-500 mt-2">You're all caught up!</p>
+          <p className="text-neutral-500 mt-2">You&apos;re all caught up!</p>
         </Card>
       ) : (
         <div className={cn(
