@@ -133,33 +133,25 @@ export const uploadApi = {
   uploadFile: async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    const res = await api.post('/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const res = await api.post('/upload', formData);
     return res.data.url as string;
   },
   uploadGuestFile: async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    const res = await api.post('/upload/guest', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const res = await api.post('/upload/guest', formData);
     return res.data.url as string;
   },
   uploadMultiple: async (files: File[]) => {
     const formData = new FormData();
     files.forEach((file) => formData.append('files', file));
-    const res = await api.post('/upload/multiple', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const res = await api.post('/upload/multiple', formData);
     return res.data.urls as string[];
   },
   uploadGuestMultiple: async (files: File[]) => {
     const formData = new FormData();
     files.forEach((file) => formData.append('files', file));
-    const res = await api.post('/upload/guest/multiple', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const res = await api.post('/upload/guest/multiple', formData);
     return res.data.urls as string[];
   },
 };

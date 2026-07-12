@@ -300,13 +300,9 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
     setUploadProgress(10);
 
     try {
-      const uploadedImageUrls: string[] = [];
-
-      for (const [index, image] of images.entries()) {
-        setUploadProgress(Math.round(((index + 1) / images.length) * 60) + 10);
-        const imageUrl = isGuest ? await uploadApi.uploadGuestFile(image) : await uploadApi.uploadFile(image);
-        uploadedImageUrls.push(imageUrl);
-      }
+      const uploadedImageUrls = isGuest
+        ? await uploadApi.uploadGuestMultiple(images)
+        : await uploadApi.uploadMultiple(images);
 
       setUploadProgress(80);
 
