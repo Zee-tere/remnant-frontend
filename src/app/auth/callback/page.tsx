@@ -11,6 +11,7 @@ import {
   clearExpectedAuthState,
   decodeAuthState,
   exchangeHostedAuthCode,
+  type HostedTokens,
   readCodeVerifier,
   readExpectedAuthState,
 } from "@/lib/hosted-auth";
@@ -35,6 +36,7 @@ function AuthCallbackContent() {
     const authErrorDescription = query.get("error_description") || hash.get("error_description");
     const code = query.get("code");
     const accessTokenFromHash = hash.get("access_token");
+    const idTokenFromHash = hash.get("id_token");
     const state = hash.get("state") || query.get("state");
     const expectedState = readExpectedAuthState();
     const { returnTo } = decodeAuthState(state);
@@ -59,28 +61,41 @@ function AuthCallbackContent() {
 
     async function finishSignIn() {
       try {
-        let verifiedAccessToken = accessTokenFromHash;
+        let hostedTokens: HostedTokens | null = accessTokenFromHash
+          ? { accessToken: accessTokenFromHash, idToken: idTokenFromHash || undefined }
+          : null;
 
         if (code) {
           const verifier = readCodeVerifier();
           if (!verifier) throw new Error("Missing sign-in verifier");
-          verifiedAccessToken = await exchangeHostedAuthCode(code, verifier);
+          hostedTokens = await exchangeHostedAuthCode(code, verifier);
         }
 
-        if (!verifiedAccessToken) throw new Error("Missing access token");
+        if (!hostedTokens?.accessToken) throw new Error("Missing access token");
 
-        const res = await fetch(`${getApiUrl()}/auth/me`, {
-          headers: { Authorization: `Bearer ${verifiedAccessToken}` },
-        });
+        const res = hostedTokens.idToken
+          ? await fetch(`${getApiUrl()}/auth/hosted-session`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                accessToken: hostedTokens.accessToken,
+                idToken: hostedTokens.idToken,
+              }),
+            })
+          : await fetch(`${getApiUrl()}/auth/me`, {
+              headers: { Authorization: `Bearer ${hostedTokens.accessToken}` },
+            });
         if (!res.ok) {
           const data = await res.json().catch(() => null) as { message?: string | string[] } | null;
           const message = Array.isArray(data?.message) ? data?.message[0] : data?.message;
           throw new Error(message || "Your sign-in worked, but your Remnant profile could not be loaded.");
         }
 
-        const user = await res.json();
+        const data = await res.json();
+        const user = data.user ?? data;
+        const accessToken = data.accessToken ?? hostedTokens.accessToken;
         clearExpectedAuthState();
-        setAuth(user, verifiedAccessToken);
+        setAuth(user, accessToken);
         toast.success("Welcome to Remnant!");
         router.replace(returnTo);
       } catch (error) {

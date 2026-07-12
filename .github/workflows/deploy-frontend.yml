@@ -48,3 +48,19 @@ jobs:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_SOCKET_URL: ${{ secrets.NEXT_PUBLIC_SOCKET_URL }}
           NEXT_PUBLIC_ESCROW_ENABLED: "false"
+
+      - name: Invalidate CloudFront cache
+        shell: bash
+        run: |
+          DISTRIBUTION_ID="$(aws cloudfront list-distributions \
+            --query "DistributionList.Items[?Aliases.Items && contains(Aliases.Items, 'remnantmarket.co')].Id | [0]" \
+            --output text)"
+
+          if [ -z "$DISTRIBUTION_ID" ] || [ "$DISTRIBUTION_ID" = "None" ]; then
+            echo "No CloudFront distribution found for remnantmarket.co; skipping invalidation."
+            exit 0
+          fi
+
+          aws cloudfront create-invalidation \
+            --distribution-id "$DISTRIBUTION_ID" \
+            --paths "/*"

@@ -13,6 +13,11 @@ interface OAuthErrorResponse {
   error_description?: string;
 }
 
+export interface HostedTokens {
+  accessToken: string;
+  idToken?: string;
+}
+
 function normalizeHostedUiDomain(domain: string) {
   return /^https?:\/\//i.test(domain) ? domain : `https://${domain}`;
 }
@@ -121,7 +126,7 @@ export async function startHostedAuth(options: {
   window.location.assign(authorizeUrl.toString());
 }
 
-export async function exchangeHostedAuthCode(code: string, verifier: string) {
+export async function exchangeHostedAuthCode(code: string, verifier: string): Promise<HostedTokens> {
   const res = await fetch(`${getApiUrl()}/auth/config`, { cache: "no-store" });
   if (!res.ok) throw new Error("Sign-in is not configured yet.");
 
@@ -161,7 +166,10 @@ export async function exchangeHostedAuthCode(code: string, verifier: string) {
 
     throw new Error(message);
   }
-  const tokens = (await tokenRes.json()) as { access_token?: string };
+  const tokens = (await tokenRes.json()) as { access_token?: string; id_token?: string };
   if (!tokens.access_token) throw new Error("Missing access token");
-  return tokens.access_token;
+  return {
+    accessToken: tokens.access_token,
+    idToken: tokens.id_token,
+  };
 }
