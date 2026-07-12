@@ -3,8 +3,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-const AvatarContext = React.createContext<{ size?: number }>({})
-
 const Avatar = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
@@ -19,17 +17,15 @@ const Avatar = React.forwardRef<
   }
 
   return (
-    <AvatarContext.Provider value={{ size: sizeClasses[size] === 'h-8 w-8' ? 8 : sizeClasses[size] === 'h-10 w-10' ? 10 : sizeClasses[size] === 'h-12 w-12' ? 12 : 16 }}>
-      <div
-        ref={ref}
-        className={cn(
-          "relative flex shrink-0 overflow-hidden rounded-full",
-          sizeClasses[size],
-          className
-        )}
-        {...props}
-      />
-    </AvatarContext.Provider>
+    <div
+      ref={ref}
+      className={cn(
+        "relative flex shrink-0 overflow-hidden rounded-full",
+        sizeClasses[size],
+        className
+      )}
+      {...props}
+    />
   )
 })
 Avatar.displayName = "Avatar"
@@ -38,11 +34,10 @@ const AvatarImage = React.forwardRef<
   HTMLImageElement,
   React.ImgHTMLAttributes<HTMLImageElement>
 >(({ className, ...props }, ref) => {
-  const context = React.useContext(AvatarContext)
-  
   return (
     <img
       ref={ref}
+      alt={props.alt ?? ""}
       className={cn(
         "aspect-square h-full w-full object-cover",
         className
@@ -57,8 +52,6 @@ const AvatarFallback = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, children, ...props }, ref) => {
-  const context = React.useContext(AvatarContext)
-  
   return (
     <div
       ref={ref}

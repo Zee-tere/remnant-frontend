@@ -1,18 +1,26 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import { 
-  Search, Filter, SortAsc, MoreVertical, 
-  Eye, MessageSquare, Share2, Heart, 
-  Edit, Trash2, Package, CheckCircle, 
-  Clock, AlertCircle 
+import Link from 'next/link';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  CheckCircle,
+  Edit,
+  Eye,
+  Loader2,
+  MessageSquare,
+  MoreVertical,
+  Package,
+  Search,
+  SortAsc,
+  Trash2,
+  X,
 } from 'lucide-react';
-import { formatCurrency } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -20,429 +28,566 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { listingsApi } from '@/lib/api';
+import { useAuthStore } from '@/lib/auth';
+import { cn, formatCurrency } from '@/lib/utils';
 
-// Mock data with more details
-const initialListings = [
-  { 
-    id: 1, 
-    name: 'Left AirPod Pro', 
-    status: 'active', 
-    price: 25000, 
-    category: 'Electronics',
-    condition: 'Used - Good',
-    location: 'Lagos, Nigeria',
-    views: 124, 
-    matches: 3,
-    purpose: '✅ Looking to sell',
-    description: 'Single left AirPod Pro in good condition. Works perfectly, includes charging case.',
-    image: 'https://images.unsplash.com/photo-1588423771077-8c31c5b2c0c3?w=400&h=300&fit=crop',
-    date: '2 days ago'
+type DashboardSection = 'listings' | 'messages' | 'alerts' | 'upload' | 'profile' | 'settings';
+
+interface Listing {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  condition: string;
+  intentionTag: string;
+  pairingKeyword?: string | null;
+  price: string | null;
+  status: 'ACTIVE' | 'PAUSED' | 'COMPLETED' | 'EXPIRED' | 'FLAGGED';
+  images: string[];
+  city?: string | null;
+  slug: string;
+  viewCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ListingsSectionProps {
+  onSelectSection?: (section: DashboardSection) => void;
+}
+
+const statusMeta: Record<Listing['status'], { label: string; className: string }> = {
+  ACTIVE: {
+    label: 'Active',
+    className: 'bg-[var(--brand-soft)] text-[var(--brand)] dark:bg-[var(--brand-muted)]',
   },
-  { 
-    id: 2, 
-    name: 'Mens Right Shoe Size 42', 
-    status: 'pending', 
-    price: 15000, 
-    category: 'Clothing',
-    condition: 'Used - Like New',
-    location: 'Abuja, Nigeria',
-    views: 89, 
-    matches: 1,
-    purpose: '🤝 Trade/barter',
-    description: 'Right shoe only, Nike Air Max. Looking to trade for left shoe size 42.',
-    image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=300&fit=crop',
-    date: '1 week ago'
+  PAUSED: {
+    label: 'Paused',
+    className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
   },
-  { 
-    id: 3, 
-    name: 'Wooden Dining Table', 
-    status: 'sold', 
-    price: 45000, 
-    category: 'Furniture',
-    condition: 'Used - Excellent',
-    location: 'Port Harcourt',
-    views: 256, 
-    matches: 0,
-    purpose: '🔄 Donate or give away',
-    description: 'Solid wood table, free to good home. Minor scratches but structurally sound.',
-    image: 'https://images.unsplash.com/photo-1565791380714-9d5d5188b6b6?w=400&h=300&fit=crop',
-    date: '3 weeks ago'
+  COMPLETED: {
+    label: 'Completed',
+    className: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
   },
-  { 
-    id: 4, 
-    name: 'Broken iPhone 12 Screen', 
-    status: 'active', 
-    price: 8000, 
-    category: 'Electronics',
-    condition: 'For Parts',
-    location: 'Ibadan, Nigeria',
-    views: 45, 
-    matches: 2,
-    purpose: '🔧 Fix/repurpose',
-    description: 'Screen assembly only. Perfect for repair or parts.',
-    image: 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=300&fit=crop',
-    date: '1 day ago'
+  EXPIRED: {
+    label: 'Expired',
+    className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
   },
-  { 
-    id: 5, 
-    name: 'Vintage Camera Lens', 
-    status: 'active', 
-    price: 35000, 
-    category: 'Hobbies',
-    condition: 'Vintage - Working',
-    location: 'Enugu, Nigeria',
-    views: 167, 
-    matches: 5,
-    purpose: '✅ Looking to sell',
-    description: 'Canon FD 50mm f/1.4 lens. Great condition for vintage photography.',
-    image: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?w=400&h=300&fit=crop',
-    date: '5 days ago'
+  FLAGGED: {
+    label: 'Flagged',
+    className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
   },
-  { 
-    id: 6, 
-    name: 'Single Gold Earring', 
-    status: 'pending', 
-    price: 12000, 
-    category: 'Jewelry',
-    condition: 'New - Never Worn',
-    location: 'Kano, Nigeria',
-    views: 78, 
-    matches: 0,
-    purpose: '🤝 Trade/barter',
-    description: 'Lost the pair, looking to trade for something of equal value.',
-    image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&h=300&fit=crop',
-    date: '4 days ago'
-  },
+};
+
+const conditionLabels: Record<string, string> = {
+  NEW: 'New',
+  LIKE_NEW: 'Like new',
+  GOOD: 'Good',
+  FAIR: 'Fair',
+  POOR: 'Poor',
+};
+
+const intentionLabels: Record<string, string> = {
+  SELL: 'Sell',
+  TRADE: 'Trade',
+  DONATE: 'Donate',
+  FIX: 'Fix',
+  RECYCLE: 'Recycle',
+};
+
+const statIconClasses = [
+  'bg-[var(--brand-soft)] text-[var(--brand)] dark:bg-[var(--brand-muted)]',
+  'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+  'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
 ];
 
-// Status colors mapping
-const statusColors = {
-  active: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-  sold: 'bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-400',
-  expired: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-};
-
-// Simple Badge component since we removed the import
-const StatusBadge = ({ 
-  status, 
-  className 
-}: { 
-  status: keyof typeof statusColors; 
-  className?: string 
-}) => {
+function StatusBadge({ status }: { status: Listing['status'] }) {
+  const meta = statusMeta[status] ?? statusMeta.ACTIVE;
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[status]} ${className || ''}`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
+    <span className={cn('inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium', meta.className)}>
+      {meta.label}
     </span>
   );
-};
+}
 
-const PurposeBadge = ({ 
-  purpose, 
-  className 
-}: { 
-  purpose: string; 
-  className?: string 
-}) => {
-  return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border border-neutral-300 bg-white/90 dark:bg-black/90 dark:border-neutral-700 ${className || ''}`}>
-      {purpose.split(' ')[0]}
-    </span>
-  );
-};
+function formatDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Recently';
+  return date.toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' });
+}
 
-export default function ListingsSection() {
-  const [listings, setListings] = useState(initialListings);
+export default function ListingsSection({ onSelectSection }: ListingsSectionProps) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('newest');
-  const [isMobile, setIsMobile] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<'all' | Listing['status']>('all');
+  const [sortBy, setSortBy] = useState<'newest' | 'views' | 'price-low' | 'price-high'>('newest');
+  const [loading, setLoading] = useState(true);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [editingListing, setEditingListing] = useState<Listing | null>(null);
+  const [editForm, setEditForm] = useState({
+    title: '',
+    description: '',
+    category: '',
+    condition: 'GOOD',
+    intentionTag: 'SELL',
+    price: '',
+    city: '',
+    pairingKeyword: '',
+  });
+
+  const fetchListings = useCallback(async () => {
+    if (!isAuthenticated) {
+      setListings([]);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const data = await listingsApi.getMyListings();
+      setListings(Array.isArray(data) ? data : []);
+    } catch {
+      setListings([]);
+      toast.error('Could not load your listings');
+    } finally {
+      setLoading(false);
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+    fetchListings();
+  }, [fetchListings]);
 
-  // Filter and sort listings
-  const filteredListings = listings
-    .filter(listing => {
-      const matchesSearch = listing.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          listing.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = statusFilter === 'all' || listing.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'price-low': return a.price - b.price;
-        case 'price-high': return b.price - a.price;
-        case 'views': return b.views - a.views;
-        case 'newest': return new Date(b.date).getTime() - new Date(a.date).getTime();
-        default: return 0;
-      }
+  const filteredListings = useMemo(() => {
+    return listings
+      .filter((listing) => {
+        const query = searchQuery.trim().toLowerCase();
+        const matchesSearch =
+          !query ||
+          listing.title.toLowerCase().includes(query) ||
+          listing.description.toLowerCase().includes(query) ||
+          listing.category.toLowerCase().includes(query);
+        const matchesStatus = statusFilter === 'all' || listing.status === statusFilter;
+        return matchesSearch && matchesStatus;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'price-low') return Number(a.price ?? 0) - Number(b.price ?? 0);
+        if (sortBy === 'price-high') return Number(b.price ?? 0) - Number(a.price ?? 0);
+        if (sortBy === 'views') return (b.viewCount ?? 0) - (a.viewCount ?? 0);
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+  }, [listings, searchQuery, sortBy, statusFilter]);
+
+  const stats = useMemo(() => {
+    const totalViews = listings.reduce((sum, listing) => sum + (listing.viewCount ?? 0), 0);
+    const activeListings = listings.filter((listing) => listing.status === 'ACTIVE').length;
+    const matchingReady = listings.filter((listing) => Boolean(listing.pairingKeyword)).length;
+    const listedValue = listings.reduce((sum, listing) => sum + Number(listing.price ?? 0), 0);
+
+    return [
+      { label: 'Total Views', value: totalViews.toLocaleString(), icon: Eye },
+      { label: 'Active Listings', value: activeListings.toLocaleString(), icon: CheckCircle },
+      { label: 'Matching Ready', value: matchingReady.toLocaleString(), icon: MessageSquare },
+      { label: 'Listed Value', value: formatCurrency(listedValue), icon: Package },
+    ];
+  }, [listings]);
+
+  const toggleSelection = (id: string) => {
+    setSelectedIds((current) =>
+      current.includes(id) ? current.filter((selected) => selected !== id) : [...current, id],
+    );
+  };
+
+  const openEditor = (listing: Listing) => {
+    setEditingListing(listing);
+    setEditForm({
+      title: listing.title,
+      description: listing.description,
+      category: listing.category,
+      condition: listing.condition,
+      intentionTag: listing.intentionTag,
+      price: listing.price ?? '',
+      city: listing.city ?? '',
+      pairingKeyword: listing.pairingKeyword ?? '',
     });
+  };
 
-  const handleDelete = (id: number) => {
-    if (window.confirm('Are you sure you want to delete this listing?')) {
-      setListings(listings.filter(listing => listing.id !== id));
+  const handleSaveEdit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!editingListing) return;
+
+    try {
+      const updated = await listingsApi.updateListing(editingListing.id, {
+        title: editForm.title,
+        description: editForm.description,
+        category: editForm.category,
+        condition: editForm.condition,
+        intentionTag: editForm.intentionTag,
+        price: editForm.price || undefined,
+        city: editForm.city || undefined,
+        pairingKeyword: editForm.pairingKeyword || undefined,
+      });
+      setListings((current) => current.map((listing) => (listing.id === editingListing.id ? updated : listing)));
+      setEditingListing(null);
+      toast.success('Listing updated');
+    } catch {
+      toast.error('Could not update listing');
     }
   };
 
-  const handleStatusChange = (id: number, newStatus: string) => {
-    setListings(listings.map(listing => 
-      listing.id === id ? { ...listing, status: newStatus } : listing
-    ));
+  const handleDelete = async (id: string) => {
+    const confirmed = window.confirm('Delete this listing? This cannot be undone.');
+    if (!confirmed) return;
+
+    try {
+      await listingsApi.deleteListing(id);
+      setListings((current) => current.filter((listing) => listing.id !== id));
+      setSelectedIds((current) => current.filter((selected) => selected !== id));
+      toast.success('Listing deleted');
+    } catch {
+      toast.error('Could not delete listing');
+    }
   };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+    const confirmed = window.confirm(`Delete ${selectedIds.length} selected listing${selectedIds.length === 1 ? '' : 's'}?`);
+    if (!confirmed) return;
+
+    setBulkDeleting(true);
+    try {
+      await Promise.all(selectedIds.map((id) => listingsApi.deleteListing(id)));
+      setListings((current) => current.filter((listing) => !selectedIds.includes(listing.id)));
+      setSelectedIds([]);
+      toast.success('Selected listings deleted');
+    } catch {
+      toast.error('Some listings could not be deleted');
+      fetchListings();
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[360px] items-center justify-center">
+        <Loader2 className="animate-spin text-[var(--brand)]" size={28} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header with stats and filters */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+        className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
       >
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">My Listings</h1>
-          <p className="text-neutral-600 dark:text-neutral-400">
-            {listings.length} total listings • {listings.filter(l => l.status === 'active').length} active
+          <h1 className="text-2xl font-bold text-foreground md:text-3xl">My Listings</h1>
+          <p className="text-sm text-muted-foreground">
+            {listings.length} total listing{listings.length === 1 ? '' : 's'} · {listings.filter((item) => item.status === 'ACTIVE').length} active
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size={isMobile ? "sm" : "default"}>
-            <Package className="mr-2" size={16} />
-            Bulk Actions
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={selectedIds.length === 0 || bulkDeleting}
+            onClick={handleBulkDelete}
+            className="border-[var(--border)]"
+          >
+            {bulkDeleting ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
+            Delete selected
           </Button>
-          <Button size={isMobile ? "sm" : "default"}>
-            + New Listing
+          <Button
+            type="button"
+            onClick={() => onSelectSection?.('upload')}
+            className="bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]"
+          >
+            <Package size={16} />
+            New Listing
           </Button>
         </div>
       </motion.div>
 
-      {/* Search and Filter Bar */}
-      <div className="bg-white dark:bg-neutral-900 rounded-xl p-4 shadow-sm border border-neutral-200 dark:border-neutral-800">
-        <div className="flex flex-col md:flex-row gap-4">
-          {/* Search */}
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400" size={20} />
+      <div className="rounded-xl border border-[var(--border)] bg-card p-4 shadow-sm">
+        <div className="flex flex-col gap-3 md:flex-row">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
             <Input
-              placeholder="Search your listings..."
+              placeholder="Search your listings"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(event) => setSearchQuery(event.target.value)}
               className="pl-10"
             />
           </div>
 
-          {/* Filters */}
           <div className="flex flex-wrap gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Filter size={16} className="mr-2" />
-                  Status: {statusFilter === 'all' ? 'All' : statusFilter}
+                <Button type="button" variant="outline" size="sm" className="border-[var(--border)]">
+                  Status: {statusFilter === 'all' ? 'All' : statusMeta[statusFilter].label}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setStatusFilter('all')}>All Status</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter('active')}>Active</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter('pending')}>Pending</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter('sold')}>Sold</DropdownMenuItem>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setStatusFilter('all')}>All statuses</DropdownMenuItem>
+                {Object.entries(statusMeta).map(([status, meta]) => (
+                  <DropdownMenuItem key={status} onClick={() => setStatusFilter(status as Listing['status'])}>
+                    {meta.label}
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <SortAsc size={16} className="mr-2" />
-                  Sort: {sortBy}
+                <Button type="button" variant="outline" size="sm" className="border-[var(--border)]">
+                  <SortAsc size={16} />
+                  Sort
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setSortBy('newest')}>Newest First</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('price-low')}>Price: Low to High</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('price-high')}>Price: High to Low</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('views')}>Most Viewed</DropdownMenuItem>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setSortBy('newest')}>Newest first</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('views')}>Most viewed</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('price-low')}>Price: low to high</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy('price-high')}>Price: high to low</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Total Views', value: '1,759', icon: Eye, color: 'blue' },
-          { label: 'Active Matches', value: '12', icon: MessageSquare, color: 'green' },
-          { label: 'Items Sold', value: '8', icon: CheckCircle, color: 'purple' },
-          { label: 'Revenue', value: '₦245,000', icon: Package, color: 'amber' },
-        ].map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <Card className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-neutral-500 dark:text-neutral-400">{stat.label}</p>
-                    <p className="text-2xl font-bold mt-2">{stat.value}</p>
-                  </div>
-                  <div className={`p-3 rounded-full bg-${stat.color}-100 dark:bg-${stat.color}-900/30`}>
-                    <stat.icon className={`text-${stat.color}-600 dark:text-${stat.color}-400`} size={24} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {stats.map((stat, index) => (
+          <Card key={stat.label} className="border-[var(--border)] bg-card">
+            <CardContent className="flex items-center justify-between p-5">
+              <div>
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
+                <p className="mt-2 text-2xl font-bold text-foreground">{stat.value}</p>
+              </div>
+              <div className={cn('rounded-full p-3', statIconClasses[index])}>
+                <stat.icon size={22} />
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
-      {/* Listings Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredListings.length === 0 ? (
-          <div className="col-span-full text-center py-12">
-            <Package className="mx-auto text-neutral-400" size={48} />
-            <h3 className="mt-4 text-lg font-semibold">No listings found</h3>
-            <p className="text-neutral-500 mt-2">Try adjusting your search or filters</p>
-          </div>
-        ) : (
-          filteredListings.map((listing, index) => (
+      {filteredListings.length === 0 ? (
+        <Card className="border-[var(--border)] bg-card">
+          <CardContent className="flex flex-col items-center px-6 py-14 text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--brand-soft)]">
+              <Package className="text-[var(--brand)]" size={30} />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground">
+              {listings.length === 0 ? 'No listings yet' : 'No listings match your filters'}
+            </h3>
+            <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+              {listings.length === 0
+                ? 'Create your first listing and it will appear here with real views, status, and match signals.'
+                : 'Try a different search term or clear the status filter.'}
+            </p>
+            <Button
+              type="button"
+              onClick={() => onSelectSection?.('upload')}
+              className="mt-6 bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]"
+            >
+              Create listing
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
+          {filteredListings.map((listing, index) => (
             <motion.div
               key={listing.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.05 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.03 }}
               layout
             >
-              <Card className="h-full flex flex-col hover:shadow-lg transition-all duration-300">
-                {/* Listing Image */}
-                <div className="relative aspect-square overflow-hidden rounded-t-xl">
-                  <img
-                    src={listing.image}
-                    alt={listing.name}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                  />
-                  {/* Status Badge */}
-                  <div className="absolute top-3 left-3">
-                    <StatusBadge status={listing.status as keyof typeof statusColors} />
+              <Card className="flex h-full flex-col overflow-hidden border-[var(--border)] bg-card transition-shadow hover:shadow-md">
+                <div className="relative aspect-[4/3] overflow-hidden bg-[var(--sand)]">
+                  {listing.images?.[0] ? (
+                    <img src={listing.images[0]} alt={listing.title} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-muted-foreground/30">
+                      <Package size={42} />
+                    </div>
+                  )}
+                  <div className="absolute left-3 top-3">
+                    <StatusBadge status={listing.status} />
                   </div>
-                  {/* Purpose Badge */}
-                  <div className="absolute top-3 right-3">
-                    <PurposeBadge purpose={listing.purpose} />
-                  </div>
-                  {/* Quick Actions Overlay */}
-                  <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 hover:opacity-100 transition-opacity">
-                    <Button size="icon" variant="secondary" className="h-8 w-8">
-                      <Heart size={14} />
-                    </Button>
-                    <Button size="icon" variant="secondary" className="h-8 w-8">
-                      <Share2 size={14} />
-                    </Button>
-                  </div>
+                  <label className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm dark:bg-black/70">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(listing.id)}
+                      onChange={() => toggleSelection(listing.id)}
+                      className="h-4 w-4 accent-[var(--brand)]"
+                      aria-label={`Select ${listing.title}`}
+                    />
+                  </label>
                 </div>
 
                 <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg font-bold line-clamp-1">{listing.name}</CardTitle>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <CardTitle className="line-clamp-1 text-base">{listing.title}</CardTitle>
+                      <p className="mt-1 text-lg font-bold text-[var(--brand)]">
+                        {listing.price ? formatCurrency(Number(listing.price)) : 'Free'}
+                      </p>
+                    </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8">
                           <MoreVertical size={16} />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleStatusChange(listing.id, 'active')}>
-                          <CheckCircle className="mr-2" size={14} /> Mark Active
+                        <DropdownMenuItem asChild>
+                          <Link href={`/marketplace/${listing.id}`}>View listing</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleStatusChange(listing.id, 'sold')}>
-                          <CheckCircle className="mr-2" size={14} /> Mark Sold
+                        <DropdownMenuItem onClick={() => openEditor(listing)}>
+                          <Edit className="mr-2" size={14} />
+                          Edit
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                          <Edit className="mr-2" size={14} /> Edit
-                        </DropdownMenuItem>
                         <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(listing.id)}>
-                          <Trash2 className="mr-2" size={14} /> Delete
+                          <Trash2 className="mr-2" size={14} />
+                          Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                  <p className="text-lg font-bold text-green-600">{formatCurrency(listing.price)}</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-2">
-                    {listing.description}
-                  </p>
+                  <p className="line-clamp-2 text-sm text-muted-foreground">{listing.description}</p>
                 </CardHeader>
 
-                <CardContent className="pb-3">
-                  <div className="space-y-3">
-                    {/* Details Grid */}
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="flex items-center">
-                        <Package size={14} className="mr-2 text-neutral-400" />
-                        <span>{listing.category}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Clock size={14} className="mr-2 text-neutral-400" />
-                        <span>{listing.date}</span>
-                      </div>
-                    </div>
-                    
-                    {/* Engagement Stats */}
-                    <div className="flex items-center justify-between text-sm text-neutral-500">
-                      <span className="flex items-center">
-                        <Eye size={14} className="mr-1" />
-                        {listing.views} views
-                      </span>
-                      <span className="flex items-center">
-                        <MessageSquare size={14} className="mr-1" />
-                        {listing.matches} matches
-                      </span>
-                    </div>
+                <CardContent className="space-y-3 pb-3">
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+                      {listing.category}
+                    </span>
+                    <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+                      {conditionLabels[listing.condition] ?? listing.condition}
+                    </span>
+                    <span className="rounded-full bg-[var(--brand-soft)] px-2.5 py-1 text-[var(--brand)] dark:bg-[var(--brand-muted)]">
+                      {intentionLabels[listing.intentionTag] ?? listing.intentionTag}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Eye size={14} />
+                      {(listing.viewCount ?? 0).toLocaleString()} views
+                    </span>
+                    <span>{formatDate(listing.createdAt)}</span>
                   </div>
                 </CardContent>
 
-                <CardFooter className="pt-0 mt-auto">
-                  <div className="flex gap-2 w-full">
-                    <Button variant="outline" className="flex-1" size="sm">
-                      <MessageSquare size={14} className="mr-2" />
-                      Messages
-                    </Button>
-                    <Button variant="default" className="flex-1" size="sm">
-                      <Edit size={14} className="mr-2" />
-                      Edit
-                    </Button>
-                  </div>
+                <CardFooter className="mt-auto grid grid-cols-2 gap-2 pt-0">
+                  <Button type="button" variant="outline" size="sm" asChild className="border-[var(--border)]">
+                    <Link href={`/marketplace/${listing.id}`}>View</Link>
+                  </Button>
+                  <Button type="button" size="sm" onClick={() => openEditor(listing)}>
+                    <Edit size={14} />
+                    Edit
+                  </Button>
                 </CardFooter>
               </Card>
             </motion.div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {/* Pagination */}
-      {filteredListings.length > 0 && (
-        <div className="flex justify-center items-center gap-2 pt-6">
-          <Button variant="outline" size="sm" disabled>
-            Previous
-          </Button>
-          <Button variant="default" size="sm" className="w-8 h-8 p-0">
-            1
-          </Button>
-          <Button variant="outline" size="sm" className="w-8 h-8 p-0">
-            2
-          </Button>
-          <Button variant="outline" size="sm" className="w-8 h-8 p-0">
-            3
-          </Button>
-          <Button variant="outline" size="sm">
-            Next
-          </Button>
+      {editingListing && (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/50 p-0 sm:items-center sm:justify-center sm:p-4">
+          <motion.form
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            onSubmit={handleSaveEdit}
+            className="max-h-[90vh] w-full overflow-y-auto rounded-t-2xl border border-[var(--border)] bg-card p-5 shadow-xl sm:max-w-2xl sm:rounded-2xl sm:p-6"
+          >
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-foreground">Edit listing</h2>
+                <p className="text-sm text-muted-foreground">Update the details currently supported by the API.</p>
+              </div>
+              <Button type="button" variant="ghost" size="icon" onClick={() => setEditingListing(null)}>
+                <X size={18} />
+              </Button>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="space-y-2 sm:col-span-2">
+                <span className="text-sm font-medium">Title</span>
+                <Input value={editForm.title} onChange={(event) => setEditForm({ ...editForm, title: event.target.value })} required />
+              </label>
+              <label className="space-y-2 sm:col-span-2">
+                <span className="text-sm font-medium">Description</span>
+                <textarea
+                  value={editForm.description}
+                  onChange={(event) => setEditForm({ ...editForm, description: event.target.value })}
+                  rows={4}
+                  required
+                  className="w-full rounded-lg border border-[var(--border)] bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
+                />
+              </label>
+              <label className="space-y-2">
+                <span className="text-sm font-medium">Category</span>
+                <Input value={editForm.category} onChange={(event) => setEditForm({ ...editForm, category: event.target.value })} required />
+              </label>
+              <label className="space-y-2">
+                <span className="text-sm font-medium">City</span>
+                <Input value={editForm.city} onChange={(event) => setEditForm({ ...editForm, city: event.target.value })} />
+              </label>
+              <label className="space-y-2">
+                <span className="text-sm font-medium">Condition</span>
+                <select
+                  value={editForm.condition}
+                  onChange={(event) => setEditForm({ ...editForm, condition: event.target.value })}
+                  className="h-10 w-full rounded-md border border-[var(--border)] bg-background px-3 text-sm"
+                >
+                  {Object.entries(conditionLabels).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="space-y-2">
+                <span className="text-sm font-medium">Intent</span>
+                <select
+                  value={editForm.intentionTag}
+                  onChange={(event) => setEditForm({ ...editForm, intentionTag: event.target.value })}
+                  className="h-10 w-full rounded-md border border-[var(--border)] bg-background px-3 text-sm"
+                >
+                  {Object.entries(intentionLabels).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="space-y-2">
+                <span className="text-sm font-medium">Price</span>
+                <Input value={editForm.price} onChange={(event) => setEditForm({ ...editForm, price: event.target.value })} type="number" />
+              </label>
+              <label className="space-y-2">
+                <span className="text-sm font-medium">Pairing keyword</span>
+                <Input value={editForm.pairingKeyword} onChange={(event) => setEditForm({ ...editForm, pairingKeyword: event.target.value })} />
+              </label>
+            </div>
+
+            <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button type="button" variant="outline" onClick={() => setEditingListing(null)}>
+                Cancel
+              </Button>
+              <Button type="submit" className="bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]">
+                Save changes
+              </Button>
+            </div>
+          </motion.form>
         </div>
       )}
     </div>

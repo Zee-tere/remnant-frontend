@@ -1,714 +1,954 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  Camera,
+  CheckCircle,
+  DollarSign,
+  Gift,
+  Heart,
+  Image as ImageIcon,
+  Loader2,
+  Package,
+  Recycle,
+  RefreshCw,
+  Store,
+  UploadCloud,
+  Wrench,
+  X,
+} from 'lucide-react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import { UploadCloud, X, Image as ImageIcon, CheckCircle, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
-import { uploadApi, listingsApi } from '@/lib/api';
+import { listingCategories } from '@/lib/categories';
+import { cn, formatCurrency } from '@/lib/utils';
+import { listingsApi, uploadApi } from '@/lib/api';
 
-const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
+const MAX_FILE_SIZE = 3 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-const UploadItem = () => {
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
+const conditions = [
+  { label: 'New', value: 'NEW' },
+  { label: 'Used - Like New', value: 'LIKE_NEW' },
+  { label: 'Used - Good', value: 'GOOD' },
+  { label: 'Used - Fair', value: 'FAIR' },
+  { label: 'For Parts', value: 'POOR' },
+];
+
+const purposes = [
+  { label: 'Sell', value: 'SELL', icon: Store, description: 'Set a price.' },
+  { label: 'Trade', value: 'TRADE', icon: RefreshCw, description: 'Swap for something useful.' },
+  { label: 'Donate', value: 'DONATE', icon: Heart, description: 'Give it away.' },
+  { label: 'Repair', value: 'FIX', icon: Wrench, description: 'Find a fixer.' },
+  { label: 'Recycle', value: 'RECYCLE', icon: Recycle, description: 'Pass on reusable materials.' },
+] as const;
+
+type PurposeValue = (typeof purposes)[number]['value'];
+
+const purposeValues = purposes.map((purpose) => purpose.value);
+
+const steps = [
+  { label: 'Use', icon: Gift },
+  { label: 'Photos', icon: Camera },
+  { label: 'Details', icon: Package },
+  { label: 'Review', icon: CheckCircle },
+];
+
+const purposeDisplay: Record<PurposeValue, string> = {
+  SELL: 'Selling',
+  TRADE: 'Trading',
+  DONATE: 'Donating',
+  FIX: 'Repairing',
+  RECYCLE: 'Recycling',
+};
+
+function normalizePurpose(value?: string): PurposeValue | '' {
+  if (value && purposeValues.includes(value as PurposeValue)) return value as PurposeValue;
+  return '';
+}
+
+function createInitialFormData(initialPurpose?: string) {
+  return {
     name: '',
     description: '',
     category: '',
     price: '',
     location: '',
     condition: '',
-    purpose: '',
-  });
+    purpose: normalizePurpose(initialPurpose),
+    tradeLookingFor: '',
+    tradeTerms: '',
+    donationMode: 'GIVEAWAY',
+    recipientName: '',
+    recipientContact: '',
+    recipientNote: '',
+    repairIssue: '',
+    repairGoal: '',
+    repairBudget: '',
+    repairTimeline: '',
+    recycleMaterial: '',
+    recyclePreference: '',
+    recycleQuantity: '',
+    recycleNotes: '',
+  };
+}
+
+interface UploadItemProps {
+  initialPurpose?: string;
+  isGuest?: boolean;
+}
+
+export default function UploadItem({ initialPurpose, isGuest = false }: UploadItemProps) {
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState(() => createInitialFormData(initialPurpose));
   const [images, setImages] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const selectedPurpose = purposes.find((purpose) => purpose.value === formData.purpose);
+  const maxImages = isGuest ? 4 : 8;
 
-  const categories = [
-    'Electronics & Gadgets',
-    'Furniture & Home Decor',
-    'Clothing & Fashion',
-    'Vehicles & Auto Parts',
-    'Books & Education',
-    'Hobbies & Leisure',
-    'Sports & Outdoor',
-    'Kitchen & Home Essentials',
-    'Tools & DIY',
-    'Real Estate & Property',
-    'Health & Beauty',
-    'Pets & Animals',
-    'Business & Industrial',
-    'Toys & Games',
-    'Musical Instruments',
-    'Office & Stationery',
-    'Collectibles & Antiques',
-    'Baby & Kids',
-    'Garden & Outdoor',
-    'Event & Party Supplies',
-  ];
-
-  const conditions = ['New', 'Used - Like New', 'Used - Good', 'Used - Fair', 'For Parts'];
-  const purposes = [
-    { label: '✅ Looking to sell', value: 'sell' },
-    { label: '🤝 Looking to trade/barter', value: 'trade' },
-    { label: '🔄 Donate or give away', value: 'donate' },
-    { label: '🔧 Looking for someone to fix/repurpose', value: 'fix' },
-    { label: '♻️ Recycle', value: 'recycle' },
-  ];
-
-  const nextStep = () => {
-    if (step === 1 && (!formData.name || !formData.description || !formData.category)) {
-      toast.error('Please fill all required fields');
-      return;
-    }
-    if (step === 2 && (!formData.location || !formData.condition || !formData.purpose)) {
-      toast.error('Please fill all required fields');
-      return;
-    }
-    setStep(prev => Math.min(prev + 1, 3));
-  };
-
-  const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
+  useEffect(() => {
+    const nextPurpose = normalizePurpose(initialPurpose);
+    if (!nextPurpose) return;
+    setFormData((current) => ({ ...current, purpose: nextPurpose }));
+    setStep(2);
+  }, [initialPurpose]);
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((current) => ({ ...current, [field]: value }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
+  const handlePurposeSelect = (value: PurposeValue) => {
+    setFormData((current) => ({ ...current, purpose: value }));
+    setStep(2);
+  };
 
-    const fileArray = Array.from(files);
-    if (images.length + fileArray.length > 8) {
-      toast.error('Maximum 8 images allowed');
+  const validateStep = () => {
+    if (step === 1 && !formData.purpose) {
+      toast.error('Choose what this item is for');
+      return false;
+    }
+
+    if (step === 2 && images.length === 0) {
+      toast.error('Please add at least one photo');
+      return false;
+    }
+
+    if (step === 3) {
+      if (!formData.name || !formData.description || !formData.category || !formData.location || !formData.condition) {
+        toast.error('Please complete the item basics');
+        return false;
+      }
+
+      if (formData.purpose === 'SELL' && (!formData.price || Number(formData.price) <= 0)) {
+        toast.error('Add a selling price');
+        return false;
+      }
+
+      if (formData.purpose === 'TRADE' && !formData.tradeLookingFor) {
+        toast.error('Tell people what you want to trade for');
+        return false;
+      }
+
+      if (formData.purpose === 'FIX' && (!formData.repairIssue || !formData.repairGoal)) {
+        toast.error('Add the repair issue and the outcome you want');
+        return false;
+      }
+
+      if (formData.purpose === 'RECYCLE' && (!formData.recycleMaterial || !formData.recyclePreference)) {
+        toast.error('Add the material type and recycle handoff preference');
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const nextStep = () => {
+    if (!validateStep()) return;
+    setStep((current) => Math.min(current + 1, 4));
+  };
+
+  const prevStep = () => setStep((current) => Math.max(current - 1, 1));
+
+  const addFiles = (fileList: FileList | File[]) => {
+    const incoming = Array.from(fileList);
+    if (images.length + incoming.length > maxImages) {
+      toast.error(`Maximum ${maxImages} images allowed`);
       return;
     }
 
-    // Validate file size and type
     const validFiles: File[] = [];
-    for (const file of fileArray) {
+    for (const file of incoming) {
       if (file.size > MAX_FILE_SIZE) {
-        toast.error(`${file.name} exceeds the 3MB limit (${(file.size / (1024 * 1024)).toFixed(1)}MB)`);
+        toast.error(`${file.name} exceeds the 3MB limit`);
         continue;
       }
       if (!ALLOWED_TYPES.includes(file.type)) {
-        toast.error(`${file.name} is not a supported format. Use JPEG, PNG, or WebP.`);
+        toast.error(`${file.name} is not supported. Use JPEG, PNG, or WebP.`);
         continue;
       }
       validFiles.push(file);
     }
 
     if (validFiles.length === 0) return;
-
-    const newImages = [...images, ...validFiles];
-    setImages(newImages);
-
-    const previews = validFiles.map((file) => URL.createObjectURL(file));
-    setPreviewUrls(prev => [...prev, ...previews]);
+    setImages((current) => [...current, ...validFiles]);
+    setPreviewUrls((current) => [...current, ...validFiles.map((file) => URL.createObjectURL(file))]);
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.currentTarget.classList.add('border-green-500', 'bg-green-50');
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) addFiles(event.target.files);
   };
 
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.currentTarget.classList.remove('border-green-500', 'bg-green-50');
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setDragActive(true);
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.currentTarget.classList.remove('border-green-500', 'bg-green-50');
-    
-    const files = e.dataTransfer.files;
-    if (!files) return;
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setDragActive(false);
+  };
 
-    const fileArray = Array.from(files);
-    if (images.length + fileArray.length > 8) {
-      toast.error('Maximum 8 images allowed');
-      return;
-    }
-
-    // Validate file size and type
-    const validFiles: File[] = [];
-    for (const file of fileArray) {
-      if (file.size > MAX_FILE_SIZE) {
-        toast.error(`${file.name} exceeds the 3MB limit (${(file.size / (1024 * 1024)).toFixed(1)}MB)`);
-        continue;
-      }
-      if (!ALLOWED_TYPES.includes(file.type)) {
-        toast.error(`${file.name} is not a supported format. Use JPEG, PNG, or WebP.`);
-        continue;
-      }
-      validFiles.push(file);
-    }
-
-    if (validFiles.length === 0) return;
-
-    setImages(prev => [...prev, ...validFiles]);
-    const previews = validFiles.map((file) => URL.createObjectURL(file));
-    setPreviewUrls(prev => [...prev, ...previews]);
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setDragActive(false);
+    addFiles(event.dataTransfer.files);
   };
 
   const handleRemoveImage = (index: number) => {
-    const newImages = [...images];
-    const newPreviews = [...previewUrls];
-    
-    // Revoke object URL to prevent memory leaks
-    URL.revokeObjectURL(newPreviews[index]);
-    
-    newImages.splice(index, 1);
-    newPreviews.splice(index, 1);
-    
-    setImages(newImages);
-    setPreviewUrls(newPreviews);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-  
-    if (!formData.name || !formData.description || !formData.category || 
-        !formData.location || !formData.condition || !formData.purpose) {
-      toast.error('Please fill out all required fields.');
-      return;
-    }
-  
-    if (images.length === 0) {
-      toast.error('Please upload at least one image.');
-      return;
-    }
-  
-    setIsUploading(true);
-    setUploadProgress(10);
-  
-    try {
-      const uploadedImageUrls: string[] = [];
-      
-      // Upload images sequentially
-      for (const [index, image] of images.entries()) {
-        setUploadProgress(Math.round(((index + 1) / images.length) * 60) + 10);
-        
-        try {
-          const imageUrl = await uploadApi.uploadFile(image);
-          uploadedImageUrls.push(imageUrl);
-        } catch (error) {
-          console.error('Image upload failed:', error);
-          toast.error(`Failed to upload ${image.name}`);
-        }
-      }
-  
-      setUploadProgress(80);
-  
-      // Map purpose to backend IntentionTag
-      const purposeMap: Record<string, string> = {
-        'sell': 'SELL', 'trade': 'TRADE', 'donate': 'DONATE', 'fix': 'FIX', 'recycle': 'RECYCLE',
-      };
-      const conditionMap: Record<string, string> = {
-        'New': 'NEW', 'Used - Like New': 'LIKE_NEW', 'Used - Good': 'GOOD', 'Used - Fair': 'FAIR', 'For Parts': 'POOR',
-      };
-      const purposeValue = purposes.find(p => p.label === formData.purpose)?.value || 'sell';
-
-      await listingsApi.createListing({
-        title: formData.name,
-        description: formData.description,
-        category: formData.category,
-        condition: conditionMap[formData.condition] || 'GOOD',
-        intentionTag: purposeMap[purposeValue] || 'SELL',
-        price: formData.price || undefined,
-        city: formData.location || undefined,
-        images: uploadedImageUrls,
-      });
-  
-      // Complete upload
-      setUploadProgress(100);
-      
-      toast.success('Item uploaded successfully!', {
-        description: 'Your listing is now live on the marketplace.',
-      });
-      
-      // Reset form
-      clearForm();
-      setStep(1);
-      
-    } catch (error) {
-      console.error('Upload failed:', error);
-      toast.error('Failed to upload item. Please try again.');
-    } finally {
-      setIsUploading(false);
-      setTimeout(() => setUploadProgress(0), 2000);
-    }
+    URL.revokeObjectURL(previewUrls[index]);
+    setImages((current) => current.filter((_, currentIndex) => currentIndex !== index));
+    setPreviewUrls((current) => current.filter((_, currentIndex) => currentIndex !== index));
   };
 
   const clearForm = () => {
-    setFormData({
-      name: '',
-      description: '',
-      category: '',
-      price: '',
-      location: '',
-      condition: '',
-      purpose: '',
-    });
+    previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    setFormData(createInitialFormData(initialPurpose));
     setImages([]);
     setPreviewUrls([]);
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-white dark:from-neutral-900 dark:to-black p-4">
-      <Card className="max-w-4xl w-full mx-auto shadow-2xl rounded-3xl border-0 overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <CardTitle className="text-3xl font-bold">List Your Item</CardTitle>
-              <p className="text-green-100 mt-2">
-                Reach thousands of buyers looking for single items and pairs
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              {[1, 2, 3].map((stepNum) => (
-                <div key={stepNum} className="flex items-center">
-                  <div className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all",
-                    step === stepNum 
-                      ? "bg-white text-green-600 scale-110" 
-                      : step > stepNum 
-                        ? "bg-green-400 text-white" 
-                        : "bg-white/20 text-white"
-                  )}>
-                    {step > stepNum ? '✓' : stepNum}
-                  </div>
-                  {stepNum < 3 && (
-                    <div className={cn(
-                      "w-8 h-1 mx-2 transition-all",
-                      step > stepNum ? "bg-green-400" : "bg-white/20"
-                    )} />
-                  )}
+  const buildCompatibilityAttributes = () => {
+    const base = { flow: formData.purpose, guestListing: isGuest };
+
+    if (formData.purpose === 'TRADE') {
+      return {
+        ...base,
+        lookingFor: formData.tradeLookingFor,
+        tradeTerms: formData.tradeTerms || undefined,
+      };
+    }
+
+    if (formData.purpose === 'DONATE') {
+      return {
+        ...base,
+        donationMode: formData.donationMode,
+        recipientName: formData.recipientName || undefined,
+        recipientContact: formData.recipientContact || undefined,
+        recipientNote: formData.recipientNote || undefined,
+      };
+    }
+
+    if (formData.purpose === 'FIX') {
+      return {
+        ...base,
+        repairIssue: formData.repairIssue,
+        repairGoal: formData.repairGoal,
+        repairBudget: formData.repairBudget || undefined,
+        repairTimeline: formData.repairTimeline || undefined,
+      };
+    }
+
+    if (formData.purpose === 'RECYCLE') {
+      return {
+        ...base,
+        materialType: formData.recycleMaterial,
+        handoffPreference: formData.recyclePreference,
+        quantity: formData.recycleQuantity || undefined,
+        notes: formData.recycleNotes || undefined,
+      };
+    }
+
+    return base;
+  };
+
+  const getPairingKeyword = () => {
+    if (formData.purpose === 'TRADE') return formData.tradeLookingFor;
+    if (formData.purpose === 'FIX') return formData.repairIssue;
+    if (formData.purpose === 'RECYCLE') return formData.recycleMaterial;
+    if (formData.purpose === 'DONATE') return formData.donationMode === 'RECIPIENT' ? 'reserved donation' : 'public giveaway';
+    return formData.category;
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!validateStep()) return;
+
+    if (images.length === 0) {
+      toast.error('Please upload at least one image');
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadProgress(10);
+
+    try {
+      const uploadedImageUrls: string[] = [];
+
+      for (const [index, image] of images.entries()) {
+        setUploadProgress(Math.round(((index + 1) / images.length) * 60) + 10);
+        const imageUrl = isGuest ? await uploadApi.uploadGuestFile(image) : await uploadApi.uploadFile(image);
+        uploadedImageUrls.push(imageUrl);
+      }
+
+      setUploadProgress(80);
+
+      const payload = {
+        title: formData.name,
+        description: formData.description,
+        category: formData.category,
+        condition: formData.condition,
+        intentionTag: formData.purpose,
+        pairingKeyword: getPairingKeyword(),
+        compatibilityAttributes: buildCompatibilityAttributes(),
+        price: formData.purpose === 'SELL' ? formData.price : undefined,
+        city: formData.location || undefined,
+        images: uploadedImageUrls,
+      };
+
+      await (isGuest ? listingsApi.createGuestListing(payload) : listingsApi.createListing(payload));
+
+      setUploadProgress(100);
+      toast.success(isGuest ? 'Guest listing published' : 'Listing published', {
+        description: isGuest
+          ? 'Create an account later to add a profile.'
+          : 'Your item is live on the marketplace.',
+      });
+
+      clearForm();
+      setStep(1);
+    } catch (error) {
+      console.error('Upload failed:', error);
+      toast.error('Failed to publish item. Please try again.');
+    } finally {
+      setIsUploading(false);
+      setTimeout(() => setUploadProgress(0), 1500);
+    }
+  };
+
+  const renderIntentStep = () => (
+    <motion.div
+      key="intent"
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      className="space-y-6 md:space-y-8"
+    >
+      <div className="text-center">
+        <h2 className="text-2xl font-bold md:text-3xl">Choose what to do</h2>
+        <p className="mx-auto mt-2 max-w-2xl text-sm font-medium text-[var(--ink-soft)] md:text-base">
+          We will only ask what matters next.
+        </p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        {purposes.map((purpose) => {
+          const Icon = purpose.icon;
+          const selected = formData.purpose === purpose.value;
+          return (
+            <button
+              key={purpose.value}
+              type="button"
+              onClick={() => handlePurposeSelect(purpose.value)}
+              className="cursor-pointer text-left"
+              aria-pressed={selected}
+            >
+              <div
+                className={cn(
+                  'flex h-full flex-col rounded-[1.25rem] border-2 bg-white p-4 text-left transition-all active:scale-[0.99] md:rounded-[1.5rem] md:p-5',
+                  selected ? 'border-[var(--brand)] bg-[var(--brand-soft)]' : 'border-[var(--border)]/55 hover:border-[var(--brand)]/45',
+                )}
+              >
+                <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)] md:mb-4 md:h-14 md:w-14">
+                  <Icon className="h-5 w-5 md:h-[25px] md:w-[25px]" aria-hidden="true" />
                 </div>
+                <h3 className="text-base font-bold md:text-xl">{purpose.label}</h3>
+                <p className="mt-1.5 text-xs font-medium leading-5 text-[var(--ink-soft)] md:mt-2 md:text-sm md:leading-6">{purpose.description}</p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </motion.div>
+  );
+
+  const renderPhotosStep = () => (
+    <motion.div
+      key="photos"
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      className="space-y-6 md:space-y-8"
+    >
+      <div className="text-center">
+        <h2 className="text-2xl font-bold md:text-3xl">Show the piece</h2>
+        <p className="mt-2 text-sm font-medium text-[var(--ink-soft)] md:text-base">
+          Add clear photos from a few angles.
+        </p>
+      </div>
+
+      <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={() => fileInputRef.current?.click()}
+        className={cn(
+          'flex cursor-pointer flex-col items-center justify-center rounded-[1.5rem] border-2 border-dashed p-6 text-center transition-all md:rounded-[2rem] md:p-12',
+          dragActive ? 'border-[var(--brand)] bg-[var(--brand-soft)]' : 'border-[var(--border)] bg-[var(--sand)] hover:border-[var(--brand)] hover:bg-[var(--brand-soft)]',
+        )}
+      >
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white text-[var(--brand)] soft-shadow md:h-20 md:w-20">
+          <UploadCloud className="h-8 w-8 md:h-[38px] md:w-[38px]" aria-hidden="true" />
+        </div>
+        <h3 className="text-base font-bold md:text-xl">Add photos</h3>
+        <p className="mt-1 text-sm font-medium text-[var(--muted-foreground)] md:text-base">Tap to browse files</p>
+        <p className="mt-4 text-sm font-semibold text-[var(--muted-foreground)]">
+          JPG, PNG, or WebP. Max 3MB each. {maxImages} photos max.
+        </p>
+        <Input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept="image/jpeg,image/png,image/webp"
+          onChange={handleImageChange}
+          className="hidden"
+        />
+      </div>
+
+      {previewUrls.length > 0 && (
+        <div>
+          <h3 className="mb-4 text-lg font-bold">Photos ({previewUrls.length}/{maxImages})</h3>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+            {previewUrls.map((url, index) => (
+              <div key={url} className="group relative aspect-square overflow-hidden rounded-[1.5rem] bg-[var(--sand)]">
+                <img src={url} alt={`Preview ${index + 1}`} className="h-full w-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveImage(index)}
+                  className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-white text-red-600 opacity-100 soft-shadow md:opacity-0 md:transition-opacity md:group-hover:opacity-100"
+                  aria-label={`Remove photo ${index + 1}`}
+                >
+                  <X size={16} aria-hidden="true" />
+                </button>
+                {index === 0 && (
+                  <span className="absolute left-2 top-2 rounded-full bg-[var(--brand)] px-3 py-1 text-xs font-bold text-white">
+                    Cover
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="flex justify-between gap-3">
+        <Button type="button" variant="outline" onClick={prevStep} className="rounded-full border-[var(--border)] bg-white font-bold">
+          Back
+        </Button>
+        <Button type="button" onClick={nextStep} className="rounded-full bg-[var(--brand)] px-8 font-bold text-white hover:bg-[var(--brand-dark)]">
+          Continue
+        </Button>
+      </div>
+    </motion.div>
+  );
+
+  const renderRouteSpecificFields = () => {
+    if (formData.purpose === 'SELL') {
+      return (
+        <div className="rounded-[1.5rem] bg-[var(--cream)] p-5 md:col-span-2">
+          <h3 className="mb-4 flex items-center gap-2 text-xl font-bold">
+            <DollarSign size={20} aria-hidden="true" />
+            Sale details
+          </h3>
+          <label className="space-y-2">
+            <span className="text-sm font-bold">Selling price</span>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--muted-foreground)]">
+                NGN
+              </span>
+              <Input
+                type="number"
+                value={formData.price}
+                onChange={(event) => handleInputChange('price', event.target.value)}
+                className="rounded-full bg-white pl-16"
+                required
+              />
+            </div>
+          </label>
+        </div>
+      );
+    }
+
+    if (formData.purpose === 'TRADE') {
+      return (
+        <div className="grid gap-5 rounded-[1.5rem] bg-[var(--cream)] p-5 md:col-span-2 md:grid-cols-2">
+          <h3 className="flex items-center gap-2 text-xl font-bold md:col-span-2">
+            <RefreshCw size={20} aria-hidden="true" />
+            Trade details
+          </h3>
+          <label className="space-y-2">
+            <span className="text-sm font-bold">What would you trade for?</span>
+            <Input
+              value={formData.tradeLookingFor}
+              onChange={(event) => handleInputChange('tradeLookingFor', event.target.value)}
+              className="rounded-full bg-white"
+              placeholder="Right AirPod, chair leg, spare phone, etc."
+              required
+            />
+          </label>
+          <label className="space-y-2">
+            <span className="text-sm font-bold">Trade terms</span>
+            <Input
+              value={formData.tradeTerms}
+              onChange={(event) => handleInputChange('tradeTerms', event.target.value)}
+              className="rounded-full bg-white"
+              placeholder="Local swap, shipping okay, flexible"
+            />
+          </label>
+        </div>
+      );
+    }
+
+    if (formData.purpose === 'DONATE') {
+      return (
+        <div className="space-y-5 rounded-[1.5rem] bg-[var(--cream)] p-5 md:col-span-2">
+          <h3 className="flex items-center gap-2 text-xl font-bold">
+            <Heart size={20} aria-hidden="true" />
+            Donation details
+          </h3>
+          <div className="grid gap-3 md:grid-cols-2">
+            {[
+              { value: 'GIVEAWAY', title: 'Put it on the site', text: 'Show this as a public giveaway.' },
+              { value: 'RECIPIENT', title: 'I have someone in mind', text: 'Reserve the donation for a specific person.' },
+            ].map((option) => (
+              <label key={option.value} className="cursor-pointer">
+                <input
+                  type="radio"
+                  className="sr-only"
+                  name="donationMode"
+                  value={option.value}
+                  checked={formData.donationMode === option.value}
+                  onChange={(event) => handleInputChange('donationMode', event.target.value)}
+                />
+                <div
+                  className={cn(
+                    'h-full rounded-[1.25rem] border-2 bg-white p-4 transition-all',
+                    formData.donationMode === option.value ? 'border-[var(--brand)] bg-[var(--brand-soft)]' : 'border-[var(--border)]/55',
+                  )}
+                >
+                  <p className="font-bold">{option.title}</p>
+                  <p className="mt-1 text-sm font-medium text-[var(--ink-soft)]">{option.text}</p>
+                </div>
+              </label>
+            ))}
+          </div>
+          {formData.donationMode === 'RECIPIENT' && (
+            <div className="grid gap-5 md:grid-cols-2">
+              <label className="space-y-2">
+                <span className="text-sm font-bold">Recipient name</span>
+                <Input
+                  value={formData.recipientName}
+                  onChange={(event) => handleInputChange('recipientName', event.target.value)}
+                  className="rounded-full bg-white"
+                  placeholder="Optional"
+                />
+              </label>
+              <label className="space-y-2">
+                <span className="text-sm font-bold">Recipient phone or email</span>
+                <Input
+                  value={formData.recipientContact}
+                  onChange={(event) => handleInputChange('recipientContact', event.target.value)}
+                  className="rounded-full bg-white"
+                  placeholder="Optional"
+                />
+              </label>
+              <label className="space-y-2 md:col-span-2">
+                <span className="text-sm font-bold">Private note for the donation</span>
+                <Textarea
+                  value={formData.recipientNote}
+                  onChange={(event) => handleInputChange('recipientNote', event.target.value)}
+                  className="min-h-[110px] rounded-[1.5rem] bg-white text-base"
+                  placeholder="Optional pickup or handoff note"
+                />
+              </label>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (formData.purpose === 'FIX') {
+      return (
+        <div className="grid gap-5 rounded-[1.5rem] bg-[var(--cream)] p-5 md:col-span-2 md:grid-cols-2">
+          <h3 className="flex items-center gap-2 text-xl font-bold md:col-span-2">
+            <Wrench size={20} aria-hidden="true" />
+            Repair details
+          </h3>
+          <label className="space-y-2">
+            <span className="text-sm font-bold">What needs fixing?</span>
+            <Input
+              value={formData.repairIssue}
+              onChange={(event) => handleInputChange('repairIssue', event.target.value)}
+              className="rounded-full bg-white"
+              placeholder="Broken hinge, missing cable, torn seam"
+              required
+            />
+          </label>
+          <label className="space-y-2">
+            <span className="text-sm font-bold">Desired outcome</span>
+            <Input
+              value={formData.repairGoal}
+              onChange={(event) => handleInputChange('repairGoal', event.target.value)}
+              className="rounded-full bg-white"
+              placeholder="Repair, parts only, restoration"
+              required
+            />
+          </label>
+          <label className="space-y-2">
+            <span className="text-sm font-bold">Repair budget</span>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--muted-foreground)]">
+                NGN
+              </span>
+              <Input
+                type="number"
+                value={formData.repairBudget}
+                onChange={(event) => handleInputChange('repairBudget', event.target.value)}
+                className="rounded-full bg-white pl-16"
+                placeholder="Optional"
+              />
+            </div>
+          </label>
+          <label className="space-y-2">
+            <span className="text-sm font-bold">Timeline</span>
+            <Input
+              value={formData.repairTimeline}
+              onChange={(event) => handleInputChange('repairTimeline', event.target.value)}
+              className="rounded-full bg-white"
+              placeholder="Optional"
+            />
+          </label>
+        </div>
+      );
+    }
+
+    if (formData.purpose === 'RECYCLE') {
+      return (
+        <div className="grid gap-5 rounded-[1.5rem] bg-[var(--cream)] p-5 md:col-span-2 md:grid-cols-2">
+          <h3 className="flex items-center gap-2 text-xl font-bold md:col-span-2">
+            <Recycle size={20} aria-hidden="true" />
+            Recycle details
+          </h3>
+          <label className="space-y-2">
+            <span className="text-sm font-bold">Main material or part type</span>
+            <Input
+              value={formData.recycleMaterial}
+              onChange={(event) => handleInputChange('recycleMaterial', event.target.value)}
+              className="rounded-full bg-white"
+              placeholder="Metal, battery, wood, fabric, circuit board"
+              required
+            />
+          </label>
+          <label className="space-y-2">
+            <span className="text-sm font-bold">Handoff preference</span>
+            <select
+              value={formData.recyclePreference}
+              onChange={(event) => handleInputChange('recyclePreference', event.target.value)}
+              className="h-12 w-full rounded-full border border-[var(--border)] bg-white px-4 text-base font-medium outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
+              required
+            >
+              <option value="">Choose option</option>
+              <option value="PICKUP">Recycler pickup</option>
+              <option value="DROPOFF">I can drop it off</option>
+              <option value="SHIP">I can ship it</option>
+              <option value="FLEXIBLE">Flexible</option>
+            </select>
+          </label>
+          <label className="space-y-2">
+            <span className="text-sm font-bold">Quantity or size</span>
+            <Input
+              value={formData.recycleQuantity}
+              onChange={(event) => handleInputChange('recycleQuantity', event.target.value)}
+              className="rounded-full bg-white"
+              placeholder="Optional"
+            />
+          </label>
+          <label className="space-y-2">
+            <span className="text-sm font-bold">Recycler notes</span>
+            <Input
+              value={formData.recycleNotes}
+              onChange={(event) => handleInputChange('recycleNotes', event.target.value)}
+              className="rounded-full bg-white"
+              placeholder="Optional"
+            />
+          </label>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  const renderDetailsStep = () => (
+    <motion.div
+      key="details"
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      className="space-y-6 md:space-y-8"
+    >
+      <div className="text-center">
+        <h2 className="text-2xl font-bold md:text-3xl">{selectedPurpose ? `${selectedPurpose.label} details` : 'Item details'}</h2>
+        <p className="mt-2 text-sm font-medium text-[var(--ink-soft)] md:text-base">
+          Add the basics.
+        </p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <label className="space-y-2">
+          <span className="text-sm font-bold">Item name</span>
+          <Input
+            value={formData.name}
+            onChange={(event) => handleInputChange('name', event.target.value)}
+            className="rounded-full bg-white"
+            required
+          />
+        </label>
+
+        <label className="space-y-2">
+          <span className="text-sm font-bold">Category</span>
+          <select
+            value={formData.category}
+            onChange={(event) => handleInputChange('category', event.target.value)}
+            className="h-12 w-full rounded-full border border-[var(--border)] bg-white px-4 text-base font-medium outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
+            required
+          >
+            <option value="">Choose category</option>
+            {listingCategories.map((category) => (
+              <option key={category.label} value={category.label}>
+                {category.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="space-y-2">
+          <span className="text-sm font-bold">Condition</span>
+          <select
+            value={formData.condition}
+            onChange={(event) => handleInputChange('condition', event.target.value)}
+            className="h-12 w-full rounded-full border border-[var(--border)] bg-white px-4 text-base font-medium outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
+            required
+          >
+            <option value="">Choose condition</option>
+            {conditions.map((condition) => (
+              <option key={condition.value} value={condition.value}>
+                {condition.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="space-y-2">
+          <span className="text-sm font-bold">
+            {formData.purpose === 'RECYCLE' ? 'Pickup or handoff city' : 'City'}
+          </span>
+          <Input
+            value={formData.location}
+            onChange={(event) => handleInputChange('location', event.target.value)}
+            className="rounded-full bg-white"
+            required
+          />
+        </label>
+
+        <label className="space-y-2 md:col-span-2">
+          <span className="text-sm font-bold">Description</span>
+          <Textarea
+            value={formData.description}
+            onChange={(event) => handleInputChange('description', event.target.value)}
+            className="min-h-[150px] rounded-[1.5rem] bg-white text-base"
+            required
+          />
+        </label>
+
+        {renderRouteSpecificFields()}
+      </div>
+
+      <div className="flex justify-between gap-3">
+        <Button type="button" variant="outline" onClick={prevStep} className="rounded-full border-[var(--border)] bg-white font-bold">
+          Back
+        </Button>
+        <Button type="button" onClick={nextStep} className="rounded-full bg-[var(--brand)] px-8 font-bold text-white hover:bg-[var(--brand-dark)]">
+          Review
+        </Button>
+      </div>
+    </motion.div>
+  );
+
+  const reviewTags = [
+    formData.category,
+    conditions.find((item) => item.value === formData.condition)?.label,
+    selectedPurpose?.label,
+    formData.purpose === 'TRADE' ? `Trade for: ${formData.tradeLookingFor}` : '',
+    formData.purpose === 'DONATE' ? (formData.donationMode === 'RECIPIENT' ? 'Recipient reserved' : 'Public giveaway') : '',
+    formData.purpose === 'RECYCLE' ? formData.recycleMaterial : '',
+    formData.purpose === 'FIX' ? formData.repairIssue : '',
+  ].filter(Boolean);
+
+  const renderReviewStep = () => (
+    <motion.div
+      key="review"
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      className="space-y-6 md:space-y-8"
+    >
+      <div className="text-center">
+        <h2 className="text-2xl font-bold md:text-3xl">Review and publish</h2>
+        <p className="mt-2 text-sm font-medium text-[var(--ink-soft)] md:text-base">
+          Check everything before it goes live.
+        </p>
+      </div>
+
+      {uploadProgress > 0 && (
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm font-bold text-[var(--ink-soft)]">
+            <span>Publishing</span>
+            <span>{uploadProgress}%</span>
+          </div>
+          <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--sand)]">
+            <motion.div animate={{ width: `${uploadProgress}%` }} className="h-full rounded-full bg-[var(--brand)]" />
+          </div>
+        </div>
+      )}
+
+      <div className="surface-card rounded-[1.5rem] p-5">
+        <h3 className="mb-4 flex items-center gap-2 text-xl font-bold">
+          <ImageIcon size={20} aria-hidden="true" />
+          Listing Preview
+        </h3>
+        <div className="flex flex-col gap-4 md:flex-row">
+          <div className="flex h-36 w-full items-center justify-center overflow-hidden rounded-[1.5rem] bg-[var(--sand)] md:w-36">
+            {previewUrls[0] ? (
+              <img src={previewUrls[0]} alt="Listing preview" className="h-full w-full object-cover" />
+            ) : (
+              <ImageIcon className="text-[var(--muted-foreground)]" size={34} aria-hidden="true" />
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <h4 className="text-xl font-bold md:text-2xl">{formData.name || 'Untitled item'}</h4>
+            {formData.purpose === 'SELL' && formData.price && (
+              <p className="mt-1 text-xl font-bold text-[var(--brand)]">{formatCurrency(parseInt(formData.price, 10))}</p>
+            )}
+            {formData.purpose === 'DONATE' && (
+              <p className="mt-1 text-lg font-bold text-[var(--brand)]">Free donation</p>
+            )}
+            {formData.purpose === 'FIX' && formData.repairBudget && (
+              <p className="mt-1 text-lg font-bold text-[var(--brand)]">Repair budget: {formatCurrency(parseInt(formData.repairBudget, 10))}</p>
+            )}
+            <p className="mt-2 line-clamp-2 font-medium text-[var(--ink-soft)]">{formData.description || 'Description will appear here after you add it.'}</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {reviewTags.map((tag) => (
+                <span key={tag} className="rounded-full bg-[var(--brand-soft)] px-3 py-1 text-sm font-bold text-[var(--brand)]">
+                  {tag}
+                </span>
               ))}
             </div>
           </div>
-        </CardHeader>
+        </div>
+      </div>
 
-        <CardContent className="p-6 md:p-8">
-          <form onSubmit={handleSubmit}>
-            <AnimatePresence mode="wait">
-              {step === 1 && (
-                <motion.div
-                  key="step1"
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 50 }}
-                  className="space-y-6"
-                >
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          Item Name *
-                        </label>
-                        <Input
-                          type="text"
-                          placeholder="e.g., Left AirPod Pro, Single Gold Earring"
-                          value={formData.name}
-                          onChange={(e) => handleInputChange('name', e.target.value)}
-                          className="h-12 text-lg"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          Category *
-                        </label>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button 
-                              variant="outline" 
-                              className="w-full h-12 justify-between text-left"
-                            >
-                              {formData.category || 'Select a category'}
-                              <span>▼</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent className="w-[300px] max-h-[400px] overflow-y-auto">
-                            {categories.map((cat) => (
-                              <DropdownMenuItem
-                                key={cat}
-                                onClick={() => handleInputChange('category', cat)}
-                                className="py-3"
-                              >
-                                {cat}
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          Price (Optional)
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-500">
-                            ₦
-                          </span>
-                          <Input
-                            type="number"
-                            placeholder="0.00"
-                            value={formData.price}
-                            onChange={(e) => handleInputChange('price', e.target.value)}
-                            className="h-12 pl-8"
-                          />
-                        </div>
-                        <p className="text-xs text-neutral-500 mt-2">
-                          Leave empty for 'Price on request' or 'Free'
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Description *
-                      </label>
-                      <Textarea
-                        placeholder="Describe your item in detail. Include brand, size, color, condition, and any unique features..."
-                        value={formData.description}
-                        onChange={(e) => handleInputChange('description', e.target.value)}
-                        className="min-h-[180px] text-lg"
-                        rows={6}
-                      />
-                      <p className="text-xs text-neutral-500 mt-2">
-                        Detailed descriptions get 3x more views
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="pt-4 border-t">
-                    <Button 
-                      type="button" 
-                      onClick={nextStep}
-                      className="w-full md:w-auto float-right"
-                      disabled={!formData.name || !formData.description || !formData.category}
-                    >
-                      Continue to Details →
-                    </Button>
-                  </div>
-                </motion.div>
-              )}
+      <div className="flex flex-col-reverse justify-between gap-3 md:flex-row">
+        <Button type="button" variant="outline" onClick={prevStep} disabled={isUploading} className="rounded-full border-[var(--border)] bg-white font-bold">
+          Back
+        </Button>
+        <Button
+          type="submit"
+          disabled={isUploading}
+          className="rounded-full bg-[var(--brand)] px-8 font-bold text-white hover:bg-[var(--brand-dark)]"
+        >
+          {isUploading ? <Loader2 className="animate-spin" size={17} /> : <CheckCircle size={17} />}
+          {isUploading ? 'Publishing...' : 'Publish Listing'}
+        </Button>
+      </div>
+    </motion.div>
+  );
 
-              {step === 2 && (
-                <motion.div
-                  key="step2"
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 50 }}
-                  className="space-y-6"
-                >
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          Location *
-                        </label>
-                        <Input
-                          type="text"
-                          placeholder="City, State"
-                          value={formData.location}
-                          onChange={(e) => handleInputChange('location', e.target.value)}
-                          className="h-12"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          Condition *
-                        </label>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="w-full h-12 justify-between">
-                              {formData.condition || 'Select condition'}
-                              <span>▼</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent className="w-full">
-                            {conditions.map((cond) => (
-                              <DropdownMenuItem
-                                key={cond}
-                                onClick={() => handleInputChange('condition', cond)}
-                                className="py-3"
-                              >
-                                {cond}
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          What's your intent? *
-                        </label>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="w-full h-12 justify-between">
-                              {formData.purpose || 'Select purpose'}
-                              <span>▼</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent className="w-full">
-                            {purposes.map((purpose) => (
-                              <DropdownMenuItem
-                                key={purpose.value}
-                                onClick={() => handleInputChange('purpose', purpose.label)}
-                                className="py-3"
-                              >
-                                {purpose.label}
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                      
-                      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                        <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">
-                          💡 Smart Matching Tip
-                        </h4>
-                        <p className="text-sm text-blue-700 dark:text-blue-400">
-                          Items with clear intent tags get matched 5x faster with potential buyers or trading partners.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="pt-4 border-t flex justify-between">
-                    <Button type="button" variant="outline" onClick={prevStep}>
-                      ← Back
-                    </Button>
-                    <Button type="button" onClick={nextStep}>
-                      Add Photos →
-                    </Button>
-                  </div>
-                </motion.div>
-              )}
+  return (
+    <div className="mx-auto max-w-5xl">
+      <div className="mb-7 text-center md:mb-10">
+        <h1 className="text-[1.8rem] font-bold text-[var(--foreground)] md:text-5xl">List your item</h1>
+        {(selectedPurpose || isGuest) && (
+          <div className="mx-auto mt-4 flex max-w-2xl flex-wrap items-center justify-center gap-2 md:mt-5 md:gap-3">
+            {selectedPurpose && (
+              <span className="rounded-full bg-[var(--brand-soft)] px-4 py-2 text-sm font-bold text-[var(--brand)]">
+                {purposeDisplay[selectedPurpose.value]}
+              </span>
+            )}
+            {isGuest && (
+              <span className="rounded-full bg-[#e2f7ff] px-4 py-2 text-sm font-bold text-[var(--secondary-blue)]">
+                Guest
+              </span>
+            )}
+          </div>
+        )}
+      </div>
 
-              {step === 3 && (
-                <motion.div
-                  key="step3"
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 50 }}
-                  className="space-y-6"
-                >
-                  <div className="bg-gradient-to-br from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-800 p-6 rounded-2xl">
-                    <h3 className="text-xl font-bold mb-4">Upload Photos</h3>
-                    <p className="text-neutral-600 dark:text-neutral-400 mb-6">
-                      Add up to 10 photos. First photo will be the cover image.
-                    </p>
-                    
-                    <div
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleDrop}
-                      onClick={() => fileInputRef.current?.click()}
-                      className="border-3 border-dashed border-neutral-300 dark:border-neutral-700 rounded-2xl p-12 flex flex-col items-center justify-center text-center cursor-pointer transition-all hover:border-green-500 hover:bg-green-50/50 dark:hover:bg-green-900/10"
-                    >
-                      <UploadCloud className="w-16 h-16 text-neutral-400 mb-4" />
-                      <h4 className="text-lg font-semibold mb-2">Drag & drop photos here</h4>
-                      <p className="text-neutral-500 mb-4">or click to browse files</p>
-                      <p className="text-sm text-neutral-400">
-                        Supported: JPG, PNG, WebP • Max 3MB each
-                      </p>
-                      <Input
-                        ref={fileInputRef}
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="hidden"
-                      />
-                    </div>
-
-                    {previewUrls.length > 0 && (
-                      <div className="mt-8">
-                        <h4 className="font-semibold mb-4">
-                          Photos ({previewUrls.length}/8)
-                        </h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-                          {previewUrls.map((url, index) => (
-                            <motion.div
-                              key={index}
-                              initial={{ opacity: 0, scale: 0.9 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              className="relative aspect-square rounded-xl overflow-hidden border group"
-                            >
-                              <img
-                                src={url}
-                                alt={`Preview ${index + 1}`}
-                                className="w-full h-full object-cover"
-                              />
-                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center">
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleRemoveImage(index);
-                                  }}
-                                  className="opacity-0 group-hover:opacity-100 bg-red-500 text-white p-2 rounded-full transform scale-0 group-hover:scale-100 transition-all"
-                                >
-                                  <X size={16} />
-                                </button>
-                              </div>
-                              {index === 0 && (
-                                <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
-                                  Cover
-                                </div>
-                              )}
-                            </motion.div>
-                          ))}
-                          {previewUrls.length < 8 && (
-                            <div
-                              onClick={() => fileInputRef.current?.click()}
-                              className="aspect-square rounded-xl border-2 border-dashed border-neutral-300 flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50/50"
-                            >
-                              <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-2">
-                                <ImageIcon className="text-neutral-400" size={24} />
-                              </div>
-                              <span className="text-sm text-neutral-500">Add more</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {uploadProgress > 0 && (
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Uploading...</span>
-                        <span>{uploadProgress}%</span>
-                      </div>
-                      <div className="w-full bg-neutral-200 dark:bg-neutral-700 rounded-full h-2">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${uploadProgress}%` }}
-                          className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full"
-                        />
-                      </div>
-                    </div>
+      <div className="mb-7 px-1 md:mb-10 md:px-2">
+        <div className="relative flex items-center justify-between">
+          <div className="absolute left-0 right-0 top-5 h-1 rounded-full bg-[var(--sand)]" />
+          <div
+            className="absolute left-0 top-5 h-1 rounded-full bg-[var(--brand)] transition-all duration-300"
+            style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
+          />
+          {steps.map((item, index) => {
+            const stepNumber = index + 1;
+            const Icon = item.icon;
+            const active = step >= stepNumber;
+            return (
+              <div key={item.label} className="relative z-10 flex flex-col items-center gap-2">
+                <div
+                  className={cn(
+                    'flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold transition-colors',
+                    active ? 'bg-[var(--brand)] text-white soft-shadow' : 'bg-white text-[var(--muted-foreground)]',
                   )}
-
-                  <div className="pt-6 border-t flex flex-col-reverse md:flex-row justify-between gap-4">
-                    <div className="space-y-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={prevStep}
-                        disabled={isUploading}
-                      >
-                        ← Back
-                      </Button>
-                      <p className="text-xs text-neutral-500">
-                        You can edit details after posting
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <Button
-                        type="submit"
-                        disabled={isUploading || images.length === 0}
-                        className="w-full md:w-auto min-w-[200px]"
-                      >
-                        {isUploading ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Publishing...
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle className="mr-2" />
-                            Publish Listing
-                          </>
-                        )}
-                      </Button>
-                      <p className="text-xs text-neutral-500 text-right">
-                        Your listing will go live immediately
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </form>
-          
-          {/* Preview Card */}
-          {formData.name && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-8 p-6 bg-gradient-to-r from-neutral-50 to-white dark:from-neutral-900 dark:to-neutral-800 rounded-2xl border"
-            >
-              <h4 className="font-bold mb-4">📱 Listing Preview</h4>
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="w-full md:w-32 h-32 bg-neutral-200 dark:bg-neutral-700 rounded-lg flex items-center justify-center">
-                  {previewUrls[0] ? (
-                    <img
-                      src={previewUrls[0]}
-                      alt="Preview"
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  ) : (
-                    <ImageIcon className="text-neutral-400" size={32} />
-                  )}
+                >
+                  {step > stepNumber ? <CheckCircle size={19} aria-hidden="true" /> : <Icon size={19} aria-hidden="true" />}
                 </div>
-                <div className="flex-1">
-                  <h5 className="font-semibold text-lg">{formData.name || 'Your Item Name'}</h5>
-                  {formData.price && (
-                    <p className="text-xl font-bold text-green-600 mt-1">
-                      ₦{parseInt(formData.price).toLocaleString()}
-                    </p>
-                  )}
-                  <p className="text-neutral-600 dark:text-neutral-400 mt-2 line-clamp-2">
-                    {formData.description || 'Item description will appear here'}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {formData.category && (
-                      <span className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 rounded-full text-sm">
-                        {formData.category}
-                      </span>
-                    )}
-                    {formData.condition && (
-                      <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 rounded-full text-sm">
-                        {formData.condition}
-                      </span>
-                    )}
-                    {formData.purpose && (
-                      <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 rounded-full text-sm">
-                        {formData.purpose.split(' ')[0]}
-                      </span>
-                    )}
-                  </div>
-                </div>
+                <span className={cn('text-xs font-bold md:text-sm', active ? 'text-[var(--brand)]' : 'text-[var(--muted-foreground)]')}>
+                  {item.label}
+                </span>
               </div>
-            </motion.div>
-          )}
-        </CardContent>
-      </Card>
+            );
+          })}
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="surface-card overflow-hidden rounded-[1.5rem] p-4 md:rounded-[2rem] md:p-8">
+        <AnimatePresence mode="wait">
+          {step === 1 && renderIntentStep()}
+          {step === 2 && renderPhotosStep()}
+          {step === 3 && renderDetailsStep()}
+          {step === 4 && renderReviewStep()}
+        </AnimatePresence>
+      </form>
     </div>
   );
-};
-
-export default UploadItem;
+}

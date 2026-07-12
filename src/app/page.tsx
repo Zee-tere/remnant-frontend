@@ -1,18 +1,21 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  Search, Heart, Shield,
-  Package, CheckCircle,
-  ArrowRight, ChevronRight, Sparkles,
-  Puzzle, Recycle, HandHeart, Wrench, RefreshCw
+  ArrowRight,
+  CheckCircle2,
+  Package,
+  Recycle,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
 import { listingsApi } from "@/lib/api";
+import { listingCategories } from "@/lib/categories";
+import { formatCurrency } from "@/lib/utils";
 
 interface Listing {
   id: string;
@@ -23,381 +26,331 @@ interface Listing {
   intentionTag: string;
   condition: string;
   city: string | null;
-  user?: { name: string; avatarUrl: string | null };
 }
 
-const intentionIcons: Record<string, { icon: React.ElementType; label: string; color: string }> = {
-  SELL: { icon: Package, label: "For Sale", color: "text-emerald-700" },
-  TRADE: { icon: RefreshCw, label: "For Trade", color: "text-blue-600" },
-  DONATE: { icon: HandHeart, label: "Free / Donate", color: "text-amber-600" },
-  FIX: { icon: Wrench, label: "Needs Repair", color: "text-orange-600" },
-  RECYCLE: { icon: Recycle, label: "Recycle", color: "text-teal-600" },
-};
+const floatingObjects = [
+  {
+    src: "/images/floating/mint-cup.png",
+    className: "left-[7%] top-[26%] h-24 w-24 rounded-full",
+    imageClassName: "object-contain p-1",
+    rotate: [0, -5, 0],
+    y: [0, -12, 0],
+    duration: 4.8,
+    visibilityClass: "lg:block",
+  },
+  {
+    src: "/images/floating/brass-button.png",
+    className: "right-[9%] top-[20%] h-24 w-24 rounded-[1.6rem]",
+    imageClassName: "object-cover",
+    rotate: [3, 8, 3],
+    y: [0, 10, 0],
+    duration: 5.5,
+    visibilityClass: "lg:block",
+  },
+  {
+    src: "/images/floating/teapot-lid.png",
+    className: "left-[13%] bottom-[23%] h-20 w-36 rounded-[1.6rem]",
+    imageClassName: "object-cover",
+    rotate: [-4, 1, -4],
+    y: [0, 9, 0],
+    duration: 5.2,
+    visibilityClass: "lg:block",
+  },
+  {
+    src: "/images/floating/blue-chair.png",
+    className: "right-[15%] bottom-[21%] h-28 w-28 rounded-[1.7rem]",
+    imageClassName: "object-contain p-2",
+    rotate: [7, 2, 7],
+    y: [0, -13, 0],
+    duration: 5.8,
+    visibilityClass: "lg:block",
+  },
+  {
+    src: "/images/floating/brass-compass.png",
+    className: "left-[2%] bottom-[36%] h-24 w-28 rounded-[1.6rem]",
+    imageClassName: "object-cover",
+    rotate: [4, -1, 4],
+    y: [0, -9, 0],
+    duration: 6.1,
+    visibilityClass: "xl:block",
+  },
+  {
+    src: "/images/floating/watch-gear.png",
+    className: "right-[2%] bottom-[37%] h-24 w-28 rounded-[1.6rem]",
+    imageClassName: "object-cover",
+    rotate: [-3, 3, -3],
+    y: [0, 11, 0],
+    duration: 5.9,
+    visibilityClass: "xl:block",
+  },
+];
+
+const marketplaceActions = [
+  { label: "Buy", href: "/marketplace" },
+  { label: "Sell", href: "/sell-item?intent=SELL" },
+  { label: "Trade", href: "/sell-item?intent=TRADE" },
+  { label: "Donate", href: "/sell-item?intent=DONATE" },
+  { label: "Repair", href: "/sell-item?intent=FIX" },
+  { label: "Recycle", href: "/sell-item?intent=RECYCLE" },
+];
+
+const howItWorks = [
+  { title: "List", text: "Add photos and choose the purpose.", icon: Package },
+  { title: "Match", text: "People search by need, category, or item.", icon: CheckCircle2 },
+  { title: "Move", text: "Sell, trade, donate, repair, or recycle.", icon: Recycle },
+];
 
 export default function HomePage() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+  const [query, setQuery] = useState("");
   const [featuredListings, setFeaturedListings] = useState<Listing[]>([]);
   const [loadingListings, setLoadingListings] = useState(true);
 
   useEffect(() => {
-    listingsApi.getListings({ limit: '4' })
-      .then((data: { listings: Listing[] }) => {
-        setFeaturedListings(data.listings || []);
-      })
-      .catch(() => {})
+    listingsApi
+      .getListings({ limit: "4" })
+      .then((data: { listings: Listing[] }) => setFeaturedListings(data.listings || []))
+      .catch(() => setFeaturedListings([]))
       .finally(() => setLoadingListings(false));
   }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      window.location.href = `/marketplace?search=${encodeURIComponent(searchQuery)}`;
-    }
+  const handleSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    const search = query.trim();
+    router.push(`/find-a-pair${search ? `?search=${encodeURIComponent(search)}` : ""}`);
   };
 
   return (
-    <div className="min-h-screen">
-      {/* ── Hero Section ─────────────────────────────────── */}
-      <section className="relative min-h-[90vh] flex flex-col justify-center items-center px-4 md:px-8 py-16 md:py-24 overflow-hidden">
-        {/* Soft gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#f0f7f4] via-white to-[#e8f0ec]" />
-        
-        {/* Decorative circles */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-[#4a7c6f]/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#6b9e8a]/5 rounded-full blur-3xl" />
-
-        <div className="relative z-10 w-full max-w-5xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-8"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#4a7c6f]/10 text-[#4a7c6f] text-sm font-medium mb-8">
-              <Puzzle size={16} />
-              <span>Every piece has a purpose</span>
-            </div>
-
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-neutral-900">
-              The marketplace for{" "}
-              <span className="bg-gradient-to-r from-[#4a7c6f] to-[#6b9e8a] bg-clip-text text-transparent">
-                incomplete, broken,
-              </span>
-              <br />
-              or singular things
-            </h1>
-
-            <p className="text-lg md:text-xl text-neutral-500 mb-4 max-w-2xl mx-auto leading-relaxed">
-              Stop throwing things away because one piece is missing.
-            </p>
-            <p className="text-base md:text-lg text-neutral-400 max-w-2xl mx-auto">
-              Sell the single earring. Trade the lone shoe. Donate the spare part.
-              Someone out there is looking for exactly what you have.
-            </p>
-          </motion.div>
-
-          {/* Search Bar */}
-          <motion.form
-            onSubmit={handleSearch}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="max-w-2xl mx-auto mb-8"
-          >
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400" size={22} />
-              <Input
-                type="text"
-                placeholder="What are you looking for? Try 'left AirPod' or 'broken screen'..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-14 md:h-16 pl-12 pr-32 md:pr-40 text-base md:text-lg rounded-2xl border-neutral-200 shadow-sm focus:border-[#4a7c6f] focus:ring-[#4a7c6f]/20"
-              />
-              <Button
-                type="submit"
-                className="absolute right-2 top-2 h-10 md:h-12 px-4 md:px-6 rounded-xl bg-[#4a7c6f] hover:bg-[#3d6b5f] text-white"
-              >
-                <Search className="mr-0 md:mr-2" size={18} />
-                <span className="hidden md:inline">Search</span>
-              </Button>
-            </div>
-            <div className="flex flex-wrap justify-center gap-2 mt-4">
-              {["Single AirPod", "Lone shoe", "Broken screen", "Missing remote", "Spare parts"].map((tag) => (
-                <Link key={tag} href={`/marketplace?search=${encodeURIComponent(tag)}`}>
-                  <Button variant="outline" size="sm" className="rounded-full text-xs border-neutral-200 text-neutral-500 hover:border-[#4a7c6f] hover:text-[#4a7c6f]">
-                    {tag}
-                  </Button>
-                </Link>
-              ))}
-            </div>
-          </motion.form>
-
-          {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="flex flex-col sm:flex-row gap-3 justify-center"
-          >
-            <Link href="/sell-item">
-              <Button size="lg" className="h-12 md:h-14 px-6 md:px-8 rounded-xl text-base md:text-lg bg-[#4a7c6f] hover:bg-[#3d6b5f] text-white">
-                <Package className="mr-2" size={20} />
-                List your item — it&apos;s free
-              </Button>
-            </Link>
-            <Link href="/marketplace">
-              <Button size="lg" variant="outline" className="h-12 md:h-14 px-6 md:px-8 rounded-xl text-base md:text-lg border-2 border-neutral-200 hover:border-[#4a7c6f] hover:text-[#4a7c6f]">
-                Browse the marketplace
-                <ArrowRight className="ml-2" size={18} />
-              </Button>
-            </Link>
-          </motion.div>
-        </div>
-
-        {/* Scroll indicator */}
+    <div className="min-h-screen overflow-hidden bg-white text-foreground">
+      <section className="relative mx-auto flex max-w-7xl flex-col items-stretch justify-center px-4 pb-4 pt-4 text-left md:min-h-[720px] md:items-center md:px-8 md:py-[72px] md:text-center">
         <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ repeat: Infinity, duration: 2.5 }}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+          className="max-w-4xl"
         >
-          <ChevronRight className="rotate-90 text-neutral-300" size={24} />
-        </motion.div>
-      </section>
-
-      {/* ── How It Works ─────────────────────────────────── */}
-      <section className="py-16 md:py-24 px-4 md:px-8 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-neutral-900">
-              From forgotten to found in four steps
-            </h2>
-            <p className="text-neutral-500 max-w-xl mx-auto">
-              That drawer full of mismatched things? Someone needs exactly what&apos;s in it.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { step: "1", title: "Snap & list", description: "Photograph your item and describe what it is — single shoe, broken gadget, spare part, anything.", icon: Package, color: "#4a7c6f" },
-              { step: "2", title: "Tag your intent", description: "Selling? Trading? Donating? Hoping someone can fix it? Tell us what you want to happen.", icon: Puzzle, color: "#5b8d7d" },
-              { step: "3", title: "We find the match", description: "Our matching engine scans thousands of listings to find the other half, the buyer, or the fixer.", icon: Sparkles, color: "#6b9e8a" },
-              { step: "4", title: "Connect & close", description: "Message your match, agree on terms, and complete the exchange securely.", icon: CheckCircle, color: "#4a7c6f" },
-            ].map((item) => (
-              <motion.div
-                key={item.step}
-                whileHover={{ y: -4 }}
-                className="relative"
+          <h1 className="max-w-[20rem] text-balance text-[1.85rem] font-bold leading-[1.08] text-[var(--foreground)] sm:max-w-none sm:text-5xl md:mx-auto md:text-7xl md:leading-[1.08]">
+            Give your lonely pieces a{" "}
+            <span className="relative inline-block text-[var(--brand)]">
+              second chance
+              <svg
+                aria-hidden="true"
+                className="absolute -bottom-2 left-0 h-4 w-full text-[var(--brand-container)]"
+                preserveAspectRatio="none"
+                viewBox="0 0 100 10"
               >
-                <Card className="h-full border border-neutral-100 hover:border-[#4a7c6f]/30 transition-all duration-300 hover:shadow-lg">
-                  <CardContent className="p-7">
-                    <div
-                      className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-5"
-                      style={{ backgroundColor: `${item.color}15` }}
-                    >
-                      <span className="text-lg font-bold" style={{ color: item.color }}>
-                        {item.step}
-                      </span>
-                    </div>
-                    <h3 className="text-lg font-bold mb-2 text-neutral-900">{item.title}</h3>
-                    <p className="text-neutral-500 text-sm leading-relaxed">
-                      {item.description}
-                    </p>
-                  </CardContent>
-                </Card>
-                {item.step !== "4" && (
-                  <div className="hidden lg:block absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 text-neutral-200">
-                    <ArrowRight size={20} />
-                  </div>
-                )}
-              </motion.div>
-            ))}
+                <path d="M0 5 Q 50 10 100 5" fill="none" stroke="currentColor" strokeWidth="4" />
+              </svg>
+            </span>
+            .
+          </h1>
+        </motion.div>
+
+        <motion.form
+          onSubmit={handleSearch}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.16, duration: 0.45 }}
+          className="relative z-10 mt-5 hidden w-full max-w-3xl md:mt-12 md:block"
+        >
+          <div className="flex flex-col gap-2 rounded-[1.35rem] bg-white p-1.5 shadow-[0_16px_42px_-34px_rgba(0,108,82,0.5)] ring-1 ring-[var(--border)]/20 md:flex-row md:items-center md:gap-3 md:rounded-full md:border md:border-[var(--border)]/55 md:p-2 md:soft-shadow md:ring-0">
+            <div className="relative flex-1">
+              <Search
+                className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--muted-foreground)] md:left-5"
+                aria-hidden="true"
+              />
+              <Input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="I'm looking for a lid for a teapot..."
+                className="h-11 rounded-full border-0 bg-transparent pl-12 pr-4 text-base font-semibold shadow-none focus-visible:ring-0 md:h-14 md:pl-14"
+              />
+            </div>
+            <Button
+              type="submit"
+              className="h-11 rounded-full bg-[var(--secondary-container)] px-6 text-sm font-bold text-[var(--secondary-blue)] hover:bg-[var(--secondary-blue)] hover:text-white md:h-14 md:px-8 md:text-base"
+            >
+              Find a Pair
+              <ArrowRight size={18} aria-hidden="true" />
+            </Button>
           </div>
-        </div>
+        </motion.form>
+
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.24, duration: 0.45 }}
+          className="relative z-10 mt-6 flex w-full max-w-sm gap-2 md:hidden"
+        >
+          <Button asChild className="h-12 flex-1 rounded-full bg-[var(--brand)] text-sm font-bold text-white shadow-[0_18px_38px_-25px_rgba(0,108,82,0.7)] hover:bg-[var(--brand-dark)]">
+            <Link href="/marketplace">
+              Browse
+              <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="h-12 flex-1 rounded-full border-[var(--border)] bg-white text-sm font-bold text-[var(--brand)] shadow-[0_14px_34px_-30px_rgba(0,108,82,0.45)]">
+            <Link href="/sell-item">
+              List
+              <Package size={16} aria-hidden="true" />
+            </Link>
+          </Button>
+        </motion.div>
+
+        {floatingObjects.map((item) => (
+          <motion.div
+            key={item.src}
+            animate={{ y: item.y, rotate: item.rotate }}
+            transition={{ repeat: Infinity, duration: item.duration, ease: "easeInOut" }}
+            className={`pointer-events-none absolute hidden overflow-hidden border-4 border-white bg-white soft-shadow ${item.visibilityClass} ${item.className}`}
+            aria-hidden="true"
+          >
+            <img src={item.src} alt="" draggable={false} className={`h-full w-full ${item.imageClassName}`} />
+          </motion.div>
+        ))}
       </section>
 
-      {/* ── What People List ─────────────────────────────── */}
-      <section className="py-16 md:py-24 px-4 md:px-8 bg-[#fafbfa]">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-2 text-neutral-900">
-                Recently listed
-              </h2>
-              <p className="text-neutral-500">
-                Real items from real people — each one waiting for its match.
-              </p>
-            </div>
-            <Link href="/marketplace">
-              <Button variant="outline" className="gap-2 border-neutral-200 hover:border-[#4a7c6f] hover:text-[#4a7c6f]">
-                View all listings
-                <ChevronRight size={16} />
-              </Button>
-            </Link>
-          </div>
-
-          {loadingListings ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[1, 2, 3, 4].map((i) => (
-                <Card key={i} className="overflow-hidden">
-                  <div className="aspect-square bg-neutral-100 animate-pulse" />
-                  <CardContent className="p-5">
-                    <div className="h-5 bg-neutral-100 rounded animate-pulse mb-3" />
-                    <div className="h-4 bg-neutral-100 rounded animate-pulse w-2/3" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : featuredListings.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredListings.map((item) => {
-                const intention = intentionIcons[item.intentionTag] || intentionIcons.SELL;
-                const IntentionIcon = intention.icon;
+      <section className="bg-white px-4 pb-10 pt-8 md:px-8 md:pb-16 md:pt-0">
+        <div className="mx-auto max-w-5xl">
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.45 }}
+            className="relative overflow-hidden rounded-[1.5rem] bg-[var(--cream)] p-4 md:rounded-[2rem] md:p-6"
+          >
+            <div className="relative grid gap-3 md:grid-cols-3 md:gap-4">
+              {howItWorks.map((step, index) => {
+                const Icon = step.icon;
                 return (
-                  <motion.div key={item.id} whileHover={{ y: -4 }} className="group">
-                    <Link href={`/marketplace`}>
-                      <Card className="overflow-hidden border border-neutral-100 hover:border-[#4a7c6f]/30 transition-all duration-300 hover:shadow-lg">
-                        <div className="relative aspect-square overflow-hidden bg-neutral-100">
-                          {item.images && item.images.length > 0 ? (
-                            <img
-                              src={item.images[0]}
-                              alt={item.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-neutral-300">
-                              <Package size={48} />
-                            </div>
-                          )}
-                          <div className="absolute top-3 left-3">
-                            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-white/90 backdrop-blur-sm ${intention.color}`}>
-                              <IntentionIcon size={12} />
-                              {intention.label}
-                            </span>
-                          </div>
-                        </div>
-                        <CardContent className="p-5">
-                          <h3 className="font-semibold text-neutral-900 mb-1 line-clamp-1">{item.title}</h3>
-                          <div className="flex justify-between items-center">
-                            <span className="text-[#4a7c6f] font-bold">
-                              {item.price ? `₦${Number(item.price).toLocaleString()}` : 'Free'}
-                            </span>
-                            {item.city && (
-                              <span className="text-xs text-neutral-400">{item.city}</span>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  </motion.div>
+                <motion.div
+                  key={step.title}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.35, delay: index * 0.08 }}
+                  className="flex items-start gap-3 rounded-[1.1rem] bg-white p-4 shadow-[0_14px_34px_-32px_rgba(0,108,82,0.45)]"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+                    <Icon size={19} aria-hidden="true" />
+                  </span>
+                  <span>
+                    <span className="block text-sm font-black text-[var(--foreground)]">{step.title}</span>
+                    <span className="mt-1 block text-xs font-semibold leading-5 text-[var(--ink-soft)]">{step.text}</span>
+                  </span>
+                </motion.div>
                 );
               })}
             </div>
-          ) : (
-            <div className="text-center py-16">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#4a7c6f]/10 mb-4">
-                <Package className="text-[#4a7c6f]" size={28} />
-              </div>
-              <h3 className="text-xl font-semibold mb-2 text-neutral-900">No listings yet</h3>
-              <p className="text-neutral-500 mb-6">Be the first to list an item and start the movement.</p>
-              <Link href="/sell-item">
-                <Button className="bg-[#4a7c6f] hover:bg-[#3d6b5f] text-white">
-                  List the first item
-                </Button>
-              </Link>
-            </div>
-          )}
+          </motion.div>
         </div>
       </section>
 
-      {/* ── Why Remnant ───────────────────────────────────── */}
-      <section className="py-16 md:py-24 px-4 md:px-8 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-neutral-900">
-              Built for things no one else will take
-            </h2>
-            <p className="text-neutral-500 max-w-xl mx-auto">
-              Traditional marketplaces ignore incomplete items. We built Remnant because those things still have value.
-            </p>
+      <section className="bg-[var(--cream)] px-4 pb-8 pt-5 md:px-8 md:py-[72px]">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-4 flex flex-row items-center justify-between gap-3 md:mb-8 md:flex-row md:items-end">
+            <h2 className="text-2xl font-bold text-[var(--foreground)] md:text-4xl">Marketplace</h2>
+            <Button asChild variant="outline" className="h-11 rounded-full border-[var(--border)] bg-white px-5 text-sm font-bold text-[var(--brand)] hover:bg-[var(--brand-soft)] md:px-6">
+              <Link href="/marketplace">
+                View all
+                <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+            </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Shield,
-                title: "Safe & verified",
-                description: "Every user earns trust through verified profiles, ratings, and secure escrow payments. No surprises.",
-                features: ["Identity verification", "Buyer protection", "Secure escrow"],
-              },
-              {
-                icon: Sparkles,
-                title: "Smart matching",
-                description: "Our engine doesn't just list items — it actively finds the other half. Left shoe, meet right shoe.",
-                features: ["Automatic pair detection", "Category matching", "Keyword pairing"],
-              },
-              {
-                icon: Heart,
-                title: "More than selling",
-                description: "Sell, trade, donate, or find someone to repair it. Five intention tags let you say exactly what you want.",
-                features: ["Sell for cash", "Trade for something else", "Donate to someone in need"],
-              },
-            ].map((feature) => (
-              <Card key={feature.title} className="border border-neutral-100 hover:border-[#4a7c6f]/30 transition-all duration-300 hover:shadow-lg">
-                <CardContent className="p-8">
-                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#4a7c6f]/10 mb-6">
-                    <feature.icon className="text-[#4a7c6f]" size={26} />
-                  </div>
-                  <h3 className="text-xl font-bold mb-3 text-neutral-900">{feature.title}</h3>
-                  <p className="text-neutral-500 mb-6 text-sm leading-relaxed">
-                    {feature.description}
-                  </p>
-                  <ul className="space-y-2.5">
-                    {feature.features.map((f) => (
-                      <li key={f} className="flex items-center text-sm text-neutral-600">
-                        <CheckCircle className="w-4 h-4 text-[#4a7c6f] mr-2.5 flex-shrink-0" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+          <div className="mb-6 flex gap-3 overflow-x-auto pb-1 scrollbar-hide md:hidden" aria-label="Browse categories">
+            {listingCategories.map((category) => (
+              <Link
+                key={category.label}
+                href={`/marketplace?category=${encodeURIComponent(category.label)}`}
+                className="relative flex min-h-[132px] w-[128px] shrink-0 overflow-hidden rounded-[1.15rem] bg-white p-3 text-left shadow-[0_14px_34px_-32px_rgba(0,108,82,0.4)]"
+              >
+                <img
+                  src={category.image}
+                  alt=""
+                  className="absolute bottom-1 right-1 h-16 w-16 object-contain"
+                  draggable={false}
+                />
+                <span className="relative z-10 flex h-full flex-col justify-between">
+                  <span>
+                    <span className="block max-w-[5.9rem] text-[0.82rem] font-black leading-tight text-[var(--foreground)]">{category.label}</span>
+                  </span>
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+                    <ArrowRight size={15} aria-hidden="true" />
+                  </span>
+                </span>
+              </Link>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* ── CTA Banner ────────────────────────────────────── */}
-      <section className="py-16 md:py-24 px-4 md:px-8 bg-gradient-to-br from-[#4a7c6f] to-[#3d6b5f]">
-        <div className="max-w-3xl mx-auto text-center text-white">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              That single item in your drawer?
-              <br />
-              Someone is searching for it right now.
-            </h2>
-            <p className="text-lg mb-8 text-white/80">
-              Join the community turning forgotten things into found ones.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/signup">
-                <Button size="lg" className="h-14 px-8 rounded-xl text-lg bg-white text-[#4a7c6f] hover:bg-white/90 font-semibold">
-                  Get started free
-                </Button>
+          <div className="mb-5 flex gap-2 overflow-x-auto pb-1 md:mb-8">
+            {marketplaceActions.map((action) => (
+              <Link
+                key={action.href}
+                href={action.href}
+                className="flex min-h-10 shrink-0 items-center rounded-full bg-white px-4 text-sm font-bold text-[var(--ink-soft)] shadow-[0_12px_30px_-28px_rgba(0,108,82,0.45)] transition-colors hover:text-[var(--brand)] md:min-h-11"
+              >
+                {action.label}
               </Link>
-              <Link href="/about">
-                <Button size="lg" variant="outline" className="h-14 px-8 rounded-xl text-lg border-2 border-white/30 text-white hover:bg-white/10">
-                  Learn what we&apos;re building
-                </Button>
-              </Link>
+            ))}
+          </div>
+
+          {loadingListings ? (
+            <div className="grid gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-4">
+              {[1, 2, 3, 4].map((item) => (
+                <div key={item} className="surface-card overflow-hidden rounded-[2rem]">
+                  <div className="aspect-square skeleton" />
+                  <div className="p-5">
+                    <div className="mb-3 h-4 w-3/4 rounded-full skeleton" />
+                    <div className="h-3 w-1/2 rounded-full skeleton" />
+                  </div>
+                </div>
+              ))}
             </div>
-            <p className="text-sm text-white/50 mt-6">
-              Free to list · 4% fee only when you sell · No commitment
-            </p>
-          </motion.div>
+          ) : featuredListings.length > 0 ? (
+            <div className="grid gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-4">
+              {featuredListings.map((item) => (
+                <Link key={item.id} href={`/marketplace/${item.id}`} className="group block">
+                  <article className="lift-card surface-card h-full overflow-hidden rounded-[1.35rem] md:rounded-[2rem]">
+                    <div className="relative aspect-square bg-[var(--sand)]">
+                      {item.images?.[0] ? (
+                        <img
+                          src={item.images[0]}
+                          alt={item.title}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-[var(--muted-foreground)]">
+                          <Package size={42} aria-hidden="true" />
+                        </div>
+                      )}
+                      <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-[var(--brand)] shadow-sm">
+                        {item.intentionTag.toLowerCase()}
+                      </span>
+                    </div>
+                    <div className="p-4 md:p-5">
+                      <h3 className="line-clamp-1 text-lg font-bold text-[var(--foreground)] md:text-xl">{item.title}</h3>
+                      <div className="mt-3 flex items-center justify-between gap-3">
+                        <span className="text-lg font-bold text-[var(--brand)]">
+                          {item.price ? formatCurrency(Number(item.price)) : "Free"}
+                        </span>
+                        {item.city && <span className="truncate text-sm font-semibold text-[var(--muted-foreground)]">{item.city}</span>}
+                      </div>
+                    </div>
+                  </article>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="surface-card rounded-[1.35rem] p-6 text-center md:rounded-[2rem] md:p-10">
+              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+                <Package size={30} aria-hidden="true" />
+              </div>
+              <h3 className="text-2xl font-bold">No listings yet</h3>
+              <Button asChild className="mt-7 rounded-full bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">
+                <Link href="/sell-item">List an item</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </section>
     </div>

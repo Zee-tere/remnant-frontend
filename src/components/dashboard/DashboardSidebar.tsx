@@ -1,272 +1,299 @@
 'use client';
 
-import { Home, UploadCloud, Bell, Mail, LogOut, Settings, User, Package } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Bell,
+  CreditCard,
+  LogOut,
+  Mail,
+  Menu,
+  Package,
+  Settings,
+  UploadCloud,
+  User,
+  X,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { listingsApi, matchesApi, notificationsApi, conversationsApi, transactionsApi } from '@/lib/api';
+import { useAuthStore } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 
+type DashboardSection = 'listings' | 'messages' | 'alerts' | 'transactions' | 'upload' | 'profile' | 'settings';
+
 interface DashboardSidebarProps {
-  onSelectSection: (section: 'listings' | 'messages' | 'alerts' | 'upload' | 'profile' | 'settings') => void;
-  activeSection: string;
+  onSelectSection: (section: DashboardSection) => void;
+  activeSection: DashboardSection;
 }
 
+interface SidebarStats {
+  listings: number;
+  activeListings: number;
+  unreadMessages: number;
+  unreadAlerts: number;
+  pendingMatches: number;
+  activeTransactions: number;
+}
+
+const initialStats: SidebarStats = {
+  listings: 0,
+  activeListings: 0,
+  unreadMessages: 0,
+  unreadAlerts: 0,
+  pendingMatches: 0,
+  activeTransactions: 0,
+};
+
 export default function DashboardSidebar({ onSelectSection, activeSection }: DashboardSidebarProps) {
-  const [isMobile, setIsMobile] = useState(false);
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const logout = useAuthStore((state) => state.logout);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [stats, setStats] = useState<SidebarStats>(initialStats);
 
-  // Detect mobile screen
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+    if (!isAuthenticated) {
+      setStats(initialStats);
+      return;
+    }
 
-  const menuItems = [
-    { 
-      label: 'Dashboard', 
-      icon: Home, 
-      section: 'listings',
-      description: 'Overview of your activity'
-    },
-    { 
-      label: 'My Listings', 
-      icon: Package, 
-      section: 'listings',
-      count: 3,
-      badge: 'active'
-    },
-    { 
-      label: 'Messages', 
-      icon: Mail, 
-      section: 'messages',
-      count: 2,
-      badge: 'new'
-    },
-    { 
-      label: 'Alerts', 
-      icon: Bell, 
-      section: 'alerts',
-      count: 5
-    },
-    { 
-      label: 'Upload Item', 
-      icon: UploadCloud, 
-      section: 'upload',
-      highlight: true
-    },
-    { 
-      label: 'My Profile', 
-      icon: User, 
-      section: 'profile'
-    },
-    { 
-      label: 'Settings', 
-      icon: Settings, 
-      section: 'settings'
-    },
+    let cancelled = false;
+
+    async function loadStats() {
+      const [listingsResult, notificationsResult, matchesResult, conversationsResult, transactionsResult] = await Promise.allSettled([
+        listingsApi.getMyListings(),
+        notificationsApi.getNotifications(1),
+        matchesApi.getMatches(),
+        conversationsApi.getConversations(),
+        transactionsApi.getTransactions(),
+      ]);
+
+      if (cancelled) return;
+
+      const listings = listingsResult.status === 'fulfilled' && Array.isArray(listingsResult.value) ? listingsResult.value : [];
+      const matches = matchesResult.status === 'fulfilled' && Array.isArray(matchesResult.value) ? matchesResult.value : [];
+      const conversations =
+        conversationsResult.status === 'fulfilled' && Array.isArray(conversationsResult.value)
+          ? conversationsResult.value
+          : [];
+      const transactions =
+        transactionsResult.status === 'fulfilled' && Array.isArray(transactionsResult.value)
+          ? transactionsResult.value
+          : [];
+      const unreadAlerts =
+        notificationsResult.status === 'fulfilled'
+          ? Number(notificationsResult.value.unreadCount ?? 0)
+          : 0;
+
+      setStats({
+        listings: listings.length,
+        activeListings: listings.filter((listing: { status?: string }) => listing.status === 'ACTIVE').length,
+        unreadMessages: conversations.filter((conversation: { messages?: { senderId: string; readAt: string | null }[] }) => {
+          const latest = conversation.messages?.[0];
+          return Boolean(user && latest && latest.senderId !== user.id && !latest.readAt);
+        }).length,
+        unreadAlerts,
+        pendingMatches: matches.filter((match: { status?: string }) => match.status === 'PENDING').length,
+        activeTransactions: transactions.filter((transaction: { status?: string }) =>
+          ['INITIATED', 'FUNDED', 'SHIPPED', 'RECEIVED', 'DISPUTED'].includes(transaction.status ?? ''),
+        ).length,
+      });
+    }
+
+    loadStats();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, user]);
+
+  const initials = useMemo(() => {
+    if (!user?.name) return 'R';
+    return user.name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join('');
+  }, [user?.name]);
+
+  const menuItems: Array<{
+    label: string;
+    icon: React.ElementType;
+    section: DashboardSection;
+    count?: number;
+    highlight?: boolean;
+  }> = [
+    { label: 'My Listings', icon: Package, section: 'listings', count: stats.listings },
+    { label: 'Messages', icon: Mail, section: 'messages', count: stats.unreadMessages },
+    { label: 'Alerts', icon: Bell, section: 'alerts', count: stats.unreadAlerts + stats.pendingMatches },
+    { label: 'Transactions', icon: CreditCard, section: 'transactions', count: stats.activeTransactions },
+    { label: 'Upload Item', icon: UploadCloud, section: 'upload', highlight: true },
+    { label: 'Profile', icon: User, section: 'profile' },
+    { label: 'Settings', icon: Settings, section: 'settings' },
   ];
 
-  const userStats = {
-    listings: 12,
-    sales: 8,
-    rating: 4.8,
+  const handleSelect = (section: DashboardSection) => {
+    onSelectSection(section);
+    setSidebarOpen(false);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('section', section);
+      window.history.replaceState(null, '', url.toString());
+    }
   };
 
-  // Mobile toggle button
-  const MobileToggle = () => (
-    <Button
-      variant="outline"
-      className="fixed top-4 left-4 z-50 md:hidden"
-      onClick={() => setSidebarOpen(!sidebarOpen)}
-    >
-      {sidebarOpen ? 'Close' : 'Menu'}
-    </Button>
-  );
+  const handleLogout = () => {
+    logout();
+    setSidebarOpen(false);
+  };
 
   const SidebarContent = () => (
-    <>
-      {/* User Profile Card */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="p-6 bg-gradient-to-br from-neutral-900 to-black rounded-2xl mb-8"
-      >
-        <div className="flex items-center space-x-4 mb-4">
-          <div className="relative">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">JD</span>
-            </div>
-            <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+    <div className="flex min-h-full flex-col p-5">
+      <div className="mb-6">
+        <div className="flex items-center gap-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+            <span className="font-bold">R</span>
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white">John Doe</h3>
-            <p className="text-sm text-neutral-300">Premium Seller</p>
+            <span className="text-xl font-bold text-foreground">Dashboard</span>
+            <p className="text-xs text-muted-foreground">Manage your activity</p>
           </div>
         </div>
-        
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="surface-card mb-6 rounded-[2rem] p-5 text-[var(--foreground)]"
+      >
+        <div className="mb-4 flex items-center gap-3">
+          <div className="relative">
+            <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-[var(--brand-soft)] text-lg font-bold text-[var(--brand)]">
+              {user?.avatarUrl ? <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" /> : initials}
+            </div>
+            <div className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-[var(--brand)]" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="truncate text-base font-bold">{user?.name ?? 'Remnant user'}</h3>
+            <p className="truncate text-xs text-[var(--muted-foreground)]">{user?.email ?? 'Signed in account'}</p>
+            <p className="mt-1 text-xs text-[var(--brand)]">{user?.trustTier ?? 'NEW'} tier</p>
+          </div>
+        </div>
+
         <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="p-2 bg-white/10 rounded-lg">
-            <p className="text-white font-bold">{userStats.listings}</p>
-            <p className="text-xs text-neutral-300">Listings</p>
+          <div className="rounded-[1.25rem] bg-[var(--brand-soft)] p-2">
+            <p className="font-bold">{stats.listings}</p>
+            <p className="text-[11px] text-[var(--muted-foreground)]">Listings</p>
           </div>
-          <div className="p-2 bg-white/10 rounded-lg">
-            <p className="text-white font-bold">{userStats.sales}</p>
-            <p className="text-xs text-neutral-300">Sales</p>
+          <div className="rounded-[1.25rem] bg-[#e2f7ff] p-2">
+            <p className="font-bold">{stats.pendingMatches}</p>
+            <p className="text-[11px] text-[var(--muted-foreground)]">Matches</p>
           </div>
-          <div className="p-2 bg-white/10 rounded-lg">
-            <p className="text-white font-bold">{userStats.rating}</p>
-            <p className="text-xs text-neutral-300">Rating</p>
+          <div className="rounded-[1.25rem] bg-[#fff6cf] p-2">
+            <p className="font-bold">{stats.activeTransactions}</p>
+            <p className="text-[11px] text-[var(--muted-foreground)]">Deals</p>
           </div>
         </div>
       </motion.div>
 
-      {/* Navigation Menu */}
       <nav className="space-y-2">
-        {menuItems.map((item) => (
-          <motion.button
-            key={item.section}
-            whileHover={{ x: 4 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => {
-              onSelectSection(item.section as any);
-              if (isMobile) setSidebarOpen(false);
-            }}
-            className={cn(
-              "w-full flex items-center justify-between p-4 rounded-xl transition-all duration-300",
-              "hover:bg-neutral-100 dark:hover:bg-neutral-800",
-              activeSection === item.section
-                ? "bg-white dark:bg-neutral-800 shadow-md border border-neutral-200 dark:border-neutral-700"
-                : "bg-transparent",
-              item.highlight ? "border-l-4 border-l-green-500" : ""
-            )}
-          >
-            <div className="flex items-center space-x-3">
-              <div className={cn(
-                "p-2 rounded-lg",
-                activeSection === item.section 
-                  ? "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400"
-                  : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
-              )}>
-                <item.icon size={20} />
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          const active = activeSection === item.section;
+
+          return (
+            <motion.button
+              key={item.section}
+              type="button"
+              whileHover={{ x: 3 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => handleSelect(item.section)}
+              className={cn(
+                'flex w-full items-center justify-between rounded-[1.5rem] p-3 text-left transition-colors',
+                active
+                  ? 'border border-[var(--border)]/55 bg-white soft-shadow'
+                  : 'hover:bg-[var(--sand)]',
+                item.highlight && 'ring-1 ring-[var(--brand)]/20',
+              )}
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <div
+                  className={cn(
+                    'flex h-10 w-10 items-center justify-center rounded-full',
+                    active
+                      ? 'bg-[var(--brand-soft)] text-[var(--brand)]'
+                      : 'bg-white text-muted-foreground',
+                  )}
+                >
+                  <Icon size={19} />
+                </div>
+                <span className="truncate text-sm font-medium text-foreground">{item.label}</span>
               </div>
-              <div className="text-left">
-                <p className="font-medium">{item.label}</p>
-                {item.description && (
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                    {item.description}
-                  </p>
-                )}
-              </div>
-            </div>
-            
-            {/* Badges and counts */}
-            {item.count && (
-              <span className={cn(
-                "px-2 py-1 rounded-full text-xs font-medium",
-                item.badge === 'new' 
-                  ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                  : "bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300"
-              )}>
-                {item.count}
-              </span>
-            )}
-            
-            {item.highlight && (
-              <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                New
-              </span>
-            )}
-          </motion.button>
-        ))}
+
+              {typeof item.count === 'number' && item.count > 0 && (
+                <span className="ml-2 rounded-full bg-[var(--brand-soft)] px-2 py-1 text-xs font-semibold text-[var(--brand)]">
+                  {item.count}
+                </span>
+              )}
+
+              {item.highlight && (
+                <span className="ml-2 rounded-full bg-[var(--brand-soft)] px-2 py-1 text-xs font-semibold text-[var(--brand)]">
+                  New
+                </span>
+              )}
+            </motion.button>
+          );
+        })}
       </nav>
 
-      {/* Bottom Actions */}
-      <div className="mt-auto pt-8 space-y-4">
-        {/* Quick Stats */}
-        <div className="p-4 bg-neutral-100 dark:bg-neutral-800 rounded-xl">
-          <p className="text-sm font-medium mb-2">Quick Stats</p>
-          <div className="flex justify-between text-xs text-neutral-600 dark:text-neutral-400">
-            <span>Views: 1.2k</span>
-            <span>Matches: 4</span>
-            <span>Revenue: ₦45k</span>
+      <div className="mt-auto pt-6">
+        <div className="mb-4 rounded-[1.5rem] bg-[var(--sand)] p-4">
+          <p className="mb-2 text-sm font-medium text-foreground">Quick Stats</p>
+          <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+            <span>Active: {stats.activeListings}</span>
+            <span>Alerts: {stats.unreadAlerts}</span>
+            <span>Messages: {stats.unreadMessages}</span>
+            <span>Matches: {stats.pendingMatches}</span>
+            <span>Deals: {stats.activeTransactions}</span>
           </div>
         </div>
 
-        {/* Logout Button */}
-        <Button
-          variant="destructive"
-          className="w-full flex items-center justify-center gap-2 py-6 rounded-xl"
-          onClick={() => {
-            console.log("Logging out...");
-            if (isMobile) setSidebarOpen(false);
-          }}
-        >
-          <LogOut size={20} />
-          <span>Logout</span>
+        <Button type="button" variant="outline" className="w-full rounded-full border-[var(--border)] bg-white font-bold text-red-600 hover:bg-red-50" onClick={handleLogout}>
+          <LogOut size={18} />
+          Log out
         </Button>
       </div>
-    </>
+    </div>
   );
 
   return (
     <>
-      <MobileToggle />
-      
-      {/* Mobile Overlay */}
-      {isMobile && sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        className="fixed left-4 top-24 z-50 rounded-full border-[var(--border)] bg-white soft-shadow md:hidden"
+        onClick={() => setSidebarOpen((open) => !open)}
+        aria-label="Open dashboard menu"
+      >
+        {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+      </Button>
+
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/35 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
-      <motion.aside
-        initial={isMobile ? { x: -300 } : false}
-        animate={isMobile ? { x: sidebarOpen ? 0 : -300 } : { x: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      <aside
         className={cn(
-          "fixed md:relative h-screen md:h-auto",
-          "w-80 md:w-64 bg-white dark:bg-neutral-900 shadow-xl md:shadow-lg",
-          "border-r border-neutral-200 dark:border-neutral-800",
-          "z-40 md:z-auto",
-          "overflow-y-auto scrollbar-hide",
-          isMobile ? "top-0 left-0" : ""
+          'fixed left-0 top-0 z-40 h-screen w-80 max-w-[85vw] overflow-y-auto border-r border-[var(--border)]/45 bg-white shadow-xl md:sticky md:top-0 md:z-auto md:w-72 md:translate-x-0 md:shadow-none',
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         )}
       >
-        {/* Close button for mobile */}
-        {isMobile && (
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="absolute top-4 right-4 p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 md:hidden"
-          >
-            ✕
-          </button>
-        )}
-
-        {/* Sidebar Content */}
-        <div className="h-full flex flex-col p-6">
-          {/* Logo */}
-          <div className="mb-8">
-            <div className="flex items-center space-x-2 mb-2">
-              <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center">
-                <span className="text-white font-bold">R</span>
-              </div>
-              <span className="text-xl font-bold">Dashboard</span>
-            </div>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">
-              Manage your listings and activity
-            </p>
-          </div>
-
-          <SidebarContent />
-        </div>
-      </motion.aside>
+        <SidebarContent />
+      </aside>
     </>
   );
 }

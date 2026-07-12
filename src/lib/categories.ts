@@ -1,0 +1,16 @@
+export const listingCategories = [
+  { label: "Electronics & Gadgets", image: "/images/earpod.png" },
+  { label: "Furniture & Home Decor", image: "/images/floating/blue-chair.png" },
+  { label: "Clothing & Fashion", image: "/images/heel.png" },
+  { label: "Shoes & Footwear", image: "/images/sneaker.png" },
+  { label: "Accessories & Jewelry", image: "/images/jewelry.png" },
+  { label: "Vehicles & Auto Parts", image: "/images/floating/brass-compass.png" },
+  { label: "Books & Education", image: "/images/floating/watch-gear.png" },
+  { label: "Hobbies & Leisure", image: "/images/floating/brass-button.png" },
+  { label: "Sports & Outdoor", image: "/images/floating/mint-cup.png" },
+  { label: "Kitchen & Home Essentials", image: "/images/floating/teapot-lid.png" },
+  { label: "Tools & DIY", image: "/images/floating/brass-compass.png" },
+  { label: "Collectibles & Antiques", image: "/images/floating/brass-button.png" },
+  { label: "Toys & Games", image: "/images/sneaker.png" },
+  { label: "Other", image: "/images/jewelry.png" },
+];

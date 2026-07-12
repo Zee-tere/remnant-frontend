@@ -1,463 +1,458 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
+import {
+  ExternalLink,
+  Flag,
+  Loader2,
+  MessageSquare,
+  MoreVertical,
+  Search,
+  Send,
+} from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { toast } from 'sonner';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect, useRef } from 'react';
-import { 
-  Search, Filter, MoreVertical, Send, Paperclip, 
-  Image as ImageIcon, Smile, Phone, Video, 
-  Check, CheckCheck, Clock, Reply, 
-  Trash2, Archive, Ban, Flag
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { conversationsApi } from '@/lib/api';
+import { useAuthStore } from '@/lib/auth';
+import { useSocket } from '@/providers/SocketProvider';
+import { cn } from '@/lib/utils';
 
-interface Conversation {
+interface ConversationUser {
   id: string;
-  user: {
-    name: string;
-    avatar: string;
-    online: boolean;
-    rating: number;
-  };
-  listing: string;
-  lastMessage: string;
-  timestamp: string;
-  unread: number;
-  messages: {
-    id: string;
-    sender: 'me' | 'them';
-    text: string;
-    time: string;
-  }[];
-  archived?: boolean;
+  name: string;
+  avatarUrl: string | null;
 }
 
-const initialConversations: Conversation[] = [
-  {
-    id: '1',
-    user: {
-      name: 'Sarah Johnson',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop',
-      online: true,
-      rating: 4.9,
-    },
-    listing: 'Left AirPod Pro',
-    lastMessage: 'Is this still available? I can pick up today.',
-    timestamp: '10:30 AM',
-    unread: 2,
-    messages: [
-      { id: '1', sender: 'them', text: 'Hi, I saw your AirPod listing', time: '10:15 AM' },
-      { id: '2', sender: 'them', text: 'Is this still available? I can pick up today.', time: '10:30 AM' },
-    ],
-  },
-  {
-    id: '2',
-    user: {
-      name: 'Michael Chen',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop',
-      online: false,
-      rating: 4.7,
-    },
-    listing: 'Wooden Dining Table',
-    lastMessage: 'Thanks for the table! It\'s perfect for my dining room.',
-    timestamp: 'Yesterday',
-    unread: 0,
-    messages: [
-      { id: '1', sender: 'them', text: 'Hi, interested in the table', time: '2 days ago' },
-      { id: '2', sender: 'me', text: 'Yes, it\'s available for pickup', time: '1 day ago' },
-      { id: '3', sender: 'them', text: 'Thanks for the table! It\'s perfect for my dining room.', time: 'Yesterday' },
-    ],
-  },
-  {
-    id: '3',
-    user: {
-      name: 'Amara Okeke',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop',
-      online: true,
-      rating: 5.0,
-    },
-    listing: 'Single Gold Earring',
-    lastMessage: 'Can we trade for my silver bracelet?',
-    timestamp: '2 days ago',
-    unread: 1,
-    messages: [
-      { id: '1', sender: 'them', text: 'I have a silver bracelet, interested in trading?', time: '2 days ago' },
-      { id: '2', sender: 'me', text: 'Can you send photos?', time: '1 day ago' },
-      { id: '3', sender: 'them', text: 'Can we trade for my silver bracelet?', time: '2 days ago' },
-    ],
-  },
-  {
-    id: '4',
-    user: {
-      name: 'David Smith',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
-      online: true,
-      rating: 4.5,
-    },
-    listing: 'Vintage Camera Lens',
-    lastMessage: 'What\'s your best price?',
-    timestamp: '3 days ago',
-    unread: 0,
-    messages: [
-      { id: '1', sender: 'them', text: 'Hi, is the lens still available?', time: '3 days ago' },
-      { id: '2', sender: 'me', text: 'Yes, it is!', time: '3 days ago' },
-      { id: '3', sender: 'them', text: 'What\'s your best price?', time: '3 days ago' },
-    ],
-  },
-];
+interface ConversationSummary {
+  id: string;
+  listing: {
+    id: string;
+    title: string;
+    slug: string;
+    images: string[];
+  };
+  buyer: ConversationUser;
+  seller: ConversationUser;
+  messages: Message[];
+  createdAt: string;
+}
+
+interface Message {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  type: 'TEXT' | 'IMAGE' | 'OFFER' | 'SYSTEM';
+  content: string;
+  readAt: string | null;
+  createdAt: string;
+}
+
+function formatTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' });
+}
+
+function formatDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Recently';
+
+  const today = new Date();
+  const isToday = date.toDateString() === today.toDateString();
+  if (isToday) return formatTime(value);
+
+  return date.toLocaleDateString('en-NG', { month: 'short', day: 'numeric' });
+}
 
 export default function MessagesSection() {
-  const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
-  const [activeConversation, setActiveConversation] = useState<string | null>('1');
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { joinRoom, leaveRoom } = useSocket();
+  const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [filter, setFilter] = useState('all');
-  const [isMobile, setIsMobile] = useState(false);
+  const [filter, setFilter] = useState<'all' | 'unread'>('all');
+  const [loadingConversations, setLoadingConversations] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const loadConversations = useCallback(async () => {
+    if (!isAuthenticated) {
+      setConversations([]);
+      setLoadingConversations(false);
+      return;
+    }
+
+    setLoadingConversations(true);
+    try {
+      const data = await conversationsApi.getConversations();
+      const rows = Array.isArray(data) ? data : [];
+      setConversations(rows);
+      setActiveConversationId((current) => current ?? rows[0]?.id ?? null);
+    } catch {
+      setConversations([]);
+      toast.error('Could not load conversations');
+    } finally {
+      setLoadingConversations(false);
+    }
+  }, [isAuthenticated]);
+
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+    loadConversations();
+  }, [loadConversations]);
+
+  useEffect(() => {
+    if (!activeConversationId) {
+      setMessages([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadMessages = async () => {
+      setLoadingMessages(true);
+      try {
+        const data = await conversationsApi.getMessages(activeConversationId);
+        if (!cancelled) {
+          setMessages(Array.isArray(data) ? data : []);
+          conversationsApi.markAsRead(activeConversationId).catch(() => undefined);
+        }
+      } catch {
+        if (!cancelled) {
+          setMessages([]);
+          toast.error('Could not load messages');
+        }
+      } finally {
+        if (!cancelled) setLoadingMessages(false);
+      }
+    };
+
+    loadMessages();
+    joinRoom(activeConversationId);
+
+    return () => {
+      cancelled = true;
+      leaveRoom(activeConversationId);
+    };
+  }, [activeConversationId, joinRoom, leaveRoom]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeConversation, conversations]);
+  }, [messages, activeConversationId]);
 
-  const activeConv = conversations.find(c => c.id === activeConversation);
+  const activeConversation = conversations.find((conversation) => conversation.id === activeConversationId) ?? null;
 
-  const handleSendMessage = () => {
-    if (!newMessage.trim() || !activeConversation) return;
+  const getOtherUser = useCallback(
+    (conversation: ConversationSummary) => {
+      if (!user) return conversation.seller;
+      return conversation.buyer.id === user.id ? conversation.seller : conversation.buyer;
+    },
+    [user],
+  );
 
-    const updatedConversations = conversations.map(conv => {
-      if (conv.id === activeConversation) {
-        const newMsg = {
-          id: Date.now().toString(),
-          sender: 'me' as const,
-          text: newMessage,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        };
-        return {
-          ...conv,
-          lastMessage: newMessage,
-          timestamp: 'Now',
-          unread: 0,
-          messages: [...conv.messages, newMsg],
-        };
-      }
-      return conv;
+  const filteredConversations = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+
+    return conversations.filter((conversation) => {
+      const otherUser = getOtherUser(conversation);
+      const latest = conversation.messages[0];
+      const unread = Boolean(latest && latest.senderId !== user?.id && !latest.readAt);
+      const matchesQuery =
+        !query ||
+        otherUser.name.toLowerCase().includes(query) ||
+        conversation.listing.title.toLowerCase().includes(query) ||
+        latest?.content.toLowerCase().includes(query);
+
+      return matchesQuery && (filter === 'all' || unread);
     });
+  }, [conversations, filter, getOtherUser, searchQuery, user?.id]);
 
-    setConversations(updatedConversations);
-    setNewMessage('');
+  const handleSelectConversation = (conversationId: string) => {
+    setActiveConversationId(conversationId);
+    setConversations((current) =>
+      current.map((conversation) =>
+        conversation.id === conversationId
+          ? {
+              ...conversation,
+              messages: conversation.messages.map((message) =>
+                user && message.senderId !== user.id ? { ...message, readAt: message.readAt ?? new Date().toISOString() } : message,
+              ),
+            }
+          : conversation,
+      ),
+    );
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !activeConversationId) return;
+
+    const content = newMessage.trim();
+    setSending(true);
+    setNewMessage('');
+
+    try {
+      const message = await conversationsApi.createMessage(activeConversationId, content, 'TEXT');
+      setMessages((current) => [...current, message]);
+      setConversations((current) =>
+        current.map((conversation) =>
+          conversation.id === activeConversationId ? { ...conversation, messages: [message] } : conversation,
+        ),
+      );
+    } catch {
+      toast.error('Could not send message');
+      setNewMessage(content);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
       handleSendMessage();
     }
   };
 
-  const filteredConversations = conversations.filter(conv => {
-    const matchesSearch = 
-      conv.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conv.listing.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = 
-      filter === 'all' || 
-      (filter === 'unread' && conv.unread > 0);
-    return matchesSearch && matchesFilter;
-  });
+  if (loadingConversations) {
+    return (
+      <div className="flex min-h-[360px] items-center justify-center">
+        <Loader2 className="animate-spin text-[var(--brand)]" size={28} />
+      </div>
+    );
+  }
 
   const ConversationList = () => (
-    <div className={cn(
-      "h-full flex flex-col",
-      isMobile && !activeConversation ? "block" : isMobile ? "hidden" : "block"
-    )}>
-      <div className="p-4 border-b">
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400" size={20} />
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="border-b border-[var(--border)] p-4">
+        <div className="relative mb-3">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
           <Input
-            placeholder="Search conversations..."
+            placeholder="Search conversations"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(event) => setSearchQuery(event.target.value)}
             className="pl-10"
           />
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {['all', 'unread', 'buyers', 'sellers', 'offers'].map((filterType) => (
+        <div className="flex gap-2">
+          {(['all', 'unread'] as const).map((filterType) => (
             <Button
               key={filterType}
-              variant={filter === filterType ? "default" : "outline"}
+              type="button"
+              variant={filter === filterType ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter(filterType)}
-              className="whitespace-nowrap"
+              className={filter !== filterType ? 'border-[var(--border)]' : ''}
             >
-              {filterType.charAt(0).toUpperCase() + filterType.slice(1)}
+              {filterType === 'all' ? 'All' : 'Unread'}
             </Button>
           ))}
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        <AnimatePresence>
-          {filteredConversations.map((conv) => (
-            <motion.div
-              key={conv.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              whileHover={{ backgroundColor: 'rgba(0,0,0,0.02)' }}
-              className={cn(
-                "p-4 border-b cursor-pointer transition-colors",
-                activeConversation === conv.id && "bg-neutral-100 dark:bg-neutral-800"
-              )}
-              onClick={() => {
-                setActiveConversation(conv.id);
-                if (conv.unread > 0) {
-                  setConversations(convs => 
-                    convs.map(c => c.id === conv.id ? { ...c, unread: 0 } : c)
-                  );
-                }
-              }}
-            >
-              <div className="flex items-start gap-3">
-                <div className="relative">
-                  <Avatar>
-                    <AvatarImage src={conv.user.avatar} alt={conv.user.name} />
-                    <AvatarFallback>{conv.user.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  {conv.user.online && (
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
-                  )}
-                </div>
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        {filteredConversations.length === 0 ? (
+          <div className="flex h-full flex-col items-center justify-center px-6 py-12 text-center">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--brand-soft)]">
+              <MessageSquare className="text-[var(--brand)]" size={26} />
+            </div>
+            <h3 className="font-semibold text-foreground">No conversations</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Conversations will appear here when buyers or sellers message you.
+            </p>
+          </div>
+        ) : (
+          <AnimatePresence initial={false}>
+            {filteredConversations.map((conversation) => {
+              const otherUser = getOtherUser(conversation);
+              const latest = conversation.messages[0];
+              const unread = Boolean(latest && latest.senderId !== user?.id && !latest.readAt);
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-semibold text-sm truncate">{conv.user.name}</h4>
-                      <p className="text-xs text-neutral-500 truncate">{conv.listing}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-neutral-500">{conv.timestamp}</span>
-                      {conv.unread > 0 && (
-                        <Badge className="bg-green-500 text-white text-xs px-1.5 py-0.5">
-                          {conv.unread}
-                        </Badge>
-                      )}
+              return (
+                <motion.button
+                  key={conversation.id}
+                  type="button"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  onClick={() => handleSelectConversation(conversation.id)}
+                  className={cn(
+                    'w-full border-b border-[var(--border)] p-4 text-left transition-colors hover:bg-muted/50',
+                    activeConversationId === conversation.id && 'bg-[var(--brand-soft)]/60 dark:bg-[var(--brand-muted)]/40',
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <Avatar>
+                      <AvatarImage src={otherUser.avatarUrl ?? undefined} alt={otherUser.name} />
+                      <AvatarFallback>{otherUser.name.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-foreground">{otherUser.name}</p>
+                          <p className="truncate text-xs text-muted-foreground">{conversation.listing.title}</p>
+                        </div>
+                        <span className="shrink-0 text-xs text-muted-foreground">
+                          {latest ? formatDate(latest.createdAt) : formatDate(conversation.createdAt)}
+                        </span>
+                      </div>
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <p className="line-clamp-1 text-sm text-muted-foreground">
+                          {latest?.content ?? 'Conversation started'}
+                        </p>
+                        {unread && <span className="h-2.5 w-2.5 rounded-full bg-[var(--brand)]" aria-label="Unread" />}
+                      </div>
                     </div>
                   </div>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-300 truncate mt-1">
-                    {conv.lastMessage}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-neutral-500 flex items-center">
-                      <span className="text-yellow-500 mr-1">★</span>
-                      {conv.user.rating}
-                    </span>
-                    <span className="text-xs text-neutral-500">•</span>
-                    <span className="text-xs text-green-600 font-medium">
-                      {conv.listing.includes('AirPod') ? 'Pair Match Found!' : 'Active'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+                </motion.button>
+              );
+            })}
+          </AnimatePresence>
+        )}
       </div>
     </div>
   );
 
   const ChatWindow = () => {
-    if (!activeConv) return null;
+    if (!activeConversation) {
+      return (
+        <div className="flex h-full min-h-[420px] flex-col items-center justify-center rounded-xl border border-[var(--border)] bg-card px-6 text-center">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--brand-soft)]">
+            <MessageSquare className="text-[var(--brand)]" size={30} />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground">Select a conversation</h3>
+          <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+            Real buyer and seller messages will appear here once conversations exist.
+          </p>
+        </div>
+      );
+    }
+
+    const otherUser = getOtherUser(activeConversation);
 
     return (
-      <div className={cn(
-        "h-full flex flex-col bg-white dark:bg-neutral-900",
-        isMobile ? "block" : "rounded-xl border"
-      )}>
-        <div className="p-4 border-b flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {isMobile && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setActiveConversation(null)}
-              >
-                ←
-              </Button>
-            )}
+      <div className="flex h-full min-h-[620px] flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-card">
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] p-4">
+          <div className="flex min-w-0 items-center gap-3">
             <Avatar>
-              <AvatarImage src={activeConv.user.avatar} alt={activeConv.user.name} />
-              <AvatarFallback>{activeConv.user.name.charAt(0)}</AvatarFallback>
+              <AvatarImage src={otherUser.avatarUrl ?? undefined} alt={otherUser.name} />
+              <AvatarFallback>{otherUser.name.charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
-            <div>
-              <h3 className="font-semibold">{activeConv.user.name}</h3>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="flex items-center text-green-600">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-1" />
-                  Online
-                </span>
-                <span>•</span>
-                <span className="text-neutral-500">{activeConv.listing}</span>
-              </div>
+            <div className="min-w-0">
+              <h3 className="truncate font-semibold text-foreground">{otherUser.name}</h3>
+              <p className="truncate text-sm text-muted-foreground">{activeConversation.listing.title}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
-              <Phone size={20} />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Video size={20} />
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreVertical size={20} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <Archive size={16} className="mr-2" /> Archive
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Ban size={16} className="mr-2" /> Block
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Flag size={16} className="mr-2" /> Report
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600">
-                  <Trash2 size={16} className="mr-2" /> Delete Chat
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {activeConv.listing.includes('AirPod') && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-4 rounded-xl"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-bold">🎯 Pair Match Found!</h4>
-                  <p className="text-sm opacity-90">Sarah has the matching Right AirPod Pro</p>
-                </div>
-                <Button size="sm" className="bg-white text-green-600 hover:bg-white/90">
-                  View Match
-                </Button>
-              </div>
-            </motion.div>
-          )}
-
-          <AnimatePresence>
-            {activeConv.messages.map((msg, index) => (
-              <motion.div
-                key={msg.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className={cn(
-                  "flex gap-3",
-                  msg.sender === 'me' ? "justify-end" : "justify-start"
-                )}
-              >
-                {msg.sender === 'them' && (
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={activeConv.user.avatar} alt={activeConv.user.name} />
-                    <AvatarFallback>{activeConv.user.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                )}
-                <div className={cn(
-                  "max-w-[70%] rounded-2xl p-3",
-                  msg.sender === 'me'
-                    ? "bg-green-500 text-white rounded-br-none"
-                    : "bg-neutral-100 dark:bg-neutral-800 rounded-bl-none"
-                )}>
-                  <p className="text-sm">{msg.text}</p>
-                  <div className={cn(
-                    "flex items-center gap-1 mt-1 text-xs",
-                    msg.sender === 'me' ? "text-white/70" : "text-neutral-500"
-                  )}>
-                    <span>{msg.time}</span>
-                    {msg.sender === 'me' && (
-                      <>
-                        <CheckCheck size={12} />
-                        <span>Read</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-                {msg.sender === 'me' && (
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage 
-                      src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop" 
-                      alt="You" 
-                    />
-                    <AvatarFallback>JD</AvatarFallback>
-                  </Avatar>
-                )}
-              </motion.div>
-            ))}
-          </AnimatePresence>
-          <div ref={messagesEndRef} />
-        </div>
-
-        <div className="p-4 border-t">
-          <div className="flex items-end gap-2">
-            <div className="flex-1 bg-neutral-100 dark:bg-neutral-800 rounded-2xl">
-              <Textarea
-                placeholder="Type your message..."
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={handleKeyPress}
-                className="min-h-[44px] max-h-32 border-0 bg-transparent resize-none focus-visible:ring-0"
-                rows={1}
-              />
-              <div className="flex items-center justify-between px-3 pb-2">
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Paperclip size={18} />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <ImageIcon size={18} />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Smile size={18} />
-                  </Button>
-                </div>
-                <Button
-                  size="sm"
-                  onClick={handleSendMessage}
-                  disabled={!newMessage.trim()}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button type="button" variant="ghost" size="icon">
+                <MoreVertical size={18} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href={`/marketplace/${activeConversation.listing.id}`}>
+                  <ExternalLink size={16} className="mr-2" />
+                  View listing
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a
+                  href={`mailto:support@remnant.africa?subject=${encodeURIComponent(
+                    `Conversation report: ${activeConversation.id}`,
+                  )}`}
                 >
-                  Send <Send size={16} className="ml-2" />
-                </Button>
-              </div>
+                  <Flag size={16} className="mr-2" />
+                  Report conversation
+                </a>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto p-4">
+          {loadingMessages ? (
+            <div className="flex h-full items-center justify-center">
+              <Loader2 className="animate-spin text-[var(--brand)]" size={24} />
             </div>
+          ) : messages.length === 0 ? (
+            <div className="flex h-full flex-col items-center justify-center text-center">
+              <MessageSquare className="mb-3 text-muted-foreground/40" size={38} />
+              <p className="text-sm text-muted-foreground">No messages yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {messages.map((message) => {
+                const mine = message.senderId === user?.id;
+                return (
+                  <motion.div
+                    key={message.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={cn('flex gap-3', mine ? 'justify-end' : 'justify-start')}
+                  >
+                    {!mine && (
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={otherUser.avatarUrl ?? undefined} alt={otherUser.name} />
+                        <AvatarFallback>{otherUser.name.charAt(0).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                    )}
+                    <div
+                      className={cn(
+                        'max-w-[78%] rounded-2xl px-4 py-3 text-sm shadow-sm',
+                        mine
+                          ? 'rounded-br-md bg-[var(--brand)] text-[var(--navy)]'
+                          : 'rounded-bl-md bg-muted text-foreground',
+                      )}
+                    >
+                      <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                      <p className={cn('mt-1 text-[11px]', mine ? 'text-[var(--navy)]/70' : 'text-muted-foreground')}>
+                        {formatTime(message.createdAt)}
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              })}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </div>
+
+        <div className="border-t border-[var(--border)] p-3">
+          <div className="flex items-end gap-2 rounded-2xl bg-muted p-2">
+            <Textarea
+              placeholder="Type your message"
+              value={newMessage}
+              onChange={(event) => setNewMessage(event.target.value)}
+              onKeyDown={handleKeyDown}
+              rows={1}
+              className="max-h-32 min-h-[44px] flex-1 resize-none border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+            <Button
+              type="button"
+              onClick={handleSendMessage}
+              disabled={!newMessage.trim() || sending}
+              className="h-10 bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]"
+            >
+              {sending ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
+            </Button>
           </div>
-          <p className="text-xs text-neutral-500 text-center mt-2">
-            Messages are end-to-end encrypted • Be safe when meeting in person
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            Keep payments and pickup plans inside Remnant until the exchange is complete.
           </p>
         </div>
       </div>
@@ -465,21 +460,20 @@ export default function MessagesSection() {
   };
 
   return (
-    <div className="h-[calc(100vh-200px)] md:h-[600px]">
-      {isMobile ? (
-        <div className="h-full">
-          {activeConversation ? <ChatWindow /> : <ConversationList />}
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground md:text-3xl">Messages</h1>
+        <p className="text-sm text-muted-foreground">Buyer and seller messages</p>
+      </div>
+
+      <div className="grid min-h-[620px] grid-cols-1 overflow-hidden rounded-xl border border-[var(--border)] bg-card lg:grid-cols-[340px_1fr]">
+        <div className="min-h-[280px] border-b border-[var(--border)] lg:border-b-0 lg:border-r">
+          <ConversationList />
         </div>
-      ) : (
-        <div className="grid grid-cols-3 h-full gap-4">
-          <div className="col-span-1 border rounded-xl overflow-hidden">
-            <ConversationList />
-          </div>
-          <div className="col-span-2">
-            <ChatWindow />
-          </div>
+        <div className="min-h-0 p-3 lg:p-4">
+          <ChatWindow />
         </div>
-      )}
+      </div>
     </div>
   );
 }

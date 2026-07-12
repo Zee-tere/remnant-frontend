@@ -1,16 +1,14 @@
 import axios from 'axios';
 import { useAuthStore } from './auth';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { getApiUrl } from './api-url';
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: getApiUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// ─── Request Interceptor: Attach Bearer Token ──────────
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
   if (token) {
@@ -19,67 +17,19 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// ─── Response Interceptor: Auto-Refresh on 401 ─────────
-let isRefreshing = false;
-let failedQueue: Array<{ resolve: (value: unknown) => void; reject: (reason: unknown) => void }> = [];
-
-const processQueue = (error: unknown, token: string | null = null) => {
-  failedQueue.forEach((p) => {
-    if (error) p.reject(error);
-    else p.resolve(token);
-  });
-  failedQueue = [];
-};
-
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
-
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            return api(originalRequest);
-          })
-          .catch((err) => Promise.reject(err));
-      }
-
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      try {
-        const success = await useAuthStore.getState().refreshSession();
-        if (success) {
-          const newToken = useAuthStore.getState().accessToken;
-          processQueue(null, newToken);
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          return api(originalRequest);
-        } else {
-          processQueue(error, null);
-          useAuthStore.getState().logout();
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login';
-          }
-          return Promise.reject(error);
-        }
-      } catch (refreshError) {
-        processQueue(refreshError, null);
-        useAuthStore.getState().logout();
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
+    if (error.response?.status === 401) {
+      useAuthStore.getState().logout();
+      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+        window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
       }
     }
 
     return Promise.reject(error);
   },
 );
-
-// ─── API Functions ──────────────────────────────────────
 
 export const listingsApi = {
   getListings: (params?: Record<string, string>) =>
@@ -90,6 +40,8 @@ export const listingsApi = {
     api.get(`/listings/slug/${slug}`).then((r) => r.data),
   createListing: (data: Record<string, unknown>) =>
     api.post('/listings', data).then((r) => r.data),
+  createGuestListing: (data: Record<string, unknown>) =>
+    api.post('/listings/guest', data).then((r) => r.data),
   updateListing: (id: string, data: Record<string, unknown>) =>
     api.patch(`/listings/${id}`, data).then((r) => r.data),
   deleteListing: (id: string) =>
@@ -131,8 +83,10 @@ export const conversationsApi = {
     api.post('/conversations', { listingId }).then((r) => r.data),
   getMessages: (conversationId: string) =>
     api.get(`/conversations/${conversationId}/messages`).then((r) => r.data),
+  createMessage: (conversationId: string, content: string, type = 'TEXT') =>
+    api.post(`/conversations/${conversationId}/messages`, { content, type }).then((r) => r.data),
   markAsRead: (conversationId: string) =>
-    api.post(`/conversations/${conversationId}/read`).then((r) => r.data),
+    api.patch(`/conversations/${conversationId}/read`).then((r) => r.data),
 };
 
 export const transactionsApi = {
@@ -144,6 +98,8 @@ export const transactionsApi = {
     api.get(`/transactions/${id}`).then((r) => r.data),
   markShipped: (id: string, trackingInfo?: string) =>
     api.patch(`/transactions/${id}/ship`, { trackingInfo }).then((r) => r.data),
+  fundStubTransaction: (id: string) =>
+    api.post(`/transactions/${id}/stub-fund`).then((r) => r.data),
   confirmReceipt: (id: string) =>
     api.patch(`/transactions/${id}/confirm`).then((r) => r.data),
   disputeTransaction: (id: string) =>
@@ -173,10 +129,26 @@ export const uploadApi = {
     });
     return res.data.url as string;
   },
+  uploadGuestFile: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await api.post('/upload/guest', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data.url as string;
+  },
   uploadMultiple: async (files: File[]) => {
     const formData = new FormData();
-    files.forEach((f) => formData.append('files', f));
+    files.forEach((file) => formData.append('files', file));
     const res = await api.post('/upload/multiple', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data.urls as string[];
+  },
+  uploadGuestMultiple: async (files: File[]) => {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('files', file));
+    const res = await api.post('/upload/guest/multiple', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return res.data.urls as string[];

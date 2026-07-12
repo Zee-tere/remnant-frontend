@@ -1,10 +1,11 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useState } from 'react';
+import Link from 'next/link';
 import { Search, MessageSquare, Phone, Mail, Book, Shield, CreditCard, Package } from 'lucide-react';
 
 export default function HelpPage() {
@@ -14,8 +15,8 @@ export default function HelpPage() {
     {
       category: 'Getting Started',
       questions: [
-        { question: 'How do I create an account?', answer: 'Click the "Sign Up" button in the top right corner, enter your email and password, and verify your email address.' },
-        { question: 'Is Remnant free to use?', answer: 'Yes, creating an account and listing items is completely free. We only charge a 2.5% transaction fee when items are sold.' },
+        { question: 'How do I create an account?', answer: 'Choose Sign Up and continue through the secure Remnant sign-up page.' },
+        { question: 'Is Remnant free to use?', answer: 'Yes. Accounts and listings are free while launch pricing is finalized.' },
         { question: 'What kind of items can I list?', answer: 'You can list any single item, mismatched pair, or incomplete set. Popular categories include electronics, clothing, shoes, accessories, and home goods.' },
       ],
     },
@@ -23,9 +24,9 @@ export default function HelpPage() {
       category: 'Buying & Selling',
       questions: [
         { question: 'How does the matching system work?', answer: 'Our AI scans listings for complementary items. If you list a "Left AirPod", we\'ll match you with users looking for or selling "Right AirPod".' },
-        { question: 'How do I make an offer on an item?', answer: 'Click the "Make Offer" button on any listing, enter your price, and send a message to the seller.' },
-        { question: 'What payment methods are accepted?', answer: 'We support bank transfers, credit/debit cards, and mobile money. All payments are processed securely through our platform.' },
-        { question: 'How do I know if a seller is trustworthy?', answer: 'Check their rating, reviews, and verification status. Always communicate through our platform and use our secure payment system.' },
+        { question: 'How do I buy an item?', answer: 'Open an item and message the seller to agree on the next step.' },
+        { question: 'What payment methods are accepted?', answer: 'Payments are being finalized for launch. Keep communication on Remnant until the payment flow is live.' },
+        { question: 'How do I know if a seller is trustworthy?', answer: 'Check profile details and keep the conversation inside Remnant.' },
       ],
     },
     {
@@ -33,43 +34,58 @@ export default function HelpPage() {
       questions: [
         { question: 'Is it safe to meet sellers/buyers in person?', answer: 'We recommend meeting in public places during daylight hours. Always bring a friend and let someone know where you\'re going.' },
         { question: 'What should I do if I encounter a scam?', answer: 'Immediately report the user through their profile and contact our support team. Never send money outside our platform.' },
-        { question: 'How is my personal information protected?', answer: 'We use end-to-end encryption for all communications and never share your personal information with third parties.' },
+        { question: 'How is my personal information protected?', answer: 'Account access is protected with authenticated API sessions, and sensitive transaction updates stay inside the platform workflow.' },
       ],
     },
     {
       category: 'Account & Settings',
       questions: [
-        { question: 'How do I reset my password?', answer: 'Click "Forgot Password" on the login page, enter your email, and follow the instructions in the email we send you.' },
-        { question: 'Can I delete my account?', answer: 'Yes, go to Settings > Account > Delete Account. Note that this action is permanent and cannot be undone.' },
-        { question: 'How do I change my notification preferences?', answer: 'Go to Settings > Notifications to customize which alerts you receive via email and push notifications.' },
+        { question: 'How do I reset my password?', answer: 'Open the login page, continue to secure sign-in, and choose “Forgot password?” there.' },
+        { question: 'Can I delete my account?', answer: 'Contact support from the help page and the team will handle account removal requests.' },
+        { question: 'How do I change my notification preferences?', answer: 'Open Dashboard > Settings and adjust the notification toggles for your dashboard experience.' },
       ],
     },
   ];
 
   const helpTopics = [
-    { icon: Book, title: 'User Guide', description: 'Complete guide to using Remnant', link: '/help/guide' },
-    { icon: Shield, title: 'Safety Tips', description: 'Stay safe while trading', link: '/safety' },
-    { icon: CreditCard, title: 'Payments', description: 'Payment methods and fees', link: '/help/payments' },
-    { icon: Package, title: 'Shipping', description: 'Shipping and delivery options', link: '/help/shipping' },
+    { icon: Book, title: 'User Guide', description: 'Complete guide to using Remnant', link: '/seller-guide' },
+    { icon: Shield, title: 'Safety Tips', description: 'Stay safe while trading', link: '/seller-guide?tab=safety' },
+    { icon: CreditCard, title: 'Payments', description: 'Launch payment status', link: '/help?topic=payments' },
+    { icon: Package, title: 'Shipping', description: 'Shipping and delivery options', link: '/help?topic=shipping' },
   ];
 
   const contactOptions = [
-    { icon: MessageSquare, title: 'Live Chat', description: 'Chat with our support team', action: 'Start Chat' },
-    { icon: Phone, title: 'Phone Support', description: 'Call us at 01-700-REMANT', action: 'Call Now' },
-    { icon: Mail, title: 'Email Support', description: 'Send us an email', action: 'Send Email' },
+    { icon: MessageSquare, title: 'Support Inbox', description: 'Send the team your question', action: 'Open Help Desk', href: 'mailto:support@remnant.africa' },
+    { icon: Phone, title: 'Phone Support', description: 'Call us for account or payment help', action: 'Call Now', href: 'tel:+2341700736268' },
+    { icon: Mail, title: 'Email Support', description: 'Send us an email', action: 'Send Email', href: 'mailto:support@remnant.africa' },
   ];
+
+  const normalizedSearch = searchQuery.trim().toLowerCase();
+  const filteredFaqs = normalizedSearch
+    ? faqs
+        .map((category) => ({
+          ...category,
+          questions: category.questions.filter((faq) =>
+            `${faq.question} ${faq.answer} ${category.category}`.toLowerCase().includes(normalizedSearch)
+          ),
+        }))
+        .filter((category) => category.questions.length > 0)
+    : faqs;
 
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Hero Section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">How can we help you?</h1>
-        <p className="text-lg text-neutral-600 dark:text-neutral-400 mb-8 max-w-2xl mx-auto">
-          Find answers to common questions or contact our support team for personalized assistance
+        <p className="text-base text-neutral-600 dark:text-neutral-400 mb-8 max-w-2xl mx-auto">
+          Find quick answers or contact support.
         </p>
         
         {/* Search */}
-        <div className="max-w-2xl mx-auto">
+        <form
+          className="max-w-2xl mx-auto"
+          onSubmit={(event) => event.preventDefault()}
+        >
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400" size={20} />
             <Input
@@ -79,9 +95,9 @@ export default function HelpPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-12 pr-4 py-6 text-lg"
             />
-            <Button className="absolute right-2 top-2">Search</Button>
+            <Button type="submit" className="absolute right-2 top-2">Search</Button>
           </div>
-        </div>
+        </form>
       </div>
 
       {/* Help Topics */}
@@ -90,12 +106,14 @@ export default function HelpPage() {
           <Card key={index} className="hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               <div className="flex flex-col items-center text-center">
-                <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
-                  <topic.icon className="text-green-600 dark:text-green-400" size={24} />
+                <div className="h-12 w-12 rounded-full bg-[var(--brand-soft)] dark:bg-[var(--brand-muted)] flex items-center justify-center mb-4">
+                  <topic.icon className="text-[var(--brand)] dark:text-[var(--brand)]" size={24} />
                 </div>
                 <h3 className="font-semibold text-lg mb-2">{topic.title}</h3>
                 <p className="text-sm text-neutral-500 mb-4">{topic.description}</p>
-                <Button variant="outline" className="w-full">Learn More</Button>
+                <Button asChild variant="outline" className="w-full">
+                  <Link href={topic.link}>Learn More</Link>
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -107,7 +125,7 @@ export default function HelpPage() {
         <h2 className="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
         
         <Accordion type="single" collapsible className="max-w-4xl mx-auto space-y-4">
-          {faqs.map((category, catIndex) => (
+          {filteredFaqs.map((category, catIndex) => (
             <Card key={catIndex}>
               <CardHeader>
                 <CardTitle>{category.category}</CardTitle>
@@ -128,53 +146,41 @@ export default function HelpPage() {
               </CardContent>
             </Card>
           ))}
+          {filteredFaqs.length === 0 && (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <p className="text-neutral-600 dark:text-neutral-400">
+                  No help articles matched that search. Email support and we will point you in the right direction.
+                </p>
+                <Button asChild className="mt-4">
+                  <Link href="mailto:support@remnant.africa">Email support</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </Accordion>
       </div>
 
-      {/* Contact Section */}
-      <Card className="max-w-4xl mx-auto mb-12">
-        <CardHeader>
-          <CardTitle className="text-2xl">Still need help?</CardTitle>
-          <CardDescription>
-            Our support team is here to assist you
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {contactOptions.map((option, index) => (
-              <Card key={index} className="border-2">
-                <CardContent className="p-6">
-                  <div className="flex flex-col items-center text-center">
-                    <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
-                      <option.icon className="text-blue-600 dark:text-blue-400" size={24} />
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2">{option.title}</h3>
-                    <p className="text-sm text-neutral-500 mb-4">{option.description}</p>
-                    <Button className="w-full">{option.action}</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Community Section */}
-      <Card className="max-w-4xl mx-auto">
-        <CardContent className="p-8">
-          <div className="text-center">
-            <h3 className="text-2xl font-bold mb-4">Join Our Community</h3>
-            <p className="text-neutral-600 dark:text-neutral-400 mb-6">
-              Connect with other Remnant users, share tips, and get help from the community
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button>Community Forum</Button>
-              <Button variant="outline">Facebook Group</Button>
-              <Button variant="outline">WhatsApp Channel</Button>
+      <section className="mx-auto max-w-4xl">
+        <div className="mb-6 text-center">
+          <h2 className="text-2xl font-bold text-foreground">Still need help?</h2>
+          <p className="text-sm text-muted-foreground">Reach support through the channels that are active today.</p>
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {contactOptions.map((option) => (
+            <div key={option.title} className="rounded-xl border border-[var(--border)] bg-card p-5 text-center shadow-sm">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--brand-soft)]">
+                <option.icon className="text-[var(--brand)]" size={24} />
+              </div>
+              <h3 className="mb-2 text-lg font-semibold text-foreground">{option.title}</h3>
+              <p className="mb-4 text-sm text-muted-foreground">{option.description}</p>
+              <Button asChild className="w-full bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]">
+                <Link href={option.href}>{option.action}</Link>
+              </Button>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

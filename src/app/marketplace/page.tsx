@@ -1,17 +1,26 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  Search, Package, MapPin, Filter,
-  RefreshCw, HandHeart, Wrench, Recycle, DollarSign, Loader2,
+  DollarSign,
+  Filter,
+  HandHeart,
+  Loader2,
+  MapPin,
+  Package,
+  Recycle,
+  RefreshCw,
+  Search,
+  Wrench,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
 import { listingsApi } from "@/lib/api";
+import { listingCategories } from "@/lib/categories";
+import { formatCurrency } from "@/lib/utils";
 
 interface Listing {
   id: string;
@@ -27,12 +36,12 @@ interface Listing {
   user?: { id: string; name: string; avatarUrl: string | null; trustTier: string };
 }
 
-const intentionMeta: Record<string, { icon: React.ElementType; label: string; color: string }> = {
-  SELL: { icon: DollarSign, label: "For Sale", color: "text-emerald-700" },
-  TRADE: { icon: RefreshCw, label: "Trade", color: "text-blue-600" },
-  DONATE: { icon: HandHeart, label: "Free", color: "text-amber-600" },
-  FIX: { icon: Wrench, label: "Needs Fix", color: "text-orange-600" },
-  RECYCLE: { icon: Recycle, label: "Recycle", color: "text-teal-600" },
+const intentionMeta: Record<string, { icon: React.ElementType; label: string; color: string; bg: string }> = {
+  SELL: { icon: DollarSign, label: "For Sale", color: "text-[var(--brand)]", bg: "bg-[var(--brand-soft)]" },
+  TRADE: { icon: RefreshCw, label: "Trade", color: "text-[var(--secondary-blue)]", bg: "bg-[#e2f7ff]" },
+  DONATE: { icon: HandHeart, label: "Free", color: "text-[var(--tertiary-gold)]", bg: "bg-[#fff6cf]" },
+  FIX: { icon: Wrench, label: "Needs Fix", color: "text-orange-700", bg: "bg-orange-50" },
+  RECYCLE: { icon: Recycle, label: "Recycle", color: "text-teal-700", bg: "bg-teal-50" },
 };
 
 const conditionLabels: Record<string, string> = {
@@ -43,18 +52,9 @@ const conditionLabels: Record<string, string> = {
   POOR: "Poor",
 };
 
-const categories = [
-  "Electronics & Gadgets", "Clothing & Fashion", "Shoes & Footwear",
-  "Accessories & Jewelry", "Furniture & Home Decor", "Kitchen & Home Essentials",
-  "Vehicles & Auto Parts", "Tools & DIY", "Sports & Outdoor",
-  "Books & Education", "Toys & Games", "Other",
-];
-
 export default function MarketplacePage() {
-  const searchParams = useSearchParams();
-  const initialSearch = searchParams.get("search") || "";
-
-  const [searchTerm, setSearchTerm] = useState(initialSearch);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [submittedSearch, setSubmittedSearch] = useState("");
   const [category, setCategory] = useState("");
   const [intentionTag, setIntentionTag] = useState("");
   const [listings, setListings] = useState<Listing[]>([]);
@@ -68,7 +68,7 @@ export default function MarketplacePage() {
     setLoading(true);
     try {
       const params: Record<string, string> = { page: page.toString(), limit: "12" };
-      if (searchTerm) params.search = searchTerm;
+      if (submittedSearch) params.search = submittedSearch;
       if (category) params.category = category;
       if (intentionTag) params.intentionTag = intentionTag;
 
@@ -84,211 +84,346 @@ export default function MarketplacePage() {
   };
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const initialSearch = params.get("search") || "";
+    const initialCategory = params.get("category") || "";
+    const initialIntent = params.get("intentionTag") || "";
+    setSearchTerm(initialSearch);
+    setSubmittedSearch(initialSearch);
+    if (initialCategory) setCategory(initialCategory);
+    if (initialIntent) setIntentionTag(initialIntent);
+  }, []);
+
+  useEffect(() => {
     fetchListings();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, category, intentionTag]);
+  }, [page, category, intentionTag, submittedSearch]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = (event: React.FormEvent) => {
+    event.preventDefault();
     setPage(1);
-    fetchListings();
+    setSubmittedSearch(searchTerm.trim());
   };
 
-  return (
-    <div className="min-h-screen py-6 md:py-10 px-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-2">
-            The marketplace
-          </h1>
-          <p className="text-neutral-500">
-            Browse incomplete, broken, and singular things waiting for their next purpose.
+  const clearFilters = () => {
+    setCategory("");
+    setIntentionTag("");
+    setSearchTerm("");
+    setSubmittedSearch("");
+    setPage(1);
+  };
+
+  const hasActiveFilters = category || intentionTag || submittedSearch;
+
+  const FilterPanel = () => (
+    <div className="surface-card rounded-[2rem] p-6">
+      <div className="mb-7 flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-[var(--foreground)]">Filters</h2>
+        {hasActiveFilters && (
+          <button type="button" onClick={clearFilters} className="text-sm font-bold text-[var(--brand)] hover:underline">
+            Reset
+          </button>
+        )}
+      </div>
+
+      <div className="space-y-8">
+        <div>
+          <h3 className="mb-4 text-sm font-bold uppercase text-[var(--muted-foreground)]">Category</h3>
+          <select
+            value={category}
+            onChange={(event) => {
+              setCategory(event.target.value);
+              setPage(1);
+            }}
+            className="h-12 w-full rounded-full border border-[var(--border)]/70 bg-white px-4 text-sm font-semibold text-[var(--foreground)] outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
+          >
+            <option value="">All pieces</option>
+            {listingCategories.map((item) => (
+              <option key={item.label} value={item.label}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <h3 className="mb-4 text-sm font-bold uppercase text-[var(--muted-foreground)]">Intent</h3>
+          <div className="space-y-3">
+            {Object.entries(intentionMeta).map(([key, meta]) => {
+              const Icon = meta.icon;
+              return (
+                <label key={key} className="flex cursor-pointer items-center gap-3 rounded-full p-1.5 transition-colors hover:bg-[var(--sand)]">
+                  <span className="relative flex h-6 w-6 items-center justify-center rounded-full border-2 border-[var(--border)]">
+                    <input
+                      type="radio"
+                      name="intention"
+                      value={key}
+                      checked={intentionTag === key}
+                      onChange={(event) => {
+                        setIntentionTag(event.target.value);
+                        setPage(1);
+                      }}
+                      className="peer sr-only"
+                    />
+                    <span className="absolute inset-0 scale-0 rounded-full bg-[var(--brand)] transition-transform peer-checked:scale-100" />
+                  </span>
+                  <Icon size={16} className={meta.color} aria-hidden="true" />
+                  <span className="text-sm font-bold text-[var(--ink-soft)]">{meta.label}</span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="border-t border-[var(--border)]/45 pt-5">
+          <p className="text-sm font-semibold text-[var(--ink-soft)]">
+            <span className="text-2xl font-bold text-[var(--brand)]">{total}</span> item{total !== 1 && "s"} found
           </p>
         </div>
+      </div>
+    </div>
+  );
 
-        {/* Search & Filters */}
-        <div className="mb-8">
-          <form onSubmit={handleSearch} className="flex gap-2 mb-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={18} />
-              <Input
-                type="text"
-                placeholder="Search for items..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 border-neutral-200 focus:border-[#4a7c6f] focus:ring-[#4a7c6f]/20"
-              />
+  return (
+    <div className="min-h-screen bg-[var(--background)]">
+      <main className="mx-auto max-w-7xl px-4 pb-20 pt-7 md:px-8 md:pt-10">
+        <header className="mb-8 md:mb-12">
+          <div className="mb-4 inline-flex items-center rounded-full bg-[var(--brand-soft)] px-4 py-2 text-xs font-bold text-[var(--brand)] md:mb-5 md:text-sm">
+            Explore Remnant
+          </div>
+          <div className="grid gap-6 lg:grid-cols-[1fr_480px] lg:items-end">
+            <div>
+              <h1 className="text-[1.8rem] font-bold text-[var(--foreground)] md:text-6xl">Explore useful pieces</h1>
+              <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[var(--ink-soft)] md:mt-4 md:text-lg md:leading-8">
+                Browse single items, useful parts, and pieces ready for a second life.
+              </p>
             </div>
-            <Button type="submit" className="bg-[#4a7c6f] hover:bg-[#3d6b5f] text-white">
-              Search
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="border-neutral-200 md:hidden"
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <Filter size={16} />
-            </Button>
-          </form>
+            <form onSubmit={handleSearch} className="rounded-full border border-[var(--border)]/55 bg-white p-1.5 soft-shadow md:p-2">
+              <div className="relative">
+                <Search
+                  className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]"
+                  size={19}
+                  aria-hidden="true"
+                />
+                <Input
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  placeholder="Find a piece..."
+                  className="h-12 rounded-full border-0 bg-transparent pl-12 pr-24 font-semibold shadow-none focus-visible:ring-0 md:h-14 md:pl-14 md:pr-28"
+                />
+                <Button
+                  type="submit"
+                  className="absolute right-1.5 top-1.5 h-9 rounded-full bg-[var(--brand)] px-4 text-sm font-bold text-white hover:bg-[var(--brand-dark)] md:h-10 md:px-5"
+                >
+                  Search
+                </Button>
+              </div>
+            </form>
+          </div>
+        </header>
 
-          {/* Filter Row */}
-          <div className={`flex flex-wrap gap-2 ${showFilters ? 'block' : 'hidden md:flex'}`}>
-            <select
-              value={category}
-              onChange={(e) => { setCategory(e.target.value); setPage(1); }}
-              className="px-3 py-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#4a7c6f] bg-white"
-            >
-              <option value="">All Categories</option>
-              {categories.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+          <aside className="hidden w-72 shrink-0 lg:block lg:sticky lg:top-28">
+            <FilterPanel />
+          </aside>
 
-            <select
-              value={intentionTag}
-              onChange={(e) => { setIntentionTag(e.target.value); setPage(1); }}
-              className="px-3 py-2 text-sm border border-neutral-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#4a7c6f] bg-white"
-            >
-              <option value="">All Intents</option>
-              <option value="SELL">For Sale</option>
-              <option value="TRADE">For Trade</option>
-              <option value="DONATE">Free / Donate</option>
-              <option value="FIX">Needs Repair</option>
-              <option value="RECYCLE">Recycle</option>
-            </select>
-
-            {(category || intentionTag || searchTerm) && (
+          <div className="min-w-0 flex-1">
+            <div className="mb-5 flex items-center justify-between lg:hidden">
+              <p className="text-sm font-semibold text-[var(--ink-soft)]">
+                <span className="font-bold text-[var(--foreground)]">{total}</span> item{total !== 1 && "s"}
+              </p>
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                onClick={() => { setCategory(""); setIntentionTag(""); setSearchTerm(""); setPage(1); }}
-                className="text-neutral-500 text-sm"
+                onClick={() => setShowFilters(true)}
+                className="rounded-full border-[var(--border)] bg-white font-bold"
               >
-                Clear filters
+                <Filter size={15} aria-hidden="true" />
+                Filters
+                {hasActiveFilters && <span className="h-2 w-2 rounded-full bg-[var(--brand)]" />}
               </Button>
+            </div>
+
+            {hasActiveFilters && (
+              <div className="mb-5 flex flex-wrap gap-2">
+                {submittedSearch && (
+                  <span className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-soft)] px-3 py-1 text-sm font-bold text-[var(--brand)]">
+                    {submittedSearch}
+                    <button type="button" onClick={() => { setSubmittedSearch(""); setSearchTerm(""); }}>
+                      <X size={14} aria-hidden="true" />
+                    </button>
+                  </span>
+                )}
+                {category && (
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm font-bold text-[var(--ink-soft)]">
+                    {category}
+                    <button type="button" onClick={() => setCategory("")}>
+                      <X size={14} aria-hidden="true" />
+                    </button>
+                  </span>
+                )}
+                {intentionTag && (
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm font-bold text-[var(--ink-soft)]">
+                    {intentionMeta[intentionTag]?.label}
+                    <button type="button" onClick={() => setIntentionTag("")}>
+                      <X size={14} aria-hidden="true" />
+                    </button>
+                  </span>
+                )}
+              </div>
             )}
 
-            <span className="ml-auto text-sm text-neutral-400 self-center">
-              {total} item{total !== 1 && 's'} found
-            </span>
-          </div>
-        </div>
+            {loading ? (
+              <div className="flex min-h-[420px] items-center justify-center">
+                <Loader2 size={30} className="animate-spin text-[var(--brand)]" />
+              </div>
+            ) : listings.length > 0 ? (
+              <>
+                <div className="grid auto-rows-fr grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                  {listings.map((item, index) => {
+                    const intent = intentionMeta[item.intentionTag] || intentionMeta.SELL;
+                    const IntentIcon = intent.icon;
+                    const featured = index === 0 || index === 4;
 
-        {/* Listings Grid */}
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 size={28} className="animate-spin text-[#4a7c6f]" />
-          </div>
-        ) : listings.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {listings.map((item) => {
-                const intent = intentionMeta[item.intentionTag] || intentionMeta.SELL;
-                const IntentIcon = intent.icon;
-                return (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileHover={{ y: -3 }}
-                    className="group"
-                  >
-                    <Card className="overflow-hidden border border-neutral-100 hover:border-[#4a7c6f]/30 hover:shadow-lg transition-all duration-300">
-                      <div className="relative aspect-square overflow-hidden bg-neutral-50">
-                        {item.images && item.images.length > 0 ? (
-                          <img
-                            src={item.images[0]}
-                            alt={item.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-neutral-200">
-                            <Package size={48} />
-                          </div>
-                        )}
-                        <div className="absolute top-3 left-3">
-                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-white/90 backdrop-blur-sm ${intent.color}`}>
-                            <IntentIcon size={12} />
-                            {intent.label}
-                          </span>
-                        </div>
-                        {item.condition && (
-                          <div className="absolute top-3 right-3">
-                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-black/50 text-white backdrop-blur-sm">
-                              {conditionLabels[item.condition] || item.condition}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-semibold text-neutral-900 mb-1 line-clamp-1 text-sm">
-                          {item.title}
-                        </h3>
-                        <p className="text-xs text-neutral-400 line-clamp-2 mb-3">
-                          {item.description}
-                        </p>
-                        <div className="flex justify-between items-center">
-                          <span className="text-[#4a7c6f] font-bold text-sm">
-                            {item.price ? `₦${Number(item.price).toLocaleString()}` : 'Free'}
-                          </span>
-                          {item.city && (
-                            <span className="text-xs text-neutral-400 flex items-center gap-1">
-                              <MapPin size={10} />
-                              {item.city}
-                            </span>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })}
-            </div>
+                    return (
+                      <motion.article
+                        key={item.id}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.03 }}
+                        className={featured ? "md:col-span-2" : ""}
+                      >
+                        <Link href={`/marketplace/${item.id}`} className="group block h-full">
+                          <div className={`surface-card lift-card flex h-full overflow-hidden rounded-[1.5rem] md:rounded-[2rem] ${featured ? "flex-col sm:flex-row" : "flex-col"}`}>
+                            <div className={`${featured ? "sm:w-1/2" : "w-full"} relative aspect-[4/3] overflow-hidden bg-[var(--sand)]`}>
+                              {item.images?.[0] ? (
+                                <img
+                                  src={item.images[0]}
+                                  alt={item.title}
+                                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center text-[var(--muted-foreground)]">
+                                  <Package size={44} aria-hidden="true" />
+                                </div>
+                              )}
+                              <span className={`absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold shadow-sm ${intent.bg} ${intent.color}`}>
+                                <IntentIcon size={14} aria-hidden="true" />
+                                {intent.label}
+                              </span>
+                              {item.condition && (
+                                <span className="absolute right-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-[var(--ink-soft)] shadow-sm">
+                                  {conditionLabels[item.condition] || item.condition}
+                                </span>
+                              )}
+                            </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex justify-center gap-2 mt-10">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page <= 1}
-                  onClick={() => setPage(page - 1)}
-                >
-                  Previous
-                </Button>
-                <span className="flex items-center px-3 text-sm text-neutral-500">
-                  Page {page} of {totalPages}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={page >= totalPages}
-                  onClick={() => setPage(page + 1)}
-                >
-                  Next
+                            <div className={`${featured ? "sm:w-1/2" : "w-full"} flex flex-1 flex-col p-4 md:p-6`}>
+                              <div>
+                                <h3 className="line-clamp-2 text-lg font-bold leading-tight text-[var(--foreground)] md:text-2xl">
+                                  {item.title}
+                                </h3>
+                                <p className="mt-2 line-clamp-2 text-sm font-medium leading-6 text-[var(--ink-soft)] md:mt-3 md:line-clamp-3 md:text-base md:leading-7">
+                                  {item.description}
+                                </p>
+                              </div>
+                              <div className="mt-auto flex items-end justify-between gap-4 pt-4 md:pt-6">
+                                <div>
+                                  <p className="text-xs font-bold uppercase text-[var(--muted-foreground)]">Asking Price</p>
+                                  <p className="mt-1 text-lg font-bold text-[var(--brand)] md:text-2xl">
+                                    {item.price ? formatCurrency(Number(item.price)) : "Free"}
+                                  </p>
+                                </div>
+                                {item.city && (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-[var(--sand)] px-3 py-1 text-xs font-bold text-[var(--ink-soft)]">
+                                    <MapPin size={13} aria-hidden="true" />
+                                    {item.city}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      </motion.article>
+                    );
+                  })}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="mt-12 flex justify-center gap-3">
+                    <Button
+                      variant="outline"
+                      disabled={page <= 1}
+                      onClick={() => setPage(page - 1)}
+                      className="rounded-full border-[var(--border)] bg-white font-bold"
+                    >
+                      Previous
+                    </Button>
+                    <span className="flex items-center px-3 text-sm font-bold text-[var(--ink-soft)]">
+                      Page {page} of {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      disabled={page >= totalPages}
+                      onClick={() => setPage(page + 1)}
+                      className="rounded-full border-[var(--border)] bg-white font-bold"
+                    >
+                      Next
+                    </Button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="surface-card rounded-[2rem] px-6 py-16 text-center">
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+                  <Package size={30} aria-hidden="true" />
+                </div>
+                <h3 className="text-2xl font-bold text-[var(--foreground)]">No items found</h3>
+                <p className="mx-auto mt-3 max-w-md font-medium text-[var(--ink-soft)]">
+                  {hasActiveFilters
+                    ? "Try changing the search or clearing filters to reveal more pieces."
+                    : "The marketplace is empty. Be the first person to list a useful piece."}
+                </p>
+                <Button asChild className="mt-7 rounded-full bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">
+                  <Link href="/sell-item">List the first item</Link>
                 </Button>
               </div>
             )}
-          </>
-        ) : (
-          <div className="text-center py-20">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#4a7c6f]/10 mb-4">
-              <Package className="text-[#4a7c6f]" size={28} />
-            </div>
-            <h3 className="text-xl font-semibold mb-2 text-neutral-900">No items found</h3>
-            <p className="text-neutral-500 mb-6 max-w-md mx-auto">
-              {searchTerm || category || intentionTag
-                ? "Try adjusting your filters or search for something else."
-                : "The marketplace is empty! Be the first to list an item."}
-            </p>
-            <Link href="/sell-item">
-              <Button className="bg-[#4a7c6f] hover:bg-[#3d6b5f] text-white">
-                List the first item
-              </Button>
-            </Link>
           </div>
-        )}
-      </div>
+        </div>
+      </main>
+
+      {showFilters && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-black/35" onClick={() => setShowFilters(false)} />
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto rounded-t-[2rem] bg-white p-5"
+          >
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-[var(--foreground)]">Filters</h2>
+              <button
+                type="button"
+                onClick={() => setShowFilters(false)}
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--sand)] text-[var(--ink-soft)]"
+                aria-label="Close filters"
+              >
+                <X size={20} aria-hidden="true" />
+              </button>
+            </div>
+            <FilterPanel />
+            <Button
+              className="mt-5 w-full rounded-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]"
+              onClick={() => setShowFilters(false)}
+            >
+              Apply Filters
+            </Button>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

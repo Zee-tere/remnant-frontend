@@ -1,11 +1,6 @@
-import AuthLayout from '@/components/auth/AuthLayout';
-import RegisterForm from '@/components/auth/RegisterForm';
+import { redirect } from 'next/navigation';
 
 export default function RegisterPage() {
-  return (
-    <AuthLayout title="Join Remnant!">
-      <RegisterForm />
-    </AuthLayout>
-  );
+  redirect('/signup');
 }
 

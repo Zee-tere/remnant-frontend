@@ -1,0 +1,6 @@
+# Remnant production frontend environment
+# Use these names in local SST deploys and GitHub Actions secrets.
+
+NEXT_PUBLIC_API_URL=https://36yevvooae.execute-api.us-east-1.amazonaws.com
+NEXT_PUBLIC_SOCKET_URL=https://36yevvooae.execute-api.us-east-1.amazonaws.com
+NEXT_PUBLIC_ESCROW_ENABLED=false

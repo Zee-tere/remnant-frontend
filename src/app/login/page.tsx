@@ -1,128 +1,153 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/lib/auth";
+import { useSearchParams } from "next/navigation";
+import { ArrowRight, Home, Loader2, Mail, ShieldCheck, ShoppingBag } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
-import { Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { startHostedAuth } from "@/lib/hosted-auth";
 
 export default function LoginPage() {
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoading } = useAuthStore();
-  const router = useRouter();
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[var(--warm-white)]" />}>
+      <LoginPageContent />
+    </Suspense>
+  );
+}
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+function LoginPageContent() {
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
+  const authError = searchParams.get("error");
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState<"hosted" | "google" | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (authError) toast.error(authError);
+  }, [authError]);
+
+  const beginAuth = async (provider?: "Google") => {
+    setLoading(provider ? "google" : "hosted");
     try {
-      await login(form.email, form.password);
-      toast.success("Welcome back!");
-      router.push("/");
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "Login failed";
-      toast.error(msg);
+      await startHostedAuth({
+        returnTo: redirectTo,
+        provider,
+        screen: "login",
+        loginHint: email.trim() || undefined,
+      });
+    } catch (error) {
+      setLoading(null);
+      toast.error(error instanceof Error ? error.message : "Sign-in could not start");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-16 bg-gradient-to-br from-[#f0f7f4] via-white to-[#e8f0ec]">
-      <div className="w-full max-w-md">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          {/* Logo */}
-          <div className="text-center mb-8">
-            <Link href="/" className="inline-flex items-center gap-2 mb-6">
-              <div className="bg-[#4a7c6f] text-white rounded-xl h-10 w-10 flex items-center justify-center text-lg font-bold">
-                R
-              </div>
-              <span className="text-xl font-bold text-neutral-900">Remnant</span>
-            </Link>
-            <h1 className="text-2xl font-bold text-neutral-900 mb-1">Welcome back</h1>
-            <p className="text-neutral-500 text-sm">Log in to your account</p>
+    <main className="min-h-screen bg-[var(--warm-white)] px-5 py-10 md:px-8">
+      <nav className="mx-auto mb-6 flex max-w-6xl items-center justify-between lg:hidden" aria-label="Login navigation">
+        <Link href="/" className="text-xl font-bold text-[var(--brand)]">
+          Remnant
+        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--sand)] text-[var(--ink-soft)]"
+            aria-label="Home"
+          >
+            <Home size={18} aria-hidden="true" />
+          </Link>
+          <Link
+            href="/marketplace"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--sand)] text-[var(--ink-soft)]"
+            aria-label="Marketplace"
+          >
+            <ShoppingBag size={18} aria-hidden="true" />
+          </Link>
+        </div>
+      </nav>
+      <section className="mx-auto grid min-h-[74vh] max-w-6xl gap-8 lg:grid-cols-[0.95fr_1fr] lg:items-center">
+        <div className="hidden rounded-[2rem] bg-[var(--navy)] p-10 text-white lg:block">
+          <Link href="/" className="text-3xl font-extrabold">Remnant</Link>
+          <h1 className="mt-16 max-w-md text-5xl font-bold leading-tight">
+            Welcome back to useful pieces.
+          </h1>
+          <p className="mt-5 max-w-sm text-base font-medium leading-7 text-white/65">
+            Sign in securely to manage listings, messages, matches, and your account.
+          </p>
+        </div>
+
+        <div className="mx-auto w-full max-w-md">
+          <div className="mb-7 text-center lg:text-left">
+            <h1 className="text-3xl font-bold text-[var(--foreground)] md:text-4xl">Log in</h1>
+            <p className="mt-2 text-sm font-semibold text-[var(--muted-foreground)]">
+              Pick up where you left off.
+            </p>
           </div>
 
-          {/* Form */}
-          <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-8">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-neutral-700">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  id="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  required
-                  placeholder="your@email.com"
-                  className="w-full px-4 py-3 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4a7c6f]/20 focus:border-[#4a7c6f] text-neutral-900"
-                />
-              </div>
+          <form
+            className="surface-card rounded-[1.5rem] bg-white p-5 md:p-7"
+            onSubmit={(event) => {
+              event.preventDefault();
+              beginAuth();
+            }}
+          >
+            <label htmlFor="login-email" className="mb-2 block text-sm font-bold text-[var(--foreground)]">
+              Email address
+            </label>
+            <div className="relative mb-4">
+              <Mail
+                size={17}
+                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]"
+                aria-hidden="true"
+              />
+              <input
+                id="login-email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="you@example.com"
+                autoComplete="email"
+                className="h-[52px] w-full rounded-full border border-[var(--border)] bg-white px-11 py-3 text-base font-semibold text-[var(--foreground)] outline-none transition focus:border-[var(--brand)] focus:shadow-[0_0_0_3px_rgba(0,108,82,0.12)]"
+              />
+            </div>
 
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <label htmlFor="password" className="text-sm font-medium text-neutral-700">
-                    Password
-                  </label>
-                  <Link href="/forgot-password" className="text-xs text-[#4a7c6f] hover:underline">
-                    Forgot?
-                  </Link>
-                </div>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    id="password"
-                    value={form.password}
-                    onChange={handleChange}
-                    required
-                    placeholder="Enter your password"
-                    className="w-full px-4 py-3 pr-12 text-sm border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4a7c6f]/20 focus:border-[#4a7c6f] text-neutral-900"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full py-3 bg-[#4a7c6f] hover:bg-[#3d6b5f] text-white text-sm font-semibold rounded-xl transition-colors duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
+            <div className="space-y-3">
+              <Button
+                type="button"
+                onClick={() => beginAuth("Google")}
+                disabled={loading !== null}
+                variant="outline"
+                className="h-14 w-full rounded-full border-[var(--border)] bg-white text-base font-bold"
               >
-                {isLoading ? "Signing in..." : (
-                  <>
-                    Log in
-                    <ArrowRight size={16} />
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
+                {loading === "google" ? <Loader2 className="animate-spin" size={18} /> : <FcGoogle size={20} />}
+                Continue with Google
+              </Button>
 
-          <p className="mt-6 text-center text-neutral-500 text-sm">
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" className="text-[#4a7c6f] hover:underline font-medium">
-              Sign up
+              <Button
+                type="submit"
+                disabled={loading !== null}
+                className="h-14 w-full rounded-full bg-[var(--brand)] text-base font-bold text-white hover:bg-[var(--brand-dark)]"
+              >
+                {loading === "hosted" ? <Loader2 className="animate-spin" size={18} /> : <ShieldCheck size={18} />}
+                Log in
+                <ArrowRight size={17} />
+              </Button>
+            </div>
+
+            <p className="mt-5 rounded-[1.1rem] bg-[var(--sand)] px-4 py-3 text-sm font-semibold leading-6 text-[var(--ink-soft)]">
+              Your password stays with the secure sign-in provider.
+            </p>
+          </form>
+
+          <p className="mt-6 text-center text-sm font-semibold text-[var(--muted-foreground)]">
+            New to Remnant?{" "}
+            <Link href={`/signup?redirect=${encodeURIComponent(redirectTo)}`} className="text-[var(--brand)] hover:underline">
+              Create an account
             </Link>
           </p>
-        </motion.div>
-      </div>
-    </div>
+        </div>
+      </section>
+    </main>
   );
 }
