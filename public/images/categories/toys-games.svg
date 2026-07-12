@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Toy blocks and game pad">
+  <rect width="160" height="160" rx="32" fill="#eef9ff"/>
+  <rect x="36" y="82" width="33" height="33" rx="8" fill="#e64b3c"/>
+  <rect x="65" y="56" width="33" height="33" rx="8" fill="#f7b733"/>
+  <rect x="94" y="82" width="33" height="33" rx="8" fill="#006c52"/>
+  <path d="M48 125h64" stroke="#263238" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="52" cy="99" r="4" fill="#fff"/>
+  <circle cx="81" cy="73" r="4" fill="#fff"/>
+  <circle cx="110" cy="99" r="4" fill="#fff"/>
+</svg>

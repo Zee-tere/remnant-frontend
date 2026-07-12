@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Auto parts">
+  <rect width="160" height="160" rx="32" fill="#f4f7f2"/>
+  <circle cx="68" cy="91" r="34" fill="#263238"/>
+  <circle cx="68" cy="91" r="20" fill="#f4f7f2"/>
+  <circle cx="68" cy="91" r="7" fill="#006c52"/>
+  <path d="M98 52h28l11 19v20h-19l-7-17H92z" fill="#f7b733"/>
+  <path d="M101 61h18l7 11h-25z" fill="#eef9ff"/>
+  <path d="M36 127h94" stroke="#006c52" stroke-width="8" stroke-linecap="round"/>
+</svg>

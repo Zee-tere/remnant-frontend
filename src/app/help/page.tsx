@@ -55,9 +55,9 @@ export default function HelpPage() {
   ];
 
   const contactOptions = [
-    { icon: MessageSquare, title: 'Support Inbox', description: 'Send the team your question', action: 'Open Help Desk', href: 'mailto:support@remnant.africa' },
+    { icon: MessageSquare, title: 'Support Inbox', description: 'Send the team your question', action: 'Open Help Desk', href: 'mailto:support@remnantmarket.co' },
     { icon: Phone, title: 'Phone Support', description: 'Call us for account or payment help', action: 'Call Now', href: 'tel:+2341700736268' },
-    { icon: Mail, title: 'Email Support', description: 'Send us an email', action: 'Send Email', href: 'mailto:support@remnant.africa' },
+    { icon: Mail, title: 'Email Support', description: 'Send us an email', action: 'Send Email', href: 'mailto:support@remnantmarket.co' },
   ];
 
   const normalizedSearch = searchQuery.trim().toLowerCase();
@@ -153,7 +153,7 @@ export default function HelpPage() {
                   No help articles matched that search. Email support and we will point you in the right direction.
                 </p>
                 <Button asChild className="mt-4">
-                  <Link href="mailto:support@remnant.africa">Email support</Link>
+                  <Link href="mailto:support@remnantmarket.co">Email support</Link>
                 </Button>
               </CardContent>
             </Card>

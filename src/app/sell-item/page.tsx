@@ -66,8 +66,8 @@ function SellItemPageContent() {
             <div className="mt-6 rounded-[1.2rem] bg-[var(--cream)] p-4 md:rounded-[1.5rem] md:p-5">
               <p className="flex gap-2 text-sm font-semibold leading-6 text-[var(--ink-soft)]">
                 <ShieldCheck className="mt-0.5 shrink-0 text-[var(--secondary-blue)]" size={18} aria-hidden="true" />
-                Guest listings publish as Guest. A profile gives people more confidence, keeps your listings saved,
-                and makes messages easier to manage.
+                Guest listings still go live. A profile simply helps people trust you faster, saves your listings,
+                and keeps messages in one place.
               </p>
             </div>
           </div>

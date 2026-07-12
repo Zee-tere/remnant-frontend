@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Useful assorted items">
+  <rect width="160" height="160" rx="32" fill="#f0fff8"/>
+  <path d="M43 68h74l-10 54H53z" fill="#006c52"/>
+  <path d="M56 68c3-22 45-22 48 0" fill="none" stroke="#f7b733" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="64" cy="93" r="7" fill="#fff"/>
+  <rect x="80" y="84" width="21" height="21" rx="5" fill="#e64b3c"/>
+  <path d="M57 121h49" stroke="#263238" stroke-width="6" stroke-linecap="round"/>
+</svg>

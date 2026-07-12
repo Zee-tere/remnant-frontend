@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Folded Ankara fabric and shirt">
+  <rect width="160" height="160" rx="32" fill="#fff7e8"/>
+  <path d="M41 59h78l-9 68H50z" fill="#f7b733"/>
+  <path d="M55 42l25 17 25-17 19 21-14 16-9-9v57H59V70l-9 9-14-16z" fill="#006c52"/>
+  <path d="M64 74c13-14 26-14 39 0M64 94c13-14 26-14 39 0M64 114c13-14 26-14 39 0" fill="none" stroke="#eaf8f1" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="55" cy="52" r="5" fill="#e64b3c"/>
+  <circle cx="105" cy="52" r="5" fill="#e64b3c"/>
+</svg>

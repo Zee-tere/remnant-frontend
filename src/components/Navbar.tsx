@@ -3,12 +3,9 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronDown,
   HandHeart,
-  HelpCircle,
-  Info,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -96,12 +93,12 @@ export default function Navbar() {
           <span className="text-lg font-bold tracking-normal md:text-2xl">Remnant</span>
         </Link>
 
-        <nav className="hidden items-center gap-2 md:flex" aria-label="Primary navigation">
+        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-2 px-4 md:flex" aria-label="Primary navigation">
           {productActions.map((item, index) => (
             <React.Fragment key={item.href}>
               <Link
                 href={item.href}
-                className={`px-1 py-2 text-xs font-black uppercase tracking-[0.16em] transition-all duration-200 ${
+                className={`relative z-10 px-1 py-2 text-xs font-black uppercase tracking-[0.16em] transition-all duration-200 ${
                   item.href === "/marketplace" && isActive(item.href)
                     ? "text-[var(--brand)]"
                     : "text-[var(--foreground)] hover:text-[var(--brand)]"
@@ -118,7 +115,7 @@ export default function Navbar() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="relative z-20 flex shrink-0 items-center gap-2">
           {isAuthenticated ? (
             <div className="relative profile-menu">
               <button
@@ -147,15 +144,8 @@ export default function Navbar() {
                 />
               </button>
 
-              <AnimatePresence>
-                {profileOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 mt-3 w-60 overflow-hidden rounded-[1.5rem] border border-[var(--border)]/60 bg-white py-2 soft-shadow"
-                  >
+              {profileOpen && (
+                  <div className="absolute right-0 mt-3 w-60 overflow-hidden rounded-[1.5rem] border border-[var(--border)]/60 bg-white py-2 soft-shadow">
                     <div className="border-b border-[var(--border)]/45 px-5 py-4">
                       <p className="text-sm font-bold text-foreground">{displayName}</p>
                       <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
@@ -194,9 +184,8 @@ export default function Navbar() {
                         Log out
                       </button>
                     </div>
-                  </motion.div>
+                  </div>
                 )}
-              </AnimatePresence>
             </div>
           ) : (
             <div className="hidden items-center gap-2 md:flex">
@@ -209,17 +198,17 @@ export default function Navbar() {
             </div>
           )}
 
-          <form onSubmit={handleMobileSearch} className="relative w-[8.25rem] xs:w-[9.5rem] md:hidden">
+          <form onSubmit={handleMobileSearch} className="relative w-[8.6rem] xs:w-[9.75rem] md:hidden">
             <input
               value={mobileSearch}
               onChange={(event) => setMobileSearch(event.target.value)}
               placeholder="Search"
-              className="h-10 w-full rounded-full bg-[var(--sand)] py-2 pl-4 pr-10 text-sm font-semibold text-[var(--foreground)] outline-none ring-0 placeholder:text-[var(--muted-foreground)] focus:bg-white focus:shadow-[0_0_0_2px_rgba(0,108,82,0.12)]"
+              className="h-10 w-full rounded-full bg-[var(--sand)] py-2 pl-4 pr-11 text-sm font-semibold text-[var(--foreground)] outline-none ring-0 placeholder:text-[var(--muted-foreground)] focus:bg-white focus:shadow-[0_0_0_2px_rgba(0,108,82,0.12)]"
               aria-label="Search items"
             />
             <button
               type="submit"
-              className="absolute right-1 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-white text-[var(--brand)]"
+              className="absolute right-1 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[var(--brand)] shadow-sm"
               aria-label="Submit search"
             >
               <Search size={16} aria-hidden="true" />
@@ -229,6 +218,7 @@ export default function Navbar() {
           <button
             type="button"
             className="mobile-menu-button inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)] md:hidden"
+            onPointerDown={(event) => event.stopPropagation()}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
@@ -236,31 +226,9 @@ export default function Navbar() {
             {menuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={21} aria-hidden="true" />}
           </button>
 
-          <AnimatePresence>
               {menuOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ type: "spring", damping: 26, stiffness: 280 }}
-                  className="navbar-menu absolute left-2 right-2 top-full z-50 mt-2 overflow-hidden rounded-[1.35rem] bg-white p-3 shadow-[0_18px_45px_-30px_rgba(0,108,82,0.5)] ring-1 ring-black/[0.05] md:hidden"
-                >
-                  <div className="mb-3 flex items-center justify-between px-1">
-                    <p className="text-sm font-black uppercase text-[var(--muted-foreground)]">Menu</p>
-                    {!isAuthenticated && (
-                      <div className="flex items-center gap-2">
-                        <Link
-                          href="/signup"
-                          onClick={() => setMenuOpen(false)}
-                          className="flex min-h-10 items-center rounded-full bg-[var(--brand)] px-4 text-sm font-bold text-white"
-                        >
-                          Join
-                        </Link>
-                      </div>
-                    )}
-                  </div>
-
-                  <nav className="grid grid-cols-2 gap-2 pb-1" aria-label="Mobile navigation">
+                <div className="navbar-menu absolute right-0 top-full z-50 mt-2 w-[min(92vw,22rem)] overflow-hidden rounded-[1.35rem] bg-white/88 p-2 shadow-[0_18px_45px_-30px_rgba(0,108,82,0.5)] ring-1 ring-black/[0.05] backdrop-blur-md md:hidden">
+                  <nav className="grid grid-cols-3 gap-1.5" aria-label="Mobile navigation">
                     {productActions.map((item) => {
                       const Icon = item.icon;
                       return (
@@ -268,7 +236,7 @@ export default function Navbar() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setMenuOpen(false)}
-                        className={`flex min-h-[74px] flex-col justify-between rounded-[1rem] p-3 text-sm font-bold transition-colors ${
+                        className={`flex min-h-[64px] flex-col items-start justify-between rounded-[0.95rem] p-2.5 text-xs font-bold transition-colors ${
                           item.href === "/marketplace" && isActive(item.href)
                             ? "bg-[var(--brand-soft)] text-[var(--brand)]"
                             : "text-[var(--ink-soft)] hover:bg-[var(--sand)] hover:text-[var(--brand)]"
@@ -279,29 +247,9 @@ export default function Navbar() {
                       </Link>
                       );
                     })}
-
-                    <div className="col-span-2 mt-1 grid grid-cols-2 gap-2 border-t border-[var(--border)]/25 pt-3">
-                      <Link
-                        href="/about"
-                        onClick={() => setMenuOpen(false)}
-                        className="flex min-h-11 items-center justify-center gap-2 rounded-full bg-[var(--sand)] px-3 text-sm font-bold text-[var(--ink-soft)] transition-colors hover:text-[var(--brand)]"
-                      >
-                        <Info size={16} aria-hidden="true" />
-                        About
-                      </Link>
-                      <Link
-                        href="/help"
-                        onClick={() => setMenuOpen(false)}
-                        className="flex min-h-11 items-center justify-center gap-2 rounded-full bg-[var(--sand)] px-3 text-sm font-bold text-[var(--ink-soft)] transition-colors hover:text-[var(--brand)]"
-                      >
-                        <HelpCircle size={16} aria-hidden="true" />
-                        Help
-                      </Link>
-                    </div>
                   </nav>
-                </motion.div>
+                </div>
               )}
-          </AnimatePresence>
         </div>
       </div>
     </header>

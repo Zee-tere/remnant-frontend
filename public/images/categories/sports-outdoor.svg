@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Football and outdoor bottle">
+  <rect width="160" height="160" rx="32" fill="#effaf0"/>
+  <circle cx="69" cy="86" r="34" fill="#fff" stroke="#263238" stroke-width="6"/>
+  <path d="M69 63l17 13-7 21H59l-7-21zM46 88l13 9M92 97l14-9M59 55l10 8 10-8" fill="none" stroke="#263238" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M111 44h16v82h-16z" fill="#006c52"/>
+  <path d="M108 58h22v19h-22z" fill="#f7b733"/>
+</svg>

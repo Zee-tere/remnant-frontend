@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Cooking pot and cup">
+  <rect width="160" height="160" rx="32" fill="#fff7e8"/>
+  <path d="M45 75h70l-8 45H53z" fill="#006c52"/>
+  <path d="M58 63h44" stroke="#263238" stroke-width="8" stroke-linecap="round"/>
+  <path d="M35 85h12M113 85h12" stroke="#006c52" stroke-width="8" stroke-linecap="round"/>
+  <path d="M100 46c7 4 7 11 0 16M82 42c7 4 7 12 0 17" fill="none" stroke="#e64b3c" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="56" cy="96" r="5" fill="#f7b733"/>
+</svg>

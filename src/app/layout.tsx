@@ -31,14 +31,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://remnant.africa"),
+  metadataBase: new URL("https://remnantmarket.co"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://remnant.africa",
+    url: "https://remnantmarket.co",
     title: "Remnant | Buy, List, Match, Repair, Donate, and Recycle Useful Things",
     description:
       "Buy, sell, trade, donate, repair, recycle, or find the exact missing piece.",
@@ -74,7 +74,7 @@ export default function RootLayout({
     "@type": "WebSite",
     name: "Remnant",
     alternateName: "Remnant Marketplace",
-    url: "https://remnant.africa",
+    url: "https://remnantmarket.co",
     description:
       "Circular C2C marketplace for single items, mismatched products, broken goods, and useful parts",
     publisher: {
@@ -82,14 +82,14 @@ export default function RootLayout({
       name: "Remnant",
       logo: {
         "@type": "ImageObject",
-        url: "https://remnant.africa/favicon.ico",
+        url: "https://remnantmarket.co/favicon.ico",
       },
     },
     potentialAction: {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: "https://remnant.africa/marketplace?search={search_term_string}",
+        urlTemplate: "https://remnantmarket.co/marketplace?search={search_term_string}",
       },
       "query-input": "required name=search_term_string",
     },
@@ -107,10 +107,11 @@ export default function RootLayout({
           content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover"
         />
         <meta name="theme-color" content="#006c52" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="preconnect" href="https://api.remnant.africa" />
+        <link rel="preconnect" href="https://36yevvooae.execute-api.us-east-1.amazonaws.com" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

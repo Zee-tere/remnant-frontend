@@ -372,7 +372,7 @@ export default function MessagesSection() {
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <a
-                  href={`mailto:support@remnant.africa?subject=${encodeURIComponent(
+                  href={`mailto:support@remnantmarket.co?subject=${encodeURIComponent(
                     `Conversation report: ${activeConversation.id}`,
                   )}`}
                 >

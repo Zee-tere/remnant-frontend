@@ -13,7 +13,7 @@ const footerLinks = [
 
 const socialLinks = [
   { label: "X", href: "https://x.com/remnant_africa", icon: Twitter },
-  { label: "Instagram", href: "https://www.instagram.com/remnant.africa/", icon: Instagram },
+  { label: "Instagram", href: "https://www.instagram.com/remnantmarket.co/", icon: Instagram },
 ];
 
 export default function Footer() {
@@ -54,11 +54,11 @@ export default function Footer() {
         <div className="flex flex-col items-center justify-between gap-2 border-t border-[var(--border)]/30 pt-3 text-sm font-semibold text-[var(--secondary-blue)] md:flex-row">
           <p>&copy; {currentYear} Remnant. Every piece has a story.</p>
           <Link
-            href="mailto:support@remnant.africa"
+            href="mailto:support@remnantmarket.co"
             className="inline-flex items-center gap-2 transition-colors hover:text-[var(--brand)]"
           >
             <Mail size={15} aria-hidden="true" />
-            support@remnant.africa
+            support@remnantmarket.co
           </Link>
         </div>
       </div>

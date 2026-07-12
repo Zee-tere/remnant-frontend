@@ -38,11 +38,11 @@ const conditions = [
 ];
 
 const purposes = [
-  { label: 'Sell', value: 'SELL', icon: Store, description: 'Set a price.' },
-  { label: 'Trade', value: 'TRADE', icon: RefreshCw, description: 'Swap for something useful.' },
-  { label: 'Donate', value: 'DONATE', icon: Heart, description: 'Give it away.' },
-  { label: 'Repair', value: 'FIX', icon: Wrench, description: 'Find a fixer.' },
-  { label: 'Recycle', value: 'RECYCLE', icon: Recycle, description: 'Pass on reusable materials.' },
+  { label: 'Sell', value: 'SELL', icon: Store, description: 'Find it a buyer.' },
+  { label: 'Trade', value: 'TRADE', icon: RefreshCw, description: 'Swap for what you need.' },
+  { label: 'Donate', value: 'DONATE', icon: Heart, description: 'Give it to someone who can use it.' },
+  { label: 'Repair', value: 'FIX', icon: Wrench, description: 'Get help bringing it back.' },
+  { label: 'Recycle', value: 'RECYCLE', icon: Recycle, description: 'Pass useful parts on.' },
 ] as const;
 
 type PurposeValue = (typeof purposes)[number]['value'];
@@ -57,11 +57,11 @@ const steps = [
 ];
 
 const purposeDisplay: Record<PurposeValue, string> = {
-  SELL: 'Selling',
-  TRADE: 'Trading',
-  DONATE: 'Donating',
-  FIX: 'Repairing',
-  RECYCLE: 'Recycling',
+  SELL: 'Sell',
+  TRADE: 'Trade',
+  DONATE: 'Donate',
+  FIX: 'Repair',
+  RECYCLE: 'Recycle',
 };
 
 function normalizePurpose(value?: string): PurposeValue | '' {
@@ -352,9 +352,9 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       className="space-y-6 md:space-y-8"
     >
       <div className="text-center">
-        <h2 className="text-2xl font-bold md:text-3xl">Choose what to do</h2>
+        <h2 className="text-2xl font-bold md:text-3xl">What should happen to it?</h2>
         <p className="mx-auto mt-2 max-w-2xl text-sm font-medium text-[var(--ink-soft)] md:text-base">
-          We will only ask what matters next.
+          Choose the path that fits best.
         </p>
       </div>
 
@@ -531,12 +531,12 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         <div className="space-y-5 rounded-[1.5rem] bg-[var(--cream)] p-5 md:col-span-2">
           <h3 className="flex items-center gap-2 text-xl font-bold">
             <Heart size={20} aria-hidden="true" />
-            Donation details
+            How should the donation work?
           </h3>
           <div className="grid gap-3 md:grid-cols-2">
             {[
-              { value: 'GIVEAWAY', title: 'Put it on the site', text: 'Show this as a public giveaway.' },
-              { value: 'RECIPIENT', title: 'I have someone in mind', text: 'Reserve the donation for a specific person.' },
+              { value: 'GIVEAWAY', title: 'Open giveaway', text: 'Let interested people request it.' },
+              { value: 'RECIPIENT', title: 'Reserved for someone', text: 'Keep the handoff for one person.' },
             ].map((option) => (
               <label key={option.value} className="cursor-pointer">
                 <input
@@ -580,7 +580,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
                 />
               </label>
               <label className="space-y-2 md:col-span-2">
-                <span className="text-sm font-bold">Private note for the donation</span>
+                <span className="text-sm font-bold">Private handoff note</span>
                 <Textarea
                   value={formData.recipientNote}
                   onChange={(event) => handleInputChange('recipientNote', event.target.value)}
@@ -599,7 +599,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         <div className="grid gap-5 rounded-[1.5rem] bg-[var(--cream)] p-5 md:col-span-2 md:grid-cols-2">
           <h3 className="flex items-center gap-2 text-xl font-bold md:col-span-2">
             <Wrench size={20} aria-hidden="true" />
-            Repair details
+            What kind of help do you need?
           </h3>
           <label className="space-y-2">
             <span className="text-sm font-bold">What needs fixing?</span>
@@ -654,7 +654,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         <div className="grid gap-5 rounded-[1.5rem] bg-[var(--cream)] p-5 md:col-span-2 md:grid-cols-2">
           <h3 className="flex items-center gap-2 text-xl font-bold md:col-span-2">
             <Recycle size={20} aria-hidden="true" />
-            Recycle details
+            What can be reused?
           </h3>
           <label className="space-y-2">
             <span className="text-sm font-bold">Main material or part type</span>
@@ -715,9 +715,9 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       className="space-y-6 md:space-y-8"
     >
       <div className="text-center">
-        <h2 className="text-2xl font-bold md:text-3xl">{selectedPurpose ? `${selectedPurpose.label} details` : 'Item details'}</h2>
+        <h2 className="text-2xl font-bold md:text-3xl">{selectedPurpose ? `${selectedPurpose.label} this item` : 'Tell us about it'}</h2>
         <p className="mt-2 text-sm font-medium text-[var(--ink-soft)] md:text-base">
-          Add the basics.
+          A few clear details help the right person find it.
         </p>
       </div>
 
@@ -823,7 +823,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       <div className="text-center">
         <h2 className="text-2xl font-bold md:text-3xl">Review and publish</h2>
         <p className="mt-2 text-sm font-medium text-[var(--ink-soft)] md:text-base">
-          Check everything before it goes live.
+          Make sure it feels ready to share.
         </p>
       </div>
 
@@ -858,7 +858,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
               <p className="mt-1 text-xl font-bold text-[var(--brand)]">{formatCurrency(parseInt(formData.price, 10))}</p>
             )}
             {formData.purpose === 'DONATE' && (
-              <p className="mt-1 text-lg font-bold text-[var(--brand)]">Free donation</p>
+              <p className="mt-1 text-lg font-bold text-[var(--brand)]">Free to a good home</p>
             )}
             {formData.purpose === 'FIX' && formData.repairBudget && (
               <p className="mt-1 text-lg font-bold text-[var(--brand)]">Repair budget: {formatCurrency(parseInt(formData.repairBudget, 10))}</p>
@@ -894,7 +894,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-7 text-center md:mb-10">
-        <h1 className="text-[1.8rem] font-bold text-[var(--foreground)] md:text-5xl">List your item</h1>
+        <h1 className="text-[1.8rem] font-bold text-[var(--foreground)] md:text-5xl">Give it a next stop</h1>
         {(selectedPurpose || isGuest) && (
           <div className="mx-auto mt-4 flex max-w-2xl flex-wrap items-center justify-center gap-2 md:mt-5 md:gap-3">
             {selectedPurpose && (

@@ -376,6 +376,24 @@
     }
   }
 
+  .fun-fact-marquee span {
+    display: inline-block;
+    min-width: 100%;
+    white-space: nowrap;
+    animation: fun-fact-slide 11s ease-in-out infinite;
+  }
+
+  @keyframes fun-fact-slide {
+    0%,
+    18% {
+      transform: translateX(0);
+    }
+    82%,
+    100% {
+      transform: translateX(max(-42%, -8rem));
+    }
+  }
+
   .text-brand {
     color: var(--brand);
   }

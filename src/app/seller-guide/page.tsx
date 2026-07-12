@@ -783,7 +783,7 @@ export default function SellerGuidePage() {
                 <Link href="/sell-item">List Your First Item</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-[var(--navy)] text-[var(--navy)] hover:bg-white/30">
-                <Link href="mailto:support@remnant.africa?subject=Seller%20support">Contact Support</Link>
+                <Link href="mailto:support@remnantmarket.co?subject=Seller%20support">Contact Support</Link>
               </Button>
             </div>
           </CardContent>

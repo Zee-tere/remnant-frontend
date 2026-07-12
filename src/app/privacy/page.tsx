@@ -53,7 +53,7 @@ export default function PrivacyPage() {
             Email support for data access, correction, deletion, or privacy questions.
           </p>
           <Button asChild className="mt-6 rounded-full bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">
-            <Link href="mailto:support@remnant.africa">
+            <Link href="mailto:support@remnantmarket.co">
               Contact support
               <ArrowRight size={16} aria-hidden="true" />
             </Link>

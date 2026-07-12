@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { listingsApi } from "@/lib/api";
+import { getApiUrl } from "@/lib/api-url";
 import { listingCategories } from "@/lib/categories";
 import { formatCurrency } from "@/lib/utils";
 
@@ -107,8 +107,8 @@ export default function HomePage() {
   const [loadingListings, setLoadingListings] = useState(true);
 
   useEffect(() => {
-    listingsApi
-      .getListings({ limit: "4" })
+    fetch(`${getApiUrl()}/listings?limit=4`)
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error("Listings unavailable"))))
       .then((data: { listings: Listing[] }) => setFeaturedListings(data.listings || []))
       .catch(() => setFeaturedListings([]))
       .finally(() => setLoadingListings(false));

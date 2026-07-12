@@ -56,6 +56,15 @@ export const listingsApi = {
     api.get('/listings/saved').then((r) => r.data),
 };
 
+export const authApi = {
+  login: (data: { email: string; password: string }) =>
+    api.post('/auth/login', data).then((r) => r.data),
+  register: (data: { name: string; email: string; password: string }) =>
+    api.post('/auth/register', data).then((r) => r.data),
+  confirmSignup: (data: { email: string; code: string }) =>
+    api.post('/auth/confirm-signup', data).then((r) => r.data),
+};
+
 export const userApi = {
   getMe: () =>
     api.get('/users/me').then((r) => r.data),
