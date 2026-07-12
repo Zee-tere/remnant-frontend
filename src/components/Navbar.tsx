@@ -83,13 +83,13 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full px-4 py-2 md:px-6 md:py-3">
+    <header className="sticky top-0 z-50 w-full px-3 py-2 md:px-6 md:py-3">
       <div
-        className={`relative mx-auto flex max-w-7xl items-center justify-between bg-white/95 py-1 backdrop-blur-md transition-all duration-300 md:rounded-[2rem] md:border md:px-6 md:py-3 ${
+        className={`relative mx-auto flex max-w-7xl items-center gap-2 bg-white/95 py-1 backdrop-blur-md transition-all duration-300 md:justify-between md:gap-0 md:rounded-[2rem] md:border md:px-6 md:py-3 ${
           scrolled ? "md:border-[var(--border)]/60 md:soft-shadow" : "md:border-[var(--border)]/35 md:shadow-sm md:shadow-[var(--brand)]/5"
         }`}
       >
-        <Link href="/" className="flex min-w-0 items-center gap-3 text-[var(--brand)]">
+        <Link href="/" className="flex shrink-0 items-center gap-3 text-[var(--brand)]">
           <span className="text-lg font-bold tracking-normal md:text-2xl">Remnant</span>
         </Link>
 
@@ -115,7 +115,7 @@ export default function Navbar() {
           ))}
         </nav>
 
-        <div className="relative z-20 flex shrink-0 items-center gap-2">
+        <div className="relative z-20 flex min-w-0 flex-1 items-center justify-end gap-2 md:flex-initial md:shrink-0">
           {isAuthenticated ? (
             <div className="relative profile-menu">
               <button
@@ -198,17 +198,20 @@ export default function Navbar() {
             </div>
           )}
 
-          <form onSubmit={handleMobileSearch} className="relative w-[8.6rem] xs:w-[9.75rem] md:hidden">
+          <form
+            onSubmit={handleMobileSearch}
+            className="flex h-11 min-w-0 flex-1 items-center gap-1 rounded-full bg-[var(--sand)] p-1 md:hidden"
+          >
             <input
               value={mobileSearch}
               onChange={(event) => setMobileSearch(event.target.value)}
               placeholder="Search"
-              className="h-10 w-full rounded-full bg-[var(--sand)] py-2 pl-4 pr-11 text-sm font-semibold text-[var(--foreground)] outline-none ring-0 placeholder:text-[var(--muted-foreground)] focus:bg-white focus:shadow-[0_0_0_2px_rgba(0,108,82,0.12)]"
+              className="h-9 min-w-0 flex-1 rounded-full bg-transparent px-3 text-sm font-semibold text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]"
               aria-label="Search items"
             />
             <button
               type="submit"
-              className="absolute right-1 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[var(--brand)] shadow-sm"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[var(--brand)] shadow-sm transition-colors hover:bg-[var(--brand-soft)]"
               aria-label="Submit search"
             >
               <Search size={16} aria-hidden="true" />

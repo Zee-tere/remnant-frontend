@@ -198,10 +198,10 @@ export default function MarketplacePage() {
                 Browse single items, useful parts, and pieces ready for a second life.
               </p>
             </div>
-            <form onSubmit={handleSearch} className="rounded-full border border-[var(--border)]/55 bg-white p-1.5 soft-shadow md:p-2">
-              <div className="relative">
+            <form onSubmit={handleSearch} className="flex items-center gap-2 rounded-full border border-[var(--border)]/55 bg-white p-1.5 soft-shadow md:p-2">
+              <div className="flex min-w-0 flex-1 items-center gap-2">
                 <Search
-                  className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]"
+                  className="ml-2 shrink-0 text-[var(--muted-foreground)] md:ml-3"
                   size={19}
                   aria-hidden="true"
                 />
@@ -209,15 +209,15 @@ export default function MarketplacePage() {
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Find a piece..."
-                  className="h-12 rounded-full border-0 bg-transparent pl-12 pr-24 font-semibold shadow-none focus-visible:ring-0 md:h-14 md:pl-14 md:pr-28"
+                  className="h-10 min-w-0 rounded-full border-0 bg-transparent px-0 text-sm font-semibold shadow-none focus-visible:ring-0 md:h-12 md:text-base"
                 />
-                <Button
-                  type="submit"
-                  className="absolute right-1.5 top-1.5 h-9 rounded-full bg-[var(--brand)] px-4 text-sm font-bold text-white hover:bg-[var(--brand-dark)] md:h-10 md:px-5"
-                >
-                  Search
-                </Button>
               </div>
+              <Button
+                type="submit"
+                className="h-10 shrink-0 rounded-full bg-[var(--brand)] px-4 text-sm font-bold text-white hover:bg-[var(--brand-dark)] md:h-12 md:px-6"
+              >
+                Search
+              </Button>
             </form>
           </div>
         </header>
@@ -394,16 +394,16 @@ export default function MarketplacePage() {
       </main>
 
       {showFilters && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-[70] lg:hidden">
           <div className="absolute inset-0 bg-black/35" onClick={() => setShowFilters(false)} />
           <motion.div
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto rounded-t-[2rem] bg-white p-5"
+            className="absolute bottom-0 left-0 right-0 flex max-h-[88dvh] flex-col overflow-hidden rounded-t-[2rem] bg-white"
           >
-            <div className="mb-5 flex items-center justify-between">
+            <div className="flex shrink-0 items-center justify-between px-5 pb-4 pt-5">
               <h2 className="text-2xl font-bold text-[var(--foreground)]">Filters</h2>
               <button
                 type="button"
@@ -414,13 +414,17 @@ export default function MarketplacePage() {
                 <X size={20} aria-hidden="true" />
               </button>
             </div>
-            <FilterPanel />
-            <Button
-              className="mt-5 w-full rounded-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]"
-              onClick={() => setShowFilters(false)}
-            >
-              Apply Filters
-            </Button>
+            <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">
+              <FilterPanel />
+            </div>
+            <div className="shrink-0 border-t border-[var(--border)]/55 bg-white/95 px-5 pb-[calc(1rem+var(--safe-area-bottom))] pt-3 backdrop-blur">
+              <Button
+                className="h-12 w-full rounded-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]"
+                onClick={() => setShowFilters(false)}
+              >
+                Apply Filters
+              </Button>
+            </div>
           </motion.div>
         </div>
       )}
