@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { userApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
+import { getApiErrorMessage } from '@/lib/errors';
 
 interface LocalSettings {
   emailAlerts: boolean;
@@ -76,8 +77,8 @@ export default function SettingsSection() {
       }
 
       toast.success('Settings saved');
-    } catch {
-      toast.error('Could not save settings');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Could not save settings'));
     } finally {
       setSaving(false);
     }

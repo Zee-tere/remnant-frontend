@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { conversationsApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
+import { getApiErrorMessage } from '@/lib/errors';
 import { useSocket } from '@/providers/SocketProvider';
 import { cn } from '@/lib/utils';
 
@@ -103,9 +104,9 @@ export default function MessagesSection() {
       const rows = Array.isArray(data) ? data : [];
       setConversations(rows);
       setActiveConversationId((current) => current ?? rows[0]?.id ?? null);
-    } catch {
+    } catch (error) {
       setConversations([]);
-      toast.error('Could not load conversations');
+      toast.error(getApiErrorMessage(error, 'Could not load conversations'));
     } finally {
       setLoadingConversations(false);
     }
@@ -131,10 +132,10 @@ export default function MessagesSection() {
           setMessages(Array.isArray(data) ? data : []);
           conversationsApi.markAsRead(activeConversationId).catch(() => undefined);
         }
-      } catch {
+      } catch (error) {
         if (!cancelled) {
           setMessages([]);
-          toast.error('Could not load messages');
+          toast.error(getApiErrorMessage(error, 'Could not load messages'));
         }
       } finally {
         if (!cancelled) setLoadingMessages(false);
@@ -212,8 +213,8 @@ export default function MessagesSection() {
           conversation.id === activeConversationId ? { ...conversation, messages: [message] } : conversation,
         ),
       );
-    } catch {
-      toast.error('Could not send message');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Could not send message'));
       setNewMessage(content);
     } finally {
       setSending(false);

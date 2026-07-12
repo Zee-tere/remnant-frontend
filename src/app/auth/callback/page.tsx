@@ -26,6 +26,7 @@ export default function AuthCallbackPage() {
 function AuthCallbackContent() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
     const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
@@ -40,6 +41,7 @@ function AuthCallbackContent() {
 
     if (authError) {
       clearExpectedAuthState();
+      logout();
       const message = authErrorDescription || authError;
       toast.error(message);
       router.replace(`/login?error=${encodeURIComponent(message)}`);
@@ -48,6 +50,7 @@ function AuthCallbackContent() {
 
     if ((!code && !accessTokenFromHash) || !state || state !== expectedState) {
       clearExpectedAuthState();
+      logout();
       const message = "Sign-in could not be completed. Please try again.";
       toast.error(message);
       router.replace(`/login?error=${encodeURIComponent(message)}`);
@@ -69,7 +72,11 @@ function AuthCallbackContent() {
         const res = await fetch(`${getApiUrl()}/auth/me`, {
           headers: { Authorization: `Bearer ${verifiedAccessToken}` },
         });
-        if (!res.ok) throw new Error("Profile lookup failed");
+        if (!res.ok) {
+          const data = await res.json().catch(() => null) as { message?: string | string[] } | null;
+          const message = Array.isArray(data?.message) ? data?.message[0] : data?.message;
+          throw new Error(message || "Your sign-in worked, but your Remnant profile could not be loaded.");
+        }
 
         const user = await res.json();
         clearExpectedAuthState();
@@ -78,6 +85,7 @@ function AuthCallbackContent() {
         router.replace(returnTo);
       } catch (error) {
         clearExpectedAuthState();
+        logout();
         const message = error instanceof Error ? error.message : "Sign-in could not be completed. Please try again.";
         toast.error(message);
         router.replace(`/login?error=${encodeURIComponent(message)}`);
@@ -85,7 +93,7 @@ function AuthCallbackContent() {
     }
 
     finishSignIn();
-  }, [router, setAuth]);
+  }, [logout, router, setAuth]);
 
   return <AuthCallbackShell />;
 }

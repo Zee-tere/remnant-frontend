@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { listingsApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
+import { getApiErrorMessage } from '@/lib/errors';
 import { cn, formatCurrency } from '@/lib/utils';
 
 type DashboardSection = 'listings' | 'messages' | 'alerts' | 'upload' | 'profile' | 'settings';
@@ -149,9 +150,9 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
     try {
       const data = await listingsApi.getMyListings();
       setListings(Array.isArray(data) ? data : []);
-    } catch {
+    } catch (error) {
       setListings([]);
-      toast.error('Could not load your listings');
+      toast.error(getApiErrorMessage(error, 'Could not load your listings'));
     } finally {
       setLoading(false);
     }
@@ -233,8 +234,8 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
       setListings((current) => current.map((listing) => (listing.id === editingListing.id ? updated : listing)));
       setEditingListing(null);
       toast.success('Listing updated');
-    } catch {
-      toast.error('Could not update listing');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Could not update listing'));
     }
   };
 
@@ -247,8 +248,8 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
       setListings((current) => current.filter((listing) => listing.id !== id));
       setSelectedIds((current) => current.filter((selected) => selected !== id));
       toast.success('Listing deleted');
-    } catch {
-      toast.error('Could not delete listing');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Could not delete listing'));
     }
   };
 
@@ -263,8 +264,8 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
       setListings((current) => current.filter((listing) => !selectedIds.includes(listing.id)));
       setSelectedIds([]);
       toast.success('Selected listings deleted');
-    } catch {
-      toast.error('Some listings could not be deleted');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Some listings could not be deleted'));
       fetchListings();
     } finally {
       setBulkDeleting(false);

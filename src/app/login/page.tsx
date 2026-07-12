@@ -9,13 +9,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
+import { getApiErrorMessage } from "@/lib/errors";
 import { startHostedAuth } from "@/lib/hosted-auth";
-
-function getErrorMessage(error: unknown, fallback: string) {
-  const response = error as { response?: { data?: { message?: string | string[] } } };
-  const message = response.response?.data?.message;
-  return Array.isArray(message) ? message[0] : message || fallback;
-}
 
 export default function LoginPage() {
   return (
@@ -63,7 +58,7 @@ function LoginPageContent() {
       toast.success("Welcome back");
       router.push(redirectTo);
     } catch (error) {
-      toast.error(getErrorMessage(error, "Email or password is not correct."));
+      toast.error(getApiErrorMessage(error, "Email or password is not correct."));
       setLoading(null);
     }
   };
@@ -153,6 +148,9 @@ function LoginPageContent() {
                 {showPassword ? <EyeOff size={17} aria-hidden="true" /> : <Eye size={17} aria-hidden="true" />}
               </button>
             </div>
+            <p className="mb-4 text-xs font-semibold leading-5 text-[var(--muted-foreground)]">
+              Use the password you created. It should be 8+ characters with uppercase, lowercase, and a number.
+            </p>
 
             <div className="space-y-3">
               <Button

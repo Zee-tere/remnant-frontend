@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { matchesApi, notificationsApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
+import { getApiErrorMessage } from '@/lib/errors';
 import { cn } from '@/lib/utils';
 
 type FilterType = 'all' | 'match' | 'message' | 'transaction' | 'review' | 'listing' | 'system';
@@ -189,10 +190,10 @@ export default function AlertsSection() {
       } else {
         setMatches([]);
       }
-    } catch {
+    } catch (error) {
       setNotifications([]);
       setMatches([]);
-      toast.error('Could not load alerts');
+      toast.error(getApiErrorMessage(error, 'Could not load alerts'));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -263,8 +264,8 @@ export default function AlertsSection() {
     );
     try {
       await notificationsApi.markAsRead(id);
-    } catch {
-      toast.error('Could not update notification');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Could not update notification'));
       loadActivity();
     }
   };
@@ -275,8 +276,8 @@ export default function AlertsSection() {
     );
     try {
       await matchesApi.updateMatchStatus(id, status);
-    } catch {
-      toast.error('Could not update match');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Could not update match'));
       loadActivity();
     }
   };
@@ -293,8 +294,8 @@ export default function AlertsSection() {
         ...matches.filter((match) => match.status === 'PENDING').map((match) => matchesApi.updateMatchStatus(match.id, 'VIEWED')),
       ]);
       toast.success('Alerts marked as read');
-    } catch {
-      toast.error('Some alerts could not be updated');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Some alerts could not be updated'));
       loadActivity();
     }
   };

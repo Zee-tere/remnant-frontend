@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { transactionsApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
+import { getApiErrorMessage } from "@/lib/errors";
 import { cn, formatCurrency } from "@/lib/utils";
 
 type TransactionStatus =
@@ -80,9 +81,9 @@ export default function TransactionsSection() {
     try {
       const data = await transactionsApi.getTransactions();
       setTransactions(Array.isArray(data) ? data : []);
-    } catch {
+    } catch (error) {
       setTransactions([]);
-      toast.error("Could not load transactions");
+      toast.error(getApiErrorMessage(error, "Could not load transactions"));
     } finally {
       setLoading(false);
     }

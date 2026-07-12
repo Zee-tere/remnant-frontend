@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { userApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
+import { getApiErrorMessage } from '@/lib/errors';
 
 const trustTierLabels: Record<string, string> = {
   NEW: 'New',
@@ -47,8 +48,8 @@ export default function ProfileSection() {
       setUser(updatedUser);
       setIsEditing(false);
       toast.success('Profile updated');
-    } catch {
-      toast.error('Could not update profile');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Could not update profile'));
     } finally {
       setSaving(false);
     }

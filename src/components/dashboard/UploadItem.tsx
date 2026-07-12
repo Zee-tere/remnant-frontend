@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { listingCategories } from '@/lib/categories';
+import { getApiErrorMessage } from '@/lib/errors';
 import { cn, formatCurrency } from '@/lib/utils';
 import { listingsApi, uploadApi } from '@/lib/api';
 
@@ -332,7 +333,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       setStep(1);
     } catch (error) {
       console.error('Upload failed:', error);
-      toast.error('Failed to publish item. Please try again.');
+      toast.error(getApiErrorMessage(error, 'Failed to publish item. Please try again.'));
     } finally {
       setIsUploading(false);
       setTimeout(() => setUploadProgress(0), 1500);

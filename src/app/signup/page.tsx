@@ -9,15 +9,10 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
+import { getApiErrorMessage } from "@/lib/errors";
 import { startHostedAuth } from "@/lib/hosted-auth";
 
 const benefits = ["Free to list", "Better match visibility", "Safer message history"];
-
-function getErrorMessage(error: unknown, fallback: string) {
-  const response = error as { response?: { data?: { message?: string | string[] } } };
-  const message = response.response?.data?.message;
-  return Array.isArray(message) ? message[0] : message || fallback;
-}
 
 export default function SignUpPage() {
   return (
@@ -71,7 +66,7 @@ function SignUpPageContent() {
       toast.success("Welcome to Remnant");
       router.push(redirectTo);
     } catch (error) {
-      toast.error(getErrorMessage(error, "Account could not be created."));
+      toast.error(getApiErrorMessage(error, "Account could not be created."));
       setLoading(null);
     }
   };
@@ -85,7 +80,7 @@ function SignUpPageContent() {
       toast.success("Your account is ready");
       router.push(redirectTo);
     } catch (error) {
-      toast.error(getErrorMessage(error, "Confirmation code could not be verified."));
+      toast.error(getApiErrorMessage(error, "Confirmation code could not be verified."));
       setLoading(null);
     }
   };
@@ -226,6 +221,9 @@ function SignUpPageContent() {
               >
                 {showPassword ? <EyeOff size={17} aria-hidden="true" /> : <Eye size={17} aria-hidden="true" />}
               </button>
+            </div>
+            <div className="mb-4 rounded-[1rem] bg-[var(--sand)] px-4 py-3 text-xs font-semibold leading-5 text-[var(--ink-soft)]">
+              Password must be at least 8 characters and include uppercase, lowercase, and a number.
             </div>
               </>
             )}

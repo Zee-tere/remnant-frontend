@@ -8,6 +8,11 @@ interface AuthConfig {
   hostedUiDomain: string | null;
 }
 
+interface OAuthErrorResponse {
+  error?: string;
+  error_description?: string;
+}
+
 function normalizeHostedUiDomain(domain: string) {
   return /^https?:\/\//i.test(domain) ? domain : `https://${domain}`;
 }
@@ -106,7 +111,10 @@ export async function startHostedAuth(options: {
   authorizeUrl.searchParams.set("code_challenge_method", "S256");
   authorizeUrl.searchParams.set("code_challenge", challenge);
 
-  if (options.provider) authorizeUrl.searchParams.set("identity_provider", options.provider);
+  if (options.provider) {
+    authorizeUrl.searchParams.set("identity_provider", options.provider);
+    authorizeUrl.searchParams.set("prompt", "select_account");
+  }
   if (options.screen === "signup") authorizeUrl.searchParams.set("screen_hint", "signup");
   if (options.loginHint) authorizeUrl.searchParams.set("login_hint", options.loginHint);
 
@@ -137,7 +145,21 @@ export async function exchangeHostedAuthCode(code: string, verifier: string) {
 
   if (!tokenRes.ok) {
     const errorText = await tokenRes.text().catch(() => "");
-    throw new Error(errorText || "Token exchange failed");
+    let message = "Google sign-in could not be completed. Please try again.";
+
+    try {
+      const parsed = JSON.parse(errorText) as OAuthErrorResponse;
+      const description = parsed.error_description || parsed.error;
+      if (description) message = description;
+    } catch {
+      if (errorText && errorText.length < 180) message = errorText;
+    }
+
+    if (/client_secret|secret_hash|invalid_client/i.test(message)) {
+      message = "Google sign-in is using the wrong Cognito app client. Please update the production Cognito client id and use a public client without a client secret.";
+    }
+
+    throw new Error(message);
   }
   const tokens = (await tokenRes.json()) as { access_token?: string };
   if (!tokens.access_token) throw new Error("Missing access token");
