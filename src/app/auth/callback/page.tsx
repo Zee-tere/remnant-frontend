@@ -80,6 +80,7 @@ function AuthCallbackContent() {
               body: JSON.stringify({
                 accessToken: hostedTokens.accessToken,
                 idToken: hostedTokens.idToken,
+                refreshToken: hostedTokens.refreshToken,
               }),
             })
           : await fetch(`${getApiUrl()}/auth/me`, {
@@ -94,8 +95,9 @@ function AuthCallbackContent() {
         const data = await res.json();
         const user = data.user ?? data;
         const accessToken = data.accessToken ?? hostedTokens.accessToken;
+        const refreshToken = data.refreshToken ?? hostedTokens.refreshToken;
         clearExpectedAuthState();
-        setAuth(user, accessToken);
+        setAuth(user, accessToken, refreshToken);
         toast.success("Welcome to Remnant!");
         router.replace(returnTo);
       } catch (error) {

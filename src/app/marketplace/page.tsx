@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  DollarSign,
   Filter,
   HandHeart,
   Loader2,
@@ -21,6 +20,8 @@ import { Input } from "@/components/ui/input";
 import { listingsApi } from "@/lib/api";
 import { listingCategories } from "@/lib/categories";
 import { formatCurrency } from "@/lib/utils";
+import { NairaIcon } from "@/components/ui/naira-icon";
+import { nigerianStates } from "@/lib/nigeria-locations";
 
 interface Listing {
   id: string;
@@ -37,7 +38,7 @@ interface Listing {
 }
 
 const intentionMeta: Record<string, { icon: React.ElementType; label: string; color: string; bg: string }> = {
-  SELL: { icon: DollarSign, label: "For Sale", color: "text-[var(--brand)]", bg: "bg-[var(--brand-soft)]" },
+  SELL: { icon: NairaIcon, label: "For Sale", color: "text-[var(--brand)]", bg: "bg-[var(--brand-soft)]" },
   TRADE: { icon: RefreshCw, label: "Trade", color: "text-[var(--secondary-blue)]", bg: "bg-[#e2f7ff]" },
   DONATE: { icon: HandHeart, label: "Free", color: "text-[var(--tertiary-gold)]", bg: "bg-[#fff6cf]" },
   FIX: { icon: Wrench, label: "Needs Fix", color: "text-orange-700", bg: "bg-orange-50" },
@@ -57,6 +58,7 @@ export default function MarketplacePage() {
   const [submittedSearch, setSubmittedSearch] = useState("");
   const [category, setCategory] = useState("");
   const [intentionTag, setIntentionTag] = useState("");
+  const [city, setCity] = useState("");
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -71,6 +73,7 @@ export default function MarketplacePage() {
       if (submittedSearch) params.search = submittedSearch;
       if (category) params.category = category;
       if (intentionTag) params.intentionTag = intentionTag;
+      if (city) params.city = city;
 
       const data = await listingsApi.getListings(params);
       setListings(data.listings || []);
@@ -88,16 +91,18 @@ export default function MarketplacePage() {
     const initialSearch = params.get("search") || "";
     const initialCategory = params.get("category") || "";
     const initialIntent = params.get("intentionTag") || "";
+    const initialCity = params.get("city") || "";
     setSearchTerm(initialSearch);
     setSubmittedSearch(initialSearch);
     if (initialCategory) setCategory(initialCategory);
     if (initialIntent) setIntentionTag(initialIntent);
+    if (initialCity) setCity(initialCity);
   }, []);
 
   useEffect(() => {
     fetchListings();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, category, intentionTag, submittedSearch]);
+  }, [page, category, intentionTag, city, submittedSearch]);
 
   const handleSearch = (event: React.FormEvent) => {
     event.preventDefault();
@@ -108,12 +113,13 @@ export default function MarketplacePage() {
   const clearFilters = () => {
     setCategory("");
     setIntentionTag("");
+    setCity("");
     setSearchTerm("");
     setSubmittedSearch("");
     setPage(1);
   };
 
-  const hasActiveFilters = category || intentionTag || submittedSearch;
+  const hasActiveFilters = category || intentionTag || city || submittedSearch;
 
   const FilterPanel = () => (
     <div className="surface-card rounded-[2rem] p-6">
@@ -127,6 +133,18 @@ export default function MarketplacePage() {
       </div>
 
       <div className="space-y-8">
+        <div>
+          <h3 className="mb-4 text-sm font-bold uppercase text-[var(--muted-foreground)]">State</h3>
+          <select
+            value={city}
+            onChange={(event) => { setCity(event.target.value); setPage(1); }}
+            className="h-12 w-full rounded-full border border-[var(--border)]/70 bg-white px-4 text-sm font-semibold text-[var(--foreground)] outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
+          >
+            <option value="">All states</option>
+            {nigerianStates.map((state) => <option key={state} value={state}>{state}</option>)}
+          </select>
+        </div>
+
         <div>
           <h3 className="mb-4 text-sm font-bold uppercase text-[var(--muted-foreground)]">Category</h3>
           <select
@@ -266,6 +284,14 @@ export default function MarketplacePage() {
                   <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm font-bold text-[var(--ink-soft)]">
                     {intentionMeta[intentionTag]?.label}
                     <button type="button" onClick={() => setIntentionTag("")}>
+                      <X size={14} aria-hidden="true" />
+                    </button>
+                  </span>
+                )}
+                {city && (
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm font-bold text-[var(--ink-soft)]">
+                    {city}
+                    <button type="button" onClick={() => setCity("")} aria-label="Clear state filter">
                       <X size={14} aria-hidden="true" />
                     </button>
                   </span>

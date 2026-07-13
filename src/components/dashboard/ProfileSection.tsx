@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { userApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
 import { getApiErrorMessage } from '@/lib/errors';
+import { nigerianStates } from '@/lib/nigeria-locations';
 
 const trustTierLabels: Record<string, string> = {
   NEW: 'New',
@@ -219,12 +220,15 @@ export default function ProfileSection() {
                 />
               </label>
               <label className="space-y-2">
-                <span className="text-sm font-bold">City</span>
-                <Input
+                <span className="text-sm font-bold">State</span>
+                <select
                   value={form.city}
                   onChange={(event) => setForm((current) => ({ ...current, city: event.target.value }))}
-                  className="rounded-full"
-                />
+                  className="h-10 w-full rounded-full border border-[var(--border)] bg-white px-4 text-sm font-semibold"
+                >
+                  <option value="">Choose a state</option>
+                  {nigerianStates.map((state) => <option key={state} value={state}>{state}</option>)}
+                </select>
               </label>
               <label className="space-y-2">
                 <span className="text-sm font-bold">Avatar URL</span>

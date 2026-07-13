@@ -20,10 +20,11 @@ export interface User {
 interface AuthState {
   user: User | null;
   accessToken: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 
-  setAuth: (user: User, accessToken: string) => void;
+  setAuth: (user: User, accessToken: string, refreshToken?: string | null) => void;
   setUser: (user: User) => void;
   setLoading: (loading: boolean) => void;
   logout: () => void;
@@ -36,11 +37,18 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       accessToken: null,
+      refreshToken: null,
       isAuthenticated: false,
       isLoading: false,
 
-      setAuth: (user, accessToken) => {
-        set({ user, accessToken, isAuthenticated: true, isLoading: false });
+      setAuth: (user, accessToken, refreshToken) => {
+        set((state) => ({
+          user,
+          accessToken,
+          refreshToken: refreshToken ?? state.refreshToken,
+          isAuthenticated: true,
+          isLoading: false,
+        }));
       },
 
       setUser: (user) => {
@@ -52,28 +60,49 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
+        set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false, isLoading: false });
       },
 
       refreshSession: async () => {
-        const { accessToken } = get();
-        if (!accessToken) return false;
+        const { accessToken, refreshToken } = get();
+        if (!accessToken && !refreshToken) return false;
 
         try {
-          const res = await fetch(`${getApiUrl()}/auth/me`, {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
+          let currentAccessToken = accessToken;
+          let user = null;
 
-          if (!res.ok) {
+          if (currentAccessToken) {
+            const profileRes = await fetch(`${getApiUrl()}/auth/me`, {
+              headers: { Authorization: `Bearer ${currentAccessToken}` },
+              cache: 'no-store',
+            });
+            if (profileRes.ok) user = await profileRes.json();
+          }
+
+          if (!user && refreshToken) {
+            const refreshRes = await fetch(`${getApiUrl()}/auth/refresh`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ refreshToken }),
+            });
+            if (refreshRes.ok) {
+              const refreshed = await refreshRes.json();
+              currentAccessToken = refreshed.accessToken;
+              user = refreshed.user;
+            }
+          }
+
+          if (!user || !currentAccessToken) {
             get().logout();
             return false;
           }
 
-          const user = await res.json();
           set({
             user,
-            accessToken,
+            accessToken: currentAccessToken,
+            refreshToken,
             isAuthenticated: true,
+            isLoading: false,
           });
           return true;
         } catch {
@@ -88,6 +117,7 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
     },

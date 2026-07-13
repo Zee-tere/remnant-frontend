@@ -54,7 +54,7 @@ function LoginPageContent() {
     setLoading("form");
     try {
       const result = await authApi.login({ email, password });
-      setAuth(result.user, result.accessToken);
+      setAuth(result.user, result.accessToken, result.refreshToken);
       toast.success("Welcome back");
       router.push(redirectTo);
     } catch (error) {
@@ -151,6 +151,9 @@ function LoginPageContent() {
             <p className="mb-4 text-xs font-semibold leading-5 text-[var(--muted-foreground)]">
               Use the password you created. It should be 8+ characters with uppercase, lowercase, and a number.
             </p>
+            <Link href="/forgot-password" className="mb-4 inline-flex text-sm font-bold text-[var(--brand)] hover:underline">
+              Forgot password?
+            </Link>
 
             <div className="space-y-3">
               <Button

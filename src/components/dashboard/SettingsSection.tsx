@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { userApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
 import { getApiErrorMessage } from '@/lib/errors';
+import { nigerianStates } from '@/lib/nigeria-locations';
 
 interface LocalSettings {
   emailAlerts: boolean;
@@ -131,11 +132,15 @@ export default function SettingsSection() {
               <Input value={user.email} disabled />
             </label>
             <label className="block space-y-2">
-              <span className="text-sm font-medium">City</span>
-              <Input
+              <span className="text-sm font-medium">State</span>
+              <select
                 value={profileForm.city}
                 onChange={(event) => setProfileForm((current) => ({ ...current, city: event.target.value }))}
-              />
+                className="h-10 w-full rounded-md border border-[var(--border)] bg-background px-3 text-sm"
+              >
+                <option value="">Choose a state</option>
+                {nigerianStates.map((state) => <option key={state} value={state}>{state}</option>)}
+              </select>
             </label>
             <label className="block space-y-2">
               <span className="text-sm font-medium">Bio</span>

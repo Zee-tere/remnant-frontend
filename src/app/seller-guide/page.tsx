@@ -7,10 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useState } from 'react';
 import Link from 'next/link';
 import { 
-  Camera, DollarSign, Tag, Shield, 
+  Camera, Tag, Shield,
   MessageSquare, Truck, Star, TrendingUp,
   CheckCircle, AlertCircle, Zap, Target
 } from 'lucide-react';
+import { NairaIcon } from '@/components/ui/naira-icon';
 
 export default function SellerGuidePage() {
   const [activeTab, setActiveTab] = useState('getting-started');
@@ -44,7 +45,7 @@ export default function SellerGuidePage() {
       step: 3,
       title: 'Price Competitively',
       description: 'Research similar items for fair pricing',
-      icon: DollarSign,
+      icon: NairaIcon,
       tips: [
         'Check similar listings',
         'Consider item condition',
@@ -582,7 +583,7 @@ export default function SellerGuidePage() {
                     
                     <div className="pt-3 border-t">
                       <div className="flex items-center gap-2 mb-2">
-                        <DollarSign className="h-5 w-5 text-green-500" />
+                        <NairaIcon size={20} className="text-green-500" />
                         <span className="font-medium">Shipping Costs</span>
                       </div>
                       <p className="text-sm text-neutral-500">

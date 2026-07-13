@@ -11,9 +11,24 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   {
-    ignores: [".next/**", "node_modules/**", "out/**", "dist/**", "next-env.d.ts"],
+    ignores: [
+      ".next/**",
+      ".open-next/**",
+      ".sst/**",
+      "node_modules/**",
+      "out/**",
+      "dist/**",
+      "next-env.d.ts",
+      "sst-env.d.ts",
+    ],
   },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    files: ["sst.config.ts"],
+    rules: {
+      "@typescript-eslint/triple-slash-reference": "off",
+    },
+  },
   {
     rules: {
       "@next/next/no-img-element": "off",

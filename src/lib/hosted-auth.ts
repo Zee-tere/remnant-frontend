@@ -8,14 +8,10 @@ interface AuthConfig {
   hostedUiDomain: string | null;
 }
 
-interface OAuthErrorResponse {
-  error?: string;
-  error_description?: string;
-}
-
 export interface HostedTokens {
   accessToken: string;
   idToken?: string;
+  refreshToken?: string;
 }
 
 function normalizeHostedUiDomain(domain: string) {
@@ -127,49 +123,16 @@ export async function startHostedAuth(options: {
 }
 
 export async function exchangeHostedAuthCode(code: string, verifier: string): Promise<HostedTokens> {
-  const res = await fetch(`${getApiUrl()}/auth/config`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Sign-in is not configured yet.");
-
-  const config = (await res.json()) as AuthConfig;
-  if (!config.hostedUiDomain || !config.clientId) {
-    throw new Error("Sign-in is not configured yet.");
-  }
-
-  const body = new URLSearchParams();
-  body.set("grant_type", "authorization_code");
-  body.set("client_id", config.clientId);
-  body.set("code", code);
-  body.set("redirect_uri", callbackUrl());
-  body.set("code_verifier", verifier);
-
-  const tokenRes = await fetch(new URL("/oauth2/token", normalizeHostedUiDomain(config.hostedUiDomain)), {
+  const tokenRes = await fetch(`${getApiUrl()}/auth/exchange-code`, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code, codeVerifier: verifier, redirectUri: callbackUrl() }),
   });
 
   if (!tokenRes.ok) {
-    const errorText = await tokenRes.text().catch(() => "");
-    let message = "Google sign-in could not be completed. Please try again.";
-
-    try {
-      const parsed = JSON.parse(errorText) as OAuthErrorResponse;
-      const description = parsed.error_description || parsed.error;
-      if (description) message = description;
-    } catch {
-      if (errorText && errorText.length < 180) message = errorText;
-    }
-
-    if (/client_secret|secret_hash|invalid_client/i.test(message)) {
-      message = "Google sign-in is using the wrong Cognito app client. Please update the production Cognito client id and use a public client without a client secret.";
-    }
-
-    throw new Error(message);
+    const error = await tokenRes.json().catch(() => null) as { message?: string | string[] } | null;
+    const message = Array.isArray(error?.message) ? error.message[0] : error?.message;
+    throw new Error(message || "Google sign-in could not be completed. Please try again.");
   }
-  const tokens = (await tokenRes.json()) as { access_token?: string; id_token?: string };
-  if (!tokens.access_token) throw new Error("Missing access token");
-  return {
-    accessToken: tokens.access_token,
-    idToken: tokens.id_token,
-  };
+  return tokenRes.json() as Promise<HostedTokens>;
 }

@@ -32,6 +32,8 @@ import { listingsApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
 import { getApiErrorMessage } from '@/lib/errors';
 import { cn, formatCurrency } from '@/lib/utils';
+import { listingCategories } from '@/lib/categories';
+import { nigerianStates } from '@/lib/nigeria-locations';
 
 type DashboardSection = 'listings' | 'messages' | 'alerts' | 'upload' | 'profile' | 'settings';
 
@@ -540,11 +542,16 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
               </label>
               <label className="space-y-2">
                 <span className="text-sm font-medium">Category</span>
-                <Input value={editForm.category} onChange={(event) => setEditForm({ ...editForm, category: event.target.value })} required />
+                <select value={editForm.category} onChange={(event) => setEditForm({ ...editForm, category: event.target.value })} required className="h-10 w-full rounded-md border border-[var(--border)] bg-background px-3 text-sm">
+                  {listingCategories.map((category) => <option key={category.label} value={category.label}>{category.label}</option>)}
+                </select>
               </label>
               <label className="space-y-2">
-                <span className="text-sm font-medium">City</span>
-                <Input value={editForm.city} onChange={(event) => setEditForm({ ...editForm, city: event.target.value })} />
+                <span className="text-sm font-medium">State</span>
+                <select value={editForm.city} onChange={(event) => setEditForm({ ...editForm, city: event.target.value })} className="h-10 w-full rounded-md border border-[var(--border)] bg-background px-3 text-sm">
+                  <option value="">Choose a state</option>
+                  {nigerianStates.map((state) => <option key={state} value={state}>{state}</option>)}
+                </select>
               </label>
               <label className="space-y-2">
                 <span className="text-sm font-medium">Condition</span>

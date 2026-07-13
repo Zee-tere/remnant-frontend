@@ -62,7 +62,7 @@ function SignUpPageContent() {
         return;
       }
 
-      setAuth(result.user, result.accessToken);
+      setAuth(result.user, result.accessToken, result.refreshToken);
       toast.success("Welcome to Remnant");
       router.push(redirectTo);
     } catch (error) {
@@ -76,7 +76,7 @@ function SignUpPageContent() {
     try {
       await authApi.confirmSignup({ email, code: confirmationCode });
       const result = await authApi.login({ email, password });
-      setAuth(result.user, result.accessToken);
+      setAuth(result.user, result.accessToken, result.refreshToken);
       toast.success("Your account is ready");
       router.push(redirectTo);
     } catch (error) {

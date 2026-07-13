@@ -22,7 +22,20 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
+    const request = error.config as (typeof error.config & { _retriedAfterRefresh?: boolean }) | undefined;
+    const hadBearerToken = Boolean(request?.headers?.Authorization);
+
+    if (error.response?.status === 401 && hadBearerToken && request && !request._retriedAfterRefresh) {
+      request._retriedAfterRefresh = true;
+      const refreshed = await useAuthStore.getState().refreshSession();
+      const token = useAuthStore.getState().accessToken;
+      if (refreshed && token) {
+        request.headers.Authorization = `Bearer ${token}`;
+        return api.request(request);
+      }
+    }
+
+    if (error.response?.status === 401 && hadBearerToken) {
       useAuthStore.getState().logout();
       if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
         window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
@@ -65,6 +78,10 @@ export const authApi = {
     api.post('/auth/register', data).then((r) => r.data),
   confirmSignup: (data: { email: string; code: string }) =>
     api.post('/auth/confirm-signup', data).then((r) => r.data),
+  forgotPassword: (email: string) =>
+    api.post('/auth/forgot-password', { email }).then((r) => r.data),
+  resetPassword: (data: { email: string; code: string; password: string }) =>
+    api.post('/auth/reset-password', data).then((r) => r.data),
 };
 
 export const userApi = {

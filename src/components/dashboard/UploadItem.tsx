@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Camera,
   CheckCircle,
-  DollarSign,
   Gift,
   Heart,
   Image as ImageIcon,
@@ -26,6 +26,8 @@ import { listingCategories } from '@/lib/categories';
 import { getApiErrorMessage } from '@/lib/errors';
 import { cn, formatCurrency } from '@/lib/utils';
 import { listingsApi, uploadApi } from '@/lib/api';
+import { nigerianStates } from '@/lib/nigeria-locations';
+import { NairaIcon } from '@/components/ui/naira-icon';
 
 const MAX_FILE_SIZE = 3 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -102,6 +104,7 @@ interface UploadItemProps {
 }
 
 export default function UploadItem({ initialPurpose, isGuest = false }: UploadItemProps) {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState(() => createInitialFormData(initialPurpose));
   const [images, setImages] = useState<File[]>([]);
@@ -228,13 +231,6 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
     setPreviewUrls((current) => current.filter((_, currentIndex) => currentIndex !== index));
   };
 
-  const clearForm = () => {
-    previewUrls.forEach((url) => URL.revokeObjectURL(url));
-    setFormData(createInitialFormData(initialPurpose));
-    setImages([]);
-    setPreviewUrls([]);
-  };
-
   const buildCompatibilityAttributes = () => {
     const base = { flow: formData.purpose, guestListing: isGuest };
 
@@ -320,7 +316,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         images: uploadedImageUrls,
       };
 
-      await (isGuest ? listingsApi.createGuestListing(payload) : listingsApi.createListing(payload));
+      const listing = await (isGuest ? listingsApi.createGuestListing(payload) : listingsApi.createListing(payload));
 
       setUploadProgress(100);
       toast.success(isGuest ? 'Guest listing published' : 'Listing published', {
@@ -329,8 +325,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
           : 'Your item is live on the marketplace.',
       });
 
-      clearForm();
-      setStep(1);
+      router.push(`/marketplace/${listing.id}`);
     } catch (error) {
       console.error('Upload failed:', error);
       toast.error(getApiErrorMessage(error, 'Failed to publish item. Please try again.'));
@@ -471,20 +466,20 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       return (
         <div className="rounded-[1.5rem] bg-[var(--cream)] p-5 md:col-span-2">
           <h3 className="mb-4 flex items-center gap-2 text-xl font-bold">
-            <DollarSign size={20} aria-hidden="true" />
+            <NairaIcon size={20} />
             Sale details
           </h3>
           <label className="space-y-2">
             <span className="text-sm font-bold">Selling price</span>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--muted-foreground)]">
-                NGN
+                ₦
               </span>
               <Input
                 type="number"
                 value={formData.price}
                 onChange={(event) => handleInputChange('price', event.target.value)}
-                className="rounded-full bg-white pl-16"
+                className="rounded-full bg-white pl-10"
                 required
               />
             </div>
@@ -622,13 +617,13 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             <span className="text-sm font-bold">Repair budget</span>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--muted-foreground)]">
-                NGN
+                ₦
               </span>
               <Input
                 type="number"
                 value={formData.repairBudget}
                 onChange={(event) => handleInputChange('repairBudget', event.target.value)}
-                className="rounded-full bg-white pl-16"
+                className="rounded-full bg-white pl-10"
                 placeholder="Optional"
               />
             </div>
@@ -765,14 +760,17 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
         <label className="space-y-2">
           <span className="text-sm font-bold">
-            {formData.purpose === 'RECYCLE' ? 'Pickup or handoff city' : 'City'}
+            {formData.purpose === 'RECYCLE' ? 'Pickup or handoff state' : 'State'}
           </span>
-          <Input
+          <select
             value={formData.location}
             onChange={(event) => handleInputChange('location', event.target.value)}
-            className="rounded-full bg-white"
+            className="h-12 w-full rounded-full border border-[var(--border)] bg-white px-4 text-base font-semibold outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
             required
-          />
+          >
+            <option value="">Choose a state</option>
+            {nigerianStates.map((state) => <option key={state} value={state}>{state}</option>)}
+          </select>
         </label>
 
         <label className="space-y-2 md:col-span-2">

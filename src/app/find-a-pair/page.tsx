@@ -5,7 +5,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
-  DollarSign,
   HandHeart,
   Loader2,
   MapPin,
@@ -20,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { listingsApi } from "@/lib/api";
 import { formatCurrency } from "@/lib/utils";
+import { NairaIcon } from "@/components/ui/naira-icon";
 
 interface Listing {
   id: string;
@@ -35,7 +35,7 @@ interface Listing {
 }
 
 const intentionMeta: Record<string, { icon: React.ElementType; label: string; color: string; bg: string }> = {
-  SELL: { icon: DollarSign, label: "For Sale", color: "text-[var(--brand)]", bg: "bg-[var(--brand-soft)]" },
+  SELL: { icon: NairaIcon, label: "For Sale", color: "text-[var(--brand)]", bg: "bg-[var(--brand-soft)]" },
   TRADE: { icon: RefreshCw, label: "Trade", color: "text-[var(--secondary-blue)]", bg: "bg-[#e2f7ff]" },
   DONATE: { icon: HandHeart, label: "Free", color: "text-[var(--tertiary-gold)]", bg: "bg-[#fff6cf]" },
   FIX: { icon: Wrench, label: "Needs Fix", color: "text-orange-700", bg: "bg-orange-50" },

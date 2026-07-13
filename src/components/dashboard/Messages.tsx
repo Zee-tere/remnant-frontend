@@ -91,14 +91,14 @@ export default function MessagesSection() {
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const loadConversations = useCallback(async () => {
+  const loadConversations = useCallback(async (silent = false) => {
     if (!isAuthenticated) {
       setConversations([]);
       setLoadingConversations(false);
       return;
     }
 
-    setLoadingConversations(true);
+    if (!silent) setLoadingConversations(true);
     try {
       const data = await conversationsApi.getConversations();
       const rows = Array.isArray(data) ? data : [];
@@ -108,12 +108,14 @@ export default function MessagesSection() {
       setConversations([]);
       toast.error(getApiErrorMessage(error, 'Could not load conversations'));
     } finally {
-      setLoadingConversations(false);
+      if (!silent) setLoadingConversations(false);
     }
   }, [isAuthenticated]);
 
   useEffect(() => {
     loadConversations();
+    const poll = window.setInterval(() => loadConversations(true), 15000);
+    return () => window.clearInterval(poll);
   }, [loadConversations]);
 
   useEffect(() => {
@@ -124,8 +126,8 @@ export default function MessagesSection() {
 
     let cancelled = false;
 
-    const loadMessages = async () => {
-      setLoadingMessages(true);
+    const loadMessages = async (silent = false) => {
+      if (!silent) setLoadingMessages(true);
       try {
         const data = await conversationsApi.getMessages(activeConversationId);
         if (!cancelled) {
@@ -138,15 +140,17 @@ export default function MessagesSection() {
           toast.error(getApiErrorMessage(error, 'Could not load messages'));
         }
       } finally {
-        if (!cancelled) setLoadingMessages(false);
+        if (!cancelled && !silent) setLoadingMessages(false);
       }
     };
 
     loadMessages();
+    const poll = window.setInterval(() => loadMessages(true), 8000);
     joinRoom(activeConversationId);
 
     return () => {
       cancelled = true;
+      window.clearInterval(poll);
       leaveRoom(activeConversationId);
     };
   }, [activeConversationId, joinRoom, leaveRoom]);

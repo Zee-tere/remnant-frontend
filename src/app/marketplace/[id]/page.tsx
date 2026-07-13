@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Calendar,
-  DollarSign,
   HandHeart,
   Heart,
   Info,
@@ -27,6 +26,8 @@ import { Button } from "@/components/ui/button";
 import { listingsApi, conversationsApi, transactionsApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
 import { formatCurrency } from "@/lib/utils";
+import { NairaIcon } from "@/components/ui/naira-icon";
+import { getApiErrorMessage } from "@/lib/errors";
 
 interface ListingDetail {
   id: string;
@@ -45,7 +46,7 @@ interface ListingDetail {
 }
 
 const intentionMeta: Record<string, { icon: React.ElementType; label: string; color: string; bg: string }> = {
-  SELL: { icon: DollarSign, label: "For Sale", color: "text-[var(--brand)]", bg: "bg-[var(--brand-soft)]" },
+  SELL: { icon: NairaIcon, label: "For Sale", color: "text-[var(--brand)]", bg: "bg-[var(--brand-soft)]" },
   TRADE: { icon: RefreshCw, label: "For Trade", color: "text-[var(--secondary-blue)]", bg: "bg-[#e2f7ff]" },
   DONATE: { icon: HandHeart, label: "Free / Donate", color: "text-[var(--tertiary-gold)]", bg: "bg-[#fff6cf]" },
   FIX: { icon: Wrench, label: "Needs Repair", color: "text-orange-700", bg: "bg-orange-50" },
@@ -96,14 +97,17 @@ export default function ItemDetailPage() {
       return;
     }
     if (!listing) return;
+    if (listing.user?.name === "Guest") {
+      toast.info("This seller has not created a profile yet, so messaging is not available.");
+      return;
+    }
     setIsMessaging(true);
     try {
       await conversationsApi.startConversation(listing.id);
       toast.success("Conversation started");
       router.push("/user/dashboard?section=messages");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Could not start conversation";
-      toast.error(msg);
+      toast.error(getApiErrorMessage(err, "Could not start conversation"));
     } finally {
       setIsMessaging(false);
     }
@@ -353,10 +357,10 @@ export default function ItemDetailPage() {
                 <Button
                   className="h-14 w-full rounded-full bg-white text-base font-bold text-[var(--brand)] shadow-sm hover:bg-[var(--brand-soft)]"
                   onClick={handleMessageSeller}
-                  disabled={isMessaging}
+                  disabled={isMessaging || isGuestSeller}
                 >
                   {isMessaging ? <Loader2 size={19} className="animate-spin" /> : <MessageSquare size={19} />}
-                  {isMessaging ? "Starting chat..." : "Ask the Curator"}
+                  {isGuestSeller ? "Seller has not joined yet" : isMessaging ? "Starting chat..." : "Message seller"}
                 </Button>
               </div>
             </div>
