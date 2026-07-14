@@ -35,6 +35,7 @@ jobs:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_SOCKET_URL: ${{ secrets.NEXT_PUBLIC_SOCKET_URL }}
           NEXT_PUBLIC_ESCROW_ENABLED: "false"
+          NEXT_PUBLIC_RELEASE_ID: ${{ github.sha }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -48,6 +49,7 @@ jobs:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_SOCKET_URL: ${{ secrets.NEXT_PUBLIC_SOCKET_URL }}
           NEXT_PUBLIC_ESCROW_ENABLED: "false"
+          NEXT_PUBLIC_RELEASE_ID: ${{ github.sha }}
 
       - name: Invalidate CloudFront cache
         shell: bash

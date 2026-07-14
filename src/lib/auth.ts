@@ -1,6 +1,9 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist, createJSONStorage, type StateStorage } from 'zustand/middleware';
 import { getApiUrl } from './api-url';
+
+export const AUTH_STORAGE_KEY = 'remnant-auth';
+const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 
 export interface User {
   id: string;
@@ -24,6 +27,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   hasHydrated: boolean;
+  sessionExpiresAt: number | null;
 
   setAuth: (user: User, accessToken: string, refreshToken?: string | null) => void;
   setUser: (user: User) => void;
@@ -36,6 +40,28 @@ interface AuthState {
 
 let sessionRefreshPromise: Promise<boolean> | null = null;
 
+const crossTabStorage: StateStorage = {
+  getItem: (name) => {
+    const persisted = window.localStorage.getItem(name);
+    if (persisted) return persisted;
+
+    const previousTabSession = window.sessionStorage.getItem(name);
+    if (previousTabSession) {
+      window.localStorage.setItem(name, previousTabSession);
+      window.sessionStorage.removeItem(name);
+    }
+    return previousTabSession;
+  },
+  setItem: (name, value) => {
+    window.localStorage.setItem(name, value);
+    window.sessionStorage.removeItem(name);
+  },
+  removeItem: (name) => {
+    window.localStorage.removeItem(name);
+    window.sessionStorage.removeItem(name);
+  },
+};
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -45,6 +71,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       hasHydrated: false,
+      sessionExpiresAt: null,
 
       setAuth: (user, accessToken, refreshToken) => {
         set((state) => ({
@@ -53,6 +80,7 @@ export const useAuthStore = create<AuthState>()(
           refreshToken: refreshToken ?? state.refreshToken,
           isAuthenticated: true,
           isLoading: false,
+          sessionExpiresAt: Date.now() + SESSION_DURATION_MS,
         }));
       },
 
@@ -69,7 +97,14 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false, isLoading: false });
+        set({
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          isAuthenticated: false,
+          isLoading: false,
+          sessionExpiresAt: null,
+        });
       },
 
       refreshSession: async () => {
@@ -125,6 +160,7 @@ export const useAuthStore = create<AuthState>()(
             refreshToken,
             isAuthenticated: true,
             isLoading: false,
+            sessionExpiresAt: Date.now() + SESSION_DURATION_MS,
           });
           return true;
         })();
@@ -140,15 +176,30 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'remnant-auth',
-      storage: createJSONStorage(() => sessionStorage),
+      name: AUTH_STORAGE_KEY,
+      version: 2,
+      storage: createJSONStorage(() => crossTabStorage),
       partialize: (state) => ({
         user: state.user,
-        accessToken: state.accessToken,
         refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
+        sessionExpiresAt: state.sessionExpiresAt,
+      }),
+      migrate: (persistedState) => {
+        const persisted = persistedState as Partial<AuthState>;
+        return {
+          ...persisted,
+          accessToken: null,
+          sessionExpiresAt: persisted.sessionExpiresAt ?? Date.now() + SESSION_DURATION_MS,
+        };
+      },
+      merge: (persistedState, currentState) => ({
+        ...currentState,
+        ...(persistedState as Partial<AuthState>),
+        accessToken: null,
       }),
       onRehydrateStorage: () => (state) => {
+        if (state?.sessionExpiresAt && state.sessionExpiresAt <= Date.now()) state.logout();
         state?.setHasHydrated(true);
       },
     },
