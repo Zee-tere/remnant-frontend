@@ -27,7 +27,7 @@ export default function PrivacyPage() {
         <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
           <Lock size={28} aria-hidden="true" />
         </div>
-        <h1 className="text-5xl font-bold text-[var(--foreground)] md:text-6xl">Privacy Policy</h1>
+        <h1 className="text-3xl font-bold text-[var(--foreground)] md:text-6xl">Privacy Policy</h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg font-medium leading-8 text-[var(--ink-soft)]">
           A clear summary of how Remnant handles personal information, listing data, and transaction records.
         </p>

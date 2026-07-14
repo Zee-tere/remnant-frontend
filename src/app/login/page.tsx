@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
 import { getApiErrorMessage } from "@/lib/errors";
-import { startHostedAuth } from "@/lib/hosted-auth";
+import { safeInternalPath, startHostedAuth } from "@/lib/hosted-auth";
 
 export default function LoginPage() {
   return (
@@ -24,7 +24,7 @@ function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setAuth = useAuthStore((state) => state.setAuth);
-  const redirectTo = searchParams.get("redirect") || "/";
+  const redirectTo = safeInternalPath(searchParams.get("redirect"));
   const authError = searchParams.get("error");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,8 +32,12 @@ function LoginPageContent() {
   const [loading, setLoading] = useState<"form" | "google" | null>(null);
 
   useEffect(() => {
-    if (authError) toast.error(authError);
-  }, [authError]);
+    if (!authError) return;
+    toast.error(authError);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("error");
+    router.replace(`/login${params.size ? `?${params.toString()}` : ""}`, { scroll: false });
+  }, [authError, router, searchParams]);
 
   const beginAuth = async (provider?: "Google") => {
     setLoading(provider ? "google" : "form");

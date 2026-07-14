@@ -2,6 +2,7 @@ import { getApiUrl } from "./api-url";
 
 const AUTH_STATE_KEY = "remnant-auth-state";
 const AUTH_VERIFIER_KEY = "remnant-auth-code-verifier";
+const AUTH_ATTEMPT_TTL_MS = 10 * 60 * 1000;
 
 interface AuthConfig {
   clientId: string | null;
@@ -20,6 +21,48 @@ function normalizeHostedUiDomain(domain: string) {
 
 function callbackUrl() {
   return `${window.location.origin}/auth/callback`;
+}
+
+function authAttemptStores() {
+  return [window.sessionStorage, window.localStorage];
+}
+
+function storeAuthAttemptValue(key: string, value: string) {
+  const payload = JSON.stringify({ value, createdAt: Date.now() });
+  for (const storage of authAttemptStores()) {
+    try {
+      storage.setItem(key, payload);
+    } catch {
+      // Private browsing modes can disable one storage implementation.
+    }
+  }
+}
+
+function readAuthAttemptValue(key: string) {
+  for (const storage of authAttemptStores()) {
+    try {
+      const raw = storage.getItem(key);
+      if (!raw) continue;
+      const parsed = JSON.parse(raw) as { value?: string; createdAt?: number };
+      if (parsed.value && parsed.createdAt && Date.now() - parsed.createdAt <= AUTH_ATTEMPT_TTL_MS) {
+        return parsed.value;
+      }
+      storage.removeItem(key);
+    } catch {
+      // Try the next storage implementation.
+    }
+  }
+  return null;
+}
+
+function clearAuthAttemptValue(key: string) {
+  for (const storage of authAttemptStores()) {
+    try {
+      storage.removeItem(key);
+    } catch {
+      // Clearing the available store is sufficient.
+    }
+  }
 }
 
 function base64UrlEncode(value: ArrayBuffer | Uint8Array | string) {
@@ -55,21 +98,21 @@ function createState(returnTo: string) {
       ? crypto.randomUUID()
       : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const state = base64UrlEncode(JSON.stringify({ nonce, returnTo }));
-  sessionStorage.setItem(AUTH_STATE_KEY, state);
+  storeAuthAttemptValue(AUTH_STATE_KEY, state);
   return state;
 }
 
 export function readExpectedAuthState() {
-  return sessionStorage.getItem(AUTH_STATE_KEY);
+  return readAuthAttemptValue(AUTH_STATE_KEY);
 }
 
 export function clearExpectedAuthState() {
-  sessionStorage.removeItem(AUTH_STATE_KEY);
-  sessionStorage.removeItem(AUTH_VERIFIER_KEY);
+  clearAuthAttemptValue(AUTH_STATE_KEY);
+  clearAuthAttemptValue(AUTH_VERIFIER_KEY);
 }
 
 export function readCodeVerifier() {
-  return sessionStorage.getItem(AUTH_VERIFIER_KEY);
+  return readAuthAttemptValue(AUTH_VERIFIER_KEY);
 }
 
 export function decodeAuthState(value: string | null) {
@@ -79,10 +122,15 @@ export function decodeAuthState(value: string | null) {
     const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
     const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
     const parsed = JSON.parse(atob(padded)) as { returnTo?: string };
-    return { returnTo: parsed.returnTo?.startsWith("/") ? parsed.returnTo : "/" };
+    return { returnTo: safeInternalPath(parsed.returnTo) };
   } catch {
     return { returnTo: "/" };
   }
+}
+
+export function safeInternalPath(value: string | null | undefined) {
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) return "/";
+  return value;
 }
 
 export async function startHostedAuth(options: {
@@ -101,14 +149,14 @@ export async function startHostedAuth(options: {
 
   const verifier = randomBase64Url(64);
   const challenge = await createCodeChallenge(verifier);
-  sessionStorage.setItem(AUTH_VERIFIER_KEY, verifier);
+  storeAuthAttemptValue(AUTH_VERIFIER_KEY, verifier);
 
   const authorizeUrl = new URL("/oauth2/authorize", normalizeHostedUiDomain(config.hostedUiDomain));
   authorizeUrl.searchParams.set("client_id", config.clientId);
   authorizeUrl.searchParams.set("redirect_uri", callbackUrl());
   authorizeUrl.searchParams.set("response_type", "code");
   authorizeUrl.searchParams.set("scope", "openid email profile");
-  authorizeUrl.searchParams.set("state", createState(options.returnTo || "/"));
+  authorizeUrl.searchParams.set("state", createState(safeInternalPath(options.returnTo)));
   authorizeUrl.searchParams.set("code_challenge_method", "S256");
   authorizeUrl.searchParams.set("code_challenge", challenge);
 

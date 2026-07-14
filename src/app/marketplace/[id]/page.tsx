@@ -291,7 +291,7 @@ export default function ItemDetailPage() {
                   </span>
                 </div>
 
-                <h1 className="text-4xl font-bold leading-tight text-[var(--foreground)] md:text-5xl">
+                <h1 className="text-2xl font-bold leading-tight text-[var(--foreground)] md:text-5xl">
                   {listing.title}
                 </h1>
                 <p className="mt-4 text-3xl font-bold text-[var(--brand)]">

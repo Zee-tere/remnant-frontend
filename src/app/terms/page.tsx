@@ -27,7 +27,7 @@ export default function TermsPage() {
         <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
           <FileText size={28} aria-hidden="true" />
         </div>
-        <h1 className="text-5xl font-bold text-[var(--foreground)] md:text-6xl">Terms of Service</h1>
+        <h1 className="text-3xl font-bold text-[var(--foreground)] md:text-6xl">Terms of Service</h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg font-medium leading-8 text-[var(--ink-soft)]">
           The basic rules for buying, selling, trading, donating, repairing, and recycling through Remnant.
         </p>

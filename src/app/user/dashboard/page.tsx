@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import UploadItem from '@/components/dashboard/UploadItem';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import ListingsSection from '@/components/dashboard/Listings';
@@ -20,29 +20,48 @@ type DashboardSection = 'listings' | 'messages' | 'alerts' | 'transactions' | 'u
 
 const dashboardSections: DashboardSection[] = ['listings', 'messages', 'alerts', 'transactions', 'upload', 'profile', 'settings'];
 
+function DashboardLoading() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <Loader2 className="animate-spin text-[var(--brand)]" size={30} />
+    </div>
+  );
+}
+
 export default function UserDashboard() {
+  return (
+    <Suspense fallback={<DashboardLoading />}>
+      <UserDashboardContent />
+    </Suspense>
+  );
+}
+
+function UserDashboardContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const hasHydrated = useAuthStore((state) => state.hasHydrated);
   const [activeSection, setActiveSection] = useState<DashboardSection>('listings');
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const params = new URLSearchParams(window.location.search);
-    const requestedSection = params.get('section') as DashboardSection | null;
+    const requestedSection = searchParams.get('section') as DashboardSection | null;
     if (requestedSection && dashboardSections.includes(requestedSection)) {
       setActiveSection(requestedSection);
+    } else {
+      setActiveSection('listings');
     }
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
-    if (mounted && !isAuthenticated) {
+    if (hasHydrated && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, mounted, router]);
+  }, [hasHydrated, isAuthenticated, router]);
 
   const handleSelectSection = (section: DashboardSection) => {
     setActiveSection(section);
+    const href = section === 'listings' ? '/user/dashboard' : `/user/dashboard?section=${section}`;
+    router.replace(href, { scroll: false });
   };
 
   const renderSection = () => {
@@ -66,13 +85,7 @@ export default function UserDashboard() {
     }
   };
 
-  if (!mounted || !isAuthenticated) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="animate-spin text-[var(--brand)]" size={30} />
-      </div>
-    );
-  }
+  if (!hasHydrated || !isAuthenticated) return <DashboardLoading />;
 
   return (
     <div className="flex min-h-screen bg-[var(--background)] text-[var(--foreground)]">

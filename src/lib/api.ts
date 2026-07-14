@@ -6,6 +6,24 @@ const api = axios.create({
   baseURL: getApiUrl(),
 });
 
+function normalizeListingPage(data: unknown) {
+  const payload = data && typeof data === 'object' ? data as Record<string, unknown> : {};
+  const listings = Array.isArray(payload.listings)
+    ? payload.listings
+    : Array.isArray(payload.items)
+      ? payload.items
+      : [];
+
+  return {
+    ...payload,
+    listings,
+    total: typeof payload.total === 'number' ? payload.total : listings.length,
+    page: typeof payload.page === 'number' ? payload.page : 1,
+    limit: typeof payload.limit === 'number' ? payload.limit : listings.length,
+    totalPages: typeof payload.totalPages === 'number' ? payload.totalPages : 1,
+  };
+}
+
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
   if (token) {
@@ -27,7 +45,12 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && hadBearerToken && request && !request._retriedAfterRefresh) {
       request._retriedAfterRefresh = true;
-      const refreshed = await useAuthStore.getState().refreshSession();
+      let refreshed = false;
+      try {
+        refreshed = await useAuthStore.getState().refreshSession();
+      } catch {
+        return Promise.reject(error);
+      }
       const token = useAuthStore.getState().accessToken;
       if (refreshed && token) {
         request.headers.Authorization = `Bearer ${token}`;
@@ -48,7 +71,7 @@ api.interceptors.response.use(
 
 export const listingsApi = {
   getListings: (params?: Record<string, string>) =>
-    api.get('/listings', { params }).then((r) => r.data),
+    api.get('/listings', { params }).then((r) => normalizeListingPage(r.data)),
   getListing: (id: string) =>
     api.get(`/listings/${id}`).then((r) => r.data),
   getListingBySlug: (slug: string) =>

@@ -156,7 +156,7 @@ export default function Navbar() {
                       className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--brand-soft)]"
                     >
                       <LayoutDashboard size={16} className="text-[var(--brand)]" aria-hidden="true" />
-                      Dashboard
+                      My listings
                     </Link>
                     <Link
                       href="/user/dashboard?section=profile"
@@ -164,7 +164,7 @@ export default function Navbar() {
                       className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--brand-soft)]"
                     >
                       <UserCircle size={16} className="text-[var(--brand)]" aria-hidden="true" />
-                      My Profile
+                      Edit profile
                     </Link>
                     <Link
                       href="/user/dashboard?section=settings"

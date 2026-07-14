@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -28,8 +28,12 @@ function AuthCallbackContent() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
   const logout = useAuthStore((state) => state.logout);
+  const handledCallback = useRef(false);
 
   useEffect(() => {
+    if (handledCallback.current) return;
+    handledCallback.current = true;
+
     const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
     const query = new URLSearchParams(window.location.search);
     const authError = query.get("error") || hash.get("error");
@@ -45,7 +49,6 @@ function AuthCallbackContent() {
       clearExpectedAuthState();
       logout();
       const message = authErrorDescription || authError;
-      toast.error(message);
       router.replace(`/login?error=${encodeURIComponent(message)}`);
       return;
     }
@@ -54,7 +57,6 @@ function AuthCallbackContent() {
       clearExpectedAuthState();
       logout();
       const message = "Sign-in could not be completed. Please try again.";
-      toast.error(message);
       router.replace(`/login?error=${encodeURIComponent(message)}`);
       return;
     }
@@ -104,7 +106,6 @@ function AuthCallbackContent() {
         clearExpectedAuthState();
         logout();
         const message = error instanceof Error ? error.message : "Sign-in could not be completed. Please try again.";
-        toast.error(message);
         router.replace(`/login?error=${encodeURIComponent(message)}`);
       }
     }

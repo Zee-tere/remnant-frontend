@@ -107,7 +107,7 @@ export default function HomePage() {
   const [loadingListings, setLoadingListings] = useState(true);
 
   useEffect(() => {
-    fetch(`${getApiUrl()}/listings?limit=4`)
+    fetch(`${getApiUrl()}/listings?limit=4`, { cache: "no-store" })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error("Listings unavailable"))))
       .then((data: { listings: Listing[] }) => setFeaturedListings(data.listings || []))
       .catch(() => setFeaturedListings([]))

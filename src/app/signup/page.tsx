@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
 import { getApiErrorMessage } from "@/lib/errors";
-import { startHostedAuth } from "@/lib/hosted-auth";
+import { safeInternalPath, startHostedAuth } from "@/lib/hosted-auth";
 
 const benefits = ["Free to list", "Better match visibility", "Safer message history"];
 
@@ -26,7 +26,7 @@ function SignUpPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setAuth = useAuthStore((state) => state.setAuth);
-  const redirectTo = searchParams.get("redirect") || "/";
+  const redirectTo = safeInternalPath(searchParams.get("redirect"));
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
