@@ -95,12 +95,12 @@ function UserDashboardContent() {
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.4 }}
-        className="min-w-0 flex-1 overflow-y-auto p-4 pt-24 transition-all duration-300 md:p-8 lg:p-10"
+        className="min-w-0 flex-1 overflow-y-auto px-3 pb-24 pt-3 transition-all duration-300 md:p-8 lg:p-10"
       >
         {renderSection()}
 
         {activeSection !== 'upload' && (
-          <div className="mt-10 text-center">
+          <div className="mt-6 text-center md:mt-10">
             <Button variant="outline" onClick={() => handleSelectSection('upload')} className="rounded-full border-[var(--border)] bg-white font-bold">
               Upload New Item
             </Button>

@@ -6,12 +6,10 @@ import {
   CreditCard,
   LogOut,
   Mail,
-  Menu,
   Package,
   Settings,
   UploadCloud,
   User,
-  X,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -48,7 +46,6 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const logout = useAuthStore((state) => state.logout);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [stats, setStats] = useState<SidebarStats>(initialStats);
 
   useEffect(() => {
@@ -134,7 +131,6 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
 
   const handleSelect = (section: DashboardSection) => {
     onSelectSection(section);
-    setSidebarOpen(false);
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href);
       url.searchParams.set('section', section);
@@ -144,7 +140,6 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
 
   const handleLogout = () => {
     logout();
-    setSidebarOpen(false);
   };
 
   const SidebarContent = () => (
@@ -267,33 +262,8 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
   );
 
   return (
-    <>
-      <Button
-        type="button"
-        variant="outline"
-        size="icon"
-        className="fixed left-4 top-24 z-50 rounded-full border-[var(--border)] bg-white soft-shadow md:hidden"
-        onClick={() => setSidebarOpen((open) => !open)}
-        aria-label="Open dashboard menu"
-      >
-        {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-      </Button>
-
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/35 md:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      <aside
-        className={cn(
-          'fixed left-0 top-0 z-40 h-screen w-80 max-w-[85vw] overflow-y-auto border-r border-[var(--border)]/45 bg-white shadow-xl md:sticky md:top-0 md:z-auto md:w-72 md:translate-x-0 md:shadow-none',
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
-        )}
-      >
-        <SidebarContent />
-      </aside>
-    </>
+    <aside className="sticky top-0 hidden h-screen w-72 shrink-0 overflow-y-auto border-r border-[var(--border)]/45 bg-white md:block">
+      <SidebarContent />
+    </aside>
   );
 }

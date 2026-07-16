@@ -318,26 +318,26 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 md:space-y-6">
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        className="flex items-center justify-between gap-3 md:flex-row md:items-center"
       >
         <div>
-          <h1 className="text-2xl font-bold text-foreground md:text-3xl">My Listings</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-xl font-bold text-foreground md:text-3xl">My Listings</h1>
+          <p className="text-xs text-muted-foreground md:text-sm">
             {listings.length} total listing{listings.length === 1 ? '' : 's'} · {listings.filter((item) => item.status === 'ACTIVE').length} active
           </p>
         </div>
 
-        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+        <div className="flex shrink-0 items-center gap-1.5 sm:w-auto sm:flex-row md:gap-2">
           <Button
             type="button"
             variant="outline"
             disabled={selectedIds.length === 0 || bulkDeleting}
             onClick={handleBulkDelete}
-            className="border-[var(--border)]"
+            className={`${selectedIds.length === 0 ? 'hidden md:inline-flex' : ''} h-9 rounded-full border-[var(--border)] px-3 text-xs md:h-10 md:text-sm`}
           >
             {bulkDeleting ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
             Delete selected
@@ -345,23 +345,24 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
           <Button
             type="button"
             onClick={() => onSelectSection?.('upload')}
-            className="bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]"
+            className="h-9 rounded-full bg-[var(--brand)] px-3 text-xs text-white hover:bg-[var(--brand-dark)] md:h-10 md:px-4 md:text-sm md:text-[var(--navy)] md:hover:bg-[var(--brand-light)]"
           >
             <Package size={16} />
-            New Listing
+            <span className="hidden xs:inline">New Listing</span>
+            <span className="xs:hidden">New</span>
           </Button>
         </div>
       </motion.div>
 
-      <div className="rounded-xl border border-[var(--border)] bg-card p-4 shadow-sm">
-        <div className="flex flex-col gap-3 md:flex-row">
+      <div className="rounded-lg border border-[var(--border)] bg-card p-2.5 shadow-sm md:rounded-xl md:p-4">
+        <div className="flex flex-col gap-2 md:flex-row md:gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
             <Input
               placeholder="Search your listings"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              className="pl-10"
+              className="h-10 pl-10 text-sm md:h-12"
             />
           </div>
 
@@ -400,15 +401,15 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-4 gap-1.5 md:gap-4 xl:grid-cols-4">
         {stats.map((stat, index) => (
-          <Card key={stat.label} className="border-[var(--border)] bg-card">
-            <CardContent className="flex items-center justify-between p-5">
-              <div>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-                <p className="mt-2 text-2xl font-bold text-foreground">{stat.value}</p>
+          <Card key={stat.label} className="min-w-0 rounded-lg border-[var(--border)] bg-card md:rounded-xl">
+            <CardContent className="flex min-w-0 flex-col p-2 md:flex-row md:items-center md:justify-between md:p-5">
+              <div className="min-w-0">
+                <p className="line-clamp-2 min-h-6 text-[0.58rem] font-semibold leading-3 text-muted-foreground md:min-h-0 md:text-sm">{stat.label}</p>
+                <p className="mt-1 truncate text-sm font-bold text-foreground md:mt-2 md:text-2xl">{stat.value}</p>
               </div>
-              <div className={cn('rounded-full p-3', statIconClasses[index])}>
+              <div className={cn('mt-1 hidden w-fit rounded-full p-1.5 md:mt-0 md:block md:p-3', statIconClasses[index])}>
                 <stat.icon size={22} />
               </div>
             </CardContent>
@@ -440,7 +441,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2.5 md:gap-5 lg:grid-cols-2 xl:grid-cols-3">
           {filteredListings.map((listing, index) => (
             <motion.div
               key={listing.id}
@@ -449,8 +450,8 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
               transition={{ delay: index * 0.03 }}
               layout
             >
-              <Card className="flex h-full flex-col overflow-hidden border-[var(--border)] bg-card transition-shadow hover:shadow-md">
-                <div className="relative aspect-[4/3] overflow-hidden bg-[var(--sand)]">
+              <Card className="flex h-full flex-col overflow-hidden rounded-lg border-[var(--border)] bg-card transition-shadow hover:shadow-md md:rounded-xl">
+                <div className="relative aspect-square overflow-hidden bg-[var(--sand)] md:aspect-[4/3]">
                   {listing.images?.[0] ? (
                     <img src={listing.images[0]} alt={listing.title} className="h-full w-full object-cover" />
                   ) : (
@@ -458,10 +459,10 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                       <Package size={42} />
                     </div>
                   )}
-                  <div className="absolute left-3 top-3">
+                  <div className="absolute left-2 top-2 md:left-3 md:top-3">
                     <StatusBadge status={listing.status} />
                   </div>
-                  <label className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm dark:bg-black/70">
+                  <label className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm dark:bg-black/70 md:right-3 md:top-3 md:h-9 md:w-9">
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(listing.id)}
@@ -472,17 +473,17 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                   </label>
                 </div>
 
-                <CardHeader className="pb-3">
+                <CardHeader className="p-2.5 pb-1.5 md:p-6 md:pb-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <CardTitle className="line-clamp-1 text-base">{listing.title}</CardTitle>
-                      <p className="mt-1 text-lg font-bold text-[var(--brand)]">
+                      <CardTitle className="line-clamp-1 text-xs md:text-base">{listing.title}</CardTitle>
+                      <p className="mt-1 truncate text-sm font-bold text-[var(--brand)] md:text-lg">
                         {listing.price ? formatCurrency(Number(listing.price)) : 'Free'}
                       </p>
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8">
+                        <Button type="button" variant="ghost" size="icon" className="h-7 w-7 md:h-8 md:w-8">
                           <MoreVertical size={16} />
                         </Button>
                       </DropdownMenuTrigger>
@@ -503,35 +504,35 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                  <p className="line-clamp-2 text-sm text-muted-foreground">{listing.description}</p>
+                  <p className="hidden line-clamp-2 text-sm text-muted-foreground md:block">{listing.description}</p>
                 </CardHeader>
 
-                <CardContent className="space-y-3 pb-3">
-                  <div className="flex flex-wrap gap-2 text-xs">
-                    <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+                <CardContent className="space-y-1.5 px-2.5 pb-2 md:space-y-3 md:px-6 md:pb-3">
+                  <div className="flex min-w-0 gap-1 overflow-hidden text-[0.6rem] md:flex-wrap md:gap-2 md:text-xs">
+                    <span className="truncate rounded-full bg-neutral-100 px-1.5 py-0.5 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 md:px-2.5 md:py-1">
                       {listing.category}
                     </span>
-                    <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+                    <span className="hidden rounded-full bg-neutral-100 px-2.5 py-1 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 md:inline">
                       {conditionLabels[listing.condition] ?? listing.condition}
                     </span>
-                    <span className="rounded-full bg-[var(--brand-soft)] px-2.5 py-1 text-[var(--brand)] dark:bg-[var(--brand-muted)]">
+                    <span className="shrink-0 rounded-full bg-[var(--brand-soft)] px-1.5 py-0.5 text-[var(--brand)] dark:bg-[var(--brand-muted)] md:px-2.5 md:py-1">
                       {intentionLabels[listing.intentionTag] ?? listing.intentionTag}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <div className="flex items-center justify-between text-[0.62rem] text-muted-foreground md:text-sm">
                     <span className="flex items-center gap-1">
                       <Eye size={14} />
                       {(listing.viewCount ?? 0).toLocaleString()} views
                     </span>
-                    <span>{formatDate(listing.createdAt)}</span>
+                    <span className="hidden md:inline">{formatDate(listing.createdAt)}</span>
                   </div>
                 </CardContent>
 
-                <CardFooter className="mt-auto grid grid-cols-2 gap-2 pt-0">
-                  <Button type="button" variant="outline" size="sm" asChild className="border-[var(--border)]">
+                <CardFooter className="mt-auto grid grid-cols-2 gap-1.5 px-2.5 pb-2.5 pt-0 md:gap-2 md:px-6 md:pb-6">
+                  <Button type="button" variant="outline" size="sm" asChild className="h-8 border-[var(--border)] px-2 text-[0.68rem] md:h-9 md:text-sm">
                     <Link href={`/marketplace/${listing.id}`}>View</Link>
                   </Button>
-                  <Button type="button" size="sm" onClick={() => openEditor(listing)}>
+                  <Button type="button" size="sm" onClick={() => openEditor(listing)} className="h-8 px-2 text-[0.68rem] md:h-9 md:text-sm">
                     <Edit size={14} />
                     Edit
                   </Button>

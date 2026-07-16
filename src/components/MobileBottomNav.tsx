@@ -7,22 +7,22 @@ import { useAuthStore } from "@/lib/auth";
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const hiddenRoutes = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth/callback"];
   if (hiddenRoutes.some((route) => pathname.startsWith(route))) return null;
 
-  const accountHref = isAuthenticated ? "/user/dashboard" : "/login";
+  const accountHref = isAuthenticated ? "/user/dashboard?section=profile" : "/login";
   const actions = [
     { label: "Home", href: "/", icon: Home },
     { label: "Market", href: "/marketplace", icon: ShoppingBag },
     { label: "Search", href: "/find-a-pair", icon: Search },
-    { label: "Account", href: accountHref, icon: UserCircle },
+    { label: isAuthenticated ? "Profile" : "Account", href: accountHref, icon: UserCircle, profile: true },
   ];
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
     if (href === "/login") return pathname === "/login" || pathname === "/signup";
-    if (href === "/user/dashboard") return pathname.startsWith("/user");
+    if (href.startsWith("/user/dashboard")) return pathname.startsWith("/user");
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
@@ -74,7 +74,17 @@ export default function MobileBottomNav() {
               }`}
               aria-label={item.label}
             >
-              <Icon className="h-5 w-5" aria-hidden="true" />
+              {item.profile && isAuthenticated ? (
+                <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-[var(--brand-soft)] text-[0.7rem] font-bold text-[var(--brand)]">
+                  {user?.avatarUrl ? (
+                    <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    (user?.name || "R").charAt(0).toUpperCase()
+                  )}
+                </span>
+              ) : (
+                <Icon className="h-5 w-5" aria-hidden="true" />
+              )}
             </Link>
           );
         })}

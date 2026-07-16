@@ -4,11 +4,15 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  Bell,
   ChevronDown,
+  CreditCard,
   HandHeart,
   LayoutDashboard,
   LogOut,
+  Mail,
   Menu,
+  Package,
   Recycle,
   RefreshCw,
   Search,
@@ -16,6 +20,7 @@ import {
   ShoppingBag,
   Store,
   UserCircle,
+  UploadCloud,
   Wrench,
   X,
 } from "lucide-react";
@@ -28,6 +33,16 @@ const productActions = [
   { label: "Donate", href: "/sell-item?intent=DONATE", icon: HandHeart },
   { label: "Repair", href: "/sell-item?intent=FIX", icon: Wrench },
   { label: "Recycle", href: "/sell-item?intent=RECYCLE", icon: Recycle },
+];
+
+const accountActions = [
+  { label: "Listings", href: "/user/dashboard", icon: Package },
+  { label: "Messages", href: "/user/dashboard?section=messages", icon: Mail },
+  { label: "Alerts", href: "/user/dashboard?section=alerts", icon: Bell },
+  { label: "Orders", href: "/user/dashboard?section=transactions", icon: CreditCard },
+  { label: "Upload", href: "/user/dashboard?section=upload", icon: UploadCloud },
+  { label: "Profile", href: "/user/dashboard?section=profile", icon: UserCircle },
+  { label: "Settings", href: "/user/dashboard?section=settings", icon: Settings },
 ];
 
 export default function Navbar() {
@@ -117,7 +132,7 @@ export default function Navbar() {
 
         <div className="relative z-20 flex min-w-0 flex-1 items-center justify-end gap-2 md:flex-initial md:shrink-0">
           {isAuthenticated ? (
-            <div className="relative profile-menu">
+            <div className="profile-menu relative hidden md:block">
               <button
                 type="button"
                 onClick={() => setProfileOpen(!profileOpen)}
@@ -230,26 +245,39 @@ export default function Navbar() {
           </button>
 
               {menuOpen && (
-                <div className="navbar-menu absolute right-0 top-full z-50 mt-2 w-[min(92vw,22rem)] overflow-hidden rounded-[1.35rem] bg-white/88 p-2 shadow-[0_18px_45px_-30px_rgba(0,108,82,0.5)] ring-1 ring-black/[0.05] backdrop-blur-md md:hidden">
+                <div className="navbar-menu absolute right-0 top-full z-50 mt-2 w-[min(92vw,22rem)] overflow-hidden rounded-[1.1rem] bg-white/96 p-2 shadow-[0_18px_45px_-30px_rgba(0,108,82,0.5)] ring-1 ring-black/[0.05] backdrop-blur-md md:hidden">
                   <nav className="grid grid-cols-3 gap-1.5" aria-label="Mobile navigation">
-                    {productActions.map((item) => {
+                    {(isAuthenticated ? accountActions : productActions).map((item) => {
                       const Icon = item.icon;
                       return (
                       <Link
                         key={item.href}
                         href={item.href}
                         onClick={() => setMenuOpen(false)}
-                        className={`flex min-h-[64px] flex-col items-start justify-between rounded-[0.95rem] p-2.5 text-xs font-bold transition-colors ${
-                          item.href === "/marketplace" && isActive(item.href)
+                        className={`flex min-h-[58px] flex-col items-start justify-between rounded-[0.75rem] p-2.5 text-[0.7rem] font-bold transition-colors ${
+                          !isAuthenticated && item.href === "/marketplace" && isActive(item.href)
                             ? "bg-[var(--brand-soft)] text-[var(--brand)]"
                             : "text-[var(--ink-soft)] hover:bg-[var(--sand)] hover:text-[var(--brand)]"
                         }`}
                       >
-                        <Icon size={19} aria-hidden="true" />
+                        <Icon size={18} aria-hidden="true" />
                         <span>{item.label}</span>
                       </Link>
                       );
                     })}
+                    {isAuthenticated && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuOpen(false);
+                          handleLogout();
+                        }}
+                        className="flex min-h-[58px] flex-col items-start justify-between rounded-[0.75rem] p-2.5 text-[0.7rem] font-bold text-red-600 transition-colors hover:bg-red-50"
+                      >
+                        <LogOut size={18} aria-hidden="true" />
+                        <span>Log out</span>
+                      </button>
+                    )}
                   </nav>
                 </div>
               )}
