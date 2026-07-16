@@ -309,15 +309,15 @@ export default function AlertsSection() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 md:space-y-6">
       <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex items-center justify-between gap-3"
       >
         <div className="flex items-center gap-3">
-          <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--brand-soft)] text-[var(--brand)]">
-            <Bell size={22} />
+          <div className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] md:h-11 md:w-11 md:rounded-xl">
+            <Bell size={19} />
             {unreadCount > 0 && (
               <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-semibold text-white">
                 {unreadCount}
@@ -325,12 +325,12 @@ export default function AlertsSection() {
             )}
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground md:text-3xl">Alerts</h1>
-            <p className="text-sm text-muted-foreground">Real notifications and match activity from the API</p>
+            <h1 className="text-xl font-bold text-foreground md:text-3xl">Alerts</h1>
+            <p className="hidden text-sm text-muted-foreground sm:block">Notifications and match activity</p>
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="flex shrink-0 gap-1.5 sm:gap-2">
           <Button
             type="button"
             variant="outline"
@@ -339,8 +339,8 @@ export default function AlertsSection() {
             onClick={markAllAsRead}
             className="border-[var(--border)]"
           >
-            <Check size={16} />
-            Mark all read
+            <Check size={15} />
+            <span className="hidden sm:inline">Mark all read</span>
           </Button>
           <Button
             type="button"
@@ -352,30 +352,30 @@ export default function AlertsSection() {
             }}
             className="border-[var(--border)]"
           >
-            {refreshing ? <Loader2 className="animate-spin" size={16} /> : <RefreshCw size={16} />}
-            Refresh
+            {refreshing ? <Loader2 className="animate-spin" size={15} /> : <RefreshCw size={15} />}
+            <span className="hidden sm:inline">Refresh</span>
           </Button>
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 md:gap-4 xl:grid-cols-4">
         {stats.map((stat) => (
           <Card key={stat.label} className="border-[var(--border)] bg-card">
-            <CardContent className="flex items-center justify-between p-5">
+            <CardContent className="flex items-center justify-between p-3 md:p-5">
               <div>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-                <p className="mt-2 text-2xl font-bold text-foreground">{stat.value}</p>
+                <p className="text-xs text-muted-foreground md:text-sm">{stat.label}</p>
+                <p className="mt-1 text-lg font-bold text-foreground md:mt-2 md:text-2xl">{stat.value}</p>
               </div>
-              <div className={cn('rounded-full p-3', stat.className)}>
-                <stat.icon size={22} />
+              <div className={cn('hidden rounded-full p-3 sm:block', stat.className)}>
+                <stat.icon size={20} />
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="rounded-xl border border-[var(--border)] bg-card p-4 shadow-sm">
-        <div className="flex flex-wrap gap-2">
+      <div className="rounded-lg border border-[var(--border)]/70 bg-card p-2.5 md:rounded-xl md:p-4">
+        <div className="flex gap-2 overflow-x-auto pb-0.5">
           {(Object.keys(filterLabels) as FilterType[]).map((filterType) => {
             const Icon = alertConfig[filterType].icon;
             const active = filter === filterType;
@@ -418,10 +418,10 @@ export default function AlertsSection() {
               return (
                 <motion.div
                   key={`${item.source}-${item.id}`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ delay: index * 0.02 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15, delay: Math.min(index, 4) * 0.02 }}
                   layout
                 >
                   <Card

@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
@@ -131,14 +131,16 @@ export default function RootLayout({
             <Navbar />
           </div>
 
-          <main id="main-content" className="flex-grow pb-20 md:pb-0">
+          <main id="main-content" className="flex-grow pb-[calc(4rem+var(--safe-area-bottom))] md:pb-0">
             {children}
           </main>
 
           <div className="safe-bottom hidden md:block">
             <Footer />
           </div>
-          <MobileBottomNav />
+          <Suspense fallback={null}>
+            <MobileBottomNav />
+          </Suspense>
         </Providers>
       </body>
     </html>

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Bell,
   ChevronDown,
@@ -10,7 +11,6 @@ import {
   LayoutDashboard,
   LogOut,
   Mail,
-  Menu,
   Package,
   Recycle,
   RefreshCw,
@@ -21,7 +21,6 @@ import {
   UserCircle,
   UploadCloud,
   Wrench,
-  X,
 } from "lucide-react";
 import { useAuthStore } from "@/lib/auth";
 import { NameAvatar } from "@/components/ui/name-avatar";
@@ -54,6 +53,7 @@ export default function Navbar() {
 
   const { user, isAuthenticated, logout } = useAuthStore();
   const displayName = user?.name || "Account";
+  const showMobileSearch = !pathname.startsWith("/find-a-pair") && !pathname.startsWith("/user/");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -62,6 +62,11 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    setMenuOpen(false);
+    setProfileOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -204,40 +209,57 @@ export default function Navbar() {
             </div>
           )}
 
-          <form
-            onSubmit={handleMobileSearch}
-            className="flex h-11 min-w-0 flex-1 items-center gap-1 rounded-full bg-[var(--sand)] p-1 md:hidden"
-          >
-            <input
-              value={mobileSearch}
-              onChange={(event) => setMobileSearch(event.target.value)}
-              placeholder="Search"
-              className="h-9 min-w-0 flex-1 rounded-full bg-transparent px-3 text-sm font-semibold text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]"
-              aria-label="Search items"
-            />
-            <button
-              type="submit"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[var(--brand)] shadow-sm transition-colors hover:bg-[var(--brand-soft)]"
-              aria-label="Submit search"
+          {showMobileSearch && (
+            <form
+              onSubmit={handleMobileSearch}
+              className="flex h-10 min-w-0 flex-1 items-center rounded-md border border-[var(--border)]/65 bg-white pl-3 pr-1 md:hidden"
             >
-              <Search size={16} aria-hidden="true" />
-            </button>
-          </form>
+              <input
+                value={mobileSearch}
+                onChange={(event) => setMobileSearch(event.target.value)}
+                placeholder="Search the market"
+                className="h-9 min-w-0 flex-1 bg-transparent pr-2 text-[0.8rem] font-semibold text-[var(--foreground)] outline-none placeholder:font-medium placeholder:text-[var(--muted-foreground)]"
+                aria-label="Search items"
+              />
+              <button
+                type="submit"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)]"
+                aria-label="Submit search"
+              >
+                <Search size={14} strokeWidth={2.25} aria-hidden="true" />
+              </button>
+            </form>
+          )}
 
           <button
             type="button"
-            className="mobile-menu-button inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)] md:hidden"
+            className="mobile-menu-button inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-white text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)] md:hidden"
             onPointerDown={(event) => event.stopPropagation()}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
           >
-            {menuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={21} aria-hidden="true" />}
+            <span className="relative block h-4 w-5" aria-hidden="true">
+              <span className={`absolute left-0 top-0.5 h-0.5 w-5 rounded-full bg-current transition-transform duration-200 ${menuOpen ? "translate-y-[6px] rotate-45" : ""}`} />
+              <span className={`absolute left-0 top-[7px] h-0.5 w-5 rounded-full bg-current transition-all duration-150 ${menuOpen ? "scale-x-0 opacity-0" : ""}`} />
+              <span className={`absolute left-0 top-[13px] h-0.5 w-5 rounded-full bg-current transition-transform duration-200 ${menuOpen ? "-translate-y-[6px] -rotate-45" : ""}`} />
+            </span>
           </button>
 
+              <AnimatePresence>
               {menuOpen && (
-                <div className="navbar-menu absolute right-0 top-full z-50 mt-2 w-[min(92vw,22rem)] overflow-hidden rounded-[1.1rem] bg-white/96 p-2 shadow-[0_18px_45px_-30px_rgba(0,108,82,0.5)] ring-1 ring-black/[0.05] backdrop-blur-md md:hidden">
-                  <nav className="grid grid-cols-3 gap-1.5" aria-label="Mobile navigation">
+                <motion.div
+                  initial={{ opacity: 0, x: 14 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  transition={{ duration: 0.18, ease: "easeOut" }}
+                  className={`navbar-menu absolute -right-3 top-full z-50 mt-2 overflow-hidden bg-white/95 shadow-[0_22px_50px_-34px_rgba(0,62,48,0.65)] backdrop-blur-xl md:hidden ${
+                    isAuthenticated
+                      ? "w-[15.5rem] rounded-l-lg border-y border-l border-[var(--border)]/65 py-1"
+                      : "w-[min(92vw,22rem)] rounded-l-lg border-y border-l border-[var(--border)]/65 p-2"
+                  }`}
+                >
+                  <nav className={isAuthenticated ? "flex flex-col" : "grid grid-cols-3 gap-1.5"} aria-label="Mobile navigation">
                     {(isAuthenticated ? accountActions : productActions).map((item) => {
                       const Icon = item.icon;
                       return (
@@ -245,13 +267,13 @@ export default function Navbar() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setMenuOpen(false)}
-                        className={`flex min-h-[58px] flex-col items-start justify-between rounded-[0.75rem] p-2.5 text-[0.7rem] font-bold transition-colors ${
+                        className={`flex font-bold transition-colors ${isAuthenticated ? "h-11 items-center gap-3 border-b border-[var(--border)]/45 px-4 text-[0.78rem] last:border-b-0" : "min-h-[58px] flex-col items-start justify-between rounded p-2.5 text-[0.7rem]"} ${
                           !isAuthenticated && item.href === "/marketplace" && isActive(item.href)
                             ? "bg-[var(--brand-soft)] text-[var(--brand)]"
                             : "text-[var(--ink-soft)] hover:bg-[var(--sand)] hover:text-[var(--brand)]"
                         }`}
                       >
-                        <Icon size={18} aria-hidden="true" />
+                        <Icon size={isAuthenticated ? 16 : 18} aria-hidden="true" />
                         <span>{item.label}</span>
                       </Link>
                       );
@@ -263,15 +285,16 @@ export default function Navbar() {
                           setMenuOpen(false);
                           handleLogout();
                         }}
-                        className="flex min-h-[58px] flex-col items-start justify-between rounded-[0.75rem] p-2.5 text-[0.7rem] font-bold text-red-600 transition-colors hover:bg-red-50"
+                        className="flex h-11 items-center gap-3 px-4 text-[0.78rem] font-bold text-red-600 transition-colors hover:bg-red-50"
                       >
-                        <LogOut size={18} aria-hidden="true" />
+                        <LogOut size={16} aria-hidden="true" />
                         <span>Log out</span>
                       </button>
                     )}
                   </nav>
-                </div>
+                </motion.div>
               )}
+              </AnimatePresence>
         </div>
       </div>
     </header>

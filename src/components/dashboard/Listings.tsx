@@ -313,8 +313,8 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
   return (
     <div className="space-y-3 md:space-y-6">
       <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         className="flex items-center justify-between gap-3 md:flex-row md:items-center"
       >
         <div>
@@ -438,9 +438,9 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
           {filteredListings.map((listing, index) => (
             <motion.div
               key={listing.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.03 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.15, delay: Math.min(index, 4) * 0.02 }}
               layout
             >
               <Card className="flex h-full flex-col overflow-hidden rounded-lg border-[var(--border)] bg-card transition-shadow hover:shadow-md md:rounded-xl">

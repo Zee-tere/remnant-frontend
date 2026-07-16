@@ -345,9 +345,10 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   const renderIntentStep = () => (
     <motion.div
       key="intent"
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.16 }}
       className="space-y-6 md:space-y-8"
     >
       <div className="text-center">
@@ -391,9 +392,10 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   const renderPhotosStep = () => (
     <motion.div
       key="photos"
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.16 }}
       className="space-y-6 md:space-y-8"
     >
       <div className="text-center">
@@ -711,9 +713,10 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   const renderDetailsStep = () => (
     <motion.div
       key="details"
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.16 }}
       className="space-y-6 md:space-y-8"
     >
       <div className="text-center">
@@ -820,9 +823,10 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   const renderReviewStep = () => (
     <motion.div
       key="review"
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.16 }}
       className="space-y-6 md:space-y-8"
     >
       <div className="text-center">

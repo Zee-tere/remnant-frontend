@@ -89,10 +89,10 @@ function UserDashboardContent() {
       <DashboardSidebar onSelectSection={handleSelectSection} activeSection={activeSection} />
 
       <motion.div
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.4 }}
-        className="min-w-0 flex-1 overflow-y-auto px-3 pb-24 pt-3 transition-all duration-300 md:p-8 lg:p-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.16 }}
+        className="min-w-0 flex-1 overflow-y-auto px-3 pb-8 pt-3 md:p-8 lg:p-10"
       >
         {renderSection()}
 

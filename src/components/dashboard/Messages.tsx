@@ -12,12 +12,10 @@ import {
   Search,
   Send,
 } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { NameAvatar } from '@/components/ui/name-avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -243,14 +241,14 @@ export default function MessagesSection() {
 
   const ConversationList = () => (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="border-b border-[var(--border)] p-4">
-        <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+      <div className="border-b border-[var(--border)]/70 p-3 md:p-4">
+        <div className="relative mb-2.5">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={15} />
           <Input
             placeholder="Search conversations"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            className="pl-10"
+            className="h-10 rounded-md pl-9 text-sm"
           />
         </div>
         <div className="flex gap-2">
@@ -281,27 +279,24 @@ export default function MessagesSection() {
             </p>
           </div>
         ) : (
-          <AnimatePresence initial={false}>
+          <div>
             {filteredConversations.map((conversation) => {
               const otherUser = getOtherUser(conversation);
               const latest = conversation.messages[0];
               const unread = Boolean(latest && latest.senderId !== user?.id && !latest.readAt);
 
               return (
-                <motion.button
+                <button
                   key={conversation.id}
                   type="button"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
                   onClick={() => handleSelectConversation(conversation.id)}
                   className={cn(
-                    'w-full border-b border-[var(--border)] p-4 text-left transition-colors hover:bg-muted/50',
+                    'w-full border-b border-[var(--border)]/60 p-3 text-left transition-colors hover:bg-muted/50 md:p-4',
                     activeConversationId === conversation.id && 'bg-[var(--brand-soft)]/60 dark:bg-[var(--brand-muted)]/40',
                   )}
                 >
                   <div className="flex items-start gap-3">
-                    <NameAvatar name={otherUser.name} className="h-10 w-10 text-sm" />
+                    <NameAvatar name={otherUser.name} className="h-9 w-9 text-xs md:h-10 md:w-10 md:text-sm" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
@@ -312,18 +307,18 @@ export default function MessagesSection() {
                           {latest ? formatDate(latest.createdAt) : formatDate(conversation.createdAt)}
                         </span>
                       </div>
-                      <div className="mt-2 flex items-center justify-between gap-2">
-                        <p className="line-clamp-1 text-sm text-muted-foreground">
+                      <div className="mt-1 flex items-center justify-between gap-2">
+                        <p className="line-clamp-1 text-xs text-muted-foreground md:text-sm">
                           {latest?.content ?? 'Conversation started'}
                         </p>
                         {unread && <span className="h-2.5 w-2.5 rounded-full bg-[var(--brand)]" aria-label="Unread" />}
                       </div>
                     </div>
                   </div>
-                </motion.button>
+                </button>
               );
             })}
-          </AnimatePresence>
+          </div>
         )}
       </div>
     </div>
@@ -332,7 +327,7 @@ export default function MessagesSection() {
   const ChatWindow = () => {
     if (!activeConversation) {
       return (
-        <div className="flex h-full min-h-[420px] flex-col items-center justify-center rounded-xl border border-[var(--border)] bg-card px-6 text-center">
+        <div className="flex h-full min-h-[420px] flex-col items-center justify-center bg-card px-6 text-center">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--brand-soft)]">
             <MessageSquare className="text-[var(--brand)]" size={30} />
           </div>
@@ -347,16 +342,16 @@ export default function MessagesSection() {
     const otherUser = getOtherUser(activeConversation);
 
     return (
-      <div className="flex h-full min-h-[calc(100dvh-11rem)] flex-col overflow-hidden rounded-lg border border-[var(--border)] bg-card lg:min-h-[620px] lg:rounded-xl">
-        <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] p-4">
+      <div className="flex h-full min-h-[calc(100dvh-9.5rem)] flex-col overflow-hidden bg-card lg:min-h-[620px]">
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--border)]/70 p-3 md:p-4">
           <div className="flex min-w-0 items-center gap-3">
             <button type="button" onClick={() => setActiveConversationId(null)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-muted lg:hidden" aria-label="Back to conversations">
               <ArrowLeft size={18} />
             </button>
-            <NameAvatar name={otherUser.name} className="h-10 w-10 text-sm" />
+            <NameAvatar name={otherUser.name} className="h-9 w-9 text-xs md:h-10 md:w-10 md:text-sm" />
             <div className="min-w-0">
-              <h3 className="truncate font-semibold text-foreground">{otherUser.name}</h3>
-              <p className="truncate text-sm text-muted-foreground">{activeConversation.listing.title}</p>
+              <h3 className="truncate text-sm font-semibold text-foreground md:text-base">{otherUser.name}</h3>
+              <p className="truncate text-xs text-muted-foreground md:text-sm">{activeConversation.listing.title}</p>
             </div>
           </div>
 
@@ -387,7 +382,7 @@ export default function MessagesSection() {
           </DropdownMenu>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-4">
+        <div className="min-h-0 flex-1 overflow-y-auto bg-[var(--background)]/45 p-3 md:p-4">
           {loadingMessages ? (
             <div className="flex h-full items-center justify-center">
               <Loader2 className="animate-spin text-[var(--brand)]" size={24} />
@@ -398,22 +393,20 @@ export default function MessagesSection() {
               <p className="text-sm text-muted-foreground">No messages yet.</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {messages.map((message) => {
                 const mine = message.senderId === user?.id;
                 return (
-                  <motion.div
+                  <div
                     key={message.id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={cn('flex gap-3', mine ? 'justify-end' : 'justify-start')}
+                    className={cn('flex items-end gap-2', mine ? 'justify-end' : 'justify-start')}
                   >
                     {!mine && (
                       <NameAvatar name={otherUser.name} className="h-8 w-8 text-xs" />
                     )}
                     <div
                       className={cn(
-                        'max-w-[78%] rounded-2xl px-4 py-3 text-sm shadow-sm',
+                        'max-w-[82%] rounded-lg px-3 py-2.5 text-sm',
                         mine
                           ? 'rounded-br-md bg-[var(--brand)] text-[var(--navy)]'
                           : 'rounded-bl-md bg-muted text-foreground',
@@ -424,7 +417,8 @@ export default function MessagesSection() {
                         {formatTime(message.createdAt)}
                       </p>
                     </div>
-                  </motion.div>
+                    {mine && <NameAvatar name={user?.name || 'You'} className="h-7 w-7 shrink-0 text-[0.62rem]" />}
+                  </div>
                 );
               })}
               <div ref={messagesEndRef} />
@@ -432,26 +426,27 @@ export default function MessagesSection() {
           )}
         </div>
 
-        <div className="border-t border-[var(--border)] p-3">
-          <div className="flex items-end gap-2 rounded-2xl bg-muted p-2">
-            <Textarea
+        <div className="border-t border-[var(--border)]/70 bg-white p-2.5 md:p-3">
+          <div className="flex items-end gap-2 rounded-lg border border-[var(--border)]/60 bg-white p-1.5">
+            <textarea
               placeholder="Type your message"
               value={newMessage}
               onChange={(event) => setNewMessage(event.target.value)}
               onKeyDown={handleKeyDown}
               rows={1}
-              className="max-h-32 min-h-[44px] flex-1 resize-none border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="min-h-10 max-h-28 flex-1 resize-none bg-transparent px-2 py-2 text-sm outline-none placeholder:text-muted-foreground"
             />
             <Button
               type="button"
               onClick={handleSendMessage}
               disabled={!newMessage.trim() || sending}
-              className="h-10 bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]"
+              size="icon"
+              className="h-10 w-10 shrink-0 rounded-md bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]"
             >
               {sending ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
             </Button>
           </div>
-          <p className="mt-2 text-center text-xs text-muted-foreground">
+          <p className="mt-2 hidden text-center text-xs text-muted-foreground sm:block">
             Agree on payment and collection directly. Never share verification codes.
           </p>
         </div>
@@ -460,17 +455,17 @@ export default function MessagesSection() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 md:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground md:text-3xl">Messages</h1>
-        <p className="text-sm text-muted-foreground">Buyer and seller messages</p>
+        <h1 className="text-xl font-bold text-foreground md:text-3xl">Messages</h1>
+        <p className="hidden text-sm text-muted-foreground sm:block">Buyer and seller messages</p>
       </div>
 
-      <div className="grid min-h-[calc(100dvh-11rem)] grid-cols-1 overflow-hidden rounded-lg border border-[var(--border)] bg-card lg:min-h-[620px] lg:grid-cols-[340px_1fr] lg:rounded-xl">
-        <div className={cn('min-h-[280px] border-b border-[var(--border)] lg:block lg:border-b-0 lg:border-r', activeConversationId ? 'hidden' : 'block')}>
+      <div className="grid min-h-[calc(100dvh-9.5rem)] grid-cols-1 overflow-hidden rounded-lg border border-[var(--border)]/70 bg-card lg:min-h-[620px] lg:grid-cols-[340px_1fr] lg:rounded-xl">
+        <div className={cn('min-h-[280px] border-b border-[var(--border)]/70 lg:block lg:border-b-0 lg:border-r', activeConversationId ? 'hidden' : 'block')}>
           {ConversationList()}
         </div>
-        <div className={cn('min-h-0 lg:block lg:p-4', activeConversationId ? 'block' : 'hidden')}>
+        <div className={cn('min-h-0 lg:block', activeConversationId ? 'block' : 'hidden')}>
           {ChatWindow()}
         </div>
       </div>

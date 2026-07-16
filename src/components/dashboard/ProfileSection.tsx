@@ -71,22 +71,23 @@ export default function ProfileSection() {
   return (
     <div className="space-y-4 md:space-y-8">
       <motion.section
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="surface-card rounded-lg p-4 md:rounded-[2rem] md:p-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="surface-card relative rounded-lg p-4 md:rounded-[2rem] md:p-8"
       >
         <div className="flex items-start gap-4 md:flex-col md:gap-8 lg:flex-row lg:items-start">
-          <div className="relative shrink-0 self-start md:self-center lg:self-start">
+          <div className="shrink-0 self-start md:self-center lg:self-start">
             <NameAvatar name={user.name} className="h-20 w-20 border-2 border-white text-xl soft-shadow md:h-40 md:w-40 md:border-4 md:text-4xl" />
-            <button
-              type="button"
-              onClick={() => setIsEditing(true)}
-              className="absolute -bottom-1 -right-3 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-[var(--brand)] text-white soft-shadow md:bottom-2 md:right-2 md:h-12 md:w-12"
-              aria-label="Edit profile"
-            >
-              <Edit size={15} className="md:h-[19px] md:w-[19px]" aria-hidden="true" />
-            </button>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setIsEditing(true)}
+            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-md bg-[var(--brand-soft)] text-[var(--brand)] md:hidden"
+            aria-label="Edit profile"
+          >
+            <Edit size={15} aria-hidden="true" />
+          </button>
 
           <div className="min-w-0 flex-1 text-left md:text-center lg:text-left">
             <div className="flex flex-col gap-2 md:gap-4 lg:flex-row lg:items-start lg:justify-between">
