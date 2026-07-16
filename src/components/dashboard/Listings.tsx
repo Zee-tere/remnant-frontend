@@ -10,6 +10,7 @@ import {
   MessageSquare,
   MoreVertical,
   Package,
+  RefreshCw,
   Search,
   SortAsc,
   Trash2,
@@ -128,6 +129,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
   const [statusFilter, setStatusFilter] = useState<'all' | Listing['status']>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'views' | 'price-low' | 'price-high'>('newest');
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [editingListing, setEditingListing] = useState<Listing | null>(null);
   const [editForm, setEditForm] = useState({
@@ -149,12 +151,14 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
     }
 
     setLoading(true);
+    setLoadError(null);
     try {
       const data = await listingsApi.getMyListings();
       setListings(Array.isArray(data) ? data : []);
     } catch (error) {
-      setListings([]);
-      toast.error(getApiErrorMessage(error, 'Could not load your listings'));
+      const message = getApiErrorMessage(error, 'Could not load your listings');
+      setLoadError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -163,6 +167,17 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
   useEffect(() => {
     fetchListings();
   }, [fetchListings]);
+
+  useEffect(() => {
+    if (!loadError) return;
+    const retryWhenAvailable = () => void fetchListings();
+    window.addEventListener('online', retryWhenAvailable);
+    window.addEventListener('focus', retryWhenAvailable);
+    return () => {
+      window.removeEventListener('online', retryWhenAvailable);
+      window.removeEventListener('focus', retryWhenAvailable);
+    };
+  }, [fetchListings, loadError]);
 
   const filteredListings = useMemo(() => {
     return listings
@@ -278,6 +293,26 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
     return (
       <div className="flex min-h-[360px] items-center justify-center">
         <Loader2 className="animate-spin text-[var(--brand)]" size={28} />
+      </div>
+    );
+  }
+
+  if (loadError && listings.length === 0) {
+    return (
+      <div className="mx-auto flex min-h-[420px] max-w-xl items-center justify-center px-4">
+        <div className="w-full border-y border-[var(--border)] py-10 text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+            <RefreshCw size={22} aria-hidden="true" />
+          </div>
+          <h1 className="text-xl font-semibold text-foreground">Your listings are still here</h1>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+            We could not refresh them just now. Try again to load the latest activity.
+          </p>
+          <Button type="button" onClick={() => void fetchListings()} className="mt-5 bg-[var(--brand)] text-[var(--navy)]">
+            <RefreshCw size={16} />
+            Try again
+          </Button>
+        </div>
       </div>
     );
   }

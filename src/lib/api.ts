@@ -40,10 +40,24 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const request = error.config as (typeof error.config & { _retriedAfterRefresh?: boolean }) | undefined;
+    const request = error.config as (typeof error.config & {
+      _retriedAfterRefresh?: boolean;
+      _transientRetryCount?: number;
+    }) | undefined;
     const hadBearerToken = Boolean(request?.headers?.Authorization);
 
-    if (error.response?.status === 401 && hadBearerToken && request && !request._retriedAfterRefresh) {
+    const status = error.response?.status as number | undefined;
+    const isTransientFailure = !status || [500, 502, 503, 504].includes(status);
+    const isSafeToRetry = request?.method?.toLowerCase() === 'get';
+    const retryCount = request?._transientRetryCount ?? 0;
+
+    if (request && isSafeToRetry && isTransientFailure && retryCount < 2) {
+      request._transientRetryCount = retryCount + 1;
+      await new Promise((resolve) => setTimeout(resolve, 350 * 2 ** retryCount));
+      return api.request(request);
+    }
+
+    if (status === 401 && hadBearerToken && request && !request._retriedAfterRefresh) {
       request._retriedAfterRefresh = true;
       let refreshed = false;
       try {
@@ -58,7 +72,7 @@ api.interceptors.response.use(
       }
     }
 
-    if (error.response?.status === 401 && hadBearerToken) {
+    if (status === 401 && hadBearerToken) {
       useAuthStore.getState().logout();
       if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
         window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
