@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
+  ArrowLeft,
   ExternalLink,
   Flag,
   Loader2,
@@ -103,7 +104,7 @@ export default function MessagesSection() {
       const data = await conversationsApi.getConversations();
       const rows = Array.isArray(data) ? data : [];
       setConversations(rows);
-      setActiveConversationId((current) => current ?? rows[0]?.id ?? null);
+      setActiveConversationId((current) => current && rows.some((row) => row.id === current) ? current : null);
     } catch (error) {
       setConversations([]);
       toast.error(getApiErrorMessage(error, 'Could not load conversations'));
@@ -346,9 +347,12 @@ export default function MessagesSection() {
     const otherUser = getOtherUser(activeConversation);
 
     return (
-      <div className="flex h-full min-h-[620px] flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-card">
+      <div className="flex h-full min-h-[calc(100dvh-11rem)] flex-col overflow-hidden rounded-lg border border-[var(--border)] bg-card lg:min-h-[620px] lg:rounded-xl">
         <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] p-4">
           <div className="flex min-w-0 items-center gap-3">
+            <button type="button" onClick={() => setActiveConversationId(null)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-muted lg:hidden" aria-label="Back to conversations">
+              <ArrowLeft size={18} />
+            </button>
             <NameAvatar name={otherUser.name} className="h-10 w-10 text-sm" />
             <div className="min-w-0">
               <h3 className="truncate font-semibold text-foreground">{otherUser.name}</h3>
@@ -448,7 +452,7 @@ export default function MessagesSection() {
             </Button>
           </div>
           <p className="mt-2 text-center text-xs text-muted-foreground">
-            Keep payments and pickup plans inside Remnant until the exchange is complete.
+            Agree on payment and collection directly. Never share verification codes.
           </p>
         </div>
       </div>
@@ -462,12 +466,12 @@ export default function MessagesSection() {
         <p className="text-sm text-muted-foreground">Buyer and seller messages</p>
       </div>
 
-      <div className="grid min-h-[620px] grid-cols-1 overflow-hidden rounded-xl border border-[var(--border)] bg-card lg:grid-cols-[340px_1fr]">
-        <div className="min-h-[280px] border-b border-[var(--border)] lg:border-b-0 lg:border-r">
-          <ConversationList />
+      <div className="grid min-h-[calc(100dvh-11rem)] grid-cols-1 overflow-hidden rounded-lg border border-[var(--border)] bg-card lg:min-h-[620px] lg:grid-cols-[340px_1fr] lg:rounded-xl">
+        <div className={cn('min-h-[280px] border-b border-[var(--border)] lg:block lg:border-b-0 lg:border-r', activeConversationId ? 'hidden' : 'block')}>
+          {ConversationList()}
         </div>
-        <div className="min-h-0 p-3 lg:p-4">
-          <ChatWindow />
+        <div className={cn('min-h-0 lg:block lg:p-4', activeConversationId ? 'block' : 'hidden')}>
+          {ChatWindow()}
         </div>
       </div>
     </div>

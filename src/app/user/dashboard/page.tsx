@@ -7,7 +7,6 @@ import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import ListingsSection from '@/components/dashboard/Listings';
 import MessagesSection from '@/components/dashboard/Messages';
 import AlertsSection from '@/components/dashboard/Alerts';
-import TransactionsSection from '@/components/dashboard/Transactions';
 import ProfileSection from '@/components/dashboard/ProfileSection';
 import SettingsSection from '@/components/dashboard/SettingsSection';
 
@@ -16,9 +15,9 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth';
 
-type DashboardSection = 'listings' | 'messages' | 'alerts' | 'transactions' | 'upload' | 'profile' | 'settings';
+type DashboardSection = 'listings' | 'messages' | 'alerts' | 'upload' | 'profile' | 'settings';
 
-const dashboardSections: DashboardSection[] = ['listings', 'messages', 'alerts', 'transactions', 'upload', 'profile', 'settings'];
+const dashboardSections: DashboardSection[] = ['listings', 'messages', 'alerts', 'upload', 'profile', 'settings'];
 
 function DashboardLoading() {
   return (
@@ -72,8 +71,6 @@ function UserDashboardContent() {
         return <MessagesSection />;
       case 'alerts':
         return <AlertsSection />;
-      case 'transactions':
-        return <TransactionsSection />;
       case 'upload':
         return <UploadItem />;
       case 'profile':

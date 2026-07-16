@@ -7,33 +7,23 @@ import {
   Filter,
   HandHeart,
   Loader2,
-  MapPin,
   Package,
   Recycle,
   RefreshCw,
-  Search,
   Wrench,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { listingsApi } from "@/lib/api";
 import { listingCategories } from "@/lib/categories";
-import { formatCurrency } from "@/lib/utils";
 import { NairaIcon } from "@/components/ui/naira-icon";
 import { nigerianStates } from "@/lib/nigeria-locations";
-import { conditionLabels } from "@/lib/listing-conditions";
+import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
 
-interface Listing {
-  id: string;
-  title: string;
+interface Listing extends ListingCardItem {
   description: string;
   category: string;
   condition: string;
-  intentionTag: string;
-  price: string | null;
-  images: string[];
-  city: string | null;
   slug: string;
   user?: { id: string; name: string; avatarUrl: string | null; trustTier: string };
 }
@@ -47,7 +37,6 @@ const intentionMeta: Record<string, { icon: React.ElementType; label: string; co
 };
 
 export default function MarketplacePage() {
-  const [searchTerm, setSearchTerm] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
   const [category, setCategory] = useState("");
   const [intentionTag, setIntentionTag] = useState("");
@@ -85,7 +74,6 @@ export default function MarketplacePage() {
     const initialCategory = params.get("category") || "";
     const initialIntent = params.get("intentionTag") || "";
     const initialCity = params.get("city") || "";
-    setSearchTerm(initialSearch);
     setSubmittedSearch(initialSearch);
     if (initialCategory) setCategory(initialCategory);
     if (initialIntent) setIntentionTag(initialIntent);
@@ -97,17 +85,10 @@ export default function MarketplacePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, category, intentionTag, city, submittedSearch]);
 
-  const handleSearch = (event: React.FormEvent) => {
-    event.preventDefault();
-    setPage(1);
-    setSubmittedSearch(searchTerm.trim());
-  };
-
   const clearFilters = () => {
     setCategory("");
     setIntentionTag("");
     setCity("");
-    setSearchTerm("");
     setSubmittedSearch("");
     setPage(1);
   };
@@ -198,40 +179,32 @@ export default function MarketplacePage() {
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <main className="mx-auto max-w-7xl px-4 pb-20 pt-7 md:px-8 md:pt-10">
-        <header className="mb-8 md:mb-12">
-          <div className="mb-4 inline-flex items-center rounded-full bg-[var(--brand-soft)] px-4 py-2 text-xs font-bold text-[var(--brand)] md:mb-5 md:text-sm">
-            Explore Remnant
-          </div>
-          <div className="grid gap-6 lg:grid-cols-[1fr_480px] lg:items-end">
-            <div>
-              <h1 className="text-[1.8rem] font-bold text-[var(--foreground)] md:text-6xl">Explore useful pieces</h1>
-              <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[var(--ink-soft)] md:mt-4 md:text-lg md:leading-8">
-                Browse single items, useful parts, and pieces ready for a second life.
-              </p>
-            </div>
-            <form onSubmit={handleSearch} className="flex items-center gap-2 rounded-full border border-[var(--border)]/55 bg-white p-1.5 soft-shadow md:p-2">
-              <div className="flex min-w-0 flex-1 items-center gap-2">
-                <Search
-                  className="ml-2 shrink-0 text-[var(--muted-foreground)] md:ml-3"
-                  size={19}
-                  aria-hidden="true"
-                />
-                <Input
-                  value={searchTerm}
-                  onChange={(event) => setSearchTerm(event.target.value)}
-                  placeholder="Find a piece..."
-                  className="h-10 min-w-0 rounded-full border-0 bg-transparent px-0 text-sm font-semibold shadow-none focus-visible:ring-0 md:h-12 md:text-base"
-                />
-              </div>
-              <Button
-                type="submit"
-                className="h-10 shrink-0 rounded-full bg-[var(--brand)] px-4 text-sm font-bold text-white hover:bg-[var(--brand-dark)] md:h-12 md:px-6"
-              >
-                Search
-              </Button>
-            </form>
-          </div>
+        <header className="mb-4 md:mb-8">
+          <motion.h1
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-xl font-bold text-[var(--foreground)] md:text-4xl"
+          >
+            Explore the market
+          </motion.h1>
         </header>
+
+        <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide lg:hidden" aria-label="Filter by intent">
+          {[{ key: '', label: 'All' }, ...Object.entries(intentionMeta).map(([key, meta]) => ({ key, label: key === 'SELL' ? 'Buy' : meta.label }))].map((item) => (
+            <button
+              key={item.key || 'all'}
+              type="button"
+              onClick={() => { setIntentionTag(item.key); setPage(1); }}
+              className={`min-h-9 shrink-0 rounded-full border px-3 text-xs font-bold transition-colors ${
+                intentionTag === item.key
+                  ? 'border-[var(--brand)] bg-[var(--brand)] text-white'
+                  : 'border-[var(--border)] bg-white text-[var(--ink-soft)]'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
 
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
           <aside className="hidden w-72 shrink-0 lg:block lg:sticky lg:top-28">
@@ -260,7 +233,7 @@ export default function MarketplacePage() {
                 {submittedSearch && (
                   <span className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-soft)] px-3 py-1 text-sm font-bold text-[var(--brand)]">
                     {submittedSearch}
-                    <button type="button" onClick={() => { setSubmittedSearch(""); setSearchTerm(""); }}>
+                    <button type="button" onClick={() => setSubmittedSearch("")}>
                       <X size={14} aria-hidden="true" />
                     </button>
                   </span>
@@ -298,76 +271,8 @@ export default function MarketplacePage() {
               </div>
             ) : listings.length > 0 ? (
               <>
-                <div className="grid auto-rows-fr grid-cols-2 gap-2.5 md:grid-cols-2 md:gap-6 xl:grid-cols-3">
-                  {listings.map((item, index) => {
-                    const intent = intentionMeta[item.intentionTag] || intentionMeta.SELL;
-                    const IntentIcon = intent.icon;
-                    const featured = index === 0 || index === 4;
-
-                    return (
-                      <motion.article
-                        key={item.id}
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.03 }}
-                        className={featured ? "md:col-span-2" : ""}
-                      >
-                        <Link href={`/marketplace/${item.id}`} className="group block h-full">
-                          <div className={`surface-card lift-card flex h-full overflow-hidden rounded-lg md:rounded-[2rem] ${featured ? "flex-col md:flex-row" : "flex-col"}`}>
-                            <div className={`${featured ? "w-full md:w-1/2" : "w-full"} relative aspect-square overflow-hidden bg-[var(--sand)] md:aspect-[4/3]`}>
-                              {item.images?.[0] ? (
-                                <img
-                                  src={item.images[0]}
-                                  alt={item.title}
-                                  loading="lazy"
-                                  decoding="async"
-                                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                />
-                              ) : (
-                                <div className="flex h-full w-full items-center justify-center text-[var(--muted-foreground)]">
-                                  <Package size={44} aria-hidden="true" />
-                                </div>
-                              )}
-                              <span className={`absolute left-1.5 top-1.5 inline-flex items-center gap-1 rounded-full px-1.5 py-1 text-[0.58rem] font-bold shadow-sm md:left-4 md:top-4 md:gap-1.5 md:px-3 md:text-xs ${intent.bg} ${intent.color}`}>
-                                <IntentIcon size={11} className="md:h-3.5 md:w-3.5" aria-hidden="true" />
-                                {intent.label}
-                              </span>
-                              {item.condition && (
-                                <span className="absolute right-1.5 top-1.5 max-w-[45%] truncate rounded-full bg-white/95 px-1.5 py-1 text-[0.55rem] font-bold text-[var(--ink-soft)] shadow-sm md:right-4 md:top-4 md:px-3 md:text-xs">
-                                  {conditionLabels[item.condition] || item.condition}
-                                </span>
-                              )}
-                            </div>
-
-                            <div className={`${featured ? "w-full md:w-1/2" : "w-full"} flex flex-1 flex-col p-2.5 md:p-6`}>
-                              <div>
-                                <h3 className="line-clamp-1 text-[0.78rem] font-bold leading-tight text-[var(--foreground)] md:line-clamp-2 md:text-2xl">
-                                  {item.title}
-                                </h3>
-                                <p className="mt-3 hidden line-clamp-3 text-base font-medium leading-7 text-[var(--ink-soft)] md:block">
-                                  {item.description}
-                                </p>
-                              </div>
-                              <div className="mt-auto flex min-w-0 items-end justify-between gap-1 pt-2.5 md:gap-4 md:pt-6">
-                                <div className="min-w-0">
-                                  <p className="hidden text-xs font-bold uppercase text-[var(--muted-foreground)] md:block">Asking Price</p>
-                                  <p className="truncate text-[0.78rem] font-bold text-[var(--brand)] md:mt-1 md:text-2xl">
-                                    {item.price ? formatCurrency(Number(item.price)) : "Free"}
-                                  </p>
-                                </div>
-                                {item.city && (
-                                  <span className="inline-flex min-w-0 max-w-[52%] items-center gap-0.5 text-[0.58rem] font-bold text-[var(--muted-foreground)] md:gap-1 md:rounded-full md:bg-[var(--sand)] md:px-3 md:py-1 md:text-xs md:text-[var(--ink-soft)]">
-                                    <MapPin size={10} className="shrink-0 md:h-[13px] md:w-[13px]" aria-hidden="true" />
-                                    <span className="truncate">{item.city}</span>
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </Link>
-                      </motion.article>
-                    );
-                  })}
+                <div className="grid auto-rows-fr grid-cols-2 gap-2 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
+                  {listings.map((item) => <ListingCard key={item.id} item={item} />)}
                 </div>
 
                 {totalPages > 1 && (
@@ -400,11 +305,7 @@ export default function MarketplacePage() {
                   <Package size={30} aria-hidden="true" />
                 </div>
                 <h3 className="text-2xl font-bold text-[var(--foreground)]">No items found</h3>
-                <p className="mx-auto mt-3 max-w-md font-medium text-[var(--ink-soft)]">
-                  {hasActiveFilters
-                    ? "Try changing the search or clearing filters to reveal more pieces."
-                    : "The marketplace is empty. Be the first person to list a useful piece."}
-                </p>
+                <p className="mx-auto mt-3 max-w-md font-medium text-[var(--ink-soft)]">No items match these filters.</p>
                 <Button asChild className="mt-7 rounded-full bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">
                   <Link href="/sell-item">List the first item</Link>
                 </Button>

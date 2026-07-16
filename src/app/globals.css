@@ -22,7 +22,7 @@
   --terracotta: #6c5e20;
   --terracotta-light: #ffeb9e;
   --terracotta-dark: #534608;
-  --cream: #f9f9f9;
+  --cream: #ffffff;
   --sand: #f3f3f4;
   --sand-dark: #bdc9c2;
   --warm-white: #ffffff;
@@ -35,7 +35,7 @@
   --font-mono: "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
   --radius: 1rem;
-  --background: #f9f9f9;
+  --background: #ffffff;
   --foreground: #1a1c1c;
   --card: #ffffff;
   --card-foreground: #1a1c1c;
@@ -342,7 +342,7 @@
   .surface-card {
     @apply border bg-white;
     border-color: rgba(189, 201, 194, 0.45);
-    box-shadow: 0 20px 45px -24px rgba(0, 108, 82, 0.24);
+    box-shadow: none;
   }
 
   .soft-shadow {
@@ -437,8 +437,8 @@
 
 @media (max-width: 767px) {
   .surface-card {
-    border-color: transparent;
-    box-shadow: 0 14px 34px -30px rgba(0, 108, 82, 0.45);
+    border-color: rgba(189, 201, 194, 0.55);
+    box-shadow: none;
   }
 
   .soft-shadow {

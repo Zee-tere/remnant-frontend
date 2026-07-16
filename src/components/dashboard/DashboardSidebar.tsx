@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import {
   Bell,
-  CreditCard,
   LogOut,
   Mail,
   Package,
@@ -13,12 +12,12 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { listingsApi, matchesApi, notificationsApi, conversationsApi, transactionsApi } from '@/lib/api';
+import { listingsApi, matchesApi, notificationsApi, conversationsApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 import { NameAvatar } from '@/components/ui/name-avatar';
 
-type DashboardSection = 'listings' | 'messages' | 'alerts' | 'transactions' | 'upload' | 'profile' | 'settings';
+type DashboardSection = 'listings' | 'messages' | 'alerts' | 'upload' | 'profile' | 'settings';
 
 interface DashboardSidebarProps {
   onSelectSection: (section: DashboardSection) => void;
@@ -31,7 +30,6 @@ interface SidebarStats {
   unreadMessages: number;
   unreadAlerts: number;
   pendingMatches: number;
-  activeTransactions: number;
 }
 
 const initialStats: SidebarStats = {
@@ -40,7 +38,6 @@ const initialStats: SidebarStats = {
   unreadMessages: 0,
   unreadAlerts: 0,
   pendingMatches: 0,
-  activeTransactions: 0,
 };
 
 export default function DashboardSidebar({ onSelectSection, activeSection }: DashboardSidebarProps) {
@@ -58,12 +55,11 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
     let cancelled = false;
 
     async function loadStats() {
-      const [listingsResult, notificationsResult, matchesResult, conversationsResult, transactionsResult] = await Promise.allSettled([
+      const [listingsResult, notificationsResult, matchesResult, conversationsResult] = await Promise.allSettled([
         listingsApi.getMyListings(),
         notificationsApi.getNotifications(1),
         matchesApi.getMatches(),
         conversationsApi.getConversations(),
-        transactionsApi.getTransactions(),
       ]);
 
       if (cancelled) return;
@@ -73,10 +69,6 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
       const conversations =
         conversationsResult.status === 'fulfilled' && Array.isArray(conversationsResult.value)
           ? conversationsResult.value
-          : [];
-      const transactions =
-        transactionsResult.status === 'fulfilled' && Array.isArray(transactionsResult.value)
-          ? transactionsResult.value
           : [];
       const unreadAlerts =
         notificationsResult.status === 'fulfilled'
@@ -92,9 +84,6 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
         }).length,
         unreadAlerts,
         pendingMatches: matches.filter((match: { status?: string }) => match.status === 'PENDING').length,
-        activeTransactions: transactions.filter((transaction: { status?: string }) =>
-          ['INITIATED', 'FUNDED', 'SHIPPED', 'RECEIVED', 'DISPUTED'].includes(transaction.status ?? ''),
-        ).length,
       });
     }
 
@@ -114,7 +103,6 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
     { label: 'My Listings', icon: Package, section: 'listings', count: stats.listings },
     { label: 'Messages', icon: Mail, section: 'messages', count: stats.unreadMessages },
     { label: 'Alerts', icon: Bell, section: 'alerts', count: stats.unreadAlerts + stats.pendingMatches },
-    { label: 'Transactions', icon: CreditCard, section: 'transactions', count: stats.activeTransactions },
     { label: 'Upload Item', icon: UploadCloud, section: 'upload', highlight: true },
     { label: 'Profile', icon: User, section: 'profile' },
     { label: 'Settings', icon: Settings, section: 'settings' },
@@ -173,8 +161,8 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
             <p className="text-[11px] text-[var(--muted-foreground)]">Matches</p>
           </div>
           <div className="rounded-[1.25rem] bg-[#fff6cf] p-2">
-            <p className="font-bold">{stats.activeTransactions}</p>
-            <p className="text-[11px] text-[var(--muted-foreground)]">Deals</p>
+            <p className="font-bold">{stats.unreadMessages}</p>
+            <p className="text-[11px] text-[var(--muted-foreground)]">Messages</p>
           </div>
         </div>
       </motion.div>
@@ -237,7 +225,6 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
             <span>Alerts: {stats.unreadAlerts}</span>
             <span>Messages: {stats.unreadMessages}</span>
             <span>Matches: {stats.pendingMatches}</span>
-            <span>Deals: {stats.activeTransactions}</span>
           </div>
         </div>
 

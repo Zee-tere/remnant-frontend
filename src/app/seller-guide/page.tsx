@@ -74,7 +74,7 @@ export default function SellerGuidePage() {
         'Meet in public places',
         'Bring a friend if possible',
         'Check buyer ratings',
-        'Use our secure payment system',
+        'Agree on payment and collection clearly',
       ],
     },
     {
@@ -162,7 +162,7 @@ export default function SellerGuidePage() {
           <TabsTrigger value="getting-started">Getting Started</TabsTrigger>
           <TabsTrigger value="pricing">Pricing Guide</TabsTrigger>
           <TabsTrigger value="photos">Photos & Descriptions</TabsTrigger>
-          <TabsTrigger value="safety">Safety & Transactions</TabsTrigger>
+          <TabsTrigger value="safety">Safety & Exchanges</TabsTrigger>
           <TabsTrigger value="success">Success Tips</TabsTrigger>
         </TabsList>
 
@@ -221,7 +221,7 @@ export default function SellerGuidePage() {
                     {[
                       'Complete your profile with photo',
                       'Verify your phone number',
-                      'Set up payment method',
+                      'Add your payment or pickup preference',
                       'Take 5+ photos of your item',
                       'Write detailed description',
                       'Research similar listings',
@@ -251,7 +251,7 @@ export default function SellerGuidePage() {
                       'Overpricing items',
                       'Slow response to messages',
                       'Meeting in unsafe locations',
-                      'Accepting payment outside platform',
+                      'Sharing verification codes or passwords',
                     ].map((mistake, idx) => (
                       <div key={idx} className="flex items-center gap-3">
                         <AlertCircle className="h-4 w-4 text-red-500" />
@@ -481,7 +481,7 @@ export default function SellerGuidePage() {
           </div>
         </TabsContent>
 
-        {/* Safety & Transactions Tab */}
+        {/* Safety & Exchanges Tab */}
         <TabsContent value="safety">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
@@ -518,11 +518,11 @@ export default function SellerGuidePage() {
                       <ul className="space-y-2">
                         <li className="flex items-start">
                           <Shield className="h-4 w-4 text-green-500 mr-2 mt-1" />
-                          <span>Always use Remnant&apos;s secure payment system</span>
+                          <span>Confirm the agreed amount before handing over an item</span>
                         </li>
                         <li className="flex items-start">
                           <Shield className="h-4 w-4 text-green-500 mr-2 mt-1" />
-                          <span>Never accept payment outside the platform</span>
+                          <span>Meet in a safe public place when possible</span>
                         </li>
                         <li className="flex items-start">
                           <Shield className="h-4 w-4 text-green-500 mr-2 mt-1" />
@@ -547,7 +547,7 @@ export default function SellerGuidePage() {
                       { step: '2', title: 'Negotiate', description: 'Use messaging to agree on price' },
                       { step: '3', title: 'Arrange Meeting', description: 'Choose safe public location' },
                       { step: '4', title: 'Complete Payment', description: 'Buyer pays through Remnant' },
-                      { step: '5', title: 'Hand Over Item', description: 'Exchange item after payment confirmation' },
+                      { step: '5', title: 'Hand Over Item', description: 'Exchange the item after confirming the agreed payment' },
                       { step: '6', title: 'Leave Review', description: 'Rate your experience' },
                     ].map((item) => (
                       <div key={item.step} className="flex items-center gap-4">
@@ -739,11 +739,11 @@ export default function SellerGuidePage() {
             {[
               {
                 q: 'How much does it cost to sell on Remnant?',
-                a: 'Listing is free. Any transaction fee is shown clearly before payment so there are no surprises.',
+                a: 'Listing is free. Buyers and sellers currently arrange payment and collection directly.',
               },
               {
                 q: 'How do I get paid?',
-                a: 'Payments are being finalized for launch. Keep buyer conversations in Remnant and only use approved payment instructions when they are available.',
+                a: 'Agree on the amount and collection method in your conversation. Never share passwords or verification codes.',
               },
               {
                 q: 'What if a buyer doesn\'t show up?',

@@ -25,7 +25,7 @@ export default function HelpPage() {
       questions: [
         { question: 'How does the matching system work?', answer: 'Our AI scans listings for complementary items. If you list a "Left AirPod", we\'ll match you with users looking for or selling "Right AirPod".' },
         { question: 'How do I buy an item?', answer: 'Open an item and message the seller to agree on the next step.' },
-        { question: 'What payment methods are accepted?', answer: 'Payments are being finalized for launch. Keep communication on Remnant until the payment flow is live.' },
+        { question: 'How do I pay a seller?', answer: 'Remnant does not process payments yet. Agree on payment and collection directly with the seller in messages.' },
         { question: 'How do I know if a seller is trustworthy?', answer: 'Check profile details and keep the conversation inside Remnant.' },
       ],
     },
@@ -50,13 +50,13 @@ export default function HelpPage() {
   const helpTopics = [
     { icon: Book, title: 'User Guide', description: 'Complete guide to using Remnant', link: '/seller-guide' },
     { icon: Shield, title: 'Safety Tips', description: 'Stay safe while trading', link: '/seller-guide?tab=safety' },
-    { icon: CreditCard, title: 'Payments', description: 'Launch payment status', link: '/help?topic=payments' },
+    { icon: CreditCard, title: 'Exchanges', description: 'Payment and collection safety', link: '/help?topic=payments' },
     { icon: Package, title: 'Shipping', description: 'Shipping and delivery options', link: '/help?topic=shipping' },
   ];
 
   const contactOptions = [
     { icon: MessageSquare, title: 'Support Inbox', description: 'Send the team your question', action: 'Open Help Desk', href: 'mailto:support@remnantmarket.co' },
-    { icon: Phone, title: 'Phone Support', description: 'Call us for account or payment help', action: 'Call Now', href: 'tel:+2341700736268' },
+    { icon: Phone, title: 'Phone Support', description: 'Call us for account or listing help', action: 'Call Now', href: 'tel:+2341700736268' },
     { icon: Mail, title: 'Email Support', description: 'Send us an email', action: 'Send Email', href: 'mailto:support@remnantmarket.co' },
   ];
 

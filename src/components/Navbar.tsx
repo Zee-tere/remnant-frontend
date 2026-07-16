@@ -6,7 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
   ChevronDown,
-  CreditCard,
   HandHeart,
   LayoutDashboard,
   LogOut,
@@ -40,7 +39,6 @@ const accountActions = [
   { label: "Listings", href: "/user/dashboard", icon: Package },
   { label: "Messages", href: "/user/dashboard?section=messages", icon: Mail },
   { label: "Alerts", href: "/user/dashboard?section=alerts", icon: Bell },
-  { label: "Orders", href: "/user/dashboard?section=transactions", icon: CreditCard },
   { label: "Upload", href: "/user/dashboard?section=upload", icon: UploadCloud },
   { label: "Profile", href: "/user/dashboard?section=profile", icon: UserCircle },
   { label: "Settings", href: "/user/dashboard?section=settings", icon: Settings },

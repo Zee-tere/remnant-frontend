@@ -88,6 +88,10 @@ export const listingsApi = {
     api.get('/listings', { params }).then((r) => normalizeListingPage(r.data)),
   getListing: (id: string) =>
     api.get(`/listings/${id}`).then((r) => r.data),
+  getSimilarListings: (id: string, limit = 12) =>
+    api.get(`/listings/${id}/similar`, { params: { limit } }).then((r) => r.data),
+  searchListings: (params?: Record<string, string>) =>
+    api.get('/listings/search', { params }).then((r) => r.data),
   getListingBySlug: (slug: string) =>
     api.get(`/listings/slug/${slug}`).then((r) => r.data),
   createListing: (data: Record<string, unknown>) =>

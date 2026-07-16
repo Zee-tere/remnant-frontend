@@ -11,7 +11,7 @@ const sections = [
   {
     title: "How we use it",
     body:
-      "We use platform data to operate search, matching, trust checks, support, and product improvements. Paystack processes payment details under its own privacy terms.",
+      "We use platform data to operate search, matching, messages, trust checks, support, and product improvements.",
   },
   {
     title: "Your choices",

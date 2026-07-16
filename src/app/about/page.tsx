@@ -14,7 +14,7 @@ const values = [
   {
     icon: Shield,
     title: 'Trust makes reuse possible',
-    description: 'Profiles, messages, and protected payment flows help members exchange with confidence.',
+    description: 'Profiles and direct messages help buyers and sellers agree on an exchange.',
   },
   {
     icon: Users,

@@ -164,8 +164,8 @@ export default function ProfileSection() {
             <h2 className="text-base font-bold md:text-2xl">Curator Standing</h2>
           </div>
           <p className="text-xs font-medium leading-5 text-[var(--ink-soft)] md:text-base md:leading-8">
-            Your profile is used across listings, messages, and protected transactions. A complete
-            profile helps other members understand who they are buying from, trading with, or donating to.
+            Your profile is used across listings and messages. A complete profile helps other members
+            know who they are speaking with.
           </p>
           <div className="mt-4 h-2 overflow-hidden rounded-full bg-[var(--sand)] md:mt-6">
             <motion.div

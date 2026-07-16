@@ -15,17 +15,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getApiUrl } from "@/lib/api-url";
 import { listingCategories } from "@/lib/categories";
-import { formatCurrency } from "@/lib/utils";
+import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
 
-interface Listing {
-  id: string;
-  title: string;
+interface Listing extends ListingCardItem {
   category: string;
-  price: string | null;
-  images: string[];
-  intentionTag: string;
   condition: string;
-  city: string | null;
 }
 
 const floatingObjects = [
@@ -216,7 +210,7 @@ export default function HomePage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.45 }}
-            className="relative overflow-hidden rounded-[1rem] bg-[var(--cream)] p-2.5 md:rounded-[2rem] md:p-6"
+            className="relative overflow-hidden border-y border-[var(--border)] bg-white py-2 md:rounded-[2rem] md:border-0 md:bg-[var(--cream)] md:p-6"
           >
             <div className="relative grid grid-cols-3 gap-2 md:gap-4">
               {howItWorks.map((step, index) => {
@@ -228,13 +222,13 @@ export default function HomePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.35, delay: index * 0.08 }}
-                  className="flex aspect-square min-w-0 flex-col justify-between gap-2 rounded-[0.75rem] bg-white p-2.5 shadow-[0_14px_34px_-32px_rgba(0,108,82,0.45)] md:aspect-auto md:flex-row md:items-start md:justify-start md:gap-3 md:rounded-[1.1rem] md:p-4"
+                  className="flex min-w-0 items-center justify-center gap-1.5 bg-white px-1 py-1.5 md:aspect-auto md:justify-start md:gap-3 md:rounded-[1.1rem] md:p-4 md:shadow-[0_14px_34px_-32px_rgba(0,108,82,0.45)]"
                 >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)] md:h-10 md:w-10">
-                    <Icon size={17} className="md:h-[19px] md:w-[19px]" aria-hidden="true" />
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)] md:h-10 md:w-10">
+                    <Icon size={13} className="md:h-[19px] md:w-[19px]" aria-hidden="true" />
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-xs font-black text-[var(--foreground)] md:text-sm">{step.title}</span>
+                    <span className="block text-[0.68rem] font-black text-[var(--foreground)] md:text-sm">{step.title}</span>
                     <span className="mt-1 hidden text-xs font-semibold leading-5 text-[var(--ink-soft)] md:block">{step.text}</span>
                   </span>
                 </motion.div>
@@ -297,7 +291,7 @@ export default function HomePage() {
           </div>
 
           {loadingListings ? (
-            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 md:gap-6 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-4">
               {[1, 2, 3, 4].map((item) => (
                 <div key={item} className="surface-card overflow-hidden rounded-[0.85rem] md:rounded-[2rem]">
                   <div className="aspect-square skeleton" />
@@ -309,40 +303,8 @@ export default function HomePage() {
               ))}
             </div>
           ) : featuredListings.length > 0 ? (
-            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 md:gap-6 lg:grid-cols-4">
-              {featuredListings.map((item) => (
-                <Link key={item.id} href={`/marketplace/${item.id}`} className="group block">
-                  <article className="lift-card surface-card h-full overflow-hidden rounded-[0.85rem] md:rounded-[2rem]">
-                    <div className="relative aspect-square bg-[var(--sand)]">
-                      {item.images?.[0] ? (
-                        <img
-                          src={item.images[0]}
-                          alt={item.title}
-                          loading="lazy"
-                          decoding="async"
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-[var(--muted-foreground)]">
-                          <Package size={42} aria-hidden="true" />
-                        </div>
-                      )}
-                      <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[0.62rem] font-bold capitalize text-[var(--brand)] shadow-sm md:left-4 md:top-4 md:px-3 md:py-1 md:text-xs">
-                        {item.intentionTag.toLowerCase()}
-                      </span>
-                    </div>
-                    <div className="p-2.5 md:p-5">
-                      <h3 className="line-clamp-1 text-[0.82rem] font-bold leading-tight text-[var(--foreground)] md:text-xl">{item.title}</h3>
-                      <div className="mt-1.5 flex min-w-0 items-center justify-between gap-1.5 md:mt-3 md:gap-3">
-                        <span className="truncate text-[0.88rem] font-bold text-[var(--brand)] md:text-lg">
-                          {item.price ? formatCurrency(Number(item.price)) : "Free"}
-                        </span>
-                        {item.city && <span className="max-w-[44%] truncate text-[0.65rem] font-semibold text-[var(--muted-foreground)] md:text-sm">{item.city}</span>}
-                      </div>
-                    </div>
-                  </article>
-                </Link>
-              ))}
+            <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-4">
+              {featuredListings.map((item) => <ListingCard key={item.id} item={item} />)}
             </div>
           ) : (
             <div className="surface-card rounded-[1.35rem] p-6 text-center md:rounded-[2rem] md:p-10">
