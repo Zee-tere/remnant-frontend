@@ -77,19 +77,19 @@ export default function FindAPairPage() {
   const hasFilters = Boolean(category || city || intent);
 
   return (
-    <main className="mx-auto min-h-screen max-w-7xl bg-white px-3 pb-8 pt-2 md:px-8 md:pb-12 md:pt-8">
+    <main className="mx-auto min-h-screen max-w-7xl bg-white px-3 pb-8 pt-2 md:px-8 md:pb-20 md:pt-8">
       <form onSubmit={handleSearch} className="flex items-center gap-2">
-        <div className="relative min-w-0 flex-1 rounded-md border border-[var(--border)]/70 bg-white">
+        <div className="relative min-w-0 flex-1 rounded-md border border-[var(--border)]/70 bg-white md:rounded-full">
           <Input
             type="search"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
             placeholder="Search the market"
-            className="h-11 rounded-md border-0 bg-transparent pl-4 pr-12 text-sm font-semibold shadow-none focus-visible:ring-0 md:h-12 md:text-base"
+            className="h-11 rounded-md border-0 bg-transparent pl-4 pr-12 text-sm font-semibold shadow-none focus-visible:ring-0 md:h-12 md:rounded-full md:text-base"
           />
           <button
             type="submit"
-            className="absolute right-1 top-1 flex h-9 w-9 items-center justify-center rounded bg-[var(--brand)] text-white transition-colors hover:bg-[var(--brand-dark)] md:right-1.5 md:top-1.5"
+            className="absolute right-1 top-1 flex h-9 w-9 items-center justify-center rounded bg-[var(--brand)] text-white transition-colors hover:bg-[var(--brand-dark)] md:right-1.5 md:top-1.5 md:rounded-full"
             aria-label="Search"
           >
             <Search size={14} strokeWidth={2.25} aria-hidden="true" />
@@ -99,7 +99,7 @@ export default function FindAPairPage() {
           type="button"
           variant="outline"
           onClick={() => setShowFilters((current) => !current)}
-          className="h-11 shrink-0 rounded-md border-[var(--border)]/70 bg-white px-3 text-xs font-bold md:h-12 md:px-5 md:text-sm"
+          className="h-11 shrink-0 rounded-md border-[var(--border)]/70 bg-white px-3 text-xs font-bold md:h-12 md:rounded-full md:px-5 md:text-sm"
         >
           {showFilters ? <X size={15} /> : <Filter size={15} />}
           Filter
