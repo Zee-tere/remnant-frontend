@@ -22,6 +22,7 @@ import { listingCategories } from "@/lib/categories";
 import { formatCurrency } from "@/lib/utils";
 import { NairaIcon } from "@/components/ui/naira-icon";
 import { nigerianStates } from "@/lib/nigeria-locations";
+import { conditionLabels } from "@/lib/listing-conditions";
 
 interface Listing {
   id: string;
@@ -43,14 +44,6 @@ const intentionMeta: Record<string, { icon: React.ElementType; label: string; co
   DONATE: { icon: HandHeart, label: "Free", color: "text-[var(--tertiary-gold)]", bg: "bg-[#fff6cf]" },
   FIX: { icon: Wrench, label: "Needs Fix", color: "text-orange-700", bg: "bg-orange-50" },
   RECYCLE: { icon: Recycle, label: "Recycle", color: "text-teal-700", bg: "bg-teal-50" },
-};
-
-const conditionLabels: Record<string, string> = {
-  NEW: "New",
-  LIKE_NEW: "Like New",
-  GOOD: "Good",
-  FAIR: "Fair",
-  POOR: "Poor",
 };
 
 export default function MarketplacePage() {
@@ -305,7 +298,7 @@ export default function MarketplacePage() {
               </div>
             ) : listings.length > 0 ? (
               <>
-                <div className="grid auto-rows-fr grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                <div className="grid auto-rows-fr grid-cols-2 gap-2.5 md:grid-cols-2 md:gap-6 xl:grid-cols-3">
                   {listings.map((item, index) => {
                     const intent = intentionMeta[item.intentionTag] || intentionMeta.SELL;
                     const IntentIcon = intent.icon;
@@ -320,12 +313,14 @@ export default function MarketplacePage() {
                         className={featured ? "md:col-span-2" : ""}
                       >
                         <Link href={`/marketplace/${item.id}`} className="group block h-full">
-                          <div className={`surface-card lift-card flex h-full overflow-hidden rounded-[1.5rem] md:rounded-[2rem] ${featured ? "flex-col sm:flex-row" : "flex-col"}`}>
-                            <div className={`${featured ? "sm:w-1/2" : "w-full"} relative aspect-[4/3] overflow-hidden bg-[var(--sand)]`}>
+                          <div className={`surface-card lift-card flex h-full overflow-hidden rounded-lg md:rounded-[2rem] ${featured ? "flex-col md:flex-row" : "flex-col"}`}>
+                            <div className={`${featured ? "w-full md:w-1/2" : "w-full"} relative aspect-square overflow-hidden bg-[var(--sand)] md:aspect-[4/3]`}>
                               {item.images?.[0] ? (
                                 <img
                                   src={item.images[0]}
                                   alt={item.title}
+                                  loading="lazy"
+                                  decoding="async"
                                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
                               ) : (
@@ -333,37 +328,37 @@ export default function MarketplacePage() {
                                   <Package size={44} aria-hidden="true" />
                                 </div>
                               )}
-                              <span className={`absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold shadow-sm ${intent.bg} ${intent.color}`}>
-                                <IntentIcon size={14} aria-hidden="true" />
+                              <span className={`absolute left-1.5 top-1.5 inline-flex items-center gap-1 rounded-full px-1.5 py-1 text-[0.58rem] font-bold shadow-sm md:left-4 md:top-4 md:gap-1.5 md:px-3 md:text-xs ${intent.bg} ${intent.color}`}>
+                                <IntentIcon size={11} className="md:h-3.5 md:w-3.5" aria-hidden="true" />
                                 {intent.label}
                               </span>
                               {item.condition && (
-                                <span className="absolute right-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-[var(--ink-soft)] shadow-sm">
+                                <span className="absolute right-1.5 top-1.5 max-w-[45%] truncate rounded-full bg-white/95 px-1.5 py-1 text-[0.55rem] font-bold text-[var(--ink-soft)] shadow-sm md:right-4 md:top-4 md:px-3 md:text-xs">
                                   {conditionLabels[item.condition] || item.condition}
                                 </span>
                               )}
                             </div>
 
-                            <div className={`${featured ? "sm:w-1/2" : "w-full"} flex flex-1 flex-col p-4 md:p-6`}>
+                            <div className={`${featured ? "w-full md:w-1/2" : "w-full"} flex flex-1 flex-col p-2.5 md:p-6`}>
                               <div>
-                                <h3 className="line-clamp-2 text-lg font-bold leading-tight text-[var(--foreground)] md:text-2xl">
+                                <h3 className="line-clamp-1 text-[0.78rem] font-bold leading-tight text-[var(--foreground)] md:line-clamp-2 md:text-2xl">
                                   {item.title}
                                 </h3>
-                                <p className="mt-2 line-clamp-2 text-sm font-medium leading-6 text-[var(--ink-soft)] md:mt-3 md:line-clamp-3 md:text-base md:leading-7">
+                                <p className="mt-3 hidden line-clamp-3 text-base font-medium leading-7 text-[var(--ink-soft)] md:block">
                                   {item.description}
                                 </p>
                               </div>
-                              <div className="mt-auto flex items-end justify-between gap-4 pt-4 md:pt-6">
-                                <div>
-                                  <p className="text-xs font-bold uppercase text-[var(--muted-foreground)]">Asking Price</p>
-                                  <p className="mt-1 text-lg font-bold text-[var(--brand)] md:text-2xl">
+                              <div className="mt-auto flex min-w-0 items-end justify-between gap-1 pt-2.5 md:gap-4 md:pt-6">
+                                <div className="min-w-0">
+                                  <p className="hidden text-xs font-bold uppercase text-[var(--muted-foreground)] md:block">Asking Price</p>
+                                  <p className="truncate text-[0.78rem] font-bold text-[var(--brand)] md:mt-1 md:text-2xl">
                                     {item.price ? formatCurrency(Number(item.price)) : "Free"}
                                   </p>
                                 </div>
                                 {item.city && (
-                                  <span className="inline-flex items-center gap-1 rounded-full bg-[var(--sand)] px-3 py-1 text-xs font-bold text-[var(--ink-soft)]">
-                                    <MapPin size={13} aria-hidden="true" />
-                                    {item.city}
+                                  <span className="inline-flex min-w-0 max-w-[52%] items-center gap-0.5 text-[0.58rem] font-bold text-[var(--muted-foreground)] md:gap-1 md:rounded-full md:bg-[var(--sand)] md:px-3 md:py-1 md:text-xs md:text-[var(--ink-soft)]">
+                                    <MapPin size={10} className="shrink-0 md:h-[13px] md:w-[13px]" aria-hidden="true" />
+                                    <span className="truncate">{item.city}</span>
                                   </span>
                                 )}
                               </div>

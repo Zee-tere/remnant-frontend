@@ -186,7 +186,7 @@ export default function TransactionsSection() {
                   <div className="flex min-w-0 gap-4">
                     <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
                       {transaction.listing.images?.[0] ? (
-                        <img src={transaction.listing.images[0]} alt="" className="h-full w-full object-cover" />
+                        <img src={transaction.listing.images[0]} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-muted-foreground">
                           <Package size={26} />

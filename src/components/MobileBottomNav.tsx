@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Plus, Search, ShoppingBag, UserCircle } from "lucide-react";
 import { useAuthStore } from "@/lib/auth";
+import { NameAvatar } from "@/components/ui/name-avatar";
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
@@ -75,13 +76,7 @@ export default function MobileBottomNav() {
               aria-label={item.label}
             >
               {item.profile && isAuthenticated ? (
-                <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-[var(--brand-soft)] text-[0.7rem] font-bold text-[var(--brand)]">
-                  {user?.avatarUrl ? (
-                    <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    (user?.name || "R").charAt(0).toUpperCase()
-                  )}
-                </span>
+                <NameAvatar name={user?.name || "Remnant"} className="h-7 w-7 text-[0.7rem]" />
               ) : (
                 <Icon className="h-5 w-5" aria-hidden="true" />
               )}

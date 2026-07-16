@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Bell,
   CreditCard,
@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { listingsApi, matchesApi, notificationsApi, conversationsApi, transactionsApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
 import { cn } from '@/lib/utils';
+import { NameAvatar } from '@/components/ui/name-avatar';
 
 type DashboardSection = 'listings' | 'messages' | 'alerts' | 'transactions' | 'upload' | 'profile' | 'settings';
 
@@ -103,16 +104,6 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
     };
   }, [isAuthenticated, user]);
 
-  const initials = useMemo(() => {
-    if (!user?.name) return 'R';
-    return user.name
-      .split(' ')
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part.charAt(0).toUpperCase())
-      .join('');
-  }, [user?.name]);
-
   const menuItems: Array<{
     label: string;
     icon: React.ElementType;
@@ -163,15 +154,12 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
       >
         <div className="mb-4 flex items-center gap-3">
           <div className="relative">
-            <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-[var(--brand-soft)] text-lg font-bold text-[var(--brand)]">
-              {user?.avatarUrl ? <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" /> : initials}
-            </div>
+            <NameAvatar name={user?.name ?? 'Remnant'} className="h-14 w-14 text-lg" />
             <div className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-[var(--brand)]" />
           </div>
           <div className="min-w-0">
             <h3 className="truncate text-base font-bold">{user?.name ?? 'Remnant user'}</h3>
             <p className="truncate text-xs text-[var(--muted-foreground)]">{user?.email ?? 'Signed in account'}</p>
-            <p className="mt-1 text-xs text-[var(--brand)]">{user?.trustTier ?? 'NEW'} tier</p>
           </div>
         </div>
 

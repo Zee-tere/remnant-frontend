@@ -122,7 +122,7 @@ export default function FindAPairPage() {
               </Button>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-2.5 md:gap-6 lg:grid-cols-3">
               {listings.map((item, index) => {
                 const intent = intentionMeta[item.intentionTag] || intentionMeta.SELL;
                 const IntentIcon = intent.icon;
@@ -134,12 +134,14 @@ export default function FindAPairPage() {
                     transition={{ delay: index * 0.03 }}
                   >
                     <Link href={`/marketplace/${item.id}`} className="group block h-full">
-                      <div className="surface-card lift-card h-full overflow-hidden rounded-[1.5rem] md:rounded-[2rem]">
-                        <div className="relative aspect-[4/3] overflow-hidden bg-[var(--sand)]">
+                      <div className="surface-card lift-card h-full overflow-hidden rounded-lg md:rounded-[2rem]">
+                        <div className="relative aspect-square overflow-hidden bg-[var(--sand)] md:aspect-[4/3]">
                           {item.images?.[0] ? (
                             <img
                               src={item.images[0]}
                               alt={item.title}
+                              loading="lazy"
+                              decoding="async"
                               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
                           ) : (
@@ -147,27 +149,27 @@ export default function FindAPairPage() {
                               <Package size={44} aria-hidden="true" />
                             </div>
                           )}
-                          <span className={`absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${intent.bg} ${intent.color}`}>
-                            <IntentIcon size={14} aria-hidden="true" />
+                          <span className={`absolute left-1.5 top-1.5 inline-flex items-center gap-1 rounded-full px-1.5 py-1 text-[0.58rem] font-bold md:left-4 md:top-4 md:gap-1.5 md:px-3 md:text-xs ${intent.bg} ${intent.color}`}>
+                            <IntentIcon size={11} className="md:h-3.5 md:w-3.5" aria-hidden="true" />
                             {intent.label}
                           </span>
                         </div>
-                        <div className="p-4 md:p-6">
-                          <h3 className="line-clamp-1 text-lg font-bold text-[var(--foreground)] md:text-2xl">{item.title}</h3>
-                          <p className="mt-2 line-clamp-2 text-sm font-medium leading-6 text-[var(--ink-soft)] md:mt-3 md:text-base md:leading-7">{item.description}</p>
+                        <div className="p-2.5 md:p-6">
+                          <h3 className="line-clamp-1 text-[0.78rem] font-bold text-[var(--foreground)] md:text-2xl">{item.title}</h3>
+                          <p className="mt-3 hidden line-clamp-2 text-base font-medium leading-7 text-[var(--ink-soft)] md:block">{item.description}</p>
                           {item.pairingKeyword && (
-                            <p className="mt-4 inline-flex rounded-full bg-[var(--brand-soft)] px-3 py-1 text-sm font-bold text-[var(--brand)]">
+                            <p className="mt-1.5 line-clamp-1 text-[0.58rem] font-bold text-[var(--brand)] md:mt-4 md:inline-flex md:rounded-full md:bg-[var(--brand-soft)] md:px-3 md:py-1 md:text-sm">
                               Pairs with: {item.pairingKeyword}
                             </p>
                           )}
-                          <div className="mt-5 flex items-center justify-between gap-3">
-                            <span className="text-lg font-bold text-[var(--brand)] md:text-xl">
+                          <div className="mt-2.5 flex min-w-0 items-center justify-between gap-1 md:mt-5 md:gap-3">
+                            <span className="truncate text-[0.78rem] font-bold text-[var(--brand)] md:text-xl">
                               {item.price ? formatCurrency(Number(item.price)) : "Free"}
                             </span>
                             {item.city && (
-                              <span className="inline-flex items-center gap-1 text-sm font-bold text-[var(--muted-foreground)]">
-                                <MapPin size={14} aria-hidden="true" />
-                                {item.city}
+                              <span className="inline-flex min-w-0 max-w-[52%] items-center gap-0.5 text-[0.58rem] font-bold text-[var(--muted-foreground)] md:gap-1 md:text-sm">
+                                <MapPin size={10} className="shrink-0 md:h-3.5 md:w-3.5" aria-hidden="true" />
+                                <span className="truncate">{item.city}</span>
                               </span>
                             )}
                           </div>

@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { transactionsApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
 import { cn, formatCurrency } from "@/lib/utils";
+import { NameAvatar } from "@/components/ui/name-avatar";
 
 type TransactionStatus =
   | "INITIATED"
@@ -245,13 +246,7 @@ export default function TransactionDetailPage() {
                   <CardTitle className="text-base">Buyer</CardTitle>
                 </CardHeader>
                 <CardContent className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-[var(--brand-soft)] text-sm font-bold text-[var(--brand)]">
-                    {transaction.buyer.avatarUrl ? (
-                      <img src={transaction.buyer.avatarUrl} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      transaction.buyer.name.charAt(0).toUpperCase()
-                    )}
-                  </div>
+                  <NameAvatar name={transaction.buyer.name} className="h-11 w-11 text-sm" />
                   <p className="font-semibold text-foreground">{transaction.buyer.name}</p>
                 </CardContent>
               </Card>
@@ -261,13 +256,7 @@ export default function TransactionDetailPage() {
                   <CardTitle className="text-base">Seller</CardTitle>
                 </CardHeader>
                 <CardContent className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-[var(--brand-soft)] text-sm font-bold text-[var(--brand)]">
-                    {transaction.seller.avatarUrl ? (
-                      <img src={transaction.seller.avatarUrl} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      transaction.seller.name.charAt(0).toUpperCase()
-                    )}
-                  </div>
+                  <NameAvatar name={transaction.seller.name} className="h-11 w-11 text-sm" />
                   <p className="font-semibold text-foreground">{transaction.seller.name}</p>
                 </CardContent>
               </Card>

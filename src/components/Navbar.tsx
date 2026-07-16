@@ -25,6 +25,7 @@ import {
   X,
 } from "lucide-react";
 import { useAuthStore } from "@/lib/auth";
+import { NameAvatar } from "@/components/ui/name-avatar";
 
 const productActions = [
   { label: "Buy", href: "/marketplace", icon: ShoppingBag },
@@ -140,15 +141,7 @@ export default function Navbar() {
                 aria-label="User menu"
                 aria-expanded={profileOpen}
               >
-                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-[var(--brand-soft)]">
-                  {user?.avatarUrl ? (
-                    <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <span className="text-sm font-bold text-[var(--brand)]">
-                      {displayName.charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                </span>
+                <NameAvatar name={displayName} className="h-8 w-8 text-sm" />
                 <span className="hidden max-w-28 truncate text-sm font-bold text-[var(--foreground)] sm:inline">
                   {displayName.split(" ")[0]}
                 </span>

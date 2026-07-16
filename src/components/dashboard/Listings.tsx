@@ -35,6 +35,7 @@ import { getApiErrorMessage } from '@/lib/errors';
 import { cn, formatCurrency } from '@/lib/utils';
 import { listingCategories } from '@/lib/categories';
 import { nigerianStates } from '@/lib/nigeria-locations';
+import { conditionLabels, listingConditions } from '@/lib/listing-conditions';
 
 type DashboardSection = 'listings' | 'messages' | 'alerts' | 'upload' | 'profile' | 'settings';
 
@@ -81,14 +82,6 @@ const statusMeta: Record<Listing['status'], { label: string; className: string }
     label: 'Flagged',
     className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
   },
-};
-
-const conditionLabels: Record<string, string> = {
-  NEW: 'New',
-  LIKE_NEW: 'Like new',
-  GOOD: 'Good',
-  FAIR: 'Fair',
-  POOR: 'Poor',
 };
 
 const intentionLabels: Record<string, string> = {
@@ -453,7 +446,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
               <Card className="flex h-full flex-col overflow-hidden rounded-lg border-[var(--border)] bg-card transition-shadow hover:shadow-md md:rounded-xl">
                 <div className="relative aspect-square overflow-hidden bg-[var(--sand)] md:aspect-[4/3]">
                   {listing.images?.[0] ? (
-                    <img src={listing.images[0]} alt={listing.title} className="h-full w-full object-cover" />
+                    <img src={listing.images[0]} alt={listing.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-muted-foreground/30">
                       <Package size={42} />
@@ -596,8 +589,8 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                   onChange={(event) => setEditForm({ ...editForm, condition: event.target.value })}
                   className="h-10 w-full rounded-md border border-[var(--border)] bg-background px-3 text-sm"
                 >
-                  {Object.entries(conditionLabels).map(([value, label]) => (
-                    <option key={value} value={value}>{label}</option>
+                  {listingConditions.map((condition) => (
+                    <option key={condition.value} value={condition.value}>{condition.label}</option>
                   ))}
                 </select>
               </label>

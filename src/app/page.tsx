@@ -267,6 +267,8 @@ export default function HomePage() {
                 <img
                   src={category.image}
                   alt=""
+                  loading="lazy"
+                  decoding="async"
                   className="absolute bottom-1 right-1 h-16 w-16 object-contain"
                   draggable={false}
                 />
@@ -316,6 +318,8 @@ export default function HomePage() {
                         <img
                           src={item.images[0]}
                           alt={item.title}
+                          loading="lazy"
+                          decoding="async"
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       ) : (

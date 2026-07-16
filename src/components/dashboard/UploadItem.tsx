@@ -28,17 +28,10 @@ import { cn, formatCurrency } from '@/lib/utils';
 import { listingsApi, uploadApi } from '@/lib/api';
 import { nigerianStates } from '@/lib/nigeria-locations';
 import { NairaIcon } from '@/components/ui/naira-icon';
+import { optimizeImageFile } from '@/lib/image-optimization';
+import { listingConditions } from '@/lib/listing-conditions';
 
-const MAX_FILE_SIZE = 3 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-
-const conditions = [
-  { label: 'New', value: 'NEW' },
-  { label: 'Used - Like New', value: 'LIKE_NEW' },
-  { label: 'Used - Good', value: 'GOOD' },
-  { label: 'Used - Fair', value: 'FAIR' },
-  { label: 'For Parts', value: 'POOR' },
-];
 
 const purposes = [
   { label: 'Sell', value: 'SELL', icon: Store, description: 'Find it a buyer.' },
@@ -111,6 +104,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const selectedPurpose = purposes.find((purpose) => purpose.value === formData.purpose);
@@ -180,33 +174,46 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
   const prevStep = () => setStep((current) => Math.max(current - 1, 1));
 
-  const addFiles = (fileList: FileList | File[]) => {
+  const addFiles = async (fileList: FileList | File[]) => {
     const incoming = Array.from(fileList);
     if (images.length + incoming.length > maxImages) {
       toast.error(`Maximum ${maxImages} images allowed`);
       return;
     }
 
-    const validFiles: File[] = [];
-    for (const file of incoming) {
-      if (file.size > MAX_FILE_SIZE) {
-        toast.error(`${file.name} exceeds the 3MB limit`);
-        continue;
-      }
+    const validFiles = incoming.filter((file) => {
       if (!ALLOWED_TYPES.includes(file.type)) {
         toast.error(`${file.name} is not supported. Use JPEG, PNG, or WebP.`);
-        continue;
+        return false;
       }
-      validFiles.push(file);
-    }
+      return true;
+    });
 
     if (validFiles.length === 0) return;
-    setImages((current) => [...current, ...validFiles]);
-    setPreviewUrls((current) => [...current, ...validFiles.map((file) => URL.createObjectURL(file))]);
+    setIsOptimizing(true);
+    try {
+      const optimizedFiles: File[] = [];
+      for (const file of validFiles) {
+        try {
+          optimizedFiles.push(await optimizeImageFile(file));
+        } catch (error) {
+          toast.error(error instanceof Error ? error.message : `${file.name} could not be prepared.`);
+        }
+      }
+
+      if (optimizedFiles.length > 0) {
+        setImages((current) => [...current, ...optimizedFiles]);
+        setPreviewUrls((current) => [...current, ...optimizedFiles.map((file) => URL.createObjectURL(file))]);
+        toast.success(`${optimizedFiles.length} ${optimizedFiles.length === 1 ? 'photo' : 'photos'} optimized`);
+      }
+    } finally {
+      setIsOptimizing(false);
+    }
   };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) addFiles(event.target.files);
+    if (event.target.files) void addFiles(event.target.files);
+    event.target.value = '';
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -222,7 +229,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setDragActive(false);
-    addFiles(event.dataTransfer.files);
+    void addFiles(event.dataTransfer.files);
   };
 
   const handleRemoveImage = (index: number) => {
@@ -409,10 +416,12 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white text-[var(--brand)] soft-shadow md:h-20 md:w-20">
           <UploadCloud className="h-8 w-8 md:h-[38px] md:w-[38px]" aria-hidden="true" />
         </div>
-        <h3 className="text-base font-bold md:text-xl">Add photos</h3>
-        <p className="mt-1 text-sm font-medium text-[var(--muted-foreground)] md:text-base">Tap to browse files</p>
+        <h3 className="text-base font-bold md:text-xl">{isOptimizing ? 'Preparing photos...' : 'Add photos'}</h3>
+        <p className="mt-1 text-sm font-medium text-[var(--muted-foreground)] md:text-base">
+          {isOptimizing ? 'Making them faster to load' : 'Tap to browse files'}
+        </p>
         <p className="mt-4 text-sm font-semibold text-[var(--muted-foreground)]">
-          JPG, PNG, or WebP. Max 3MB each. {maxImages} photos max.
+          JPG, PNG, or WebP. We optimize each photo. {maxImages} photos max.
         </p>
         <Input
           ref={fileInputRef}
@@ -454,7 +463,8 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         <Button type="button" variant="outline" onClick={prevStep} className="rounded-full border-[var(--border)] bg-white font-bold">
           Back
         </Button>
-        <Button type="button" onClick={nextStep} className="rounded-full bg-[var(--brand)] px-8 font-bold text-white hover:bg-[var(--brand-dark)]">
+        <Button type="button" onClick={nextStep} disabled={isOptimizing} className="rounded-full bg-[var(--brand)] px-8 font-bold text-white hover:bg-[var(--brand-dark)]">
+          {isOptimizing ? <Loader2 className="animate-spin" size={16} /> : null}
           Continue
         </Button>
       </div>
@@ -750,7 +760,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             required
           >
             <option value="">Choose condition</option>
-            {conditions.map((condition) => (
+            {listingConditions.map((condition) => (
               <option key={condition.value} value={condition.value}>
                 {condition.label}
               </option>
@@ -799,7 +809,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
   const reviewTags = [
     formData.category,
-    conditions.find((item) => item.value === formData.condition)?.label,
+    listingConditions.find((item) => item.value === formData.condition)?.label,
     selectedPurpose?.label,
     formData.purpose === 'TRADE' ? `Trade for: ${formData.tradeLookingFor}` : '',
     formData.purpose === 'DONATE' ? (formData.donationMode === 'RECIPIENT' ? 'Recipient reserved' : 'Public giveaway') : '',

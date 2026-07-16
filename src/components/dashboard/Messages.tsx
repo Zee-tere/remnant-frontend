@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { NameAvatar } from '@/components/ui/name-avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -300,10 +300,7 @@ export default function MessagesSection() {
                   )}
                 >
                   <div className="flex items-start gap-3">
-                    <Avatar>
-                      <AvatarImage src={otherUser.avatarUrl ?? undefined} alt={otherUser.name} />
-                      <AvatarFallback>{otherUser.name.charAt(0).toUpperCase()}</AvatarFallback>
-                    </Avatar>
+                    <NameAvatar name={otherUser.name} className="h-10 w-10 text-sm" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
@@ -352,10 +349,7 @@ export default function MessagesSection() {
       <div className="flex h-full min-h-[620px] flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-card">
         <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] p-4">
           <div className="flex min-w-0 items-center gap-3">
-            <Avatar>
-              <AvatarImage src={otherUser.avatarUrl ?? undefined} alt={otherUser.name} />
-              <AvatarFallback>{otherUser.name.charAt(0).toUpperCase()}</AvatarFallback>
-            </Avatar>
+            <NameAvatar name={otherUser.name} className="h-10 w-10 text-sm" />
             <div className="min-w-0">
               <h3 className="truncate font-semibold text-foreground">{otherUser.name}</h3>
               <p className="truncate text-sm text-muted-foreground">{activeConversation.listing.title}</p>
@@ -411,10 +405,7 @@ export default function MessagesSection() {
                     className={cn('flex gap-3', mine ? 'justify-end' : 'justify-start')}
                   >
                     {!mine && (
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={otherUser.avatarUrl ?? undefined} alt={otherUser.name} />
-                        <AvatarFallback>{otherUser.name.charAt(0).toUpperCase()}</AvatarFallback>
-                      </Avatar>
+                      <NameAvatar name={otherUser.name} className="h-8 w-8 text-xs" />
                     )}
                     <div
                       className={cn(

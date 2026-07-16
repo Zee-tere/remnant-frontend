@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { NameAvatar } from '@/components/ui/name-avatar';
 import { userApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
 import { getApiErrorMessage } from '@/lib/errors';
@@ -25,7 +26,7 @@ export default function ProfileSection() {
   const logout = useAuthStore((state) => state.logout);
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ name: '', bio: '', city: '', avatarUrl: '' });
+  const [form, setForm] = useState({ name: '', bio: '', city: '' });
 
   useEffect(() => {
     if (!user) return;
@@ -33,7 +34,6 @@ export default function ProfileSection() {
       name: user.name ?? '',
       bio: user.bio ?? '',
       city: user.city ?? '',
-      avatarUrl: user.avatarUrl ?? '',
     });
   }, [user]);
 
@@ -45,7 +45,6 @@ export default function ProfileSection() {
         name: form.name,
         bio: form.bio || undefined,
         city: form.city || undefined,
-        avatarUrl: form.avatarUrl || undefined,
       });
       const updatedUser = await userApi.getMe();
       setUser(updatedUser);
@@ -66,12 +65,8 @@ export default function ProfileSection() {
     );
   }
 
-  const initials = user.name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part.charAt(0).toUpperCase())
-    .join('');
+  const profileFields = [user.name, user.email, user.city, user.bio];
+  const profileStrength = Math.round((profileFields.filter((value) => Boolean(value?.trim())).length / profileFields.length) * 100);
 
   return (
     <div className="space-y-4 md:space-y-8">
@@ -82,17 +77,11 @@ export default function ProfileSection() {
       >
         <div className="flex items-start gap-4 md:flex-col md:gap-8 lg:flex-row lg:items-start">
           <div className="relative shrink-0 self-start md:self-center lg:self-start">
-            <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-[var(--brand-soft)] text-xl font-bold text-[var(--brand)] soft-shadow md:h-40 md:w-40 md:border-4 md:text-4xl">
-              {user.avatarUrl ? (
-                <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" />
-              ) : (
-                initials
-              )}
-            </div>
+            <NameAvatar name={user.name} className="h-20 w-20 border-2 border-white text-xl soft-shadow md:h-40 md:w-40 md:border-4 md:text-4xl" />
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-[var(--brand)] text-white soft-shadow md:bottom-2 md:right-2 md:h-12 md:w-12"
+              className="absolute -bottom-1 -right-3 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-[var(--brand)] text-white soft-shadow md:bottom-2 md:right-2 md:h-12 md:w-12"
               aria-label="Edit profile"
             >
               <Edit size={15} className="md:h-[19px] md:w-[19px]" aria-hidden="true" />
@@ -120,9 +109,6 @@ export default function ProfileSection() {
             </p>
 
             <div className="mt-3 flex flex-wrap justify-start gap-1.5 md:mt-6 md:justify-center md:gap-3 lg:justify-start">
-              <span className="rounded-full bg-[#e2f7ff] px-2 py-1 text-[0.65rem] font-bold text-[var(--secondary-blue)] md:px-4 md:py-2 md:text-sm">
-                {trustTierLabels[user.trustTier] ?? user.trustTier} curator
-              </span>
               <span className="rounded-full bg-[var(--brand-soft)] px-2 py-1 text-[0.65rem] font-bold text-[var(--brand)] md:px-4 md:py-2 md:text-sm">
                 {user.points} points
               </span>
@@ -181,10 +167,15 @@ export default function ProfileSection() {
             Your profile is used across listings, messages, and protected transactions. A complete
             profile helps other members understand who they are buying from, trading with, or donating to.
           </p>
-          <div className="mt-6 h-2 overflow-hidden rounded-full bg-[var(--sand)]">
-            <div className="h-full w-[70%] rounded-full bg-[var(--brand)]" />
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-[var(--sand)] md:mt-6">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${profileStrength}%` }}
+              transition={{ duration: 0.55, ease: 'easeOut' }}
+              className="h-full rounded-full bg-[var(--brand)]"
+            />
           </div>
-          <p className="mt-2 text-right text-sm font-bold text-[var(--muted-foreground)]">Profile strength: 70%</p>
+          <p className="mt-2 text-right text-xs font-bold text-[var(--muted-foreground)] md:text-sm">Profile strength: {profileStrength}%</p>
         </div>
       </div>
 
@@ -252,14 +243,6 @@ export default function ProfileSection() {
                   <option value="">Choose a state</option>
                   {nigerianStates.map((state) => <option key={state} value={state}>{state}</option>)}
                 </select>
-              </label>
-              <label className="space-y-2">
-                <span className="text-sm font-bold">Avatar URL</span>
-                <Input
-                  value={form.avatarUrl}
-                  onChange={(event) => setForm((current) => ({ ...current, avatarUrl: event.target.value }))}
-                  className="rounded-full"
-                />
               </label>
               <label className="space-y-2 sm:col-span-2">
                 <span className="text-sm font-bold">Bio</span>

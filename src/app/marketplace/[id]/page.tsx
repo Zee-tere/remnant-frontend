@@ -32,6 +32,8 @@ import { useAuthStore } from "@/lib/auth";
 import { formatCurrency } from "@/lib/utils";
 import { NairaIcon } from "@/components/ui/naira-icon";
 import { getApiErrorMessage } from "@/lib/errors";
+import { conditionLabels } from "@/lib/listing-conditions";
+import { NameAvatar } from "@/components/ui/name-avatar";
 
 interface ListingDetail {
   id: string;
@@ -55,14 +57,6 @@ const intentionMeta: Record<string, { icon: React.ElementType; label: string; co
   DONATE: { icon: HandHeart, label: "Free / Donate", color: "text-[var(--tertiary-gold)]", bg: "bg-[#fff6cf]" },
   FIX: { icon: Wrench, label: "Needs Repair", color: "text-orange-700", bg: "bg-orange-50" },
   RECYCLE: { icon: Recycle, label: "Recycle", color: "text-teal-700", bg: "bg-teal-50" },
-};
-
-const conditionLabels: Record<string, string> = {
-  NEW: "New",
-  LIKE_NEW: "Like New",
-  GOOD: "Good",
-  FAIR: "Fair",
-  POOR: "Poor / Broken",
 };
 
 type GuestAction = "buy" | "message";
@@ -334,24 +328,26 @@ export default function ItemDetailPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <main className="mx-auto max-w-7xl px-5 pb-20 pt-10 md:px-8">
+      <main className="mx-auto max-w-7xl px-3 pb-20 pt-3 md:px-8 md:pt-10">
         <Link
           href="/marketplace"
-          className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-[var(--muted-foreground)] transition-colors hover:text-[var(--brand)]"
+          className="mb-3 inline-flex items-center gap-1.5 text-xs font-bold text-[var(--muted-foreground)] transition-colors hover:text-[var(--brand)] md:mb-8 md:gap-2 md:text-sm"
         >
           <ArrowLeft size={17} aria-hidden="true" />
           Back to marketplace
         </Link>
 
-        <div className="grid gap-10 lg:grid-cols-12">
+        <div className="grid gap-4 md:gap-10 lg:grid-cols-12">
           <section className="lg:col-span-7">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="group relative">
-              <div className="surface-card relative aspect-square overflow-hidden rounded-[3rem] p-5 md:p-8">
-                <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-[2rem] bg-[var(--sand)]">
+              <div className="surface-card relative aspect-[4/3] overflow-hidden rounded-lg p-0 md:aspect-square md:rounded-[3rem] md:p-8">
+                <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-[var(--sand)] md:rounded-[2rem]">
                   {selectedSrc ? (
                     <img
                       src={selectedSrc}
                       alt={listing.title}
+                      decoding="async"
+                      fetchPriority="high"
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   ) : (
@@ -360,41 +356,41 @@ export default function ItemDetailPage() {
                     </div>
                   )}
                 </div>
-                <div className="absolute right-7 top-7 flex gap-2 opacity-100 md:opacity-0 md:transition-opacity md:group-hover:opacity-100">
+                <div className="absolute right-2 top-2 flex gap-1.5 opacity-100 md:right-7 md:top-7 md:gap-2 md:opacity-0 md:transition-opacity md:group-hover:opacity-100">
                   <button
                     type="button"
                     onClick={handleSaveListing}
                     disabled={isSaving}
-                    className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[var(--brand)] soft-shadow"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-[var(--brand)] soft-shadow md:h-12 md:w-12"
                     aria-label="Save listing"
                   >
-                    {isSaving ? <Loader2 size={20} className="animate-spin" aria-hidden="true" /> : <Heart size={20} aria-hidden="true" />}
+                    {isSaving ? <Loader2 size={17} className="animate-spin md:h-5 md:w-5" aria-hidden="true" /> : <Heart size={17} className="md:h-5 md:w-5" aria-hidden="true" />}
                   </button>
                   <button
                     type="button"
                     onClick={handleShareListing}
-                    className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[var(--secondary-blue)] soft-shadow"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-[var(--secondary-blue)] soft-shadow md:h-12 md:w-12"
                     aria-label="Share listing"
                   >
-                    <Share2 size={20} aria-hidden="true" />
+                    <Share2 size={17} className="md:h-5 md:w-5" aria-hidden="true" />
                   </button>
                 </div>
               </div>
             </motion.div>
 
             {listing.images && listing.images.length > 1 && (
-              <div className="mt-5 flex gap-3 overflow-x-auto pb-2">
+              <div className="mt-2 flex gap-2 overflow-x-auto pb-1 md:mt-5 md:gap-3 md:pb-2">
                 {listing.images.map((img, index) => (
                   <button
                     key={`${img}-${index}`}
                     type="button"
                     onClick={() => setSelectedImage(index)}
-                    className={`h-20 w-20 shrink-0 overflow-hidden rounded-[1.25rem] border-2 bg-white p-1 transition-colors ${
+                    className={`h-12 w-12 shrink-0 overflow-hidden rounded-lg border-2 bg-white p-0.5 transition-colors md:h-20 md:w-20 md:rounded-[1.25rem] md:p-1 ${
                       selectedImage === index ? "border-[var(--brand)]" : "border-transparent hover:border-[var(--border)]"
                     }`}
                     aria-label={`View listing image ${index + 1}`}
                   >
-                    <img src={img} alt="" className="h-full w-full rounded-[1rem] object-cover" />
+                    <img src={img} alt="" loading="lazy" decoding="async" className="h-full w-full rounded-md object-cover md:rounded-[1rem]" />
                   </button>
                 ))}
               </div>
@@ -402,75 +398,71 @@ export default function ItemDetailPage() {
           </section>
 
           <section className="lg:col-span-5">
-            <div className="sticky top-28 space-y-8">
+            <div className="sticky top-28 space-y-4 md:space-y-8">
               <div>
-                <div className="mb-5 flex flex-wrap gap-2">
-                  <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold ${intent.bg} ${intent.color}`}>
-                    <IntentIcon size={16} aria-hidden="true" />
+                <div className="mb-2 flex flex-wrap gap-1.5 md:mb-5 md:gap-2">
+                  <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[0.65rem] font-bold md:gap-1.5 md:px-3 md:text-sm ${intent.bg} ${intent.color}`}>
+                    <IntentIcon size={12} className="md:h-4 md:w-4" aria-hidden="true" />
                     {intent.label}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-sm font-bold text-[var(--ink-soft)] shadow-sm">
-                    <ShieldCheck size={16} aria-hidden="true" />
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[0.65rem] font-bold text-[var(--ink-soft)] shadow-sm md:gap-1.5 md:px-3 md:text-sm">
+                    <ShieldCheck size={12} className="md:h-4 md:w-4" aria-hidden="true" />
                     {conditionLabels[listing.condition] || listing.condition}
                   </span>
                 </div>
 
-                <h1 className="text-2xl font-bold leading-tight text-[var(--foreground)] md:text-5xl">
+                <h1 className="text-xl font-bold leading-tight text-[var(--foreground)] md:text-5xl">
                   {listing.title}
                 </h1>
-                <p className="mt-4 text-3xl font-bold text-[var(--brand)]">
+                <p className="mt-2 text-xl font-bold text-[var(--brand)] md:mt-4 md:text-3xl">
                   {listing.price ? formatCurrency(Number(listing.price)) : "Free"}
                 </p>
               </div>
 
-              <p className="text-lg font-medium leading-8 text-[var(--ink-soft)]">{listing.description}</p>
+              <p className="text-sm font-medium leading-6 text-[var(--ink-soft)] md:text-lg md:leading-8">{listing.description}</p>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-[1.5rem] bg-white p-4 soft-shadow">
-                  <p className="text-xs font-bold uppercase text-[var(--muted-foreground)]">Category</p>
-                  <p className="mt-1 font-bold text-[var(--foreground)]">{listing.category}</p>
+              <div className="grid grid-cols-3 gap-2 md:grid-cols-2 md:gap-3">
+                <div className="min-w-0 rounded-lg bg-white p-2.5 soft-shadow md:rounded-[1.5rem] md:p-4">
+                  <p className="text-[0.55rem] font-bold uppercase text-[var(--muted-foreground)] md:text-xs">Category</p>
+                  <p className="mt-1 truncate text-[0.68rem] font-bold text-[var(--foreground)] md:text-base">{listing.category}</p>
                 </div>
-                <div className="rounded-[1.5rem] bg-white p-4 soft-shadow">
-                  <p className="text-xs font-bold uppercase text-[var(--muted-foreground)]">Location</p>
-                  <p className="mt-1 flex items-center gap-1 font-bold text-[var(--foreground)]">
-                    <MapPin size={15} aria-hidden="true" />
-                    {listing.city || "Location not set"}
+                <div className="min-w-0 rounded-lg bg-white p-2.5 soft-shadow md:rounded-[1.5rem] md:p-4">
+                  <p className="text-[0.55rem] font-bold uppercase text-[var(--muted-foreground)] md:text-xs">Location</p>
+                  <p className="mt-1 flex min-w-0 items-center gap-0.5 text-[0.68rem] font-bold text-[var(--foreground)] md:gap-1 md:text-base">
+                    <MapPin size={11} className="shrink-0 md:h-[15px] md:w-[15px]" aria-hidden="true" />
+                    <span className="truncate">{listing.city || "Not set"}</span>
                   </p>
                 </div>
-                <div className="rounded-[1.5rem] bg-white p-4 soft-shadow sm:col-span-2">
-                  <p className="text-xs font-bold uppercase text-[var(--muted-foreground)]">Listed</p>
-                  <p className="mt-1 flex items-center gap-1 font-bold text-[var(--foreground)]">
-                    <Calendar size={15} aria-hidden="true" />
+                <div className="min-w-0 rounded-lg bg-white p-2.5 soft-shadow md:col-span-2 md:rounded-[1.5rem] md:p-4">
+                  <p className="text-[0.55rem] font-bold uppercase text-[var(--muted-foreground)] md:text-xs">Listed</p>
+                  <p className="mt-1 flex min-w-0 items-center gap-0.5 text-[0.68rem] font-bold text-[var(--foreground)] md:gap-1 md:text-base">
+                    <Calendar size={11} className="shrink-0 md:h-[15px] md:w-[15px]" aria-hidden="true" />
+                    <span className="truncate">
                     {formatListedDate(listing.createdAt)}
+                    </span>
                   </p>
                 </div>
               </div>
 
               {listing.user && (
-                <div className="surface-card flex items-center justify-between gap-4 rounded-[2rem] p-5">
+                <div className="surface-card flex items-center justify-between gap-3 rounded-lg p-3 md:gap-4 md:rounded-[2rem] md:p-5">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-[var(--brand-soft)] text-lg font-bold text-[var(--brand)]">
-                      {listing.user.avatarUrl ? (
-                        <img src={listing.user.avatarUrl} alt={listing.user.name} className="h-full w-full object-cover" />
-                      ) : (
-                        listing.user.name.charAt(0).toUpperCase()
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-bold text-[var(--foreground)]">{listing.user.name}</p>
-                      <p className="text-sm font-semibold text-[var(--muted-foreground)]">
+                    <NameAvatar name={listing.user.name} className="h-9 w-9 text-sm md:h-12 md:w-12 md:text-lg" />
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-[var(--foreground)] md:text-base">{listing.user.name}</p>
+                      <p className="truncate text-xs font-semibold text-[var(--muted-foreground)] md:text-sm">
                         {isGuestSeller ? "Guest listing" : `${listing.user.trustTier} curator`}
                       </p>
                     </div>
                   </div>
-                  <ShieldCheck className="text-[var(--brand)]" size={24} aria-hidden="true" />
+                  <ShieldCheck className="shrink-0 text-[var(--brand)] md:h-6 md:w-6" size={18} aria-hidden="true" />
                 </div>
               )}
 
               <div className="space-y-3">
                 {canBuy && !isGuestSeller && (
                   <Button
-                    className="h-14 w-full rounded-full bg-[var(--brand)] text-base font-bold text-white hover:bg-[var(--brand-dark)]"
+                    className="h-11 w-full rounded-full bg-[var(--brand)] text-sm font-bold text-white hover:bg-[var(--brand-dark)] md:h-14 md:text-base"
                     onClick={handleStartPayment}
                     disabled={isStartingPayment}
                   >
@@ -479,7 +471,7 @@ export default function ItemDetailPage() {
                   </Button>
                 )}
                 <Button
-                  className="h-14 w-full rounded-full bg-white text-base font-bold text-[var(--brand)] shadow-sm hover:bg-[var(--brand-soft)]"
+                  className="h-11 w-full rounded-full bg-white text-sm font-bold text-[var(--brand)] shadow-sm hover:bg-[var(--brand-soft)] md:h-14 md:text-base"
                   onClick={handleMessageSeller}
                   disabled={isMessaging || isGuestSeller}
                 >
@@ -491,15 +483,15 @@ export default function ItemDetailPage() {
           </section>
         </div>
 
-        <section className="mt-16 grid gap-8 md:grid-cols-2">
-          <div className="surface-card rounded-[2rem] p-8">
-            <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#e2f7ff] text-[var(--secondary-blue)]">
-                <Sparkles size={22} aria-hidden="true" />
+        <section className="mt-6 grid gap-3 md:mt-16 md:grid-cols-2 md:gap-8">
+          <div className="surface-card rounded-lg p-4 md:rounded-[2rem] md:p-8">
+            <div className="mb-3 flex items-center gap-2 md:mb-6 md:gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#e2f7ff] text-[var(--secondary-blue)] md:h-11 md:w-11">
+                <Sparkles size={17} className="md:h-[22px] md:w-[22px]" aria-hidden="true" />
               </div>
-              <h2 className="text-2xl font-bold">Why it may be a match</h2>
+              <h2 className="text-base font-bold md:text-2xl">Why it may be a match</h2>
             </div>
-            <ul className="space-y-4 font-medium leading-7 text-[var(--ink-soft)]">
+            <ul className="space-y-3 text-xs font-medium leading-5 text-[var(--ink-soft)] md:space-y-4 md:text-base md:leading-7">
               <li className="flex gap-3">
                 <ShieldCheck className="mt-1 shrink-0 text-[var(--secondary-blue)]" size={19} aria-hidden="true" />
                 <span>
@@ -517,14 +509,14 @@ export default function ItemDetailPage() {
             </ul>
           </div>
 
-          <div className="surface-card rounded-[2rem] p-8">
-            <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
-                <Info size={22} aria-hidden="true" />
+          <div className="surface-card rounded-lg p-4 md:rounded-[2rem] md:p-8">
+            <div className="mb-3 flex items-center gap-2 md:mb-6 md:gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)] md:h-11 md:w-11">
+                <Info size={17} className="md:h-[22px] md:w-[22px]" aria-hidden="true" />
               </div>
-              <h2 className="text-2xl font-bold">Condition Notes</h2>
+              <h2 className="text-base font-bold md:text-2xl">Condition Notes</h2>
             </div>
-            <p className="font-medium leading-8 text-[var(--ink-soft)]">
+            <p className="text-xs font-medium leading-5 text-[var(--ink-soft)] md:text-base md:leading-8">
               Listed as <strong>{conditionLabels[listing.condition] || listing.condition}</strong>. Ask the curator
               for exact measurements, extra photos, or confirmation before closing the exchange.
             </p>
