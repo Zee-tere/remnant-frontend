@@ -739,7 +739,7 @@ export default function SellerGuidePage() {
             {[
               {
                 q: 'How much does it cost to sell on Remnant?',
-                a: 'Listing items is completely free. We only charge a 2.5% transaction fee when your item sells.',
+                a: 'Listing is free. Any transaction fee is shown clearly before payment so there are no surprises.',
               },
               {
                 q: 'How do I get paid?',

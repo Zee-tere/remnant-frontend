@@ -47,6 +47,8 @@ interface TransactionDetail {
   escrowTransactionId: string | null;
   escrowCheckoutUrl: string | null;
   escrowProviderStatus: string | null;
+  paymentCheckoutUrl?: string | null;
+  paymentProviderStatus?: string | null;
   trackingInfo: string | null;
   createdAt: string;
   fundedAt: string | null;
@@ -66,7 +68,7 @@ interface TransactionDetail {
 
 const statusMeta: Record<TransactionStatus, { label: string; className: string }> = {
   INITIATED: { label: "Awaiting payment", className: "bg-amber-50 text-amber-700 border-amber-200" },
-  FUNDED: { label: "Funded", className: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+  FUNDED: { label: "Paid", className: "bg-emerald-50 text-emerald-700 border-emerald-200" },
   SHIPPED: { label: "Shipped", className: "bg-sky-50 text-sky-700 border-sky-200" },
   RECEIVED: { label: "Received", className: "bg-indigo-50 text-indigo-700 border-indigo-200" },
   COMPLETE: { label: "Complete", className: "bg-neutral-100 text-neutral-800 border-neutral-200" },
@@ -77,7 +79,7 @@ const statusMeta: Record<TransactionStatus, { label: string; className: string }
 
 const steps: Array<{ status: TransactionStatus; label: string; icon: ElementType }> = [
   { status: "INITIATED", label: "Created", icon: CreditCard },
-  { status: "FUNDED", label: "Funded", icon: ShieldCheck },
+  { status: "FUNDED", label: "Paid", icon: ShieldCheck },
   { status: "SHIPPED", label: "Shipped", icon: Truck },
   { status: "RECEIVED", label: "Received", icon: PackageCheck },
   { status: "COMPLETE", label: "Complete", icon: CheckCircle2 },
@@ -156,12 +158,13 @@ export default function TransactionDetailPage() {
   };
 
   const openCheckout = () => {
-    if (!transaction?.escrowCheckoutUrl) return;
-    if (isExternalUrl(transaction.escrowCheckoutUrl)) {
-      window.location.href = transaction.escrowCheckoutUrl;
+    const checkoutUrl = transaction?.paymentCheckoutUrl || transaction?.escrowCheckoutUrl;
+    if (!checkoutUrl) return;
+    if (isExternalUrl(checkoutUrl)) {
+      window.location.href = checkoutUrl;
       return;
     }
-    router.push(transaction.escrowCheckoutUrl);
+    router.push(checkoutUrl);
   };
 
   if (loading) {
@@ -204,7 +207,7 @@ export default function TransactionDetailPage() {
             <section className="rounded-xl border border-[var(--border)] bg-card p-5 md:p-6">
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-muted-foreground">Escrow transaction</p>
+                  <p className="text-sm font-semibold text-muted-foreground">Order</p>
                   <h1 className="mt-1 text-2xl font-bold text-foreground md:text-3xl">{transaction.listing.title}</h1>
                   <p className="mt-2 text-sm text-muted-foreground">Created {formatDate(transaction.createdAt)}</p>
                 </div>
@@ -286,17 +289,17 @@ export default function TransactionDetailPage() {
                     <span className="text-muted-foreground">Platform fee</span>
                     <span className="font-semibold">{formatCurrency(Number(transaction.platformFee))}</span>
                   </div>
-                  {transaction.escrowProviderStatus && (
+                  {(transaction.paymentProviderStatus || transaction.escrowProviderStatus) && (
                     <div className="mt-2 flex justify-between gap-4">
                       <span className="text-muted-foreground">Provider</span>
-                      <span className="font-semibold">{transaction.escrowProviderStatus}</span>
+                      <span className="font-semibold">{(transaction.paymentProviderStatus || transaction.escrowProviderStatus)?.replace("paystack:", "Paystack · ")}</span>
                     </div>
                   )}
                 </div>
 
-                {role === "buyer" && transaction.status === "INITIATED" && transaction.escrowCheckoutUrl && (
+                {role === "buyer" && transaction.status === "INITIATED" && (transaction.paymentCheckoutUrl || transaction.escrowCheckoutUrl) && (
                   <Button onClick={openCheckout} className="w-full bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]">
-                    {isExternalUrl(transaction.escrowCheckoutUrl) ? <ExternalLink size={16} /> : <CreditCard size={16} />}
+                    {isExternalUrl(transaction.paymentCheckoutUrl || transaction.escrowCheckoutUrl || "") ? <ExternalLink size={16} /> : <CreditCard size={16} />}
                     Continue payment
                   </Button>
                 )}
@@ -364,7 +367,7 @@ export default function TransactionDetailPage() {
                   <span className="font-medium">{formatDate(transaction.createdAt)}</span>
                 </div>
                 <div className="flex justify-between gap-4">
-                  <span className="text-muted-foreground">Funded</span>
+                  <span className="text-muted-foreground">Paid</span>
                   <span className="font-medium">{formatDate(transaction.fundedAt)}</span>
                 </div>
                 <div className="flex justify-between gap-4">

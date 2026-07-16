@@ -6,12 +6,12 @@ const sections = [
   {
     title: "What we collect",
     body:
-      "We collect the account details, listing content, messages, transaction status, and support information needed to run Remnant safely.",
+      "We collect account or guest contact details, listing content, messages, transaction status, and support information needed to run Remnant safely.",
   },
   {
     title: "How we use it",
     body:
-      "We use platform data to operate search, AI pairing, trust checks, support, and product improvements.",
+      "We use platform data to operate search, matching, trust checks, support, and product improvements. Paystack processes payment details under its own privacy terms.",
   },
   {
     title: "Your choices",

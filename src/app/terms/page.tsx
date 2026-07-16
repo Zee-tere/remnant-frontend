@@ -11,7 +11,7 @@ const terms = [
   {
     title: "Complete paid exchanges safely",
     body:
-      "When money changes hands, use the protected Remnant transaction flow so order status and release steps are recorded.",
+      "When money changes hands, use Remnant checkout. Paystack processes card or bank payment details; never pay from a link sent in a message.",
   },
   {
     title: "Respect items and people",

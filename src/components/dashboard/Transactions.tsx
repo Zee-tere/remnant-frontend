@@ -36,6 +36,7 @@ interface TransactionRow {
   status: TransactionStatus;
   amount: string;
   escrowCheckoutUrl: string | null;
+  paymentCheckoutUrl?: string | null;
   createdAt: string;
   listing: { id: string; title: string; slug: string; images: string[] };
   buyer: { id: string; name: string; avatarUrl: string | null };
@@ -44,7 +45,7 @@ interface TransactionRow {
 
 const statusMeta: Record<TransactionStatus, { label: string; className: string; icon: ElementType }> = {
   INITIATED: { label: "Awaiting payment", className: "bg-amber-50 text-amber-700", icon: CreditCard },
-  FUNDED: { label: "Funded", className: "bg-emerald-50 text-emerald-700", icon: ShieldCheck },
+  FUNDED: { label: "Paid", className: "bg-emerald-50 text-emerald-700", icon: ShieldCheck },
   SHIPPED: { label: "Shipped", className: "bg-sky-50 text-sky-700", icon: Truck },
   RECEIVED: { label: "Received", className: "bg-indigo-50 text-indigo-700", icon: PackageCheck },
   COMPLETE: { label: "Complete", className: "bg-neutral-100 text-neutral-800", icon: CheckCircle2 },
@@ -127,7 +128,7 @@ export default function TransactionsSection() {
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground md:text-3xl">Transactions</h1>
-          <p className="text-sm text-muted-foreground">{activeCount} active escrow exchange{activeCount === 1 ? "" : "s"}</p>
+          <p className="text-sm text-muted-foreground">{activeCount} active order{activeCount === 1 ? "" : "s"}</p>
         </div>
         <Button asChild className="w-fit bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]">
           <Link href="/marketplace">Browse marketplace</Link>
@@ -165,11 +166,12 @@ export default function TransactionsSection() {
             <Package className="text-[var(--brand)]" size={26} />
           </div>
           <h3 className="text-lg font-semibold text-foreground">No transactions</h3>
-          <p className="mt-2 max-w-md text-sm text-muted-foreground">Escrow exchanges appear here after a buyer starts checkout from a listing.</p>
+          <p className="mt-2 max-w-md text-sm text-muted-foreground">Orders appear here after a buyer starts checkout from a listing.</p>
         </section>
       ) : (
         <div className="space-y-3">
           {filtered.map((transaction) => {
+            const checkoutUrl = transaction.paymentCheckoutUrl || transaction.escrowCheckoutUrl;
             const meta = statusMeta[transaction.status] ?? statusMeta.INITIATED;
             const Icon = meta.icon;
             const otherUser = transaction.buyer.id === user?.id ? transaction.seller : transaction.buyer;
@@ -208,14 +210,14 @@ export default function TransactionsSection() {
 
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                     <p className="text-lg font-bold text-foreground sm:min-w-28 sm:text-right">{formatCurrency(Number(transaction.amount))}</p>
-                    {transaction.status === "INITIATED" && transaction.buyer.id === user?.id && transaction.escrowCheckoutUrl ? (
+                    {transaction.status === "INITIATED" && transaction.buyer.id === user?.id && checkoutUrl ? (
                       <Button asChild className="bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]">
-                        {isExternalUrl(transaction.escrowCheckoutUrl) ? (
-                          <a href={transaction.escrowCheckoutUrl} rel="noreferrer" target="_blank">
-                            Pay escrow
+                        {isExternalUrl(checkoutUrl) ? (
+                          <a href={checkoutUrl} rel="noreferrer">
+                            Complete payment
                           </a>
                         ) : (
-                          <Link href={transaction.escrowCheckoutUrl}>Pay escrow</Link>
+                          <Link href={checkoutUrl}>Complete payment</Link>
                         )}
                       </Button>
                     ) : (

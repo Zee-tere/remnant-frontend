@@ -152,11 +152,44 @@ export const conversationsApi = {
     api.post(`/conversations/${conversationId}/messages`, { content, type }).then((r) => r.data),
   markAsRead: (conversationId: string) =>
     api.patch(`/conversations/${conversationId}/read`).then((r) => r.data),
+  startGuestConversation: (data: { listingId: string; name: string; email: string; message: string }) =>
+    api.post('/conversations/guest', data).then((r) => r.data),
+  getGuestConversation: (conversationId: string, token: string) =>
+    api.get(`/conversations/guest/${conversationId}`, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
+  createGuestMessage: (conversationId: string, token: string, content: string, type = 'TEXT') =>
+    api.post(
+      `/conversations/guest/${conversationId}/messages`,
+      { content, type },
+      { headers: { 'X-Guest-Token': token } },
+    ).then((r) => r.data),
+  markGuestAsRead: (conversationId: string, token: string) =>
+    api.patch(
+      `/conversations/guest/${conversationId}/read`,
+      undefined,
+      { headers: { 'X-Guest-Token': token } },
+    ).then((r) => r.data),
 };
 
 export const transactionsApi = {
+  getConfig: () =>
+    api.get('/transactions/config').then((r) => r.data as {
+      paymentsEnabled: boolean;
+      provider: 'paystack' | 'escrow' | null;
+      guestCheckoutEnabled: boolean;
+      currency: 'NGN';
+    }),
   initiateTransaction: (listingId: string) =>
     api.post('/transactions', { listingId }).then((r) => r.data),
+  initiateGuestTransaction: (data: { listingId: string; name: string; email: string }) =>
+    api.post('/transactions/guest', data).then((r) => r.data),
+  verifyPaystackTransaction: (reference: string) =>
+    api.get(`/transactions/paystack/verify/${encodeURIComponent(reference)}`).then((r) => r.data),
+  getGuestTransaction: (id: string, token: string) =>
+    api.get(`/transactions/guest/${id}`, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
+  confirmGuestReceipt: (id: string, token: string) =>
+    api.patch(`/transactions/guest/${id}/confirm`, undefined, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
+  disputeGuestTransaction: (id: string, token: string) =>
+    api.post(`/transactions/guest/${id}/dispute`, undefined, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
   getTransactions: () =>
     api.get('/transactions').then((r) => r.data),
   getTransaction: (id: string) =>

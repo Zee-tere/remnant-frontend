@@ -20,9 +20,13 @@ import {
   ShieldCheck,
   Sparkles,
   Wrench,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { listingsApi, conversationsApi, transactionsApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
 import { formatCurrency } from "@/lib/utils";
@@ -61,7 +65,77 @@ const conditionLabels: Record<string, string> = {
   POOR: "Poor / Broken",
 };
 
-const escrowEnabled = process.env.NEXT_PUBLIC_ESCROW_ENABLED === "true";
+type GuestAction = "buy" | "message";
+
+function GuestActionDialog({
+  action,
+  listingId,
+  listingTitle,
+  busy,
+  onClose,
+  onSubmit,
+}: {
+  action: GuestAction;
+  listingId: string;
+  listingTitle: string;
+  busy: boolean;
+  onClose: () => void;
+  onSubmit: (details: { name: string; email: string; message: string }) => Promise<void>;
+}) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState(`Hi, I am interested in ${listingTitle}.`);
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/20 p-0 backdrop-blur-[2px] sm:items-center sm:p-5" role="presentation">
+      <div className="w-full rounded-t-lg bg-white p-5 shadow-2xl sm:max-w-md sm:rounded-lg sm:p-6" role="dialog" aria-modal="true" aria-labelledby="guest-action-title">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 id="guest-action-title" className="text-xl font-bold text-[var(--foreground)]">
+              {action === "buy" ? "Continue to payment" : "Message the seller"}
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-[var(--ink-soft)]">
+              No account needed. We will use your email for this {action === "buy" ? "order" : "conversation"} only.
+            </p>
+          </div>
+          <button type="button" onClick={onClose} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-[var(--sand)]" aria-label="Close">
+            <X size={18} />
+          </button>
+        </div>
+
+        <form
+          className="mt-5 space-y-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void onSubmit({ name, email, message });
+          }}
+        >
+          <div className="space-y-2">
+            <Label htmlFor="guest-name">Name</Label>
+            <Input id="guest-name" value={name} onChange={(event) => setName(event.target.value)} minLength={2} maxLength={80} required autoComplete="name" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="guest-email">Email</Label>
+            <Input id="guest-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} maxLength={254} required autoComplete="email" />
+          </div>
+          {action === "message" && (
+            <div className="space-y-2">
+              <Label htmlFor="guest-message">Message</Label>
+              <Textarea id="guest-message" value={message} onChange={(event) => setMessage(event.target.value)} maxLength={2000} required rows={4} />
+            </div>
+          )}
+          <Button type="submit" disabled={busy} className="h-12 w-full rounded-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]">
+            {busy && <Loader2 size={18} className="animate-spin" />}
+            {busy ? "Please wait..." : action === "buy" ? "Continue securely" : "Send message"}
+          </Button>
+          <p className="text-center text-xs leading-5 text-[var(--muted-foreground)]">
+            Prefer an account? <Link href={`/login?redirect=${encodeURIComponent(`/marketplace/${listingId}`)}`} className="font-bold text-[var(--brand)]">Log in</Link>
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 function formatListedDate(value: string) {
   const date = new Date(value);
@@ -79,8 +153,10 @@ export default function ItemDetailPage() {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isMessaging, setIsMessaging] = useState(false);
-  const [isStartingEscrow, setIsStartingEscrow] = useState(false);
+  const [isStartingPayment, setIsStartingPayment] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [guestAction, setGuestAction] = useState<GuestAction | null>(null);
+  const [paymentConfig, setPaymentConfig] = useState<{ paymentsEnabled: boolean; guestCheckoutEnabled: boolean } | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -91,9 +167,13 @@ export default function ItemDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  useEffect(() => {
+    transactionsApi.getConfig().then(setPaymentConfig).catch(() => setPaymentConfig(null));
+  }, []);
+
   const handleMessageSeller = async () => {
     if (!isAuthenticated) {
-      router.push(`/login?redirect=${encodeURIComponent(`/marketplace/${id}`)}`);
+      setGuestAction("message");
       return;
     }
     if (!listing) return;
@@ -113,31 +193,75 @@ export default function ItemDetailPage() {
     }
   };
 
-  const handleStartEscrow = async () => {
+  const sendToCheckout = (transaction: { id: string; paymentCheckoutUrl?: string | null; escrowCheckoutUrl?: string | null }) => {
+    const checkoutUrl = transaction.paymentCheckoutUrl || transaction.escrowCheckoutUrl;
+    if (checkoutUrl) {
+      window.location.href = checkoutUrl;
+      return;
+    }
+    router.push(`/transactions/${transaction.id}`);
+  };
+
+  const handleStartPayment = async () => {
     if (!isAuthenticated) {
-      router.push(`/login?redirect=${encodeURIComponent(`/marketplace/${id}`)}`);
+      if (!paymentConfig?.guestCheckoutEnabled) {
+        toast.info("Guest checkout is not available yet. Please log in to continue.");
+        router.push(`/login?redirect=${encodeURIComponent(`/marketplace/${id}`)}`);
+        return;
+      }
+      setGuestAction("buy");
       return;
     }
     if (!listing) return;
 
-    setIsStartingEscrow(true);
+    setIsStartingPayment(true);
     try {
       const transaction = await transactionsApi.initiateTransaction(listing.id);
-      toast.success("Escrow transaction started");
-      if (transaction.escrowCheckoutUrl) {
-        if (/^https?:\/\//i.test(transaction.escrowCheckoutUrl)) {
-          window.location.href = transaction.escrowCheckoutUrl;
-        } else {
-          router.push(transaction.escrowCheckoutUrl);
-        }
-        return;
-      }
-      router.push(`/transactions/${transaction.id}`);
+      toast.success("Secure checkout is ready");
+      sendToCheckout(transaction);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Could not start escrow";
-      toast.error(msg);
+      toast.error(getApiErrorMessage(err, "Could not start payment"));
     } finally {
-      setIsStartingEscrow(false);
+      setIsStartingPayment(false);
+    }
+  };
+
+  const handleGuestAction = async (details: { name: string; email: string; message: string }) => {
+    if (!listing || !guestAction) return;
+    const action = guestAction;
+    if (action === "buy") setIsStartingPayment(true);
+    else setIsMessaging(true);
+    try {
+      if (action === "buy") {
+        const transaction = await transactionsApi.initiateGuestTransaction({
+          listingId: listing.id,
+          name: details.name,
+          email: details.email,
+        });
+        localStorage.setItem(`remnant-guest-order:${transaction.id}`, transaction.guestToken);
+        const reference = transaction.paymentReference || transaction.escrowTransactionId;
+        if (reference) {
+          localStorage.setItem(`remnant-guest-payment:${reference}`, JSON.stringify({ transactionId: transaction.id, token: transaction.guestToken }));
+        }
+        setGuestAction(null);
+        sendToCheckout(transaction);
+      } else {
+        const result = await conversationsApi.startGuestConversation({
+          listingId: listing.id,
+          name: details.name,
+          email: details.email,
+          message: details.message,
+        });
+        localStorage.setItem(`remnant-guest-conversation:${result.conversation.id}`, result.guestToken);
+        setGuestAction(null);
+        toast.success("Message sent");
+        router.push(`/guest/messages/${result.conversation.id}`);
+      }
+    } catch (err: unknown) {
+      toast.error(getApiErrorMessage(err, `Could not ${action === "buy" ? "start payment" : "send message"}`));
+    } finally {
+      setIsStartingPayment(false);
+      setIsMessaging(false);
     }
   };
 
@@ -204,7 +328,7 @@ export default function ItemDetailPage() {
 
   const intent = intentionMeta[listing.intentionTag] || intentionMeta.SELL;
   const IntentIcon = intent.icon;
-  const canUseEscrow = escrowEnabled && listing.intentionTag === "SELL" && Boolean(listing.price) && listing.user?.id !== user?.id;
+  const canBuy = paymentConfig?.paymentsEnabled && listing.intentionTag === "SELL" && Boolean(listing.price) && listing.user?.id !== user?.id;
   const selectedSrc = listing.images?.[selectedImage];
   const isGuestSeller = listing.user?.name === "Guest";
 
@@ -344,14 +468,14 @@ export default function ItemDetailPage() {
               )}
 
               <div className="space-y-3">
-                {canUseEscrow && (
+                {canBuy && !isGuestSeller && (
                   <Button
                     className="h-14 w-full rounded-full bg-[var(--brand)] text-base font-bold text-white hover:bg-[var(--brand-dark)]"
-                    onClick={handleStartEscrow}
-                    disabled={isStartingEscrow}
+                    onClick={handleStartPayment}
+                    disabled={isStartingPayment}
                   >
-                    {isStartingEscrow ? <Loader2 size={19} className="animate-spin" /> : <ShieldCheck size={19} />}
-                    {isStartingEscrow ? "Starting escrow..." : "Buy with escrow"}
+                    {isStartingPayment ? <Loader2 size={19} className="animate-spin" /> : <ShieldCheck size={19} />}
+                    {isStartingPayment ? "Opening checkout..." : "Buy now"}
                   </Button>
                 )}
                 <Button
@@ -415,6 +539,16 @@ export default function ItemDetailPage() {
           </div>
         </section>
       </main>
+      {guestAction && (
+        <GuestActionDialog
+          action={guestAction}
+          listingId={listing.id}
+          listingTitle={listing.title}
+          busy={guestAction === "buy" ? isStartingPayment : isMessaging}
+          onClose={() => setGuestAction(null)}
+          onSubmit={handleGuestAction}
+        />
+      )}
     </div>
   );
 }
