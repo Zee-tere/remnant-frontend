@@ -139,8 +139,19 @@ export async function startHostedAuth(options: {
   screen?: "login" | "signup";
   loginHint?: string;
 }) {
-  const res = await fetch(`${getApiUrl()}/auth/config`, { cache: "no-store" });
-  if (!res.ok) throw new Error("Sign-in is not configured yet.");
+  let res: Response;
+  try {
+    res = await fetch(`${getApiUrl()}/auth/config`, { cache: "no-store" });
+  } catch {
+    throw new Error("The sign-in service is temporarily unavailable. Please try again shortly.");
+  }
+
+  if (!res.ok) {
+    if (res.status >= 500) {
+      throw new Error("The sign-in service is temporarily unavailable. Please try again shortly.");
+    }
+    throw new Error("Sign-in is not configured yet.");
+  }
 
   const config = (await res.json()) as AuthConfig;
   if (!config.hostedUiDomain || !config.clientId) {
