@@ -85,18 +85,22 @@ function UserDashboardContent() {
   if (!hasHydrated || !isAuthenticated) return <DashboardLoading />;
 
   return (
-    <div className="flex min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+    <div className={`flex bg-[var(--background)] text-[var(--foreground)] ${activeSection === 'messages' ? 'h-full min-h-0 md:min-h-screen' : 'min-h-screen'}`}>
       <DashboardSidebar onSelectSection={handleSelectSection} activeSection={activeSection} />
 
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.16 }}
-        className="min-w-0 flex-1 overflow-y-auto px-3 pb-8 pt-3 md:p-8 lg:p-10"
+        className={`min-w-0 flex-1 ${
+          activeSection === 'messages'
+            ? 'overflow-hidden px-0 pb-0 pt-0 md:overflow-y-auto md:p-8 lg:p-10'
+            : 'overflow-y-auto px-3 pb-8 pt-3 md:p-8 lg:p-10'
+        }`}
       >
         {renderSection()}
 
-        {activeSection !== 'upload' && (
+        {activeSection === 'listings' && (
           <div className="mt-6 text-center md:mt-10">
             <Button variant="outline" onClick={() => handleSelectSection('upload')} className="rounded-full border-[var(--border)] bg-white font-bold">
               Upload New Item

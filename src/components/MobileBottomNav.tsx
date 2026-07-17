@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Bell, Home, Mail, Package, Plus, Search, ShoppingBag, UserCircle } from "lucide-react";
@@ -19,7 +20,18 @@ export default function MobileBottomNav() {
   const searchParams = useSearchParams();
   const { isAuthenticated, user } = useAuthStore();
   const hiddenRoutes = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth/callback"];
-  if (hiddenRoutes.some((route) => pathname.startsWith(route))) return null;
+  const isMessageView =
+    isAuthenticated &&
+    pathname === "/user/dashboard" &&
+    searchParams.get("section") === "messages";
+  const isHiddenRoute = hiddenRoutes.some((route) => pathname.startsWith(route));
+
+  useEffect(() => {
+    document.body.classList.toggle("mobile-chat-active", isMessageView);
+    return () => document.body.classList.remove("mobile-chat-active");
+  }, [isMessageView]);
+
+  if (isHiddenRoute || isMessageView) return null;
 
   const actions: NavAction[] = isAuthenticated
     ? [

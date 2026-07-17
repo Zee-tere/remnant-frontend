@@ -436,6 +436,15 @@
 }
 
 @media (max-width: 767px) {
+  body.mobile-chat-active {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  body.mobile-chat-active #main-content {
+    padding-bottom: 0;
+  }
+
   .surface-card {
     border-color: rgba(189, 201, 194, 0.55);
     box-shadow: none;

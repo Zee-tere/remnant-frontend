@@ -89,6 +89,8 @@ export default function MessagesSection() {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const workspaceRef = useRef<HTMLDivElement>(null);
+  const [mobileWorkspaceHeight, setMobileWorkspaceHeight] = useState<number | null>(null);
 
   const loadConversations = useCallback(async (silent = false) => {
     if (!isAuthenticated) {
@@ -130,7 +132,20 @@ export default function MessagesSection() {
       try {
         const data = await conversationsApi.getMessages(activeConversationId);
         if (!cancelled) {
-          setMessages(Array.isArray(data) ? data : []);
+          const rows = Array.isArray(data) ? data : [];
+          setMessages((current) => {
+            const unchanged =
+              current.length === rows.length &&
+              current.every((message, index) => {
+                const next = rows[index];
+                return (
+                  message.id === next?.id &&
+                  message.content === next.content &&
+                  message.readAt === next.readAt
+                );
+              });
+            return unchanged ? current : rows;
+          });
           conversationsApi.markAsRead(activeConversationId).catch(() => undefined);
         }
       } catch (error) {
@@ -155,8 +170,45 @@ export default function MessagesSection() {
   }, [activeConversationId, joinRoom, leaveRoom]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const frame = window.requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ block: 'end' });
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [messages, activeConversationId]);
+
+  useEffect(() => {
+    if (loadingConversations) return;
+
+    let frame = 0;
+    const updateWorkspaceHeight = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        if (window.innerWidth >= 768 || !workspaceRef.current) {
+          setMobileWorkspaceHeight(null);
+          return;
+        }
+
+        const viewport = window.visualViewport;
+        const viewportBottom = viewport
+          ? viewport.offsetTop + viewport.height
+          : window.innerHeight;
+        const workspaceTop = workspaceRef.current.getBoundingClientRect().top;
+        setMobileWorkspaceHeight(Math.max(280, Math.floor(viewportBottom - workspaceTop)));
+      });
+    };
+
+    updateWorkspaceHeight();
+    window.addEventListener('resize', updateWorkspaceHeight);
+    window.visualViewport?.addEventListener('resize', updateWorkspaceHeight);
+    window.visualViewport?.addEventListener('scroll', updateWorkspaceHeight);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('resize', updateWorkspaceHeight);
+      window.visualViewport?.removeEventListener('resize', updateWorkspaceHeight);
+      window.visualViewport?.removeEventListener('scroll', updateWorkspaceHeight);
+    };
+  }, [activeConversationId, loadingConversations]);
 
   const activeConversation = conversations.find((conversation) => conversation.id === activeConversationId) ?? null;
 
@@ -242,13 +294,22 @@ export default function MessagesSection() {
   const ConversationList = () => (
     <div className="flex h-full min-h-0 flex-col">
       <div className="border-b border-[var(--border)]/70 p-3 md:p-4">
+        <div className="mb-3 flex items-end justify-between md:hidden">
+          <div>
+            <h1 className="text-lg font-bold text-foreground">Messages</h1>
+            <p className="text-xs text-muted-foreground">Buyers and sellers</p>
+          </div>
+          <span className="text-xs font-semibold text-muted-foreground">
+            {conversations.length}
+          </span>
+        </div>
         <div className="relative mb-2.5">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={15} />
           <Input
             placeholder="Search conversations"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            className="h-10 rounded-md pl-9 text-sm"
+            className="h-11 rounded-md pl-9 text-base md:h-10 md:text-sm"
           />
         </div>
         <div className="flex gap-2">
@@ -267,7 +328,7 @@ export default function MessagesSection() {
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain">
         {filteredConversations.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center px-6 py-12 text-center">
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--brand-soft)]">
@@ -342,10 +403,10 @@ export default function MessagesSection() {
     const otherUser = getOtherUser(activeConversation);
 
     return (
-      <div className="flex h-full min-h-[calc(100dvh-9.5rem)] flex-col overflow-hidden bg-card lg:min-h-[620px]">
-        <div className="flex items-center justify-between gap-3 border-b border-[var(--border)]/70 p-3 md:p-4">
+      <div className="flex h-full min-h-0 flex-col overflow-hidden bg-card">
+        <div className="flex min-h-14 items-center justify-between gap-3 border-b border-[var(--border)]/70 px-2.5 py-2 md:p-4">
           <div className="flex min-w-0 items-center gap-3">
-            <button type="button" onClick={() => setActiveConversationId(null)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-muted lg:hidden" aria-label="Back to conversations">
+            <button type="button" onClick={() => setActiveConversationId(null)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md hover:bg-muted lg:hidden" aria-label="Back to conversations">
               <ArrowLeft size={18} />
             </button>
             <NameAvatar name={otherUser.name} className="h-9 w-9 text-xs md:h-10 md:w-10 md:text-sm" />
@@ -382,7 +443,7 @@ export default function MessagesSection() {
           </DropdownMenu>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto bg-[var(--background)]/45 p-3 md:p-4">
+        <div className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain bg-[var(--background)]/45 p-3 [scrollbar-gutter:stable] md:p-4">
           {loadingMessages ? (
             <div className="flex h-full items-center justify-center">
               <Loader2 className="animate-spin text-[var(--brand)]" size={24} />
@@ -406,7 +467,7 @@ export default function MessagesSection() {
                     )}
                     <div
                       className={cn(
-                        'max-w-[82%] rounded-lg px-3 py-2.5 text-sm',
+                        'max-w-[84%] rounded-lg px-3 py-2 text-sm leading-5 md:max-w-[76%] md:py-2.5',
                         mine
                           ? 'rounded-br-md bg-[var(--brand)] text-[var(--navy)]'
                           : 'rounded-bl-md bg-muted text-foreground',
@@ -417,7 +478,6 @@ export default function MessagesSection() {
                         {formatTime(message.createdAt)}
                       </p>
                     </div>
-                    {mine && <NameAvatar name={user?.name || 'You'} className="h-7 w-7 shrink-0 text-[0.62rem]" />}
                   </div>
                 );
               })}
@@ -426,22 +486,24 @@ export default function MessagesSection() {
           )}
         </div>
 
-        <div className="border-t border-[var(--border)]/70 bg-white p-2.5 md:p-3">
+        <div className="shrink-0 border-t border-[var(--border)]/70 bg-white px-2.5 pb-[calc(0.625rem+var(--safe-area-bottom))] pt-2.5 md:p-3">
           <div className="flex items-end gap-2 rounded-lg border border-[var(--border)]/60 bg-white p-1.5">
             <textarea
+              aria-label="Message"
               placeholder="Type your message"
               value={newMessage}
               onChange={(event) => setNewMessage(event.target.value)}
               onKeyDown={handleKeyDown}
+              enterKeyHint="send"
               rows={1}
-              className="min-h-10 max-h-28 flex-1 resize-none bg-transparent px-2 py-2 text-sm outline-none placeholder:text-muted-foreground"
+              className="min-h-11 max-h-28 flex-1 resize-none bg-transparent px-2 py-2.5 text-base leading-6 outline-none placeholder:text-muted-foreground md:min-h-10 md:py-2 md:text-sm md:leading-5"
             />
             <Button
               type="button"
               onClick={handleSendMessage}
               disabled={!newMessage.trim() || sending}
               size="icon"
-              className="h-10 w-10 shrink-0 rounded-md bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]"
+              className="h-11 w-11 shrink-0 rounded-md bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)] md:h-10 md:w-10"
             >
               {sending ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
             </Button>
@@ -455,14 +517,18 @@ export default function MessagesSection() {
   };
 
   return (
-    <div className="space-y-3 md:space-y-6">
-      <div>
+    <div className="md:space-y-6">
+      <div className="hidden md:block">
         <h1 className="text-xl font-bold text-foreground md:text-3xl">Messages</h1>
         <p className="hidden text-sm text-muted-foreground sm:block">Buyer and seller messages</p>
       </div>
 
-      <div className="grid min-h-[calc(100dvh-9.5rem)] grid-cols-1 overflow-hidden rounded-lg border border-[var(--border)]/70 bg-card lg:min-h-[620px] lg:grid-cols-[340px_1fr] lg:rounded-xl">
-        <div className={cn('min-h-[280px] border-b border-[var(--border)]/70 lg:block lg:border-b-0 lg:border-r', activeConversationId ? 'hidden' : 'block')}>
+      <div
+        ref={workspaceRef}
+        style={mobileWorkspaceHeight ? { height: `${mobileWorkspaceHeight}px` } : undefined}
+        className="grid h-[calc(100dvh-4.5rem)] min-h-[280px] grid-cols-1 overflow-hidden border-y border-[var(--border)]/70 bg-card md:h-auto md:min-h-[620px] md:rounded-xl md:border lg:grid-cols-[340px_1fr]"
+      >
+        <div className={cn('min-h-0 border-b border-[var(--border)]/70 lg:block lg:border-b-0 lg:border-r', activeConversationId ? 'hidden' : 'block')}>
           {ConversationList()}
         </div>
         <div className={cn('min-h-0 lg:block', activeConversationId ? 'block' : 'hidden')}>
