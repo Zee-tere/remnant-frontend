@@ -436,6 +436,10 @@
 }
 
 @media (max-width: 767px) {
+  body.mobile-dock-hidden #main-content {
+    padding-bottom: 0;
+  }
+
   body.mobile-chat-active {
     overflow: hidden;
     overscroll-behavior: none;
@@ -456,6 +460,11 @@
 
   .lift-card {
     transition-duration: 200ms;
+  }
+
+  .fun-fact-marquee span {
+    white-space: normal;
+    animation: none;
   }
 }
 

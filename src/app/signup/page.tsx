@@ -86,7 +86,7 @@ function SignUpPageContent() {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--warm-white)] px-5 py-8 md:px-8 md:py-10">
+    <main className="min-h-screen bg-[var(--warm-white)] px-4 py-5 md:px-8 md:py-10">
       <section className="mx-auto grid min-h-[74vh] max-w-6xl gap-8 lg:grid-cols-[0.95fr_1fr] lg:items-center">
         <div className="hidden rounded-[2rem] bg-[var(--navy)] p-10 text-white lg:block">
           <Link href="/" className="text-3xl font-extrabold">Remnant</Link>
@@ -106,21 +106,21 @@ function SignUpPageContent() {
         <div className="mx-auto w-full max-w-md">
           <Link
             href="/marketplace"
-            className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-[var(--brand)] hover:text-[var(--brand-dark)]"
+            className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-[var(--brand)] hover:text-[var(--brand-dark)] md:mb-5"
           >
             <ArrowLeft size={16} aria-hidden="true" />
             Back to market
           </Link>
 
-          <div className="mb-7 text-center lg:text-left">
-            <h1 className="text-3xl font-bold text-[var(--foreground)] md:text-4xl">Create account</h1>
+          <div className="mb-5 text-center lg:mb-7 lg:text-left">
+            <h1 className="text-[1.75rem] font-bold text-[var(--foreground)] md:text-4xl">Create account</h1>
             <p className="mt-2 text-sm font-semibold text-[var(--muted-foreground)]">
               Join Remnant in a few secure steps.
             </p>
           </div>
 
           <form
-            className="surface-card rounded-[1.5rem] bg-white p-5 md:p-7"
+            className="surface-card rounded-xl bg-white p-4 md:rounded-[1.5rem] md:p-7"
             onSubmit={(event) => {
               event.preventDefault();
               if (needsConfirmation) {

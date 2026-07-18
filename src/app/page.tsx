@@ -228,7 +228,7 @@ export default function HomePage() {
                     <Icon size={13} className="md:h-[19px] md:w-[19px]" aria-hidden="true" />
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-[0.68rem] font-black text-[var(--foreground)] md:text-sm">{step.title}</span>
+                    <span className="block text-xs font-black text-[var(--foreground)] md:text-sm">{step.title}</span>
                     <span className="mt-1 hidden text-xs font-semibold leading-5 text-[var(--ink-soft)] md:block">{step.text}</span>
                   </span>
                 </motion.div>

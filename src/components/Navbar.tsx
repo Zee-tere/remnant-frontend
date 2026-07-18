@@ -53,6 +53,9 @@ export default function Navbar() {
 
   const { user, isAuthenticated, logout } = useAuthStore();
   const displayName = user?.name || "Account";
+  const isAuthRoute = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth/callback"].some(
+    (route) => pathname.startsWith(route),
+  );
   const showMobileSearch = !pathname.startsWith("/find-a-pair") && !pathname.startsWith("/user/");
 
   useEffect(() => {
@@ -102,7 +105,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full px-3 py-2 md:px-6 md:py-3">
+    <header className={`sticky top-0 z-50 w-full px-3 py-2 md:px-6 md:py-3 ${isAuthRoute ? "hidden md:block" : ""}`}>
       <div
         className={`relative mx-auto flex max-w-7xl items-center gap-2 bg-white/95 py-1 backdrop-blur-md transition-all duration-300 md:justify-between md:gap-0 md:rounded-[2rem] md:border md:px-6 md:py-3 ${
           scrolled ? "md:border-[var(--border)]/60 md:soft-shadow" : "md:border-[var(--border)]/35 md:shadow-sm md:shadow-[var(--brand)]/5"
@@ -212,28 +215,28 @@ export default function Navbar() {
           {showMobileSearch && (
             <form
               onSubmit={handleMobileSearch}
-              className="flex h-10 min-w-0 flex-1 items-center rounded-md border border-[var(--border)]/65 bg-white pl-3 pr-1 md:hidden"
+              className="flex h-12 min-w-0 flex-1 items-center overflow-hidden rounded-lg border border-[var(--border)]/65 bg-white pl-3 md:hidden"
             >
               <input
                 value={mobileSearch}
                 onChange={(event) => setMobileSearch(event.target.value)}
                 placeholder="Search the market"
-                className="h-9 min-w-0 flex-1 bg-transparent pr-2 text-[0.8rem] font-semibold text-[var(--foreground)] outline-none placeholder:font-medium placeholder:text-[var(--muted-foreground)]"
+                className="h-12 min-w-0 flex-1 bg-transparent pr-2 text-base font-medium text-[var(--foreground)] outline-none placeholder:font-medium placeholder:text-[var(--muted-foreground)]"
                 aria-label="Search items"
               />
               <button
                 type="submit"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)]"
+                className="flex h-12 w-12 shrink-0 items-center justify-center text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)]"
                 aria-label="Submit search"
               >
-                <Search size={14} strokeWidth={2.25} aria-hidden="true" />
+                <Search size={16} strokeWidth={2.15} aria-hidden="true" />
               </button>
             </form>
           )}
 
           <button
             type="button"
-            className="mobile-menu-button inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-white text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)] md:hidden"
+            className="mobile-menu-button inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)] md:hidden"
             onPointerDown={(event) => event.stopPropagation()}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -255,8 +258,8 @@ export default function Navbar() {
                   transition={{ duration: 0.18, ease: "easeOut" }}
                   className={`navbar-menu absolute -right-3 top-full z-50 mt-2 overflow-hidden bg-white/95 shadow-[0_22px_50px_-34px_rgba(0,62,48,0.65)] backdrop-blur-xl md:hidden ${
                     isAuthenticated
-                      ? "w-[15.5rem] rounded-l-lg border-y border-l border-[var(--border)]/65 py-1"
-                      : "w-[min(92vw,22rem)] rounded-l-lg border-y border-l border-[var(--border)]/65 p-2"
+                      ? "w-[15.5rem] rounded-l-xl border-y border-l border-[var(--border)]/65 py-1"
+                      : "w-[min(92vw,22rem)] rounded-l-xl border-y border-l border-[var(--border)]/65 p-2"
                   }`}
                 >
                   <nav className={isAuthenticated ? "flex flex-col" : "grid grid-cols-3 gap-1.5"} aria-label="Mobile navigation">
@@ -267,7 +270,7 @@ export default function Navbar() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setMenuOpen(false)}
-                        className={`flex font-bold transition-colors ${isAuthenticated ? "h-11 items-center gap-3 border-b border-[var(--border)]/45 px-4 text-[0.78rem] last:border-b-0" : "min-h-[58px] flex-col items-start justify-between rounded p-2.5 text-[0.7rem]"} ${
+                        className={`flex font-bold transition-colors ${isAuthenticated ? "h-12 items-center gap-3 border-b border-[var(--border)]/45 px-4 text-sm last:border-b-0" : "min-h-16 flex-col items-start justify-between rounded-lg p-2.5 text-xs"} ${
                           !isAuthenticated && item.href === "/marketplace" && isActive(item.href)
                             ? "bg-[var(--brand-soft)] text-[var(--brand)]"
                             : "text-[var(--ink-soft)] hover:bg-[var(--sand)] hover:text-[var(--brand)]"
@@ -285,7 +288,7 @@ export default function Navbar() {
                           setMenuOpen(false);
                           handleLogout();
                         }}
-                        className="flex h-11 items-center gap-3 px-4 text-[0.78rem] font-bold text-red-600 transition-colors hover:bg-red-50"
+                        className="flex h-12 items-center gap-3 px-4 text-sm font-bold text-red-600 transition-colors hover:bg-red-50"
                       >
                         <LogOut size={16} aria-hidden="true" />
                         <span>Log out</span>

@@ -349,16 +349,16 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.16 }}
-      className="space-y-6 md:space-y-8"
+      className="space-y-4 md:space-y-8"
     >
       <div className="text-center">
-        <h2 className="text-2xl font-bold md:text-3xl">What should happen to it?</h2>
-        <p className="mx-auto mt-2 max-w-2xl text-sm font-medium text-[var(--ink-soft)] md:text-base">
+        <h2 className="text-xl font-bold md:text-3xl">What should happen to it?</h2>
+        <p className="mx-auto mt-1 max-w-2xl text-sm font-medium text-[var(--ink-soft)] md:mt-2 md:text-base">
           Choose the path that fits best.
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-5">
         {purposes.map((purpose) => {
           const Icon = purpose.icon;
           const selected = formData.purpose === purpose.value;
@@ -367,20 +367,20 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
               key={purpose.value}
               type="button"
               onClick={() => handlePurposeSelect(purpose.value)}
-              className="cursor-pointer text-left"
+              className="cursor-pointer text-left last:col-span-2 sm:last:col-span-1"
               aria-pressed={selected}
             >
               <div
                 className={cn(
-                  'flex h-full flex-col rounded-[1.25rem] border-2 bg-white p-4 text-left transition-all active:scale-[0.99] md:rounded-[1.5rem] md:p-5',
+                  'flex min-h-[108px] flex-col rounded-lg border-2 bg-white p-3 text-left transition-all active:scale-[0.99] md:min-h-0 md:rounded-[1.5rem] md:p-5',
                   selected ? 'border-[var(--brand)] bg-[var(--brand-soft)]' : 'border-[var(--border)]/55 hover:border-[var(--brand)]/45',
                 )}
               >
-                <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)] md:mb-4 md:h-14 md:w-14">
-                  <Icon className="h-5 w-5 md:h-[25px] md:w-[25px]" aria-hidden="true" />
+                <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] md:mb-4 md:h-14 md:w-14 md:rounded-full">
+                  <Icon className="h-[18px] w-[18px] md:h-[25px] md:w-[25px]" aria-hidden="true" />
                 </div>
-                <h3 className="text-base font-bold md:text-xl">{purpose.label}</h3>
-                <p className="mt-1.5 text-xs font-medium leading-5 text-[var(--ink-soft)] md:mt-2 md:text-sm md:leading-6">{purpose.description}</p>
+                <h3 className="text-sm font-bold md:text-xl">{purpose.label}</h3>
+                <p className="mt-1 text-[0.72rem] font-medium leading-4 text-[var(--ink-soft)] md:mt-2 md:text-sm md:leading-6">{purpose.description}</p>
               </div>
             </button>
           );
@@ -411,18 +411,18 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
         className={cn(
-          'flex cursor-pointer flex-col items-center justify-center rounded-[1.5rem] border-2 border-dashed p-6 text-center transition-all md:rounded-[2rem] md:p-12',
+          'flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-5 text-center transition-all md:rounded-[2rem] md:p-12',
           dragActive ? 'border-[var(--brand)] bg-[var(--brand-soft)]' : 'border-[var(--border)] bg-[var(--sand)] hover:border-[var(--brand)] hover:bg-[var(--brand-soft)]',
         )}
       >
-        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white text-[var(--brand)] soft-shadow md:h-20 md:w-20">
-          <UploadCloud className="h-8 w-8 md:h-[38px] md:w-[38px]" aria-hidden="true" />
+        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-white text-[var(--brand)] soft-shadow md:mb-4 md:h-20 md:w-20 md:rounded-full">
+          <UploadCloud className="h-6 w-6 md:h-[38px] md:w-[38px]" aria-hidden="true" />
         </div>
         <h3 className="text-base font-bold md:text-xl">{isOptimizing ? 'Preparing photos...' : 'Add photos'}</h3>
         <p className="mt-1 text-sm font-medium text-[var(--muted-foreground)] md:text-base">
           {isOptimizing ? 'Making them faster to load' : 'Tap to browse files'}
         </p>
-        <p className="mt-4 text-sm font-semibold text-[var(--muted-foreground)]">
+        <p className="mt-3 text-xs font-semibold leading-5 text-[var(--muted-foreground)] md:mt-4 md:text-sm">
           JPG, PNG, or WebP. We optimize each photo. {maxImages} photos max.
         </p>
         <Input
@@ -902,17 +902,17 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
   return (
     <div className="mx-auto max-w-5xl">
-      <div className="mb-7 text-center md:mb-10">
-        <h1 className="text-[1.8rem] font-bold text-[var(--foreground)] md:text-5xl">Give it a next stop</h1>
+      <div className="mb-5 text-center md:mb-10">
+        <h1 className="text-2xl font-bold text-[var(--foreground)] md:text-5xl">Give it a next stop</h1>
         {(selectedPurpose || isGuest) && (
-          <div className="mx-auto mt-4 flex max-w-2xl flex-wrap items-center justify-center gap-2 md:mt-5 md:gap-3">
+          <div className="mx-auto mt-2 flex max-w-2xl flex-wrap items-center justify-center gap-2 md:mt-5 md:gap-3">
             {selectedPurpose && (
-              <span className="rounded-full bg-[var(--brand-soft)] px-4 py-2 text-sm font-bold text-[var(--brand)]">
+              <span className="rounded-full bg-[var(--brand-soft)] px-3 py-1.5 text-xs font-bold text-[var(--brand)] md:px-4 md:py-2 md:text-sm">
                 {purposeDisplay[selectedPurpose.value]}
               </span>
             )}
             {isGuest && (
-              <span className="rounded-full bg-[#e2f7ff] px-4 py-2 text-sm font-bold text-[var(--secondary-blue)]">
+              <span className="rounded-full bg-[#e2f7ff] px-3 py-1.5 text-xs font-bold text-[var(--secondary-blue)] md:px-4 md:py-2 md:text-sm">
                 Guest
               </span>
             )}
@@ -920,11 +920,11 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         )}
       </div>
 
-      <div className="mb-7 px-1 md:mb-10 md:px-2">
+      <div className="mb-5 px-1 md:mb-10 md:px-2">
         <div className="relative flex items-center justify-between">
-          <div className="absolute left-0 right-0 top-5 h-1 rounded-full bg-[var(--sand)]" />
+          <div className="absolute left-0 right-0 top-[1.125rem] h-1 rounded-full bg-[var(--sand)] md:top-5" />
           <div
-            className="absolute left-0 top-5 h-1 rounded-full bg-[var(--brand)] transition-all duration-300"
+            className="absolute left-0 top-[1.125rem] h-1 rounded-full bg-[var(--brand)] transition-all duration-300 md:top-5"
             style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
           />
           {steps.map((item, index) => {
@@ -935,13 +935,13 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
               <div key={item.label} className="relative z-10 flex flex-col items-center gap-2">
                 <div
                   className={cn(
-                    'flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold transition-colors',
+                    'flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold transition-colors md:h-11 md:w-11',
                     active ? 'bg-[var(--brand)] text-white soft-shadow' : 'bg-white text-[var(--muted-foreground)]',
                   )}
                 >
-                  {step > stepNumber ? <CheckCircle size={19} aria-hidden="true" /> : <Icon size={19} aria-hidden="true" />}
+                  {step > stepNumber ? <CheckCircle size={17} className="md:h-[19px] md:w-[19px]" aria-hidden="true" /> : <Icon size={17} className="md:h-[19px] md:w-[19px]" aria-hidden="true" />}
                 </div>
-                <span className={cn('text-xs font-bold md:text-sm', active ? 'text-[var(--brand)]' : 'text-[var(--muted-foreground)]')}>
+                <span className={cn('text-[0.7rem] font-bold md:text-sm', active ? 'text-[var(--brand)]' : 'text-[var(--muted-foreground)]')}>
                   {item.label}
                 </span>
               </div>
@@ -950,7 +950,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="surface-card overflow-hidden rounded-[1.5rem] p-4 md:rounded-[2rem] md:p-8">
+      <form onSubmit={handleSubmit} className="overflow-hidden bg-transparent p-0 md:rounded-[2rem] md:border md:border-[var(--border)]/45 md:bg-white md:p-8">
         <AnimatePresence mode="wait">
           {step === 1 && renderIntentStep()}
           {step === 2 && renderPhotosStep()}

@@ -25,13 +25,18 @@ export default function MobileBottomNav() {
     pathname === "/user/dashboard" &&
     searchParams.get("section") === "messages";
   const isHiddenRoute = hiddenRoutes.some((route) => pathname.startsWith(route));
+  const suppressMobileDock = isHiddenRoute || isMessageView;
 
   useEffect(() => {
     document.body.classList.toggle("mobile-chat-active", isMessageView);
-    return () => document.body.classList.remove("mobile-chat-active");
-  }, [isMessageView]);
+    document.body.classList.toggle("mobile-dock-hidden", suppressMobileDock);
+    return () => {
+      document.body.classList.remove("mobile-chat-active");
+      document.body.classList.remove("mobile-dock-hidden");
+    };
+  }, [isMessageView, suppressMobileDock]);
 
-  if (isHiddenRoute || isMessageView) return null;
+  if (suppressMobileDock) return null;
 
   const actions: NavAction[] = isAuthenticated
     ? [
@@ -73,7 +78,7 @@ export default function MobileBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`relative flex min-w-0 flex-col items-center justify-center gap-1 text-[0.62rem] font-bold transition-colors ${
+              className={`relative flex min-w-0 flex-col items-center justify-center gap-0.5 text-[0.69rem] font-bold transition-colors ${
                 item.primary
                   ? "text-[var(--brand)]"
                   : active
@@ -83,11 +88,11 @@ export default function MobileBottomNav() {
               aria-label={item.label}
               aria-current={active ? "page" : undefined}
             >
-              <span className={`flex h-8 w-9 items-center justify-center rounded-md transition-colors ${item.primary ? "bg-[var(--brand)] text-white" : active ? "bg-[var(--brand-soft)]" : ""}`}>
+              <span className={`flex h-8 w-9 items-center justify-center rounded-lg transition-colors ${item.primary ? "bg-[var(--brand)] text-white" : active ? "bg-[var(--brand-soft)]" : ""}`}>
                 {item.profile && isAuthenticated ? (
-                  <NameAvatar name={user?.name || "Remnant"} className="h-7 w-7 text-[0.66rem]" />
+                  <NameAvatar name={user?.name || "Remnant"} className="h-7 w-7 text-xs" />
                 ) : (
-                  <Icon className="h-[17px] w-[17px]" strokeWidth={2} aria-hidden="true" />
+                  <Icon className="h-[18px] w-[18px]" strokeWidth={2} aria-hidden="true" />
                 )}
               </span>
               <span className="leading-none">{item.label}</span>

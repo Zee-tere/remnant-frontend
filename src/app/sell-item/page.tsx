@@ -34,11 +34,11 @@ function SellItemPageContent() {
 
   if (!isAuthenticated && !isGuest) {
     return (
-      <main className="bg-[var(--background)] px-4 py-8 md:px-8 md:py-16">
+      <main className="bg-[var(--background)] px-4 py-5 md:px-8 md:py-16">
         <section className="mx-auto max-w-md">
-          <div className="surface-card rounded-[1.5rem] bg-white p-5 md:rounded-[2rem] md:p-8">
+          <div className="surface-card rounded-xl bg-white p-4 md:rounded-[2rem] md:p-8">
             <div className="space-y-3">
-              <Button asChild className="h-14 w-full rounded-full bg-[var(--brand)] text-base font-bold text-white hover:bg-[var(--brand-dark)]">
+              <Button asChild className="h-13 w-full rounded-full bg-[var(--brand)] text-base font-bold text-white hover:bg-[var(--brand-dark)] md:h-14">
                 <Link href={`/signup?redirect=${encodeURIComponent(listingPath)}`}>
                   <UserRound size={18} aria-hidden="true" />
                   Join Now
@@ -48,11 +48,11 @@ function SellItemPageContent() {
               <Button
                 type="button"
                 variant="outline"
-                className="h-14 w-full rounded-full border-[var(--border)] bg-white text-base font-bold text-[var(--brand)] hover:bg-[var(--brand-soft)]"
+                className="h-13 w-full rounded-full border-[var(--border)] bg-white text-base font-bold text-[var(--brand)] hover:bg-[var(--brand-soft)] md:h-14"
                 onClick={() => router.push(`${listingPath}${listingPath.includes("?") ? "&" : "?"}guest=1`)}
               >
                 <ArrowRight size={18} aria-hidden="true" />
-                Proceed as guest
+                Continue as guest
               </Button>
 
               <Button asChild variant="ghost" className="h-12 w-full rounded-full text-sm font-bold text-[var(--ink-soft)] hover:bg-[var(--sand)] hover:text-[var(--brand)]">
@@ -63,11 +63,10 @@ function SellItemPageContent() {
               </Button>
             </div>
 
-            <div className="mt-6 rounded-[1.2rem] bg-[var(--cream)] p-4 md:rounded-[1.5rem] md:p-5">
-              <p className="flex gap-2 text-sm font-semibold leading-6 text-[var(--ink-soft)]">
+            <div className="mt-4 rounded-lg bg-[var(--brand-soft)] p-3.5 md:mt-6 md:rounded-[1.5rem] md:p-5">
+              <p className="flex gap-2 text-sm font-medium leading-5 text-[var(--ink-soft)] md:font-semibold md:leading-6">
                 <ShieldCheck className="mt-0.5 shrink-0 text-[var(--secondary-blue)]" size={18} aria-hidden="true" />
-                Guest listings still go live. A profile simply helps people trust you faster, saves your listings,
-                and keeps messages in one place.
+                A profile saves your listings, keeps messages together, and helps people trust you.
               </p>
             </div>
           </div>
@@ -77,7 +76,7 @@ function SellItemPageContent() {
   }
 
   return (
-    <main className="bg-[var(--background)] px-5 py-12 md:px-8 md:py-16">
+    <main className="bg-[var(--background)] px-3 py-5 md:px-8 md:py-16">
       <UploadItem initialPurpose={initialPurpose} isGuest={isGuest && !isAuthenticated} />
     </main>
   );

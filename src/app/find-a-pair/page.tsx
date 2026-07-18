@@ -79,27 +79,27 @@ export default function FindAPairPage() {
   return (
     <main className="mx-auto min-h-screen max-w-7xl bg-white px-3 pb-8 pt-2 md:px-8 md:pb-20 md:pt-8">
       <form onSubmit={handleSearch} className="flex items-center gap-2">
-        <div className="relative min-w-0 flex-1 rounded-md border border-[var(--border)]/70 bg-white md:rounded-full">
+        <div className="relative h-12 min-w-0 flex-1 overflow-hidden rounded-lg border border-[var(--border)]/70 bg-white md:rounded-full">
           <Input
             type="search"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
             placeholder="Search the market"
-            className="h-11 rounded-md border-0 bg-transparent pl-4 pr-12 text-sm font-semibold shadow-none focus-visible:ring-0 md:h-12 md:rounded-full md:text-base"
+            className="h-12 rounded-lg border-0 bg-transparent pl-4 pr-12 text-base font-medium shadow-none focus-visible:ring-0 md:rounded-full"
           />
           <button
             type="submit"
-            className="absolute right-1 top-1 flex h-9 w-9 items-center justify-center rounded bg-[var(--brand)] text-white transition-colors hover:bg-[var(--brand-dark)] md:right-1.5 md:top-1.5 md:rounded-full"
+            className="absolute right-0 top-0 flex h-12 w-12 items-center justify-center bg-[var(--brand)] text-white transition-colors hover:bg-[var(--brand-dark)] md:rounded-full"
             aria-label="Search"
           >
-            <Search size={14} strokeWidth={2.25} aria-hidden="true" />
+            <Search size={16} strokeWidth={2.15} aria-hidden="true" />
           </button>
         </div>
         <Button
           type="button"
           variant="outline"
           onClick={() => setShowFilters((current) => !current)}
-          className="h-11 shrink-0 rounded-md border-[var(--border)]/70 bg-white px-3 text-xs font-bold md:h-12 md:rounded-full md:px-5 md:text-sm"
+          className="h-12 shrink-0 rounded-lg border-[var(--border)]/70 bg-white px-3 text-sm font-bold md:rounded-full md:px-5"
         >
           {showFilters ? <X size={15} /> : <Filter size={15} />}
           Filter
@@ -108,24 +108,24 @@ export default function FindAPairPage() {
       </form>
 
       {showFilters && (
-        <section className="mt-3 grid gap-2 rounded-lg border border-[var(--border)] bg-white p-3 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end md:p-4">
+        <section className="mt-3 grid gap-3 rounded-lg border border-[var(--border)] bg-white p-3 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end md:p-4">
           <label className="space-y-1">
             <span className="text-xs font-bold text-[var(--muted-foreground)]">State</span>
-            <select value={city} onChange={(event) => setCity(event.target.value)} className="h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 text-sm">
+            <select value={city} onChange={(event) => setCity(event.target.value)} className="h-11 w-full rounded-md border border-[var(--border)] bg-white px-3 text-base">
               <option value="">All states</option>
               {nigerianStates.map((state) => <option key={state} value={state}>{state}</option>)}
             </select>
           </label>
           <label className="space-y-1">
             <span className="text-xs font-bold text-[var(--muted-foreground)]">Category</span>
-            <select value={category} onChange={(event) => setCategory(event.target.value)} className="h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 text-sm">
+            <select value={category} onChange={(event) => setCategory(event.target.value)} className="h-11 w-full rounded-md border border-[var(--border)] bg-white px-3 text-base">
               <option value="">All categories</option>
               {listingCategories.map((item) => <option key={item.label} value={item.label}>{item.label}</option>)}
             </select>
           </label>
           <label className="space-y-1">
             <span className="text-xs font-bold text-[var(--muted-foreground)]">Intent</span>
-            <select value={intent} onChange={(event) => setIntent(event.target.value)} className="h-10 w-full rounded-md border border-[var(--border)] bg-white px-3 text-sm">
+            <select value={intent} onChange={(event) => setIntent(event.target.value)} className="h-11 w-full rounded-md border border-[var(--border)] bg-white px-3 text-base">
               {intentOptions.map((item) => <option key={item.value || "all"} value={item.value}>{item.label}</option>)}
             </select>
           </label>

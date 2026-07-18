@@ -271,7 +271,7 @@ export default function ItemDetailPage() {
 
         <section className="lg:col-span-5">
           <div className="sticky top-24 space-y-4">
-            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[0.65rem] font-bold md:px-3 md:text-sm ${intent.className}`}>
+            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[0.7rem] font-bold md:px-3 md:text-sm ${intent.className}`}>
               <IntentIcon size={12} className="md:h-4 md:w-4" /> {intent.label}
             </span>
             <div>
@@ -289,7 +289,7 @@ export default function ItemDetailPage() {
                   key={panel.key}
                   type="button"
                   onClick={() => setActivePanel((current) => current === panel.key ? null : panel.key)}
-                  className={`flex min-h-11 items-center justify-between rounded-lg border px-3 text-left text-xs font-bold md:text-sm ${activePanel === panel.key ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-[var(--border)] bg-white"}`}
+                  className={`flex min-h-11 items-center justify-between rounded-lg border px-3 text-left text-[0.8rem] font-bold md:text-sm ${activePanel === panel.key ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-[var(--border)] bg-white"}`}
                   aria-expanded={activePanel === panel.key}
                 >
                   {panel.label}

@@ -109,20 +109,20 @@ export default function ProfileSection() {
             <p className="truncate text-xs font-bold text-[var(--foreground)]">
               {trustTierLabels[user.trustTier] ?? user.trustTier}
             </p>
-            <p className="mt-0.5 text-[0.62rem] font-semibold text-[var(--muted-foreground)]">Trust</p>
+            <p className="mt-0.5 text-[0.69rem] font-semibold text-[var(--muted-foreground)]">Trust</p>
           </div>
           <div className="min-w-0 px-2 py-2.5 text-center">
             <p className="truncate text-xs font-bold text-[var(--foreground)]">{user.points.toLocaleString()}</p>
-            <p className="mt-0.5 text-[0.62rem] font-semibold text-[var(--muted-foreground)]">Points</p>
+            <p className="mt-0.5 text-[0.69rem] font-semibold text-[var(--muted-foreground)]">Points</p>
           </div>
           <div className="min-w-0 px-2 py-2.5 text-center">
             <p className="truncate text-xs font-bold text-[var(--foreground)]">{profileStrength}%</p>
-            <p className="mt-0.5 text-[0.62rem] font-semibold text-[var(--muted-foreground)]">Profile</p>
+            <p className="mt-0.5 text-[0.69rem] font-semibold text-[var(--muted-foreground)]">Profile</p>
           </div>
         </div>
 
         <div className="px-4 py-3">
-          <div className="mb-1.5 flex items-center justify-between text-[0.66rem] font-semibold text-[var(--muted-foreground)]">
+          <div className="mb-1.5 flex items-center justify-between text-[0.7rem] font-semibold text-[var(--muted-foreground)]">
             <span>Profile strength</span>
             <span>{profileStrength}%</span>
           </div>

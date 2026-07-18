@@ -95,8 +95,9 @@ export default function MarketplacePage() {
 
   const hasActiveFilters = category || intentionTag || city || submittedSearch;
 
-  const FilterPanel = () => (
-    <div className="surface-card rounded-[2rem] p-6">
+  const FilterPanel = ({ embedded = false }: { embedded?: boolean } = {}) => (
+    <div className={embedded ? "" : "surface-card rounded-[2rem] p-6"}>
+      {!embedded && (
       <div className="mb-7 flex items-center justify-between">
         <h2 className="text-2xl font-bold text-[var(--foreground)]">Filters</h2>
         {hasActiveFilters && (
@@ -105,14 +106,15 @@ export default function MarketplacePage() {
           </button>
         )}
       </div>
+      )}
 
-      <div className="space-y-8">
+      <div className={embedded ? "space-y-5" : "space-y-8"}>
         <div>
-          <h3 className="mb-4 text-sm font-bold uppercase text-[var(--muted-foreground)]">State</h3>
+          <h3 className={`${embedded ? "mb-2 text-xs" : "mb-4 text-sm"} font-bold uppercase text-[var(--muted-foreground)]`}>State</h3>
           <select
             value={city}
             onChange={(event) => { setCity(event.target.value); setPage(1); }}
-            className="h-12 w-full rounded-full border border-[var(--border)]/70 bg-white px-4 text-sm font-semibold text-[var(--foreground)] outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
+            className={`h-12 w-full border border-[var(--border)]/70 bg-white px-4 font-semibold text-[var(--foreground)] outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15 ${embedded ? "rounded-lg text-base" : "rounded-full text-sm"}`}
           >
             <option value="">All states</option>
             {nigerianStates.map((state) => <option key={state} value={state}>{state}</option>)}
@@ -120,14 +122,14 @@ export default function MarketplacePage() {
         </div>
 
         <div>
-          <h3 className="mb-4 text-sm font-bold uppercase text-[var(--muted-foreground)]">Category</h3>
+          <h3 className={`${embedded ? "mb-2 text-xs" : "mb-4 text-sm"} font-bold uppercase text-[var(--muted-foreground)]`}>Category</h3>
           <select
             value={category}
             onChange={(event) => {
               setCategory(event.target.value);
               setPage(1);
             }}
-            className="h-12 w-full rounded-full border border-[var(--border)]/70 bg-white px-4 text-sm font-semibold text-[var(--foreground)] outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
+            className={`h-12 w-full border border-[var(--border)]/70 bg-white px-4 font-semibold text-[var(--foreground)] outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15 ${embedded ? "rounded-lg text-base" : "rounded-full text-sm"}`}
           >
             <option value="">All pieces</option>
             {listingCategories.map((item) => (
@@ -139,12 +141,12 @@ export default function MarketplacePage() {
         </div>
 
         <div>
-          <h3 className="mb-4 text-sm font-bold uppercase text-[var(--muted-foreground)]">Intent</h3>
-          <div className="space-y-3">
+          <h3 className={`${embedded ? "mb-2 text-xs" : "mb-4 text-sm"} font-bold uppercase text-[var(--muted-foreground)]`}>Intent</h3>
+          <div className={embedded ? "space-y-0.5" : "space-y-3"}>
             {Object.entries(intentionMeta).map(([key, meta]) => {
               const Icon = meta.icon;
               return (
-                <label key={key} className="flex cursor-pointer items-center gap-3 rounded-full p-1.5 transition-colors hover:bg-[var(--sand)]">
+                <label key={key} className={`flex cursor-pointer items-center gap-3 transition-colors hover:bg-[var(--sand)] ${embedded ? "min-h-11 rounded-lg px-2" : "rounded-full p-1.5"}`}>
                   <span className="relative flex h-6 w-6 items-center justify-center rounded-full border-2 border-[var(--border)]">
                     <input
                       type="radio"
@@ -195,7 +197,7 @@ export default function MarketplacePage() {
               key={item.key || 'all'}
               type="button"
               onClick={() => { setIntentionTag(item.key); setPage(1); }}
-              className={`min-h-9 shrink-0 rounded-full border px-3 text-xs font-bold transition-colors ${
+              className={`min-h-11 shrink-0 rounded-full border px-3 text-xs font-bold transition-colors ${
                 intentionTag === item.key
                   ? 'border-[var(--brand)] bg-[var(--brand)] text-white'
                   : 'border-[var(--border)] bg-white text-[var(--ink-soft)]'
@@ -323,23 +325,26 @@ export default function MarketplacePage() {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="absolute bottom-0 left-0 right-0 flex max-h-[88dvh] flex-col overflow-hidden rounded-t-[2rem] bg-white"
+            className="absolute bottom-0 left-0 right-0 flex max-h-[88dvh] flex-col overflow-hidden rounded-t-xl bg-white"
           >
-            <div className="flex shrink-0 items-center justify-between px-5 pb-4 pt-5">
-              <h2 className="text-2xl font-bold text-[var(--foreground)]">Filters</h2>
+            <div className="flex shrink-0 items-center justify-between border-b border-[var(--border)]/55 px-4 py-3">
+              <div>
+                <h2 className="text-xl font-bold text-[var(--foreground)]">Filters</h2>
+                <p className="text-xs text-[var(--muted-foreground)]">Narrow the market</p>
+              </div>
               <button
                 type="button"
                 onClick={() => setShowFilters(false)}
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--sand)] text-[var(--ink-soft)]"
+                className="flex h-11 w-11 items-center justify-center rounded-lg bg-[var(--sand)] text-[var(--ink-soft)]"
                 aria-label="Close filters"
               >
                 <X size={20} aria-hidden="true" />
               </button>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">
-              <FilterPanel />
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+              <FilterPanel embedded />
             </div>
-            <div className="shrink-0 border-t border-[var(--border)]/55 bg-white/95 px-5 pb-[calc(1rem+var(--safe-area-bottom))] pt-3 backdrop-blur">
+            <div className="shrink-0 border-t border-[var(--border)]/55 bg-white/95 px-4 pb-[calc(0.75rem+var(--safe-area-bottom))] pt-3 backdrop-blur">
               <Button
                 className="h-12 w-full rounded-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]"
                 onClick={() => setShowFilters(false)}

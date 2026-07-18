@@ -399,7 +399,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
           <Card key={stat.label} className="min-w-0 rounded-lg border-[var(--border)] bg-card md:rounded-xl">
             <CardContent className="flex min-w-0 flex-col p-2 md:flex-row md:items-center md:justify-between md:p-5">
               <div className="min-w-0">
-                <p className="line-clamp-2 min-h-6 text-[0.58rem] font-semibold leading-3 text-muted-foreground md:min-h-0 md:text-sm">{stat.label}</p>
+                <p className="line-clamp-2 min-h-7 text-[0.68rem] font-semibold leading-3.5 text-muted-foreground md:min-h-0 md:text-sm">{stat.label}</p>
                 <p className="mt-1 truncate text-sm font-bold text-foreground md:mt-2 md:text-2xl">{stat.value}</p>
               </div>
               <div className={cn('mt-1 hidden w-fit rounded-full p-1.5 md:mt-0 md:block md:p-3', statIconClasses[index])}>
@@ -501,7 +501,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                 </CardHeader>
 
                 <CardContent className="space-y-1.5 px-2.5 pb-2 md:space-y-3 md:px-6 md:pb-3">
-                  <div className="flex min-w-0 gap-1 overflow-hidden text-[0.6rem] md:flex-wrap md:gap-2 md:text-xs">
+                  <div className="flex min-w-0 gap-1 overflow-hidden text-[0.7rem] md:flex-wrap md:gap-2 md:text-xs">
                     <span className="truncate rounded-full bg-neutral-100 px-1.5 py-0.5 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 md:px-2.5 md:py-1">
                       {listing.category}
                     </span>
@@ -512,7 +512,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                       {intentionLabels[listing.intentionTag] ?? listing.intentionTag}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-[0.62rem] text-muted-foreground md:text-sm">
+                  <div className="flex items-center justify-between text-[0.7rem] text-muted-foreground md:text-sm">
                     <span className="flex items-center gap-1">
                       <Eye size={14} />
                       {(listing.viewCount ?? 0).toLocaleString()} views
@@ -522,10 +522,10 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                 </CardContent>
 
                 <CardFooter className="mt-auto grid grid-cols-2 gap-1.5 px-2.5 pb-2.5 pt-0 md:gap-2 md:px-6 md:pb-6">
-                  <Button type="button" variant="outline" size="sm" asChild className="h-8 border-[var(--border)] px-2 text-[0.68rem] md:h-9 md:text-sm">
+                  <Button type="button" variant="outline" size="sm" asChild className="h-9 border-[var(--border)] px-2 text-xs md:text-sm">
                     <Link href={`/marketplace/${listing.id}`}>View</Link>
                   </Button>
-                  <Button type="button" size="sm" onClick={() => openEditor(listing)} className="h-8 px-2 text-[0.68rem] md:h-9 md:text-sm">
+                  <Button type="button" size="sm" onClick={() => openEditor(listing)} className="h-9 px-2 text-xs md:text-sm">
                     <Edit size={14} />
                     Edit
                   </Button>
