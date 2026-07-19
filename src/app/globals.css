@@ -335,6 +335,152 @@
     font-family: var(--font-sans);
   }
 
+  .brand-lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+    color: currentColor;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .brand-lockup__mark {
+    display: block;
+    flex: none;
+    overflow: visible;
+    transform-origin: 50% 50%;
+  }
+
+  .brand-lockup__line,
+  .brand-lockup__sketch {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .brand-lockup__line {
+    stroke-width: 3.1;
+  }
+
+  .brand-lockup__sketch {
+    opacity: 0.2;
+    stroke-width: 1.2;
+    transform: translate(0.7px, -0.35px);
+  }
+
+  .brand-lockup__word {
+    display: inline-flex;
+    align-items: baseline;
+    font-family: "Avenir Next", "Gill Sans", "Trebuchet MS", sans-serif;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .brand-lockup__word > span {
+    display: inline-block;
+  }
+
+  .brand-lockup--nav .brand-lockup__mark {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+
+  .brand-lockup--nav .brand-lockup__word {
+    font-size: 1.04rem;
+  }
+
+  .brand-lockup--default .brand-lockup__mark {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .brand-lockup--default .brand-lockup__word {
+    font-size: 1.28rem;
+  }
+
+  .brand-lockup--auth .brand-lockup__mark {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .brand-lockup--auth .brand-lockup__word {
+    font-size: 1.55rem;
+  }
+
+  .brand-lockup--footer .brand-lockup__mark {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+
+  .brand-lockup--footer .brand-lockup__word {
+    font-size: 1.1rem;
+  }
+
+  .brand-lockup--animated .brand-lockup__line {
+    stroke-dasharray: 190;
+    stroke-dashoffset: 190;
+    animation: brand-mark-draw 620ms cubic-bezier(0.22, 1, 0.36, 1) 80ms forwards;
+  }
+
+  .brand-lockup--animated .brand-lockup__sketch {
+    opacity: 0;
+    animation: brand-sketch-settle 260ms ease-out 520ms forwards;
+  }
+
+  .brand-lockup--animated .brand-lockup__word > span {
+    opacity: 0;
+    transform: translateY(3px);
+    animation: brand-letter-in 260ms ease-out forwards;
+  }
+
+  .brand-lockup--animated .brand-lockup__word > span:nth-child(1) {
+    animation-delay: 180ms;
+  }
+
+  .brand-lockup--animated .brand-lockup__word > span:nth-child(2) {
+    animation-delay: 215ms;
+  }
+
+  .brand-lockup--animated .brand-lockup__word > span:nth-child(3) {
+    animation-delay: 250ms;
+  }
+
+  .brand-lockup--animated .brand-lockup__word > span:nth-child(4) {
+    animation-delay: 285ms;
+  }
+
+  .brand-lockup--animated .brand-lockup__word > span:nth-child(5) {
+    animation-delay: 320ms;
+  }
+
+  .brand-lockup--animated .brand-lockup__word > span:nth-child(6) {
+    animation-delay: 355ms;
+  }
+
+  .brand-lockup--animated .brand-lockup__word > span:nth-child(7) {
+    animation-delay: 390ms;
+  }
+
+  @keyframes brand-mark-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes brand-sketch-settle {
+    to {
+      opacity: 0.2;
+    }
+  }
+
+  @keyframes brand-letter-in {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .card-hover {
     @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
   }
@@ -465,6 +611,36 @@
   .fun-fact-marquee span {
     white-space: normal;
     animation: none;
+  }
+}
+
+@media (max-width: 359px) {
+  .brand-lockup--nav {
+    gap: 0.34rem;
+  }
+
+  .brand-lockup--nav .brand-lockup__mark {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .brand-lockup--nav .brand-lockup__word {
+    font-size: 0.96rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .brand-lockup {
+    gap: 0.5rem;
+  }
+
+  .brand-lockup--nav .brand-lockup__mark {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .brand-lockup--nav .brand-lockup__word {
+    font-size: 1.22rem;
   }
 }
 

@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "@/lib/auth";
 import { NameAvatar } from "@/components/ui/name-avatar";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const productActions = [
   { label: "Buy", href: "/marketplace", icon: ShoppingBag },
@@ -111,8 +112,8 @@ export default function Navbar() {
           scrolled ? "md:border-[var(--border)]/60 md:soft-shadow" : "md:border-[var(--border)]/35 md:shadow-sm md:shadow-[var(--brand)]/5"
         }`}
       >
-        <Link href="/" className="flex shrink-0 items-center gap-3 text-[var(--brand)]">
-          <span className="text-lg font-bold tracking-normal md:text-2xl">Remnant</span>
+        <Link href="/" className="flex shrink-0 items-center text-[var(--brand)]" aria-label="Remnant home">
+          <BrandLogo size="nav" />
         </Link>
 
         <nav className="hidden min-w-0 flex-1 items-center justify-center gap-2 px-4 md:flex" aria-label="Primary navigation">

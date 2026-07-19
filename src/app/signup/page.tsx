@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { getApiErrorMessage } from "@/lib/errors";
 import { safeInternalPath, startHostedAuth } from "@/lib/hosted-auth";
 
@@ -89,7 +90,9 @@ function SignUpPageContent() {
     <main className="min-h-screen bg-[var(--warm-white)] px-4 py-5 md:px-8 md:py-10">
       <section className="mx-auto grid min-h-[74vh] max-w-6xl gap-8 lg:grid-cols-[0.95fr_1fr] lg:items-center">
         <div className="hidden rounded-[2rem] bg-[var(--navy)] p-10 text-white lg:block">
-          <Link href="/" className="text-3xl font-extrabold">Remnant</Link>
+          <Link href="/" className="inline-flex text-[var(--brand-light)]" aria-label="Remnant home">
+            <BrandLogo size="auth" />
+          </Link>
           <h1 className="mt-16 max-w-md text-5xl font-bold leading-tight">
             Give every useful piece a place.
           </h1>
@@ -104,6 +107,9 @@ function SignUpPageContent() {
         </div>
 
         <div className="mx-auto w-full max-w-md">
+          <Link href="/" className="mb-5 flex w-fit text-[var(--brand)] lg:hidden" aria-label="Remnant home">
+            <BrandLogo size="default" />
+          </Link>
           <Link
             href="/marketplace"
             className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-[var(--brand)] hover:text-[var(--brand-dark)] md:mb-5"

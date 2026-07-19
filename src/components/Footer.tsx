@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { Instagram, Mail, Twitter } from "lucide-react";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const footerLinks = [
   { label: "Marketplace", href: "/marketplace" },
@@ -29,8 +30,8 @@ export default function Footer() {
     <footer className="border-t border-[var(--border)]/35 bg-white">
       <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-6 text-center md:px-8">
         <div className="flex flex-col items-center justify-between gap-3 md:flex-row">
-          <Link href="/" className="text-xl font-bold text-[var(--brand)]">
-            Remnant
+          <Link href="/" className="text-[var(--brand)]" aria-label="Remnant home">
+            <BrandLogo size="footer" animated={false} />
           </Link>
 
           <nav className="flex max-w-3xl flex-wrap justify-center gap-x-5 gap-y-1.5 text-sm font-semibold text-[var(--ink-soft)]">

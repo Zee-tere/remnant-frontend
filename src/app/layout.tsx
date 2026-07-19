@@ -20,6 +20,10 @@ export const metadata: Metadata = {
   publisher: "Remnant Market",
   category: "marketplace",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [{ url: "/remnant-mark.svg", type: "image/svg+xml" }],
+    shortcut: "/remnant-mark.svg",
+  },
   formatDetection: {
     email: false,
     address: false,
@@ -93,7 +97,7 @@ export default function RootLayout({
         url: "https://remnantmarket.co",
         logo: {
           "@type": "ImageObject",
-          url: "https://remnantmarket.co/favicon.ico",
+          url: "https://remnantmarket.co/remnant-mark.svg",
         },
         email: "support@remnantmarket.co",
         sameAs: [

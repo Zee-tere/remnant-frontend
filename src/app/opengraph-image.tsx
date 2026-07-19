@@ -27,7 +27,22 @@ export default function OpenGraphImage() {
             maxWidth: "970px",
           }}
         >
-          <div style={{ color: "#006c52", display: "flex", fontSize: 34, fontWeight: 800 }}>
+          <div style={{ alignItems: "center", color: "#006c52", display: "flex", fontSize: 34, fontWeight: 800 }}>
+            <svg
+              viewBox="0 0 60 60"
+              width="52"
+              height="52"
+              fill="none"
+              style={{ marginRight: 14 }}
+            >
+              <path
+                d="M19 4.5 55 26 45.5 43.2c-1.2 2.2-4.4 2-5.3-.4-2.3-6.1-10.6-7.5-14.8-2.5-4.7 5.5-.2 13.9 7 13.1 2.7-.3 4.5 2.7 2.9 4.9L33.9 60 4.5 43.8 19 4.5Z"
+                stroke="#006c52"
+                strokeWidth="3.1"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
             Remnant Market Nigeria
           </div>
           <div
