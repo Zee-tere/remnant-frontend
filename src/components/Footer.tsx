@@ -5,6 +5,12 @@ import Link from "next/link";
 import { Instagram, Mail, Twitter } from "lucide-react";
 
 const footerLinks = [
+  { label: "Marketplace", href: "/marketplace" },
+  { label: "Sell", href: "/sell" },
+  { label: "Trade", href: "/trade" },
+  { label: "Donate", href: "/donate" },
+  { label: "Repair", href: "/repair" },
+  { label: "Recycle", href: "/recycle" },
   { label: "Sustainability", href: "/sustainability" },
   { label: "Help Center", href: "/help" },
   { label: "Privacy", href: "/privacy" },
@@ -27,7 +33,7 @@ export default function Footer() {
             Remnant
           </Link>
 
-          <nav className="flex flex-wrap justify-center gap-x-5 gap-y-1.5 text-sm font-semibold text-[var(--ink-soft)]">
+          <nav className="flex max-w-3xl flex-wrap justify-center gap-x-5 gap-y-1.5 text-sm font-semibold text-[var(--ink-soft)]">
             {footerLinks.map((link) => (
               <Link key={link.href} href={link.href} className="transition-colors hover:text-[var(--brand)]">
                 {link.label}

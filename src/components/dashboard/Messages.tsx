@@ -424,7 +424,7 @@ export default function MessagesSection() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
-                <Link href={`/marketplace/${activeConversation.listing.id}`}>
+                <Link href={`/marketplace/${activeConversation.listing.slug || activeConversation.listing.id}`}>
                   <ExternalLink size={16} className="mr-2" />
                   View listing
                 </Link>

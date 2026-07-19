@@ -1,55 +1,47 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense, type ReactNode } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { Providers } from "@/providers/Providers";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
+  applicationName: "Remnant Market",
   title: {
-    default: "Remnant | Buy, List, Match, Repair, Donate, and Recycle Useful Things",
-    template: "%s | Remnant",
+    default: "Remnant Market Nigeria | Sell, Trade, Donate & Find Used Items",
+    template: "%s | Remnant Market Nigeria",
   },
   description:
-    "A circular marketplace for useful pieces. Buy, sell, trade, donate, repair, recycle, or find the exact missing match.",
-  keywords: [
-    "AI marketplace",
-    "C2C",
-    "Nigeria",
-    "Africa",
-    "secondhand",
-    "sustainable",
-    "circular economy",
-    "single items",
-  ],
+    "Nigeria's marketplace for single items, second-hand goods, spare parts, donations, barter trades, repairs, and recycling.",
   authors: [{ name: "Remnant Team" }],
   creator: "Remnant",
-  publisher: "Remnant Marketplace",
+  publisher: "Remnant Market",
+  category: "marketplace",
+  manifest: "/manifest.webmanifest",
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
   metadataBase: new URL("https://remnantmarket.co"),
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     type: "website",
-    locale: "en_US",
+    locale: "en_NG",
     url: "https://remnantmarket.co",
-    title: "Remnant | Buy, List, Match, Repair, Donate, and Recycle Useful Things",
+    title: "Remnant Market Nigeria",
     description:
-      "Buy, sell, trade, donate, repair, recycle, or find the exact missing piece.",
-    siteName: "Remnant",
+      "Buy and sell used items, trade by barter, donate useful goods, find spare parts, repair pieces, and recycle locally.",
+    siteName: "Remnant Market",
   },
   twitter: {
-    card: "summary",
-    title: "Remnant | Buy, List, Match, Repair, Donate, and Recycle Useful Things",
+    card: "summary_large_image",
+    title: "Remnant Market Nigeria",
     description:
-      "Buy, sell, trade, donate, repair, recycle, or find the exact missing piece.",
-    creator: "@remnant_market",
+      "Sell, trade, donate, repair, recycle, or find the exact item you need.",
+    creator: "@remnant_africa",
+    site: "@remnant_africa",
   },
   robots: {
     index: true,
@@ -62,6 +54,27 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  verification: {
+    ...(process.env.GOOGLE_SITE_VERIFICATION
+      ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+      : {}),
+    ...(process.env.BING_SITE_VERIFICATION
+      ? { other: { "msvalidate.01": process.env.BING_SITE_VERIFICATION } }
+      : {}),
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Remnant Market",
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+  themeColor: "#006c52",
 };
 
 export default function RootLayout({
@@ -71,28 +84,43 @@ export default function RootLayout({
 }>) {
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "Remnant",
-    alternateName: "Remnant Marketplace",
-    url: "https://remnantmarket.co",
-    description:
-      "Circular C2C marketplace for single items, mismatched products, broken goods, and useful parts",
-    publisher: {
-      "@type": "Organization",
-      name: "Remnant",
-      logo: {
-        "@type": "ImageObject",
-        url: "https://remnantmarket.co/favicon.ico",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://remnantmarket.co/#organization",
+        name: "Remnant Market",
+        alternateName: "Remnant",
+        url: "https://remnantmarket.co",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://remnantmarket.co/favicon.ico",
+        },
+        email: "support@remnantmarket.co",
+        sameAs: [
+          "https://x.com/remnant_africa",
+          "https://www.instagram.com/remnantmarket.co/",
+        ],
       },
-    },
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: "https://remnantmarket.co/marketplace?search={search_term_string}",
+      {
+        "@type": "WebSite",
+        "@id": "https://remnantmarket.co/#website",
+        name: "Remnant Market",
+        alternateName: "Remnant Marketplace",
+        url: "https://remnantmarket.co",
+        inLanguage: "en-NG",
+        description:
+          "Nigerian C2C marketplace for single items, used goods, donations, barter trades, repairs, recycling, and useful parts.",
+        publisher: { "@id": "https://remnantmarket.co/#organization" },
+        potentialAction: {
+          "@type": "SearchAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: "https://remnantmarket.co/find-a-pair?search={search_term_string}",
+          },
+          "query-input": "required name=search_term_string",
+        },
       },
-      "query-input": "required name=search_term_string",
-    },
+    ],
   };
 
   return (
@@ -102,20 +130,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover"
-        />
-        <meta name="theme-color" content="#006c52" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="preconnect" href="https://36yevvooae.execute-api.us-east-1.amazonaws.com" />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-        />
+        <JsonLd data={structuredData} />
       </head>
 
       <body className="flex min-h-screen flex-col bg-background text-foreground font-sans antialiased">

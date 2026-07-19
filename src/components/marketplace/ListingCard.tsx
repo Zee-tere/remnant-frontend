@@ -6,6 +6,7 @@ import { formatCurrency } from '@/lib/utils';
 
 export interface ListingCardItem {
   id: string;
+  slug?: string;
   title: string;
   price: string | null;
   images: string[];
@@ -34,7 +35,7 @@ export function ListingCard({ item, className = '' }: { item: ListingCardItem; c
   const IntentIcon = intent.icon;
 
   return (
-    <Link href={`/marketplace/${item.id}`} className={`group block min-w-0 ${className}`}>
+    <Link href={`/marketplace/${item.slug || item.id}`} className={`group block min-w-0 ${className}`}>
       <article className="surface-card h-full overflow-hidden rounded-lg">
         <div className="relative aspect-[4/3] overflow-hidden bg-[var(--sand)] md:aspect-[5/4]">
           {item.images?.[0] ? (

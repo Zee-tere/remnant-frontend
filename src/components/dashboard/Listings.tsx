@@ -483,7 +483,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem asChild>
-                          <Link href={`/marketplace/${listing.id}`}>View listing</Link>
+                          <Link href={`/marketplace/${listing.slug || listing.id}`}>View listing</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => openEditor(listing)}>
                           <Edit className="mr-2" size={14} />
@@ -523,7 +523,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
 
                 <CardFooter className="mt-auto grid grid-cols-2 gap-1.5 px-2.5 pb-2.5 pt-0 md:gap-2 md:px-6 md:pb-6">
                   <Button type="button" variant="outline" size="sm" asChild className="h-9 border-[var(--border)] px-2 text-xs md:text-sm">
-                    <Link href={`/marketplace/${listing.id}`}>View</Link>
+                    <Link href={`/marketplace/${listing.slug || listing.id}`}>View</Link>
                   </Button>
                   <Button type="button" size="sm" onClick={() => openEditor(listing)} className="h-9 px-2 text-xs md:text-sm">
                     <Edit size={14} />

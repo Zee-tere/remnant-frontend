@@ -40,6 +40,9 @@ export default $config({
         NEXT_PUBLIC_SOCKET_URL: socketUrl,
         NEXT_PUBLIC_ESCROW_ENABLED: escrowEnabled,
         NEXT_PUBLIC_RELEASE_ID: releaseId,
+        GOOGLE_SITE_VERIFICATION: process.env.GOOGLE_SITE_VERIFICATION || "",
+        BING_SITE_VERIFICATION: process.env.BING_SITE_VERIFICATION || "",
+        INDEXNOW_KEY: process.env.INDEXNOW_KEY || "",
       },
     });
 

@@ -332,7 +332,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
           : 'Your item is live on the marketplace.',
       });
 
-      router.push(`/marketplace/${listing.id}`);
+      router.push(`/marketplace/${listing.slug || listing.id}`);
     } catch (error) {
       console.error('Upload failed:', error);
       toast.error(getApiErrorMessage(error, 'Failed to publish item. Please try again.'));
