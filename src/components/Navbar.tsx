@@ -16,6 +16,7 @@ import {
   RefreshCw,
   Search,
   Settings,
+  ShieldCheck,
   ShoppingBag,
   Store,
   UserCircle,
@@ -54,6 +55,9 @@ export default function Navbar() {
 
   const { user, isAuthenticated, logout } = useAuthStore();
   const displayName = user?.name || "Account";
+  const mobileAccountActions = user?.role === "ADMIN"
+    ? [{ label: "Admin", href: "/admin", icon: ShieldCheck }, ...accountActions]
+    : accountActions;
   const isAuthRoute = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth/callback"].some(
     (route) => pathname.startsWith(route),
   );
@@ -189,6 +193,16 @@ export default function Navbar() {
                       <Settings size={16} className="text-[var(--brand)]" aria-hidden="true" />
                       Settings
                     </Link>
+                    {user?.role === "ADMIN" && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--brand-soft)]"
+                      >
+                        <ShieldCheck size={16} className="text-[var(--brand)]" aria-hidden="true" />
+                        Administration
+                      </Link>
+                    )}
                     <div className="mt-1 border-t border-[var(--border)]/45 pt-1">
                       <button
                         type="button"
@@ -264,7 +278,7 @@ export default function Navbar() {
                   }`}
                 >
                   <nav className={isAuthenticated ? "flex flex-col" : "grid grid-cols-3 gap-1.5"} aria-label="Mobile navigation">
-                    {(isAuthenticated ? accountActions : productActions).map((item) => {
+                    {(isAuthenticated ? mobileAccountActions : productActions).map((item) => {
                       const Icon = item.icon;
                       return (
                       <Link

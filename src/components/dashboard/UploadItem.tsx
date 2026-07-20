@@ -10,10 +10,13 @@ import {
   Heart,
   Image as ImageIcon,
   Loader2,
+  Mail,
   Package,
+  Phone,
   Recycle,
   RefreshCw,
   Store,
+  Send,
   UploadCloud,
   Wrench,
   X,
@@ -88,6 +91,9 @@ function createInitialFormData(initialPurpose?: string) {
     recyclePreference: '',
     recycleQuantity: '',
     recycleNotes: '',
+    guestPhone: '',
+    guestEmail: '',
+    guestTelegram: '',
   };
 }
 
@@ -160,6 +166,11 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
       if (formData.purpose === 'RECYCLE' && (!formData.recycleMaterial || !formData.recyclePreference)) {
         toast.error('Add the material type and recycle handoff preference');
+        return false;
+      }
+
+      if (isGuest && !formData.guestPhone.trim() && !formData.guestEmail.trim() && !formData.guestTelegram.trim()) {
+        toast.error('Add a phone number, Telegram link, or email so buyers can reach you');
         return false;
       }
     }
@@ -321,6 +332,15 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         price: formData.purpose === 'SELL' ? formData.price : undefined,
         city: formData.location || undefined,
         images: uploadedImageUrls,
+        ...(isGuest
+          ? {
+              guestContact: {
+                phone: formData.guestPhone.trim() || undefined,
+                email: formData.guestEmail.trim() || undefined,
+                telegram: formData.guestTelegram.trim() || undefined,
+              },
+            }
+          : {}),
       };
 
       const listing = await (isGuest ? listingsApi.createGuestListing(payload) : listingsApi.createListing(payload));
@@ -539,10 +559,10 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
           </h3>
           <div className="grid gap-3 md:grid-cols-2">
             {[
-              { value: 'GIVEAWAY', title: 'Open giveaway', text: 'Let interested people request it.' },
-              { value: 'RECIPIENT', title: 'Reserved for someone', text: 'Keep the handoff for one person.' },
+              { value: 'GIVEAWAY', title: 'Open giveaway', text: 'Let interested people request it.', disabled: false },
+              { value: 'RECIPIENT', title: 'Reserved for someone', text: 'Recipient matching is being prepared.', disabled: true },
             ].map((option) => (
-              <label key={option.value} className="cursor-pointer">
+              <label key={option.value} className={option.disabled ? 'cursor-not-allowed' : 'cursor-pointer'}>
                 <input
                   type="radio"
                   className="sr-only"
@@ -550,14 +570,19 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
                   value={option.value}
                   checked={formData.donationMode === option.value}
                   onChange={(event) => handleInputChange('donationMode', event.target.value)}
+                  disabled={option.disabled}
                 />
                 <div
                   className={cn(
                     'h-full rounded-[1.25rem] border-2 bg-white p-4 transition-all',
                     formData.donationMode === option.value ? 'border-[var(--brand)] bg-[var(--brand-soft)]' : 'border-[var(--border)]/55',
+                    option.disabled && 'opacity-55',
                   )}
                 >
-                  <p className="font-bold">{option.title}</p>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-bold">{option.title}</p>
+                    {option.disabled && <span className="rounded-full bg-[var(--sand)] px-2 py-1 text-[0.65rem] font-bold uppercase text-[var(--ink-soft)]">Coming soon</span>}
+                  </div>
                   <p className="mt-1 text-sm font-medium text-[var(--ink-soft)]">{option.text}</p>
                 </div>
               </label>
@@ -710,6 +735,62 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
     return null;
   };
 
+  const renderGuestContactFields = () => {
+    if (!isGuest) return null;
+
+    return (
+      <fieldset className="md:col-span-2">
+        <div className="mb-3 flex items-start gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-soft)] text-[var(--brand)]">
+            <Phone size={17} aria-hidden="true" />
+          </div>
+          <div>
+            <legend className="font-bold">How can buyers reach you?</legend>
+            <p className="mt-0.5 text-sm text-[var(--ink-soft)]">Add at least one contact method. It appears only when someone asks to message you.</p>
+          </div>
+        </div>
+        <div className="grid gap-4 border-t border-[var(--border)]/60 pt-4 md:grid-cols-3">
+          <label className="space-y-2">
+            <span className="flex items-center gap-1.5 text-sm font-bold"><Phone size={14} aria-hidden="true" /> Phone number</span>
+            <Input
+              type="tel"
+              value={formData.guestPhone}
+              onChange={(event) => handleInputChange('guestPhone', event.target.value)}
+              className="rounded-full bg-white"
+              placeholder="+234 800 000 0000"
+              autoComplete="tel"
+              maxLength={24}
+            />
+          </label>
+          <label className="space-y-2">
+            <span className="flex items-center gap-1.5 text-sm font-bold"><Mail size={14} aria-hidden="true" /> Email address</span>
+            <Input
+              type="email"
+              value={formData.guestEmail}
+              onChange={(event) => handleInputChange('guestEmail', event.target.value)}
+              className="rounded-full bg-white"
+              placeholder="you@example.com"
+              autoComplete="email"
+              maxLength={254}
+            />
+          </label>
+          <label className="space-y-2">
+            <span className="flex items-center gap-1.5 text-sm font-bold"><Send size={14} aria-hidden="true" /> Telegram link</span>
+            <Input
+              type="url"
+              value={formData.guestTelegram}
+              onChange={(event) => handleInputChange('guestTelegram', event.target.value)}
+              className="rounded-full bg-white"
+              placeholder="https://t.me/username"
+              inputMode="url"
+              maxLength={120}
+            />
+          </label>
+        </div>
+      </fieldset>
+    );
+  };
+
   const renderDetailsStep = () => (
     <motion.div
       key="details"
@@ -797,6 +878,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         </label>
 
         {renderRouteSpecificFields()}
+        {renderGuestContactFields()}
       </div>
 
       <div className="flex justify-between gap-3">

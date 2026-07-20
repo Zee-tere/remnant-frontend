@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useAuthStore } from './auth';
 import { getApiUrl } from './api-url';
+import { beginActivity, endActivity } from './activity';
 
 const api = axios.create({
   baseURL: getApiUrl(),
@@ -25,6 +26,7 @@ function normalizeListingPage(data: unknown) {
 }
 
 api.interceptors.request.use((config) => {
+  (config as typeof config & { _activityId?: number })._activityId = beginActivity();
   const token = useAuthStore.getState().accessToken;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -38,12 +40,17 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    endActivity((response.config as typeof response.config & { _activityId?: number })._activityId);
+    return response;
+  },
   async (error) => {
     const request = error.config as (typeof error.config & {
+      _activityId?: number;
       _retriedAfterRefresh?: boolean;
       _transientRetryCount?: number;
     }) | undefined;
+    endActivity(request?._activityId);
     const hadBearerToken = Boolean(request?.headers?.Authorization);
 
     const status = error.response?.status as number | undefined;
@@ -90,6 +97,8 @@ export const listingsApi = {
     api.get(`/listings/${id}`).then((r) => r.data),
   getSimilarListings: (id: string, limit = 12) =>
     api.get(`/listings/${id}/similar`, { params: { limit } }).then((r) => r.data),
+  getGuestContact: (id: string) =>
+    api.get(`/listings/${id}/contact`).then((r) => r.data as { phone?: string; email?: string; telegram?: string }),
   searchListings: (params?: Record<string, string>) =>
     api.get('/listings/search', { params }).then((r) => r.data),
   getListingBySlug: (slug: string) =>
@@ -254,6 +263,26 @@ export const uploadApi = {
 export const reportsApi = {
   createReport: (targetType: string, targetId: string, reason: string) =>
     api.post('/reports', { targetType, targetId, reason }).then((r) => r.data),
+};
+
+export const adminApi = {
+  getDashboard: () => api.get('/admin/dashboard').then((r) => r.data),
+  getUsers: (params?: Record<string, string | number>) =>
+    api.get('/admin/users', { params }).then((r) => r.data),
+  updateUser: (id: string, data: { role?: string; bannedAt?: string | null }) =>
+    api.patch(`/admin/users/${id}`, data).then((r) => r.data),
+  messageUser: (id: string, message: string) =>
+    api.post(`/admin/users/${id}/message`, { message }).then((r) => r.data),
+  getListings: (params?: Record<string, string | number>) =>
+    api.get('/admin/listings', { params }).then((r) => r.data),
+  updateListingStatus: (id: string, status: string) =>
+    api.patch(`/admin/listings/${id}`, { status }).then((r) => r.data),
+  removeListing: (id: string) =>
+    api.delete(`/admin/listings/${id}`).then((r) => r.data),
+  getReports: (params?: Record<string, string | number>) =>
+    api.get('/admin/reports', { params }).then((r) => r.data),
+  actOnReport: (id: string, action: string, resolution?: string) =>
+    api.post(`/admin/reports/${id}/action`, { action, resolution }).then((r) => r.data),
 };
 
 export default api;

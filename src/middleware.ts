@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 const cacheableAssetPattern =
   /^\/(?:_next\/static|_next\/image|images\/|icons\/|indexnow-key\.txt|listing-image\/|opengraph-image|favicon\.ico|robots\.txt|sitemap\.xml|manifest\.webmanifest)/;
 const privatePathPattern =
-  /^\/(?:api|auth|blog|guest|login|signup|forgot-password|reset-password|payment|profile|register|settings|transactions|user)(?:\/|$)/;
+  /^\/(?:admin|api|auth|blog|guest|login|signup|forgot-password|reset-password|payment|profile|register|settings|transactions|user)(?:\/|$)/;
 const publicPagePattern =
   /^\/(?:$|about(?:\/|$)|donate(?:\/|$)|find-a-pair(?:\/|$)|help(?:\/|$)|marketplace(?:\/|$)|privacy(?:\/|$)|recycle(?:\/|$)|repair(?:\/|$)|sell(?:\/|$)|sell-item(?:\/|$)|seller-guide(?:\/|$)|sustainability(?:\/|$)|terms(?:\/|$)|trade(?:\/|$))/;
 

@@ -25,7 +25,7 @@ export default function MobileBottomNav() {
     pathname === "/user/dashboard" &&
     searchParams.get("section") === "messages";
   const isHiddenRoute = hiddenRoutes.some((route) => pathname.startsWith(route));
-  const suppressMobileDock = isHiddenRoute || isMessageView;
+  const suppressMobileDock = isHiddenRoute || isMessageView || pathname.startsWith("/admin");
 
   useEffect(() => {
     document.body.classList.toggle("mobile-chat-active", isMessageView);

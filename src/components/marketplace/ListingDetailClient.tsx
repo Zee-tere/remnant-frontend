@@ -7,15 +7,19 @@ import { motion } from "framer-motion";
 import {
   ArrowLeft,
   ChevronDown,
+  ExternalLink,
   HandHeart,
   Heart,
   Loader2,
+  Mail,
   MapPin,
   MessageSquare,
   Package,
+  Phone,
   Recycle,
   RefreshCw,
   Share2,
+  Send,
   Wrench,
   X,
 } from "lucide-react";
@@ -35,6 +39,7 @@ import { formatCurrency } from "@/lib/utils";
 import type { PublicListing } from "@/lib/public-listings";
 
 type ListingDetail = PublicListing;
+type SellerContact = { phone?: string; email?: string; telegram?: string };
 
 const intentionMeta: Record<string, { icon: React.ElementType; label: string; className: string }> = {
   SELL: { icon: NairaIcon, label: "For sale", className: "bg-[var(--brand-soft)] text-[var(--brand)]" },
@@ -113,6 +118,60 @@ function GuestMessageDialog({
   );
 }
 
+function SellerContactDialog({
+  contact,
+  listingTitle,
+  onClose,
+}: {
+  contact: SellerContact;
+  listingTitle: string;
+  onClose: () => void;
+}) {
+  const options = [
+    contact.phone
+      ? { label: contact.phone, hint: "Call or send a text", href: `tel:${contact.phone.replace(/[^+\d]/g, "")}`, icon: Phone }
+      : null,
+    contact.email
+      ? { label: contact.email, hint: "Send an email", href: `mailto:${contact.email}?subject=${encodeURIComponent(`Interested in ${listingTitle}`)}`, icon: Mail }
+      : null,
+    contact.telegram
+      ? { label: "Open Telegram", hint: contact.telegram.replace(/^https?:\/\//, ""), href: contact.telegram, icon: Send }
+      : null,
+  ].filter((option): option is NonNullable<typeof option> => Boolean(option));
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/25 sm:items-center sm:p-5" role="presentation">
+      <section className="w-full rounded-t-lg bg-white p-5 shadow-2xl sm:max-w-md sm:rounded-lg sm:p-6" role="dialog" aria-modal="true" aria-labelledby="seller-contact-title">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 id="seller-contact-title" className="text-xl font-bold">Contact the seller</h2>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Choose the option that works for you.</p>
+          </div>
+          <button type="button" onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-[var(--sand)]" aria-label="Close">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="mt-5 divide-y divide-[var(--border)] overflow-hidden rounded-lg border border-[var(--border)]">
+          {options.map((option) => {
+            const Icon = option.icon;
+            return (
+              <a key={option.href} href={option.href} target={option.href.startsWith("https://") ? "_blank" : undefined} rel={option.href.startsWith("https://") ? "noreferrer" : undefined} className="flex min-h-16 items-center gap-3 bg-white px-4 py-3 transition-colors hover:bg-[var(--brand-soft)]">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-soft)] text-[var(--brand)]"><Icon size={18} aria-hidden="true" /></span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-bold">{option.label}</span>
+                  <span className="block truncate text-xs text-[var(--muted-foreground)]">{option.hint}</span>
+                </span>
+                <ExternalLink size={16} className="shrink-0 text-[var(--muted-foreground)]" aria-hidden="true" />
+              </a>
+            );
+          })}
+        </div>
+        <p className="mt-4 text-xs leading-5 text-[var(--muted-foreground)]">Remnant does not verify conversations outside the platform. Avoid sharing passwords or verification codes.</p>
+      </section>
+    </div>
+  );
+}
+
 export default function ListingDetailClient({ initialListing }: { initialListing: ListingDetail }) {
   const router = useRouter();
   const id = initialListing.id;
@@ -124,6 +183,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
   const [isMessaging, setIsMessaging] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showGuestMessage, setShowGuestMessage] = useState(false);
+  const [sellerContact, setSellerContact] = useState<SellerContact | null>(null);
 
   useEffect(() => {
     listingsApi
@@ -140,12 +200,20 @@ export default function ListingDetailClient({ initialListing }: { initialListing
 
   const handleMessageSeller = async () => {
     if (!listing) return;
-    if (!isAuthenticated) {
-      setShowGuestMessage(true);
+    const guestSeller = listing.isGuestListing || listing.user?.name === "Guest";
+    if (guestSeller) {
+      setIsMessaging(true);
+      try {
+        setSellerContact(await listingsApi.getGuestContact(listing.id));
+      } catch (error) {
+        toast.error(getApiErrorMessage(error, "This seller has not added a contact method."));
+      } finally {
+        setIsMessaging(false);
+      }
       return;
     }
-    if (listing.user?.name === "Guest") {
-      toast.info("This seller cannot receive messages yet.");
+    if (!isAuthenticated) {
+      setShowGuestMessage(true);
       return;
     }
 
@@ -209,7 +277,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
   const intent = intentionMeta[listing.intentionTag] ?? intentionMeta.SELL;
   const IntentIcon = intent.icon;
   const selectedSrc = listing.images?.[selectedImage];
-  const isGuestSeller = listing.user?.name === "Guest";
+  const isGuestSeller = Boolean(listing.isGuestListing || listing.user?.name === "Guest");
   const isOwnListing = listing.user?.id === user?.id;
 
   return (
@@ -300,11 +368,11 @@ export default function ListingDetailClient({ initialListing }: { initialListing
 
             <Button
               onClick={handleMessageSeller}
-              disabled={isMessaging || isGuestSeller || isOwnListing}
+              disabled={isMessaging || isOwnListing}
               className="h-12 w-full rounded-full bg-[var(--brand)] text-sm font-bold text-white hover:bg-[var(--brand-dark)]"
             >
               {isMessaging ? <Loader2 size={18} className="animate-spin" /> : <MessageSquare size={18} />}
-              {isOwnListing ? "Your listing" : isGuestSeller ? "Seller unavailable" : isMessaging ? "Opening chat..." : "Message seller"}
+              {isOwnListing ? "Your listing" : isMessaging ? "Connecting..." : isGuestSeller ? "Contact seller" : "Message seller"}
             </Button>
           </div>
         </section>
@@ -321,6 +389,9 @@ export default function ListingDetailClient({ initialListing }: { initialListing
 
       {showGuestMessage && (
         <GuestMessageDialog listingId={listing.id} listingTitle={listing.title} busy={isMessaging} onClose={() => setShowGuestMessage(false)} onSubmit={handleGuestMessage} />
+      )}
+      {sellerContact && (
+        <SellerContactDialog contact={sellerContact} listingTitle={listing.title} onClose={() => setSellerContact(null)} />
       )}
     </main>
   );

@@ -9,6 +9,7 @@ export interface PublicListing {
   condition: string;
   intentionTag: string;
   pairingKeyword: string | null;
+  isGuestListing?: boolean;
   price: string | null;
   status: string;
   images: string[];
