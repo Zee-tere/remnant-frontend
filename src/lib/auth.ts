@@ -3,6 +3,7 @@ import { persist, createJSONStorage, type StateStorage } from 'zustand/middlewar
 import { getApiUrl } from './api-url';
 
 export const AUTH_STORAGE_KEY = 'remnant-auth';
+const AUTH_STORAGE_VERSION = 3;
 const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 
 export interface User {
@@ -77,7 +78,8 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({
           user,
           accessToken,
-          refreshToken: refreshToken ?? state.refreshToken,
+          refreshToken:
+            refreshToken ?? (state.user?.id === user.id ? state.refreshToken : null),
           isAuthenticated: true,
           isLoading: false,
           sessionExpiresAt: Date.now() + SESSION_DURATION_MS,
@@ -177,27 +179,43 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: AUTH_STORAGE_KEY,
-      version: 2,
+      version: AUTH_STORAGE_VERSION,
       storage: createJSONStorage(() => crossTabStorage),
-      partialize: (state) => ({
-        user: state.user,
-        refreshToken: state.refreshToken,
-        isAuthenticated: state.isAuthenticated,
-        sessionExpiresAt: state.sessionExpiresAt,
-      }),
-      migrate: (persistedState) => {
-        const persisted = persistedState as Partial<AuthState>;
+      partialize: (state) => {
+        const canRestore = Boolean(state.user && state.refreshToken && state.isAuthenticated);
         return {
-          ...persisted,
-          accessToken: null,
-          sessionExpiresAt: persisted.sessionExpiresAt ?? Date.now() + SESSION_DURATION_MS,
+          user: canRestore ? state.user : null,
+          refreshToken: canRestore ? state.refreshToken : null,
+          isAuthenticated: canRestore,
+          sessionExpiresAt: canRestore ? state.sessionExpiresAt : null,
         };
       },
-      merge: (persistedState, currentState) => ({
-        ...currentState,
-        ...(persistedState as Partial<AuthState>),
+      migrate: () => ({
+        user: null,
         accessToken: null,
+        refreshToken: null,
+        isAuthenticated: false,
+        isLoading: false,
+        sessionExpiresAt: null,
       }),
+      merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<AuthState>;
+        const canRestore = Boolean(
+          persisted.user &&
+          persisted.refreshToken &&
+          persisted.isAuthenticated &&
+          persisted.sessionExpiresAt &&
+          persisted.sessionExpiresAt > Date.now(),
+        );
+        return {
+          ...currentState,
+          user: canRestore ? persisted.user ?? null : null,
+          accessToken: null,
+          refreshToken: canRestore ? persisted.refreshToken ?? null : null,
+          isAuthenticated: canRestore,
+          sessionExpiresAt: canRestore ? persisted.sessionExpiresAt ?? null : null,
+        };
+      },
       onRehydrateStorage: () => (state) => {
         if (state?.sessionExpiresAt && state.sessionExpiresAt <= Date.now()) state.logout();
         state?.setHasHydrated(true);

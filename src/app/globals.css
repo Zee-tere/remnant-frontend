@@ -338,7 +338,7 @@
   .brand-lockup {
     display: inline-flex;
     align-items: center;
-    gap: 0.42rem;
+    gap: 0.28rem;
     color: currentColor;
     line-height: 1;
     white-space: nowrap;
@@ -349,6 +349,7 @@
     flex: none;
     overflow: visible;
     transform-origin: 50% 50%;
+    transform: translateY(-0.02em);
   }
 
   .brand-lockup__line,
@@ -375,6 +376,7 @@
     font-family: "Avenir Next", "Gill Sans", "Trebuchet MS", sans-serif;
     font-weight: 800;
     letter-spacing: 0;
+    transform: translateY(0.02em);
   }
 
   .brand-lockup__word > span {
@@ -382,17 +384,17 @@
   }
 
   .brand-lockup--nav .brand-lockup__mark {
-    width: 1.7rem;
-    height: 1.7rem;
+    width: 1.92rem;
+    height: 1.92rem;
   }
 
   .brand-lockup--nav .brand-lockup__word {
-    font-size: 1.04rem;
+    font-size: 1.05rem;
   }
 
   .brand-lockup--default .brand-lockup__mark {
-    width: 2rem;
-    height: 2rem;
+    width: 2.25rem;
+    height: 2.25rem;
   }
 
   .brand-lockup--default .brand-lockup__word {
@@ -400,8 +402,8 @@
   }
 
   .brand-lockup--auth .brand-lockup__mark {
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2.6rem;
+    height: 2.6rem;
   }
 
   .brand-lockup--auth .brand-lockup__word {
@@ -409,8 +411,8 @@
   }
 
   .brand-lockup--footer .brand-lockup__mark {
-    width: 1.7rem;
-    height: 1.7rem;
+    width: 1.95rem;
+    height: 1.95rem;
   }
 
   .brand-lockup--footer .brand-lockup__word {
@@ -616,12 +618,12 @@
 
 @media (max-width: 359px) {
   .brand-lockup--nav {
-    gap: 0.34rem;
+    gap: 0.22rem;
   }
 
   .brand-lockup--nav .brand-lockup__mark {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1.72rem;
+    height: 1.72rem;
   }
 
   .brand-lockup--nav .brand-lockup__word {
@@ -631,12 +633,12 @@
 
 @media (min-width: 768px) {
   .brand-lockup {
-    gap: 0.5rem;
+    gap: 0.34rem;
   }
 
   .brand-lockup--nav .brand-lockup__mark {
-    width: 2rem;
-    height: 2rem;
+    width: 2.2rem;
+    height: 2.2rem;
   }
 
   .brand-lockup--nav .brand-lockup__word {

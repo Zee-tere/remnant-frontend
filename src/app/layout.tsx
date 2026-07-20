@@ -21,8 +21,8 @@ export const metadata: Metadata = {
   category: "marketplace",
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: [{ url: "/remnant-mark.svg", type: "image/svg+xml" }],
-    shortcut: "/remnant-mark.svg",
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: "/icon.svg",
   },
   formatDetection: {
     email: false,
@@ -135,7 +135,7 @@ export default function RootLayout({
     >
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://36yevvooae.execute-api.us-east-1.amazonaws.com" />
         <JsonLd data={structuredData} />
       </head>
