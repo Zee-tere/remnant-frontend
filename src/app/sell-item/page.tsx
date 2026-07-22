@@ -34,7 +34,7 @@ function SellItemPageContent() {
 
   if (!isAuthenticated && !isGuest) {
     return (
-      <main className="bg-[var(--background)] px-4 py-5 md:px-8 md:py-16">
+      <main className="flex min-h-[calc(100dvh-7rem)] items-center bg-[var(--background)] px-4 py-8 md:block md:min-h-0 md:px-8 md:py-16">
         <section className="mx-auto max-w-md">
           <div className="surface-card rounded-xl bg-white p-4 md:rounded-[2rem] md:p-8">
             <div className="space-y-3">

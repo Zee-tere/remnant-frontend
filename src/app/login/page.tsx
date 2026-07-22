@@ -70,7 +70,7 @@ function LoginPageContent() {
 
   return (
     <main className="min-h-screen bg-[var(--warm-white)] px-4 py-5 md:px-8 md:py-10">
-      <section className="mx-auto grid min-h-[74vh] max-w-6xl gap-8 lg:grid-cols-[0.95fr_1fr] lg:items-center">
+      <section className="mx-auto grid min-h-[calc(100dvh-2.5rem)] max-w-6xl grid-cols-[minmax(0,1fr)] items-center gap-8 lg:min-h-[74vh] lg:grid-cols-[0.95fr_1fr]">
         <div className="hidden rounded-[2rem] bg-[var(--navy)] p-10 text-white lg:block">
           <Link href="/" className="inline-flex text-[var(--brand-light)]" aria-label="Remnant home">
             <BrandLogo size="auth" />
@@ -83,7 +83,7 @@ function LoginPageContent() {
           </p>
         </div>
 
-        <div className="mx-auto w-full max-w-md">
+        <div className="mx-auto min-w-0 w-full max-w-md">
           <Link href="/" className="mb-5 flex w-fit text-[var(--brand)] lg:hidden" aria-label="Remnant home">
             <BrandLogo size="default" />
           </Link>

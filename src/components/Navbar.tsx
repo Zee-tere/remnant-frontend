@@ -229,21 +229,21 @@ export default function Navbar() {
           {showMobileSearch && (
             <form
               onSubmit={handleMobileSearch}
-              className="flex h-12 min-w-0 flex-1 items-center overflow-hidden rounded-lg border border-[var(--border)]/65 bg-white pl-3 md:hidden"
+              className="flex h-10 min-w-0 flex-1 items-center overflow-hidden rounded-lg border-0 bg-white pl-2.5 shadow-none md:hidden"
             >
               <input
                 value={mobileSearch}
                 onChange={(event) => setMobileSearch(event.target.value)}
                 placeholder="Search the market"
-                className="h-12 min-w-0 flex-1 bg-transparent pr-2 text-base font-medium text-[var(--foreground)] outline-none placeholder:font-medium placeholder:text-[var(--muted-foreground)]"
+                className="h-10 min-w-0 flex-1 bg-transparent pr-1.5 text-sm font-medium text-[var(--foreground)] outline-none placeholder:font-medium placeholder:text-[var(--muted-foreground)]"
                 aria-label="Search items"
               />
               <button
                 type="submit"
-                className="flex h-12 w-12 shrink-0 items-center justify-center text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)]"
+                className="m-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)]"
                 aria-label="Submit search"
               >
-                <Search size={16} strokeWidth={2.15} aria-hidden="true" />
+                <Search size={14} strokeWidth={2.15} aria-hidden="true" />
               </button>
             </form>
           )}

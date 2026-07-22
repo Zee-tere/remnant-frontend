@@ -739,48 +739,49 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
     if (!isGuest) return null;
 
     return (
-      <fieldset className="md:col-span-2">
-        <div className="mb-3 flex items-start gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-soft)] text-[var(--brand)]">
+      <fieldset className="rounded-lg bg-white p-3.5 md:col-span-2 md:rounded-none md:bg-transparent md:p-0">
+        <legend className="sr-only">Buyer contact options</legend>
+        <div className="mb-3 flex items-start gap-2.5">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] md:h-9 md:w-9">
             <Phone size={17} aria-hidden="true" />
           </div>
-          <div>
-            <legend className="font-bold">How can buyers reach you?</legend>
-            <p className="mt-0.5 text-sm text-[var(--ink-soft)]">Add at least one contact method. It appears only when someone asks to message you.</p>
+          <div className="min-w-0">
+            <h3 className="text-sm font-bold md:text-base">How can buyers reach you?</h3>
+            <p className="mt-0.5 text-xs leading-5 text-[var(--ink-soft)] md:text-sm">Add at least one. It is shown only when a buyer asks.</p>
           </div>
         </div>
-        <div className="grid gap-4 border-t border-[var(--border)]/60 pt-4 md:grid-cols-3">
-          <label className="space-y-2">
-            <span className="flex items-center gap-1.5 text-sm font-bold"><Phone size={14} aria-hidden="true" /> Phone number</span>
+        <div className="grid gap-3 border-t border-[var(--border)]/50 pt-3 md:grid-cols-3 md:gap-4 md:pt-4">
+          <label className="block space-y-1.5">
+            <span className="flex items-center gap-1.5 text-xs font-bold leading-5 md:text-sm"><Phone size={13} aria-hidden="true" /> Phone number</span>
             <Input
               type="tel"
               value={formData.guestPhone}
               onChange={(event) => handleInputChange('guestPhone', event.target.value)}
-              className="rounded-full bg-white"
+              className="h-11 rounded-lg bg-white px-3 text-base md:h-12 md:rounded-full md:px-4"
               placeholder="+234 800 000 0000"
               autoComplete="tel"
               maxLength={24}
             />
           </label>
-          <label className="space-y-2">
-            <span className="flex items-center gap-1.5 text-sm font-bold"><Mail size={14} aria-hidden="true" /> Email address</span>
+          <label className="block space-y-1.5">
+            <span className="flex items-center gap-1.5 text-xs font-bold leading-5 md:text-sm"><Mail size={13} aria-hidden="true" /> Email address</span>
             <Input
               type="email"
               value={formData.guestEmail}
               onChange={(event) => handleInputChange('guestEmail', event.target.value)}
-              className="rounded-full bg-white"
+              className="h-11 rounded-lg bg-white px-3 text-base md:h-12 md:rounded-full md:px-4"
               placeholder="you@example.com"
               autoComplete="email"
               maxLength={254}
             />
           </label>
-          <label className="space-y-2">
-            <span className="flex items-center gap-1.5 text-sm font-bold"><Send size={14} aria-hidden="true" /> Telegram link</span>
+          <label className="block space-y-1.5">
+            <span className="flex items-center gap-1.5 text-xs font-bold leading-5 md:text-sm"><Send size={13} aria-hidden="true" /> Telegram link</span>
             <Input
               type="url"
               value={formData.guestTelegram}
               onChange={(event) => handleInputChange('guestTelegram', event.target.value)}
-              className="rounded-full bg-white"
+              className="h-11 rounded-lg bg-white px-3 text-base md:h-12 md:rounded-full md:px-4"
               placeholder="https://t.me/username"
               inputMode="url"
               maxLength={120}
@@ -807,7 +808,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 md:gap-6">
         <label className="space-y-2">
           <span className="text-sm font-bold">Item name</span>
           <Input
@@ -872,7 +873,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
           <Textarea
             value={formData.description}
             onChange={(event) => handleInputChange('description', event.target.value)}
-            className="min-h-[150px] rounded-[1.5rem] bg-white text-base"
+            className="min-h-[112px] rounded-lg bg-white text-base md:min-h-[150px] md:rounded-[1.5rem]"
             required
           />
         </label>
