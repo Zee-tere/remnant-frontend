@@ -9,6 +9,7 @@ import {
   Package,
   Recycle,
   RefreshCw,
+  ScanSearch,
   Wrench,
   X,
 } from "lucide-react";
@@ -28,6 +29,7 @@ const intentionMeta: Record<string, { icon: React.ElementType; label: string; co
   DONATE: { icon: HandHeart, label: "Free", color: "text-[var(--tertiary-gold)]", bg: "bg-[#fff6cf]" },
   FIX: { icon: Wrench, label: "Needs Fix", color: "text-orange-700", bg: "bg-orange-50" },
   RECYCLE: { icon: Recycle, label: "Recycle", color: "text-teal-700", bg: "bg-teal-50" },
+  WANTED: { icon: ScanSearch, label: "Pair wanted", color: "text-violet-700", bg: "bg-violet-50" },
 };
 
 interface MarketplaceFilters {
@@ -269,7 +271,7 @@ export default function MarketplaceClient({
               </div>
             ) : listings.length > 0 ? (
               <>
-                <div className="grid auto-rows-fr grid-cols-2 gap-2 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
+                <div className="grid auto-rows-fr grid-cols-2 gap-1.5 sm:gap-2 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
                   {listings.map((item, index) => <ListingCard key={item.id} item={item} eager={index === 0} />)}
                 </div>
 

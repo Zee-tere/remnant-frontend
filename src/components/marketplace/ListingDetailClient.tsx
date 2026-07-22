@@ -18,6 +18,7 @@ import {
   Phone,
   Recycle,
   RefreshCw,
+  ScanSearch,
   Share2,
   Send,
   Wrench,
@@ -47,6 +48,7 @@ const intentionMeta: Record<string, { icon: React.ElementType; label: string; cl
   DONATE: { icon: HandHeart, label: "Free", className: "bg-[#fff6cf] text-[var(--tertiary-gold)]" },
   FIX: { icon: Wrench, label: "Repair", className: "bg-orange-50 text-orange-700" },
   RECYCLE: { icon: Recycle, label: "Recycle", className: "bg-teal-50 text-teal-700" },
+  WANTED: { icon: ScanSearch, label: "Pair wanted", className: "bg-violet-50 text-violet-700" },
 };
 
 function formatListedDate(value?: string) {
@@ -54,6 +56,20 @@ function formatListedDate(value?: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Recently";
   return date.toLocaleDateString("en-NG", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function getListingValue(listing: ListingDetail) {
+  if (listing.intentionTag === "SELL") {
+    return listing.price ? formatCurrency(Number(listing.price)) : "Price on request";
+  }
+  if (listing.intentionTag === "WANTED") {
+    return listing.price ? `Budget ${formatCurrency(Number(listing.price))}` : "Pair wanted";
+  }
+  if (listing.intentionTag === "TRADE") return "Open to trade";
+  if (listing.intentionTag === "DONATE") return "Free";
+  if (listing.intentionTag === "FIX") return "Needs repair";
+  if (listing.intentionTag === "RECYCLE") return "Ready to recycle";
+  return "View item";
 }
 
 function GuestMessageDialog({
@@ -320,7 +336,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
             </span>
             <div>
               <h1 className="text-xl font-bold leading-tight md:text-4xl">{listing.title}</h1>
-              <p className="mt-2 text-xl font-bold text-[var(--brand)] md:text-3xl">{listing.price ? formatCurrency(Number(listing.price)) : "Free"}</p>
+              <p className="mt-2 text-xl font-bold text-[var(--brand)] md:text-3xl">{getListingValue(listing)}</p>
               <p className="mt-2 flex items-center gap-1 text-xs font-semibold text-[var(--muted-foreground)] md:text-sm"><MapPin size={14} /> {listing.city || "Location not set"}</p>
             </div>
 

@@ -84,6 +84,7 @@ const statusMeta: Record<Listing['status'], { label: string; className: string }
 };
 
 const intentionLabels: Record<string, string> = {
+  WANTED: 'Pair alert',
   SELL: 'Sell',
   TRADE: 'Trade',
   DONATE: 'Donate',
@@ -111,6 +112,20 @@ function formatDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return 'Recently';
   return date.toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function getListingValue(listing: Listing) {
+  if (listing.intentionTag === 'SELL') {
+    return listing.price ? formatCurrency(Number(listing.price)) : 'Price on request';
+  }
+  if (listing.intentionTag === 'WANTED') {
+    return listing.price ? `Budget ${formatCurrency(Number(listing.price))}` : 'Pair wanted';
+  }
+  if (listing.intentionTag === 'TRADE') return 'Open to trade';
+  if (listing.intentionTag === 'DONATE') return 'Free';
+  if (listing.intentionTag === 'FIX') return 'Needs repair';
+  if (listing.intentionTag === 'RECYCLE') return 'Ready to recycle';
+  return 'View item';
 }
 
 export default function ListingsSection({ onSelectSection }: ListingsSectionProps) {
@@ -433,7 +448,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
           {filteredListings.map((listing) => (
             <div key={listing.id}>
               <Card className="flex h-full flex-col overflow-hidden rounded-lg border-[var(--border)] bg-card transition-shadow hover:shadow-md md:rounded-xl">
-                <div className="relative aspect-square overflow-hidden bg-[var(--sand)] md:aspect-[4/3]">
+                <div className="relative aspect-[5/3] overflow-hidden bg-[var(--sand)] md:aspect-[4/3]">
                   {listing.images?.[0] ? (
                     <img src={listing.images[0]} alt={listing.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   ) : (
@@ -460,7 +475,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                     <div className="min-w-0">
                       <CardTitle className="line-clamp-1 text-xs md:text-base">{listing.title}</CardTitle>
                       <p className="mt-1 truncate text-sm font-bold text-[var(--brand)] md:text-lg">
-                        {listing.price ? formatCurrency(Number(listing.price)) : 'Free'}
+                        {getListingValue(listing)}
                       </p>
                     </div>
                     <DropdownMenu>

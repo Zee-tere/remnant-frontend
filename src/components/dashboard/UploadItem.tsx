@@ -15,6 +15,7 @@ import {
   Phone,
   Recycle,
   RefreshCw,
+  ScanSearch,
   Store,
   Send,
   UploadCloud,
@@ -37,6 +38,7 @@ import { listingConditions } from '@/lib/listing-conditions';
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 const purposes = [
+  { label: 'Find a pair', value: 'WANTED', icon: ScanSearch, description: 'Save the missing piece and get match alerts.' },
   { label: 'Sell', value: 'SELL', icon: Store, description: 'Find it a buyer.' },
   { label: 'Trade', value: 'TRADE', icon: RefreshCw, description: 'Swap for what you need.' },
   { label: 'Donate', value: 'DONATE', icon: Heart, description: 'Give it to someone who can use it.' },
@@ -56,6 +58,7 @@ const steps = [
 ];
 
 const purposeDisplay: Record<PurposeValue, string> = {
+  WANTED: 'Find a pair',
   SELL: 'Sell',
   TRADE: 'Trade',
   DONATE: 'Donate',
@@ -77,6 +80,10 @@ function createInitialFormData(initialPurpose?: string) {
     location: '',
     condition: '',
     purpose: normalizePurpose(initialPurpose),
+    pairNeeded: '',
+    pairSide: '',
+    pairBrand: '',
+    pairModel: '',
     tradeLookingFor: '',
     tradeTerms: '',
     donationMode: 'GIVEAWAY',
@@ -138,7 +145,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       return false;
     }
 
-    if (step === 2 && images.length === 0) {
+    if (step === 2 && images.length === 0 && formData.purpose !== 'WANTED') {
       toast.error('Please add at least one photo');
       return false;
     }
@@ -151,6 +158,11 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
       if (formData.purpose === 'SELL' && (!formData.price || Number(formData.price) <= 0)) {
         toast.error('Add a selling price');
+        return false;
+      }
+
+      if (formData.purpose === 'WANTED' && !formData.pairNeeded.trim()) {
+        toast.error('Tell us which missing piece you need');
         return false;
       }
 
@@ -252,6 +264,16 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   const buildCompatibilityAttributes = () => {
     const base = { flow: formData.purpose, guestListing: isGuest };
 
+    if (formData.purpose === 'WANTED') {
+      return {
+        ...base,
+        neededPiece: formData.pairNeeded,
+        side: formData.pairSide || undefined,
+        brand: formData.pairBrand || undefined,
+        model: formData.pairModel || undefined,
+      };
+    }
+
     if (formData.purpose === 'TRADE') {
       return {
         ...base,
@@ -294,6 +316,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   };
 
   const getPairingKeyword = () => {
+    if (formData.purpose === 'WANTED') return formData.pairNeeded;
     if (formData.purpose === 'TRADE') return formData.tradeLookingFor;
     if (formData.purpose === 'FIX') return formData.repairIssue;
     if (formData.purpose === 'RECYCLE') return formData.recycleMaterial;
@@ -306,7 +329,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
     if (!validateStep()) return;
 
-    if (images.length === 0) {
+    if (images.length === 0 && formData.purpose !== 'WANTED') {
       toast.error('Please upload at least one image');
       return;
     }
@@ -315,9 +338,11 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
     setUploadProgress(10);
 
     try {
-      const uploadedImageUrls = isGuest
-        ? await uploadApi.uploadGuestMultiple(images)
-        : await uploadApi.uploadMultiple(images);
+      const uploadedImageUrls = images.length === 0
+        ? []
+        : isGuest
+          ? await uploadApi.uploadGuestMultiple(images)
+          : await uploadApi.uploadMultiple(images);
 
       setUploadProgress(80);
 
@@ -329,7 +354,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         intentionTag: formData.purpose,
         pairingKeyword: getPairingKeyword(),
         compatibilityAttributes: buildCompatibilityAttributes(),
-        price: formData.purpose === 'SELL' ? formData.price : undefined,
+        price: formData.purpose === 'SELL' || formData.purpose === 'WANTED' ? formData.price || undefined : undefined,
         city: formData.location || undefined,
         images: uploadedImageUrls,
         ...(isGuest
@@ -346,8 +371,10 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       const listing = await (isGuest ? listingsApi.createGuestListing(payload) : listingsApi.createListing(payload));
 
       setUploadProgress(100);
-      toast.success(isGuest ? 'Guest listing published' : 'Listing published', {
-        description: isGuest
+      toast.success(formData.purpose === 'WANTED' ? 'Pair alert created' : isGuest ? 'Guest listing published' : 'Listing published', {
+        description: formData.purpose === 'WANTED'
+          ? 'We will notify you when a likely match is listed.'
+          : isGuest
           ? 'Create an account later to add a profile.'
           : 'Your item is live on the marketplace.',
       });
@@ -378,7 +405,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
         {purposes.map((purpose) => {
           const Icon = purpose.icon;
           const selected = formData.purpose === purpose.value;
@@ -387,7 +414,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
               key={purpose.value}
               type="button"
               onClick={() => handlePurposeSelect(purpose.value)}
-              className="cursor-pointer text-left last:col-span-2 sm:last:col-span-1"
+              className="cursor-pointer text-left"
               aria-pressed={selected}
             >
               <div
@@ -419,9 +446,13 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       className="space-y-6 md:space-y-8"
     >
       <div className="text-center">
-        <h2 className="text-2xl font-bold md:text-3xl">Show the piece</h2>
+        <h2 className="text-2xl font-bold md:text-3xl">
+          {formData.purpose === 'WANTED' ? 'Show the piece, if you can' : 'Show the piece'}
+        </h2>
         <p className="mt-2 text-sm font-medium text-[var(--ink-soft)] md:text-base">
-          Add clear photos from a few angles.
+          {formData.purpose === 'WANTED'
+            ? 'A photo is optional. Clear details are enough to create an alert.'
+            : 'Add clear photos from a few angles.'}
         </p>
       </div>
 
@@ -494,6 +525,63 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   );
 
   const renderRouteSpecificFields = () => {
+    if (formData.purpose === 'WANTED') {
+      return (
+        <div className="grid gap-3 rounded-lg bg-[var(--brand-soft)] p-3.5 md:col-span-2 md:grid-cols-2 md:gap-4 md:rounded-[1.5rem] md:p-5">
+          <div className="md:col-span-2">
+            <h3 className="text-base font-bold md:text-xl">Pair details</h3>
+            <p className="mt-1 text-xs font-medium leading-5 text-[var(--ink-soft)] md:text-sm">
+              We compare these details with new listings and prioritise matches in your state.
+            </p>
+          </div>
+          <label className="space-y-1.5 md:col-span-2">
+            <span className="text-sm font-bold">Missing piece</span>
+            <Input
+              value={formData.pairNeeded}
+              onChange={(event) => handleInputChange('pairNeeded', event.target.value)}
+              className="rounded-lg bg-white md:rounded-full"
+              placeholder="Right AirPod Pro 2 earbud"
+              required
+            />
+          </label>
+          <label className="space-y-1.5">
+            <span className="text-sm font-bold">Side or position</span>
+            <select
+              value={formData.pairSide}
+              onChange={(event) => handleInputChange('pairSide', event.target.value)}
+              className="h-12 w-full rounded-lg border border-[var(--border)] bg-white px-3 text-base font-medium outline-none focus:border-[var(--brand)] md:rounded-full"
+            >
+              <option value="">Not applicable</option>
+              {['left', 'right', 'top', 'bottom', 'front', 'back', 'upper', 'lower'].map((side) => (
+                <option key={side} value={side}>{side[0].toUpperCase() + side.slice(1)}</option>
+              ))}
+            </select>
+          </label>
+          <label className="space-y-1.5">
+            <span className="text-sm font-bold">Maximum budget <span className="font-medium text-[var(--muted-foreground)]">(optional)</span></span>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--muted-foreground)]">₦</span>
+              <Input
+                type="number"
+                min="0"
+                value={formData.price}
+                onChange={(event) => handleInputChange('price', event.target.value)}
+                className="rounded-lg bg-white pl-10 md:rounded-full"
+              />
+            </div>
+          </label>
+          <label className="space-y-1.5">
+            <span className="text-sm font-bold">Brand <span className="font-medium text-[var(--muted-foreground)]">(optional)</span></span>
+            <Input value={formData.pairBrand} onChange={(event) => handleInputChange('pairBrand', event.target.value)} className="rounded-lg bg-white md:rounded-full" />
+          </label>
+          <label className="space-y-1.5">
+            <span className="text-sm font-bold">Model <span className="font-medium text-[var(--muted-foreground)]">(optional)</span></span>
+            <Input value={formData.pairModel} onChange={(event) => handleInputChange('pairModel', event.target.value)} className="rounded-lg bg-white md:rounded-full" />
+          </label>
+        </div>
+      );
+    }
+
     if (formData.purpose === 'SELL') {
       return (
         <div className="rounded-[1.5rem] bg-[var(--cream)] p-5 md:col-span-2">
@@ -802,7 +890,9 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       className="space-y-6 md:space-y-8"
     >
       <div className="text-center">
-        <h2 className="text-2xl font-bold md:text-3xl">{selectedPurpose ? `${selectedPurpose.label} this item` : 'Tell us about it'}</h2>
+        <h2 className="text-2xl font-bold md:text-3xl">
+          {formData.purpose === 'WANTED' ? 'Describe the missing piece' : selectedPurpose ? `${selectedPurpose.label} this item` : 'Tell us about it'}
+        </h2>
         <p className="mt-2 text-sm font-medium text-[var(--ink-soft)] md:text-base">
           A few clear details help the right person find it.
         </p>
@@ -810,7 +900,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
       <div className="grid gap-4 md:grid-cols-2 md:gap-6">
         <label className="space-y-2">
-          <span className="text-sm font-bold">Item name</span>
+          <span className="text-sm font-bold">{formData.purpose === 'WANTED' ? 'Pair alert title' : 'Item name'}</span>
           <Input
             value={formData.name}
             onChange={(event) => handleInputChange('name', event.target.value)}
@@ -855,7 +945,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
         <label className="space-y-2">
           <span className="text-sm font-bold">
-            {formData.purpose === 'RECYCLE' ? 'Pickup or handoff state' : 'State'}
+            {formData.purpose === 'RECYCLE' ? 'Pickup or handoff state' : formData.purpose === 'WANTED' ? 'Preferred state' : 'State'}
           </span>
           <select
             value={formData.location}
@@ -897,6 +987,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
     formData.category,
     listingConditions.find((item) => item.value === formData.condition)?.label,
     selectedPurpose?.label,
+    formData.purpose === 'WANTED' ? formData.pairNeeded : '',
     formData.purpose === 'TRADE' ? `Trade for: ${formData.tradeLookingFor}` : '',
     formData.purpose === 'DONATE' ? (formData.donationMode === 'RECIPIENT' ? 'Recipient reserved' : 'Public giveaway') : '',
     formData.purpose === 'RECYCLE' ? formData.recycleMaterial : '',
@@ -949,6 +1040,11 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             {formData.purpose === 'SELL' && formData.price && (
               <p className="mt-1 text-xl font-bold text-[var(--brand)]">{formatCurrency(parseInt(formData.price, 10))}</p>
             )}
+            {formData.purpose === 'WANTED' && (
+              <p className="mt-1 text-lg font-bold text-[var(--brand)]">
+                {formData.price ? `Budget: ${formatCurrency(parseInt(formData.price, 10))}` : 'Pair alert'}
+              </p>
+            )}
             {formData.purpose === 'DONATE' && (
               <p className="mt-1 text-lg font-bold text-[var(--brand)]">Free to a good home</p>
             )}
@@ -977,7 +1073,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
           className="rounded-full bg-[var(--brand)] px-8 font-bold text-white hover:bg-[var(--brand-dark)]"
         >
           {isUploading ? <Loader2 className="animate-spin" size={17} /> : <CheckCircle size={17} />}
-          {isUploading ? 'Publishing...' : 'Publish Listing'}
+          {isUploading ? 'Publishing...' : formData.purpose === 'WANTED' ? 'Create Pair Alert' : 'Publish Listing'}
         </Button>
       </div>
     </motion.div>
@@ -986,7 +1082,9 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-5 text-center md:mb-10">
-        <h1 className="text-2xl font-bold text-[var(--foreground)] md:text-5xl">Give it a next stop</h1>
+        <h1 className="text-2xl font-bold text-[var(--foreground)] md:text-5xl">
+          {formData.purpose === 'WANTED' ? 'Find the missing piece' : 'Give it a next stop'}
+        </h1>
         {(selectedPurpose || isGuest) && (
           <div className="mx-auto mt-2 flex max-w-2xl flex-wrap items-center justify-center gap-2 md:mt-5 md:gap-3">
             {selectedPurpose && (

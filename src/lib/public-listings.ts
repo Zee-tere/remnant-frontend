@@ -66,14 +66,15 @@ export function getListingImageUrl(listingId: string, index = 0) {
 
 export async function getPublicListings(
   params: Record<string, string | number> = {},
-  revalidate = 300,
+  _revalidate = 300,
 ): Promise<PublicListingPage> {
+  void _revalidate;
   try {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => searchParams.set(key, String(value)));
 
     const response = await fetch(`${getApiUrl()}/listings?${searchParams.toString()}`, {
-      next: { revalidate, tags: ["public-listings"] },
+      cache: "no-store",
       signal: AbortSignal.timeout(8_000),
     });
     if (!response.ok) return emptyPage;
@@ -101,13 +102,14 @@ export async function getPublicListings(
 
 export async function getPublicSearchListings(
   params: Record<string, string | number> = {},
-  revalidate = 60,
+  _revalidate = 60,
 ): Promise<PublicListingCard[]> {
+  void _revalidate;
   try {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => searchParams.set(key, String(value)));
     const response = await fetch(`${getApiUrl()}/listings/search?${searchParams.toString()}`, {
-      next: { revalidate, tags: ["public-listings"] },
+      cache: "no-store",
       signal: AbortSignal.timeout(8_000),
     });
     if (!response.ok) return [];
@@ -119,13 +121,14 @@ export async function getPublicSearchListings(
   }
 }
 
-export async function getPublicListing(segment: string, revalidate = 300): Promise<PublicListing | null> {
+export async function getPublicListing(segment: string, _revalidate = 300): Promise<PublicListing | null> {
+  void _revalidate;
   try {
     const endpoint = isUuid(segment)
       ? `/listings/${encodeURIComponent(segment)}`
       : `/listings/slug/${encodeURIComponent(segment)}`;
     const response = await fetch(`${getApiUrl()}${endpoint}?trackView=false`, {
-      next: { revalidate, tags: ["public-listings", `listing:${segment}`] },
+      cache: "no-store",
       signal: AbortSignal.timeout(8_000),
     });
     if (!response.ok) return null;

@@ -1,6 +1,6 @@
 import type { ElementType } from 'react';
 import Link from 'next/link';
-import { HandHeart, MapPin, Package, Recycle, RefreshCw, Wrench } from 'lucide-react';
+import { HandHeart, MapPin, Package, Recycle, RefreshCw, ScanSearch, Wrench } from 'lucide-react';
 import { NairaIcon } from '@/components/ui/naira-icon';
 import { formatCurrency } from '@/lib/utils';
 
@@ -21,13 +21,28 @@ const intentionMeta: Record<string, { icon: ElementType; label: string; classNam
   DONATE: { icon: HandHeart, label: 'Free', className: 'bg-[#fff6cf] text-[var(--tertiary-gold)]' },
   FIX: { icon: Wrench, label: 'Repair', className: 'bg-orange-50 text-orange-700' },
   RECYCLE: { icon: Recycle, label: 'Recycle', className: 'bg-teal-50 text-teal-700' },
+  WANTED: { icon: ScanSearch, label: 'Pair wanted', className: 'bg-violet-50 text-violet-700' },
 };
 
 function formatListedDate(value?: string) {
   if (!value) return 'Recently';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return 'Recently';
-  return date.toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' });
+  return date.toLocaleDateString('en-NG', { day: 'numeric', month: 'short' });
+}
+
+function getListingValue(item: ListingCardItem) {
+  if (item.intentionTag === 'SELL') {
+    return item.price ? formatCurrency(Number(item.price)) : 'Price on request';
+  }
+  if (item.intentionTag === 'WANTED') {
+    return item.price ? `Budget ${formatCurrency(Number(item.price))}` : 'Pair wanted';
+  }
+  if (item.intentionTag === 'TRADE') return 'Open to trade';
+  if (item.intentionTag === 'DONATE') return 'Free';
+  if (item.intentionTag === 'FIX') return 'Needs repair';
+  if (item.intentionTag === 'RECYCLE') return 'Ready to recycle';
+  return 'View item';
 }
 
 export function ListingCard({
@@ -45,7 +60,7 @@ export function ListingCard({
   return (
     <Link href={`/marketplace/${item.slug || item.id}`} className={`group block min-w-0 ${className}`}>
       <article className="surface-card h-full overflow-hidden rounded-lg">
-        <div className="relative aspect-[4/3] overflow-hidden bg-[var(--sand)] md:aspect-[5/4]">
+        <div className="relative aspect-[5/3] overflow-hidden bg-[var(--sand)] md:aspect-[5/4]">
           {item.images?.[0] ? (
             <img
               src={item.images[0]}
@@ -57,7 +72,7 @@ export function ListingCard({
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-[var(--muted-foreground)]">
-              <Package size={30} aria-hidden="true" />
+              <Package size={24} className="md:h-[30px] md:w-[30px]" aria-hidden="true" />
             </div>
           )}
           <span className={`absolute left-1.5 top-1.5 inline-flex items-center gap-1 rounded-full px-2 py-1 text-[0.65rem] font-bold md:left-3 md:top-3 md:px-2.5 md:text-xs ${intent.className}`}>
@@ -66,20 +81,19 @@ export function ListingCard({
           </span>
         </div>
 
-        <div className="p-2.5 md:p-4">
-          <h3 className="line-clamp-2 min-h-8 text-[0.82rem] font-bold leading-4 text-[var(--foreground)] md:line-clamp-1 md:min-h-0 md:text-base md:leading-tight">
+        <div className="p-2 md:p-4">
+          <h3 className="line-clamp-1 text-[0.78rem] font-bold leading-4 text-[var(--foreground)] md:text-base md:leading-tight">
             {item.title}
           </h3>
-          <p className="mt-1 truncate text-sm font-bold leading-5 text-[var(--brand)] md:text-lg">
-            {item.price ? formatCurrency(Number(item.price)) : 'Free'}
+          <p className="mt-0.5 truncate text-[0.72rem] font-bold leading-4 text-[var(--brand)] md:mt-1 md:text-lg md:leading-5">
+            {getListingValue(item)}
           </p>
-          <div className="mt-1.5 flex min-w-0 items-center gap-1 text-[0.7rem] font-semibold text-[var(--muted-foreground)] md:text-xs">
+          <div className="mt-1 flex min-w-0 items-center gap-1 text-[0.63rem] font-semibold text-[var(--muted-foreground)] md:mt-1.5 md:text-xs">
             <MapPin size={11} className="shrink-0 md:h-3 md:w-3" aria-hidden="true" />
             <span className="truncate">{item.city || 'Location not set'}</span>
+            <span aria-hidden="true">·</span>
+            <span className="shrink-0">Listed {formatListedDate(item.createdAt)}</span>
           </div>
-          <p className="mt-1.5 truncate text-[0.67rem] font-medium leading-4 text-[var(--muted-foreground)] md:text-[0.7rem]">
-            Listed on: {formatListedDate(item.createdAt)}
-          </p>
         </div>
       </article>
     </Link>

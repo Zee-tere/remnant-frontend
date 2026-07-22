@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
+  BellRing,
   CheckCircle2,
   Package,
-  Recycle,
   Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -73,6 +73,7 @@ const floatingObjects = [
 ];
 
 const marketplaceActions = [
+  { label: "Find a pair", href: "/find-a-pair" },
   { label: "Buy", href: "/marketplace" },
   { label: "Sell", href: "/sell-item?intent=SELL" },
   { label: "Trade", href: "/sell-item?intent=TRADE" },
@@ -82,9 +83,9 @@ const marketplaceActions = [
 ];
 
 const howItWorks = [
-  { title: "List", text: "Add photos and choose the purpose.", icon: Package },
-  { title: "Match", text: "People search by need, category, or item.", icon: CheckCircle2 },
-  { title: "Move", text: "Sell, trade, donate, repair, or recycle.", icon: Recycle },
+  { title: "List", text: "Describe the item or missing piece.", icon: Package },
+  { title: "Match", text: "Remnant compares details and location.", icon: CheckCircle2 },
+  { title: "Alert", text: "Get notified when a likely pair appears.", icon: BellRing },
 ];
 
 export default function HomePageClient({
@@ -121,8 +122,8 @@ export default function HomePageClient({
             .
           </h1>
           <p className="mt-4 max-w-[34rem] text-sm font-medium leading-6 text-[var(--ink-soft)] md:mx-auto md:mt-7 md:text-lg md:leading-8">
-            Nigeria&apos;s marketplace for single items, useful parts, and pre-owned goods. Sell, trade,
-            donate, repair, or recycle directly with people nearby.
+            Find the missing half of a pair, or sell, trade, donate, repair, and recycle useful pieces
+            with people nearby.
           </p>
         </div>
 
@@ -155,15 +156,15 @@ export default function HomePageClient({
 
         <div className="home-entry home-entry-delay-2 relative z-10 mt-6 flex w-full max-w-sm gap-2 md:hidden">
           <Button asChild className="h-12 flex-1 rounded-full bg-[var(--brand)] text-sm font-bold text-white shadow-[0_18px_38px_-25px_rgba(0,108,82,0.7)] hover:bg-[var(--brand-dark)]">
-            <Link href="/marketplace">
-              Browse
+            <Link href="/find-a-pair">
+              Find a pair
               <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </Button>
           <Button asChild variant="outline" className="h-12 flex-1 rounded-full border-[var(--border)] bg-white text-sm font-bold text-[var(--brand)] shadow-[0_14px_34px_-30px_rgba(0,108,82,0.45)]">
-            <Link href="/sell-item">
-              List
-              <Package size={16} aria-hidden="true" />
+            <Link href="/marketplace">
+              Browse
+              <Search size={16} aria-hidden="true" />
             </Link>
           </Button>
         </div>

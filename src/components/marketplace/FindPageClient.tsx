@@ -1,13 +1,16 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
-import { Filter, Loader2, Search, X } from "lucide-react";
+import { BellRing, Filter, Loader2, Search, X } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
 import { listingsApi } from "@/lib/api";
 import { listingCategories } from "@/lib/categories";
 import { nigerianStates } from "@/lib/nigeria-locations";
+import { getApiErrorMessage } from "@/lib/errors";
 
 const intentOptions = [
   { value: "", label: "All intents" },
@@ -16,6 +19,7 @@ const intentOptions = [
   { value: "DONATE", label: "Donate" },
   { value: "FIX", label: "Repair" },
   { value: "RECYCLE", label: "Recycle" },
+  { value: "WANTED", label: "Pair wanted" },
 ];
 
 interface FindPageClientProps {
@@ -52,8 +56,9 @@ export default function FindPageClient({
     try {
       const data = await listingsApi.searchListings(params);
       setListings(Array.isArray(data) ? data : []);
-    } catch {
+    } catch (error) {
       setListings([]);
+      toast.error(getApiErrorMessage(error, "Search could not be completed"));
     } finally {
       setLoading(false);
     }
@@ -103,6 +108,18 @@ export default function FindPageClient({
         </Button>
       </form>
 
+      <section className="mt-3 flex items-center gap-2.5 rounded-lg bg-[var(--brand-soft)] px-3 py-2.5 md:mt-5 md:px-4 md:py-3" aria-label="Pair alerts">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-[var(--brand)]">
+          <BellRing size={16} aria-hidden="true" />
+        </span>
+        <p className="min-w-0 flex-1 text-xs font-semibold leading-4 text-[var(--ink-soft)] md:text-sm">
+          Missing one piece? Save what you need and get alerted when a likely pair appears.
+        </p>
+        <Button asChild size="sm" className="h-9 shrink-0 rounded-full bg-[var(--brand)] px-3 text-xs font-bold text-white">
+          <Link href="/sell-item?intent=WANTED">Create alert</Link>
+        </Button>
+      </section>
+
       {showFilters && (
         <section className="mt-3 grid gap-3 rounded-lg border border-[var(--border)] bg-white p-3 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end md:p-4">
           <label className="space-y-1">
@@ -141,7 +158,7 @@ export default function FindPageClient({
           <Loader2 size={28} className="animate-spin text-[var(--brand)]" />
         </div>
       ) : listings.length > 0 ? (
-        <section className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
+        <section className="grid grid-cols-2 gap-1.5 sm:gap-2 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
           {listings.map((item, index) => <ListingCard key={item.id} item={item} eager={index === 0} />)}
         </section>
       ) : (

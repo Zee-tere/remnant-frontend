@@ -11,8 +11,8 @@ import {
   LogOut,
   Mail,
   Package,
-  Recycle,
   RefreshCw,
+  ScanSearch,
   Search,
   Settings,
   ShieldCheck,
@@ -20,19 +20,17 @@ import {
   Store,
   UserCircle,
   UploadCloud,
-  Wrench,
 } from "lucide-react";
 import { useAuthStore } from "@/lib/auth";
 import { NameAvatar } from "@/components/ui/name-avatar";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const productActions = [
-  { label: "Buy", href: "/marketplace", icon: ShoppingBag },
+  { label: "Find Pair", href: "/find-a-pair", icon: ScanSearch },
+  { label: "Market", href: "/marketplace", icon: ShoppingBag },
   { label: "Sell", href: "/sell-item?intent=SELL", icon: Store },
   { label: "Trade", href: "/sell-item?intent=TRADE", icon: RefreshCw },
   { label: "Donate", href: "/sell-item?intent=DONATE", icon: HandHeart },
-  { label: "Repair", href: "/sell-item?intent=FIX", icon: Wrench },
-  { label: "Recycle", href: "/sell-item?intent=RECYCLE", icon: Recycle },
 ];
 
 const accountActions = [

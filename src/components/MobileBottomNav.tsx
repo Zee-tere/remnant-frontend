@@ -43,14 +43,14 @@ export default function MobileBottomNav() {
         { label: "Listings", href: "/user/dashboard", icon: Package },
         { label: "Messages", href: "/user/dashboard?section=messages", icon: Mail },
         { label: "List", href: "/sell-item", icon: Plus, primary: true },
-        { label: "Alerts", href: "/user/dashboard?section=alerts", icon: Bell },
+        { label: "Matches", href: "/user/dashboard?section=alerts", icon: Bell },
         { label: "Profile", href: "/user/dashboard?section=profile", icon: UserCircle, profile: true },
       ]
     : [
         { label: "Home", href: "/", icon: Home },
         { label: "Market", href: "/marketplace", icon: ShoppingBag },
         { label: "List", href: "/sell-item", icon: Plus, primary: true },
-        { label: "Search", href: "/find-a-pair", icon: Search },
+        { label: "Pair", href: "/find-a-pair", icon: Search },
         { label: "Account", href: "/login", icon: UserCircle, profile: true },
       ];
 
