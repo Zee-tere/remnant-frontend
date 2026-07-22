@@ -9,7 +9,6 @@ import {
   Package,
   Recycle,
   RefreshCw,
-  ScanSearch,
   Wrench,
   X,
 } from "lucide-react";
@@ -29,7 +28,6 @@ const intentionMeta: Record<string, { icon: React.ElementType; label: string; co
   DONATE: { icon: HandHeart, label: "Free", color: "text-[var(--tertiary-gold)]", bg: "bg-[#fff6cf]" },
   FIX: { icon: Wrench, label: "Needs Fix", color: "text-orange-700", bg: "bg-orange-50" },
   RECYCLE: { icon: Recycle, label: "Recycle", color: "text-teal-700", bg: "bg-teal-50" },
-  WANTED: { icon: ScanSearch, label: "Pair wanted", color: "text-violet-700", bg: "bg-violet-50" },
 };
 
 interface MarketplaceFilters {

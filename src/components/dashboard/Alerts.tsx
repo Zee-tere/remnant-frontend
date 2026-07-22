@@ -326,7 +326,7 @@ export default function AlertsSection() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-foreground md:text-3xl">Alerts</h1>
-            <p className="hidden text-sm text-muted-foreground sm:block">Notifications and match activity</p>
+            <p className="text-xs text-muted-foreground md:text-sm">{unreadCount} unread · messages, matches, and updates</p>
           </div>
         </div>
 
@@ -358,7 +358,7 @@ export default function AlertsSection() {
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 md:gap-4 xl:grid-cols-4">
+      <div className="hidden grid-cols-2 gap-2 md:grid md:gap-4 xl:grid-cols-4">
         {stats.map((stat) => (
           <Card key={stat.label} className="border-[var(--border)] bg-card">
             <CardContent className="flex items-center justify-between p-3 md:p-5">
@@ -374,7 +374,7 @@ export default function AlertsSection() {
         ))}
       </div>
 
-      <div className="rounded-lg border border-[var(--border)]/70 bg-card p-2.5 md:rounded-xl md:p-4">
+      <div className="bg-transparent p-0 md:rounded-xl md:border md:border-[var(--border)]/70 md:bg-card md:p-4">
         <div className="flex gap-2 overflow-x-auto pb-0.5">
           {(Object.keys(filterLabels) as FilterType[]).map((filterType) => {
             const Icon = alertConfig[filterType].icon;
@@ -409,7 +409,7 @@ export default function AlertsSection() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-2 md:space-y-4">
           <AnimatePresence initial={false}>
             {filteredItems.map((item, index) => {
               const config = alertConfig[item.type];
@@ -431,11 +431,11 @@ export default function AlertsSection() {
                       item.unread && 'ring-2 ring-[var(--brand)]/15',
                     )}
                   >
-                    <CardContent className="p-4 sm:p-5">
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <CardContent className="p-3 sm:p-5">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                         <div className="flex min-w-0 gap-3">
-                          <div className={cn('mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full', config.className)}>
-                            <Icon size={21} />
+                          <div className={cn('mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg sm:mt-1 sm:h-11 sm:w-11 sm:rounded-full', config.className)}>
+                            <Icon size={18} className="sm:h-[21px] sm:w-[21px]" />
                           </div>
                           <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">

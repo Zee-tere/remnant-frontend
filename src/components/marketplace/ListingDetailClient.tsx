@@ -18,7 +18,6 @@ import {
   Phone,
   Recycle,
   RefreshCw,
-  ScanSearch,
   Share2,
   Send,
   Wrench,
@@ -48,7 +47,6 @@ const intentionMeta: Record<string, { icon: React.ElementType; label: string; cl
   DONATE: { icon: HandHeart, label: "Free", className: "bg-[#fff6cf] text-[var(--tertiary-gold)]" },
   FIX: { icon: Wrench, label: "Repair", className: "bg-orange-50 text-orange-700" },
   RECYCLE: { icon: Recycle, label: "Recycle", className: "bg-teal-50 text-teal-700" },
-  WANTED: { icon: ScanSearch, label: "Pair wanted", className: "bg-violet-50 text-violet-700" },
 };
 
 function formatListedDate(value?: string) {
@@ -61,9 +59,6 @@ function formatListedDate(value?: string) {
 function getListingValue(listing: ListingDetail) {
   if (listing.intentionTag === "SELL") {
     return listing.price ? formatCurrency(Number(listing.price)) : "Price on request";
-  }
-  if (listing.intentionTag === "WANTED") {
-    return listing.price ? `Budget ${formatCurrency(Number(listing.price))}` : "Pair wanted";
   }
   if (listing.intentionTag === "TRADE") return "Open to trade";
   if (listing.intentionTag === "DONATE") return "Free";
@@ -295,6 +290,8 @@ export default function ListingDetailClient({ initialListing }: { initialListing
   const selectedSrc = listing.images?.[selectedImage];
   const isGuestSeller = Boolean(listing.isGuestListing || listing.user?.name === "Guest");
   const isOwnListing = listing.user?.id === user?.id;
+  const compatibility = listing.compatibilityAttributes ?? {};
+  const needsPair = compatibility.needsPair === true && Boolean(listing.pairingKeyword);
 
   return (
     <main className="mx-auto min-h-screen max-w-7xl bg-white px-3 pb-20 pt-3 md:px-8 md:pt-8">
@@ -364,10 +361,11 @@ export default function ListingDetailClient({ initialListing }: { initialListing
                   <div><dt className="text-xs font-semibold text-[var(--muted-foreground)]">Category</dt><dd className="mt-0.5 font-bold">{listing.category}</dd></div>
                   <div><dt className="text-xs font-semibold text-[var(--muted-foreground)]">Condition</dt><dd className="mt-0.5 font-bold">{conditionLabels[listing.condition] || listing.condition}</dd></div>
                   <div className="col-span-2"><dt className="text-xs font-semibold text-[var(--muted-foreground)]">Listed on</dt><dd className="mt-0.5 font-bold">{formatListedDate(listing.createdAt)}</dd></div>
+                  {needsPair && <div className="col-span-2"><dt className="text-xs font-semibold text-[var(--muted-foreground)]">Missing piece</dt><dd className="mt-0.5 font-bold text-[var(--brand)]">Looking for {listing.pairingKeyword}</dd></div>}
                 </dl>
                 <div className="mt-4 border-t border-[var(--border)] pt-4">
                   <p className="whitespace-pre-wrap text-sm leading-6 text-[var(--ink-soft)]">{listing.description}</p>
-                  {listing.pairingKeyword && <p className="mt-3 text-xs font-semibold text-[var(--brand)]">Pairs with: {listing.pairingKeyword}</p>}
+                  {!needsPair && listing.pairingKeyword && <p className="mt-3 text-xs font-semibold text-[var(--brand)]">Pairs with: {listing.pairingKeyword}</p>}
                 </div>
               </div>
             )}

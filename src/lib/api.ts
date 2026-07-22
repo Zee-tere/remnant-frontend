@@ -158,6 +158,19 @@ export const matchesApi = {
     api.patch(`/matches/${id}`, { status }).then((r) => r.data),
 };
 
+export const pairAlertsApi = {
+  getAlerts: () =>
+    api.get('/pair-alerts').then((r) => r.data),
+  createAlert: (data: Record<string, unknown>) =>
+    api.post('/pair-alerts', data).then((r) => r.data),
+  updateAlert: (id: string, data: Record<string, unknown>) =>
+    api.patch(`/pair-alerts/${id}`, data).then((r) => r.data),
+  deleteAlert: (id: string) =>
+    api.delete(`/pair-alerts/${id}`).then((r) => r.data),
+  updateMatch: (id: string, status: 'VIEWED' | 'DISMISSED') =>
+    api.patch(`/pair-alerts/matches/${id}`, { status }).then((r) => r.data),
+};
+
 export const conversationsApi = {
   getConversations: () =>
     api.get('/conversations').then((r) => r.data),

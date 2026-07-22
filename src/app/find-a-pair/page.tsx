@@ -23,7 +23,8 @@ export default async function FindAPairPage({ searchParams }: FindPageProps) {
   const search = firstValue(params.search).trim();
   const category = firstValue(params.category);
   const city = firstValue(params.city);
-  const intent = firstValue(params.intent).toUpperCase();
+  const requestedIntent = firstValue(params.intent).toUpperCase();
+  const intent = requestedIntent === "WANTED" ? "" : requestedIntent;
   const requestParams: Record<string, string | number> = { limit: 24 };
   if (search) requestParams.q = search;
   if (category) requestParams.category = category;

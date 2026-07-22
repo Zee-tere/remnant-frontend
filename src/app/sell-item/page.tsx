@@ -8,7 +8,7 @@ import UploadItem from "@/components/dashboard/UploadItem";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/lib/auth";
 
-const allowedIntents = ["WANTED", "SELL", "TRADE", "DONATE", "FIX", "RECYCLE"];
+const allowedIntents = ["SELL", "TRADE", "DONATE", "FIX", "RECYCLE"];
 
 export default function SellItemPage() {
   return (
@@ -24,8 +24,7 @@ function SellItemPageContent() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const rawIntent = searchParams.get("intent")?.toUpperCase() || "";
   const initialPurpose = allowedIntents.includes(rawIntent) ? rawIntent : "";
-  const isPairAlert = initialPurpose === "WANTED";
-  const isGuest = searchParams.get("guest") === "1" && !isPairAlert;
+  const isGuest = searchParams.get("guest") === "1";
 
   const listingPath = useMemo(() => {
     const params = new URLSearchParams();
@@ -46,17 +45,15 @@ function SellItemPageContent() {
                 </Link>
               </Button>
 
-              {!isPairAlert && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-13 w-full rounded-full border-[var(--border)] bg-white text-base font-bold text-[var(--brand)] hover:bg-[var(--brand-soft)] md:h-14"
-                  onClick={() => router.push(`${listingPath}${listingPath.includes("?") ? "&" : "?"}guest=1`)}
-                >
-                  <ArrowRight size={18} aria-hidden="true" />
-                  Continue as guest
-                </Button>
-              )}
+              <Button
+                type="button"
+                variant="outline"
+                className="h-13 w-full rounded-full border-[var(--border)] bg-white text-base font-bold text-[var(--brand)] hover:bg-[var(--brand-soft)] md:h-14"
+                onClick={() => router.push(`${listingPath}${listingPath.includes("?") ? "&" : "?"}guest=1`)}
+              >
+                <ArrowRight size={18} aria-hidden="true" />
+                Continue as guest
+              </Button>
 
               <Button asChild variant="ghost" className="h-12 w-full rounded-full text-sm font-bold text-[var(--ink-soft)] hover:bg-[var(--sand)] hover:text-[var(--brand)]">
                 <Link href={`/login?redirect=${encodeURIComponent(listingPath)}`}>
@@ -69,9 +66,7 @@ function SellItemPageContent() {
             <div className="mt-4 rounded-lg bg-[var(--brand-soft)] p-3.5 md:mt-6 md:rounded-[1.5rem] md:p-5">
               <p className="flex gap-2 text-sm font-medium leading-5 text-[var(--ink-soft)] md:font-semibold md:leading-6">
                 <ShieldCheck className="mt-0.5 shrink-0 text-[var(--secondary-blue)]" size={18} aria-hidden="true" />
-                {isPairAlert
-                  ? "Pair alerts need a profile so we can save matches and notify you."
-                  : "A profile saves your listings, keeps messages together, and helps people trust you."}
+                A profile saves your listings, keeps messages together, and helps people trust you.
               </p>
             </div>
           </div>

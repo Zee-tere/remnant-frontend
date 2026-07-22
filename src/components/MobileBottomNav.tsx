@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Bell, Home, Mail, Package, Plus, Search, ShoppingBag, UserCircle } from "lucide-react";
+import { Home, Mail, Package, Plus, Search, ShoppingBag, UserCircle } from "lucide-react";
 import { useAuthStore } from "@/lib/auth";
 import { NameAvatar } from "@/components/ui/name-avatar";
 
@@ -43,7 +43,7 @@ export default function MobileBottomNav() {
         { label: "Listings", href: "/user/dashboard", icon: Package },
         { label: "Messages", href: "/user/dashboard?section=messages", icon: Mail },
         { label: "List", href: "/sell-item", icon: Plus, primary: true },
-        { label: "Matches", href: "/user/dashboard?section=alerts", icon: Bell },
+        { label: "Pairs", href: "/user/dashboard?section=pair-alerts", icon: Search },
         { label: "Profile", href: "/user/dashboard?section=profile", icon: UserCircle, profile: true },
       ]
     : [

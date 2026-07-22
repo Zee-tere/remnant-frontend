@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth';
 
-type DashboardSection = 'listings' | 'messages' | 'alerts' | 'upload' | 'profile' | 'settings';
+type DashboardSection = 'listings' | 'pair-alerts' | 'messages' | 'alerts' | 'upload' | 'profile' | 'settings';
 
-const dashboardSections: DashboardSection[] = ['listings', 'messages', 'alerts', 'upload', 'profile', 'settings'];
+const dashboardSections: DashboardSection[] = ['listings', 'pair-alerts', 'messages', 'alerts', 'upload', 'profile', 'settings'];
 
 const SectionLoading = () => (
   <div className="flex min-h-[18rem] items-center justify-center">
@@ -22,6 +22,7 @@ const SectionLoading = () => (
 const UploadItem = dynamic(() => import('@/components/dashboard/UploadItem'), { loading: SectionLoading });
 const MessagesSection = dynamic(() => import('@/components/dashboard/Messages'), { loading: SectionLoading });
 const AlertsSection = dynamic(() => import('@/components/dashboard/Alerts'), { loading: SectionLoading });
+const PairAlertsSection = dynamic(() => import('@/components/dashboard/PairAlerts'), { loading: SectionLoading });
 const ProfileSection = dynamic(() => import('@/components/dashboard/ProfileSection'), { loading: SectionLoading });
 const SettingsSection = dynamic(() => import('@/components/dashboard/SettingsSection'), { loading: SectionLoading });
 
@@ -75,6 +76,8 @@ function UserDashboardContent() {
         return <ListingsSection onSelectSection={handleSelectSection} />;
       case 'messages':
         return <MessagesSection />;
+      case 'pair-alerts':
+        return <PairAlertsSection />;
       case 'alerts':
         return <AlertsSection />;
       case 'upload':

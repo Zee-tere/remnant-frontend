@@ -84,7 +84,6 @@ const statusMeta: Record<Listing['status'], { label: string; className: string }
 };
 
 const intentionLabels: Record<string, string> = {
-  WANTED: 'Pair alert',
   SELL: 'Sell',
   TRADE: 'Trade',
   DONATE: 'Donate',
@@ -117,9 +116,6 @@ function formatDate(value: string) {
 function getListingValue(listing: Listing) {
   if (listing.intentionTag === 'SELL') {
     return listing.price ? formatCurrency(Number(listing.price)) : 'Price on request';
-  }
-  if (listing.intentionTag === 'WANTED') {
-    return listing.price ? `Budget ${formatCurrency(Number(listing.price))}` : 'Pair wanted';
   }
   if (listing.intentionTag === 'TRADE') return 'Open to trade';
   if (listing.intentionTag === 'DONATE') return 'Free';

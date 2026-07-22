@@ -6,6 +6,7 @@ import {
   LogOut,
   Mail,
   Package,
+  ScanSearch,
   Settings,
   UploadCloud,
   User,
@@ -16,7 +17,7 @@ import { useAuthStore } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 import { NameAvatar } from '@/components/ui/name-avatar';
 
-type DashboardSection = 'listings' | 'messages' | 'alerts' | 'upload' | 'profile' | 'settings';
+type DashboardSection = 'listings' | 'pair-alerts' | 'messages' | 'alerts' | 'upload' | 'profile' | 'settings';
 
 interface DashboardSidebarProps {
   onSelectSection: (section: DashboardSection) => void;
@@ -83,6 +84,7 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
     highlight?: boolean;
   }> = [
     { label: 'My Listings', icon: Package, section: 'listings', count: stats.listings },
+    { label: 'Pair Alerts', icon: ScanSearch, section: 'pair-alerts' },
     { label: 'Messages', icon: Mail, section: 'messages', count: stats.unreadMessages },
     { label: 'Alerts', icon: Bell, section: 'alerts', count: stats.unreadAlerts + stats.pendingMatches },
     { label: 'Upload Item', icon: UploadCloud, section: 'upload', highlight: true },

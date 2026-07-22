@@ -11,6 +11,7 @@ import { listingsApi } from "@/lib/api";
 import { listingCategories } from "@/lib/categories";
 import { nigerianStates } from "@/lib/nigeria-locations";
 import { getApiErrorMessage } from "@/lib/errors";
+import { useAuthStore } from "@/lib/auth";
 
 const intentOptions = [
   { value: "", label: "All intents" },
@@ -19,7 +20,6 @@ const intentOptions = [
   { value: "DONATE", label: "Donate" },
   { value: "FIX", label: "Repair" },
   { value: "RECYCLE", label: "Recycle" },
-  { value: "WANTED", label: "Pair wanted" },
 ];
 
 interface FindPageClientProps {
@@ -44,6 +44,8 @@ export default function FindPageClient({
   const [category, setCategory] = useState(initialCategory);
   const [city, setCity] = useState(initialCity);
   const [intent, setIntent] = useState(initialIntent);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const alertPath = "/user/dashboard?section=pair-alerts&create=1";
 
   const loadListings = async (search = searchTerm) => {
     setLoading(true);
@@ -108,16 +110,16 @@ export default function FindPageClient({
         </Button>
       </form>
 
-      <section className="mt-3 flex items-center gap-2.5 rounded-lg bg-[var(--brand-soft)] px-3 py-2.5 md:mt-5 md:px-4 md:py-3" aria-label="Pair alerts">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-[var(--brand)]">
-          <BellRing size={16} aria-hidden="true" />
-        </span>
-        <p className="min-w-0 flex-1 text-xs font-semibold leading-4 text-[var(--ink-soft)] md:text-sm">
-          Missing one piece? Save what you need and get alerted when a likely pair appears.
+      <section className="mt-2 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-[var(--border)]/70 px-0.5 py-2.5 md:mt-4 md:py-3" aria-label="Pair alerts">
+        <BellRing size={16} className="shrink-0 text-[var(--brand)]" aria-hidden="true" />
+        <p className="min-w-0 truncate text-xs font-semibold text-[var(--ink-soft)] md:text-sm">
+          <span className="md:hidden">Missing a piece?</span>
+          <span className="hidden md:inline">Looking for one missing piece?</span>
         </p>
-        <Button asChild size="sm" className="h-9 shrink-0 rounded-full bg-[var(--brand)] px-3 text-xs font-bold text-white">
-          <Link href="/sell-item?intent=WANTED">Create alert</Link>
-        </Button>
+        <Link href={isAuthenticated ? alertPath : `/login?redirect=${encodeURIComponent(alertPath)}`} className="inline-flex h-8 items-center rounded-full px-2 text-xs font-bold text-[var(--brand)] hover:bg-[var(--brand-soft)] md:px-3">
+          <span className="md:hidden">Set alert</span>
+          <span className="hidden md:inline">Set a private alert</span>
+        </Link>
       </section>
 
       {showFilters && (

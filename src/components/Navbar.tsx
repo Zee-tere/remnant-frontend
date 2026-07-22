@@ -35,6 +35,7 @@ const productActions = [
 
 const accountActions = [
   { label: "Listings", href: "/user/dashboard", icon: Package },
+  { label: "Pair Alerts", href: "/user/dashboard?section=pair-alerts", icon: ScanSearch },
   { label: "Messages", href: "/user/dashboard?section=messages", icon: Mail },
   { label: "Alerts", href: "/user/dashboard?section=alerts", icon: Bell },
   { label: "Upload", href: "/user/dashboard?section=upload", icon: UploadCloud },

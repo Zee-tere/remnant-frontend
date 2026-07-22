@@ -13,7 +13,6 @@ export const revalidate = 300;
 
 const siteUrl = "https://remnantmarket.co";
 const intentLabels: Record<string, string> = {
-  WANTED: "Pair wanted",
   SELL: "For sale",
   TRADE: "Available for barter",
   DONATE: "Free donation",

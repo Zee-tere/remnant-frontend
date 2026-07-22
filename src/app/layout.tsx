@@ -19,7 +19,6 @@ export const metadata: Metadata = {
   creator: "Remnant",
   publisher: "Remnant Market",
   category: "marketplace",
-  manifest: "/manifest.webmanifest",
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
     shortcut: "/icon.svg",
@@ -65,11 +64,6 @@ export const metadata: Metadata = {
     ...(process.env.BING_SITE_VERIFICATION
       ? { other: { "msvalidate.01": process.env.BING_SITE_VERIFICATION } }
       : {}),
-  },
-  appleWebApp: {
-    capable: true,
-    title: "Remnant Market",
-    statusBarStyle: "default",
   },
 };
 
@@ -134,7 +128,6 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <meta name="mobile-web-app-capable" content="yes" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://36yevvooae.execute-api.us-east-1.amazonaws.com" />
         <JsonLd data={structuredData} />

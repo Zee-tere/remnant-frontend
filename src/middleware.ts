@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 const cacheableAssetPattern =
-  /^\/(?:_next\/static|_next\/image|images\/|icons\/|indexnow-key\.txt|listing-image\/|opengraph-image|favicon\.ico|robots\.txt|sitemap\.xml|manifest\.webmanifest)/;
+  /^\/(?:_next\/static|_next\/image|images\/|icons\/|indexnow-key\.txt|listing-image\/|opengraph-image|favicon\.ico|robots\.txt|sitemap\.xml)/;
 const privatePathPattern =
   /^\/(?:admin|api|auth|blog|guest|login|signup|forgot-password|reset-password|payment|profile|register|settings|transactions|user)(?:\/|$)/;
 const publicPagePattern =
@@ -25,5 +25,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|images|icons|favicon.ico|robots.txt|sitemap.xml|manifest.webmanifest).*)"],
+  matcher: ["/((?!_next/static|_next/image|images|icons|favicon.ico|robots.txt|sitemap.xml).*)"],
 };

@@ -37,7 +37,9 @@ export default async function MarketplacePage({ searchParams }: MarketplacePageP
   const initialFilters = {
     search: firstValue(rawFilters.search).trim(),
     category: firstValue(rawFilters.category),
-    intentionTag: firstValue(rawFilters.intentionTag).toUpperCase(),
+    intentionTag: firstValue(rawFilters.intentionTag).toUpperCase() === "WANTED"
+      ? ""
+      : firstValue(rawFilters.intentionTag).toUpperCase(),
     city: firstValue(rawFilters.city),
   };
   const requestFilters = Object.fromEntries(

@@ -9,6 +9,8 @@ export interface PublicListingCard {
   status: string;
   images: string[];
   city: string | null;
+  pairingKeyword?: string | null;
+  compatibilityAttributes?: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -17,7 +19,6 @@ export interface PublicListing extends PublicListingCard {
   description: string;
   category: string;
   condition: string;
-  pairingKeyword: string | null;
   isGuestListing?: boolean;
   user?: {
     id: string;
@@ -89,7 +90,7 @@ export async function getPublicListings(
         : [];
 
     return {
-      listings: listings.filter((listing) => listing.status === "ACTIVE"),
+      listings: listings.filter((listing) => listing.status === "ACTIVE" && listing.intentionTag !== "WANTED"),
       total: typeof payload.total === "number" ? payload.total : listings.length,
       page: typeof payload.page === "number" ? payload.page : 1,
       limit: typeof payload.limit === "number" ? payload.limit : listings.length,
@@ -115,7 +116,7 @@ export async function getPublicSearchListings(
     if (!response.ok) return [];
 
     const listings = (await response.json()) as PublicListingCard[];
-    return Array.isArray(listings) ? listings.filter((listing) => listing.status === "ACTIVE") : [];
+    return Array.isArray(listings) ? listings.filter((listing) => listing.status === "ACTIVE" && listing.intentionTag !== "WANTED") : [];
   } catch {
     return [];
   }
@@ -134,7 +135,7 @@ export async function getPublicListing(segment: string, _revalidate = 300): Prom
     if (!response.ok) return null;
 
     const listing = (await response.json()) as PublicListing;
-    return listing.status === "ACTIVE" ? listing : null;
+    return listing.status === "ACTIVE" && listing.intentionTag !== "WANTED" ? listing : null;
   } catch {
     return null;
   }

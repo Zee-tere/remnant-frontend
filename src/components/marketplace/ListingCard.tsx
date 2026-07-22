@@ -1,6 +1,6 @@
 import type { ElementType } from 'react';
 import Link from 'next/link';
-import { HandHeart, MapPin, Package, Recycle, RefreshCw, ScanSearch, Wrench } from 'lucide-react';
+import { HandHeart, MapPin, Package, Puzzle, Recycle, RefreshCw, Wrench } from 'lucide-react';
 import { NairaIcon } from '@/components/ui/naira-icon';
 import { formatCurrency } from '@/lib/utils';
 
@@ -13,6 +13,8 @@ export interface ListingCardItem {
   intentionTag: string;
   city: string | null;
   createdAt?: string;
+  pairingKeyword?: string | null;
+  compatibilityAttributes?: Record<string, unknown> | null;
 }
 
 const intentionMeta: Record<string, { icon: ElementType; label: string; className: string }> = {
@@ -21,7 +23,6 @@ const intentionMeta: Record<string, { icon: ElementType; label: string; classNam
   DONATE: { icon: HandHeart, label: 'Free', className: 'bg-[#fff6cf] text-[var(--tertiary-gold)]' },
   FIX: { icon: Wrench, label: 'Repair', className: 'bg-orange-50 text-orange-700' },
   RECYCLE: { icon: Recycle, label: 'Recycle', className: 'bg-teal-50 text-teal-700' },
-  WANTED: { icon: ScanSearch, label: 'Pair wanted', className: 'bg-violet-50 text-violet-700' },
 };
 
 function formatListedDate(value?: string) {
@@ -34,9 +35,6 @@ function formatListedDate(value?: string) {
 function getListingValue(item: ListingCardItem) {
   if (item.intentionTag === 'SELL') {
     return item.price ? formatCurrency(Number(item.price)) : 'Price on request';
-  }
-  if (item.intentionTag === 'WANTED') {
-    return item.price ? `Budget ${formatCurrency(Number(item.price))}` : 'Pair wanted';
   }
   if (item.intentionTag === 'TRADE') return 'Open to trade';
   if (item.intentionTag === 'DONATE') return 'Free';
@@ -56,6 +54,7 @@ export function ListingCard({
 }) {
   const intent = intentionMeta[item.intentionTag] ?? intentionMeta.SELL;
   const IntentIcon = intent.icon;
+  const needsPair = item.compatibilityAttributes?.needsPair === true && Boolean(item.pairingKeyword);
 
   return (
     <Link href={`/marketplace/${item.slug || item.id}`} className={`group block min-w-0 ${className}`}>
@@ -79,6 +78,12 @@ export function ListingCard({
             <IntentIcon size={11} className="md:h-3.5 md:w-3.5" aria-hidden="true" />
             {intent.label}
           </span>
+          {needsPair && (
+            <span className="absolute right-1.5 top-1.5 inline-flex max-w-[55%] items-center gap-1 rounded-full bg-white/95 px-2 py-1 text-[0.62rem] font-bold text-[var(--brand)] shadow-sm md:right-3 md:top-3 md:text-xs">
+              <Puzzle size={10} className="shrink-0" aria-hidden="true" />
+              <span className="truncate">Needs {item.pairingKeyword}</span>
+            </span>
+          )}
         </div>
 
         <div className="p-2 md:p-4">
