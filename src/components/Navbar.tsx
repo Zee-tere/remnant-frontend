@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
 import {
   Bell,
   ChevronDown,
@@ -264,14 +263,9 @@ export default function Navbar() {
             </span>
           </button>
 
-              <AnimatePresence>
               {menuOpen && (
-                <motion.div
-                  initial={{ opacity: 0, x: 14 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
-                  transition={{ duration: 0.18, ease: "easeOut" }}
-                  className={`navbar-menu absolute -right-3 top-full z-50 mt-2 overflow-hidden bg-white/95 shadow-[0_22px_50px_-34px_rgba(0,62,48,0.65)] backdrop-blur-xl md:hidden ${
+                <div
+                  className={`navbar-menu mobile-menu-entry absolute -right-3 top-full z-50 mt-2 overflow-hidden bg-white/95 shadow-[0_22px_50px_-34px_rgba(0,62,48,0.65)] backdrop-blur-xl md:hidden ${
                     isAuthenticated
                       ? "w-[15.5rem] rounded-l-xl border-y border-l border-[var(--border)]/65 py-1"
                       : "w-[min(92vw,22rem)] rounded-l-xl border-y border-l border-[var(--border)]/65 p-2"
@@ -310,9 +304,8 @@ export default function Navbar() {
                       </button>
                     )}
                   </nav>
-                </motion.div>
+                </div>
               )}
-              </AnimatePresence>
         </div>
       </div>
     </header>

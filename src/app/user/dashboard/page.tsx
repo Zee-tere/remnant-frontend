@@ -1,16 +1,10 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
-import UploadItem from '@/components/dashboard/UploadItem';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import ListingsSection from '@/components/dashboard/Listings';
-import MessagesSection from '@/components/dashboard/Messages';
-import AlertsSection from '@/components/dashboard/Alerts';
-import ProfileSection from '@/components/dashboard/ProfileSection';
-import SettingsSection from '@/components/dashboard/SettingsSection';
-
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth';
@@ -18,6 +12,18 @@ import { useAuthStore } from '@/lib/auth';
 type DashboardSection = 'listings' | 'messages' | 'alerts' | 'upload' | 'profile' | 'settings';
 
 const dashboardSections: DashboardSection[] = ['listings', 'messages', 'alerts', 'upload', 'profile', 'settings'];
+
+const SectionLoading = () => (
+  <div className="flex min-h-[18rem] items-center justify-center">
+    <Loader2 className="animate-spin text-[var(--brand)]" size={26} />
+  </div>
+);
+
+const UploadItem = dynamic(() => import('@/components/dashboard/UploadItem'), { loading: SectionLoading });
+const MessagesSection = dynamic(() => import('@/components/dashboard/Messages'), { loading: SectionLoading });
+const AlertsSection = dynamic(() => import('@/components/dashboard/Alerts'), { loading: SectionLoading });
+const ProfileSection = dynamic(() => import('@/components/dashboard/ProfileSection'), { loading: SectionLoading });
+const SettingsSection = dynamic(() => import('@/components/dashboard/SettingsSection'), { loading: SectionLoading });
 
 function DashboardLoading() {
   return (
@@ -88,11 +94,9 @@ function UserDashboardContent() {
     <div className={`flex bg-[var(--background)] text-[var(--foreground)] ${activeSection === 'messages' ? 'h-full min-h-0 md:min-h-screen' : 'min-h-screen'}`}>
       <DashboardSidebar onSelectSection={handleSelectSection} activeSection={activeSection} />
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.16 }}
-        className={`min-w-0 flex-1 ${
+      <div
+        key={activeSection}
+        className={`dashboard-section-entry min-w-0 flex-1 ${
           activeSection === 'messages'
             ? 'overflow-hidden px-0 pb-0 pt-0 md:overflow-y-auto md:p-8 lg:p-10'
             : 'overflow-y-auto px-3 pb-8 pt-3 md:p-8 lg:p-10'
@@ -107,7 +111,7 @@ function UserDashboardContent() {
             </Button>
           </div>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -25,7 +25,6 @@ import {
 import { conversationsApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
 import { getApiErrorMessage } from '@/lib/errors';
-import { useSocket } from '@/providers/SocketProvider';
 import { cn } from '@/lib/utils';
 
 interface ConversationUser {
@@ -78,7 +77,6 @@ function formatDate(value: string) {
 export default function MessagesSection() {
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const { joinRoom, leaveRoom } = useSocket();
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -160,14 +158,11 @@ export default function MessagesSection() {
 
     loadMessages();
     const poll = window.setInterval(() => loadMessages(true), 8000);
-    joinRoom(activeConversationId);
-
     return () => {
       cancelled = true;
       window.clearInterval(poll);
-      leaveRoom(activeConversationId);
     };
-  }, [activeConversationId, joinRoom, leaveRoom]);
+  }, [activeConversationId]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {

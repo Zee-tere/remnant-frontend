@@ -16,7 +16,6 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -312,11 +311,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
 
   return (
     <div className="space-y-3 md:space-y-6">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="flex items-center justify-between gap-3 md:flex-row md:items-center"
-      >
+      <div className="flex items-center justify-between gap-3 md:flex-row md:items-center">
         <div>
           <h1 className="text-xl font-bold text-foreground md:text-3xl">My Listings</h1>
           <p className="text-xs text-muted-foreground md:text-sm">
@@ -345,7 +340,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
             <span className="xs:hidden">New</span>
           </Button>
         </div>
-      </motion.div>
+      </div>
 
       <div className="rounded-lg border border-[var(--border)] bg-card p-2.5 shadow-sm md:rounded-xl md:p-4">
         <div className="flex flex-col gap-2 md:flex-row md:gap-3">
@@ -435,14 +430,8 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
         </Card>
       ) : (
         <div className="grid grid-cols-2 gap-2.5 md:gap-5 lg:grid-cols-2 xl:grid-cols-3">
-          {filteredListings.map((listing, index) => (
-            <motion.div
-              key={listing.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.15, delay: Math.min(index, 4) * 0.02 }}
-              layout
-            >
+          {filteredListings.map((listing) => (
+            <div key={listing.id}>
               <Card className="flex h-full flex-col overflow-hidden rounded-lg border-[var(--border)] bg-card transition-shadow hover:shadow-md md:rounded-xl">
                 <div className="relative aspect-square overflow-hidden bg-[var(--sand)] md:aspect-[4/3]">
                   {listing.images?.[0] ? (
@@ -531,18 +520,16 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                   </Button>
                 </CardFooter>
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
       )}
 
       {editingListing && (
         <div className="fixed inset-0 z-50 flex items-end bg-black/50 p-0 sm:items-center sm:justify-center sm:p-4">
-          <motion.form
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+          <form
             onSubmit={handleSaveEdit}
-            className="max-h-[90vh] w-full overflow-y-auto rounded-t-2xl border border-[var(--border)] bg-card p-5 shadow-xl sm:max-w-2xl sm:rounded-2xl sm:p-6"
+            className="dashboard-section-entry max-h-[90vh] w-full overflow-y-auto rounded-t-2xl border border-[var(--border)] bg-card p-5 shadow-xl sm:max-w-2xl sm:rounded-2xl sm:p-6"
           >
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
@@ -624,7 +611,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                 Save changes
               </Button>
             </div>
-          </motion.form>
+          </form>
         </div>
       )}
     </div>

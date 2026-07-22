@@ -5,10 +5,24 @@ import { AUTH_STORAGE_KEY, useAuthStore } from '@/lib/auth';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
+  const setHasHydrated = useAuthStore((state) => state.setHasHydrated);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const refreshSession = useAuthStore((state) => state.refreshSession);
   const checkedStoredSession = useRef(false);
   const [checkingStoredSession, setCheckingStoredSession] = useState(true);
+
+  useEffect(() => {
+    if (useAuthStore.getState().hasHydrated) return;
+    let active = true;
+    Promise.resolve(useAuthStore.persist.rehydrate())
+      .catch(() => undefined)
+      .finally(() => {
+        if (active && !useAuthStore.getState().hasHydrated) setHasHydrated(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [setHasHydrated]);
 
   useEffect(() => {
     if (!hasHydrated || checkedStoredSession.current) return;

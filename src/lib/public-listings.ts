@@ -1,21 +1,24 @@
 import { getApiUrl } from "@/lib/api-url";
 
-export interface PublicListing {
+export interface PublicListingCard {
   id: string;
   title: string;
-  description: string;
   slug: string;
-  category: string;
-  condition: string;
   intentionTag: string;
-  pairingKeyword: string | null;
-  isGuestListing?: boolean;
   price: string | null;
   status: string;
   images: string[];
   city: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PublicListing extends PublicListingCard {
+  description: string;
+  category: string;
+  condition: string;
+  pairingKeyword: string | null;
+  isGuestListing?: boolean;
   user?: {
     id: string;
     name: string;
@@ -26,7 +29,7 @@ export interface PublicListing {
 }
 
 export interface PublicListingPage {
-  listings: PublicListing[];
+  listings: PublicListingCard[];
   total: number;
   page: number;
   limit: number;
@@ -76,7 +79,7 @@ export async function getPublicListings(
     if (!response.ok) return emptyPage;
 
     const payload = (await response.json()) as Partial<PublicListingPage> & {
-      items?: PublicListing[];
+      items?: PublicListingCard[];
     };
     const listings = Array.isArray(payload.listings)
       ? payload.listings
@@ -93,6 +96,26 @@ export async function getPublicListings(
     };
   } catch {
     return emptyPage;
+  }
+}
+
+export async function getPublicSearchListings(
+  params: Record<string, string | number> = {},
+  revalidate = 60,
+): Promise<PublicListingCard[]> {
+  try {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => searchParams.set(key, String(value)));
+    const response = await fetch(`${getApiUrl()}/listings/search?${searchParams.toString()}`, {
+      next: { revalidate, tags: ["public-listings"] },
+      signal: AbortSignal.timeout(8_000),
+    });
+    if (!response.ok) return [];
+
+    const listings = (await response.json()) as PublicListingCard[];
+    return Array.isArray(listings) ? listings.filter((listing) => listing.status === "ACTIVE") : [];
+  } catch {
+    return [];
   }
 }
 

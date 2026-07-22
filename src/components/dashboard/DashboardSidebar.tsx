@@ -10,9 +10,8 @@ import {
   UploadCloud,
   User,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { listingsApi, matchesApi, notificationsApi, conversationsApi } from '@/lib/api';
+import { userApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 import { NameAvatar } from '@/components/ui/name-avatar';
@@ -55,43 +54,26 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
     let cancelled = false;
 
     async function loadStats() {
-      const [listingsResult, notificationsResult, matchesResult, conversationsResult] = await Promise.allSettled([
-        listingsApi.getMyListings(),
-        notificationsApi.getNotifications(1),
-        matchesApi.getMatches(),
-        conversationsApi.getConversations(),
-      ]);
-
-      if (cancelled) return;
-
-      const listings = listingsResult.status === 'fulfilled' && Array.isArray(listingsResult.value) ? listingsResult.value : [];
-      const matches = matchesResult.status === 'fulfilled' && Array.isArray(matchesResult.value) ? matchesResult.value : [];
-      const conversations =
-        conversationsResult.status === 'fulfilled' && Array.isArray(conversationsResult.value)
-          ? conversationsResult.value
-          : [];
-      const unreadAlerts =
-        notificationsResult.status === 'fulfilled'
-          ? Number(notificationsResult.value.unreadCount ?? 0)
-          : 0;
-
-      setStats({
-        listings: listings.length,
-        activeListings: listings.filter((listing: { status?: string }) => listing.status === 'ACTIVE').length,
-        unreadMessages: conversations.filter((conversation: { messages?: { senderId: string; readAt: string | null }[] }) => {
-          const latest = conversation.messages?.[0];
-          return Boolean(user && latest && latest.senderId !== user.id && !latest.readAt);
-        }).length,
-        unreadAlerts,
-        pendingMatches: matches.filter((match: { status?: string }) => match.status === 'PENDING').length,
-      });
+      try {
+        const summary = await userApi.getDashboardSummary();
+        if (cancelled) return;
+        setStats({
+          listings: Number(summary.listings ?? 0),
+          activeListings: Number(summary.activeListings ?? 0),
+          unreadMessages: Number(summary.unreadMessages ?? 0),
+          unreadAlerts: Number(summary.unreadAlerts ?? 0),
+          pendingMatches: Number(summary.pendingMatches ?? 0),
+        });
+      } catch {
+        if (!cancelled) setStats(initialStats);
+      }
     }
 
     loadStats();
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated]);
 
   const menuItems: Array<{
     label: string;
@@ -135,11 +117,7 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
         </div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="surface-card mb-6 rounded-[2rem] p-5 text-[var(--foreground)]"
-      >
+      <div className="surface-card mb-6 rounded-[2rem] p-5 text-[var(--foreground)]">
         <div className="mb-4 flex items-center gap-3">
           <div className="relative">
             <NameAvatar name={user?.name ?? 'Remnant'} className="h-14 w-14 text-lg" />
@@ -165,7 +143,7 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
             <p className="text-[11px] text-[var(--muted-foreground)]">Messages</p>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       <nav className="space-y-2">
         {menuItems.map((item) => {
@@ -173,11 +151,9 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
           const active = activeSection === item.section;
 
           return (
-            <motion.button
+            <button
               key={item.section}
               type="button"
-              whileHover={{ x: 3 }}
-              whileTap={{ scale: 0.98 }}
               onClick={() => handleSelect(item.section)}
               className={cn(
                 'flex w-full items-center justify-between rounded-[1.5rem] p-3 text-left transition-colors',
@@ -212,7 +188,7 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
                   New
                 </span>
               )}
-            </motion.button>
+            </button>
           );
         })}
       </nav>

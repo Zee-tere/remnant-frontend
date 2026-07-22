@@ -23,9 +23,11 @@ export default $config({
   },
   async run() {
     const apiUrl = requireEnv("NEXT_PUBLIC_API_URL");
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || apiUrl;
     const escrowEnabled = process.env.NEXT_PUBLIC_ESCROW_ENABLED || "false";
-    const releaseId = process.env.NEXT_PUBLIC_RELEASE_ID || "local";
+    const releaseId =
+      $app.stage === "production"
+        ? requireEnv("NEXT_PUBLIC_RELEASE_ID")
+        : process.env.NEXT_PUBLIC_RELEASE_ID || "local";
 
     const web = new sst.aws.Nextjs("RemnantWeb", {
       domain:
@@ -37,7 +39,6 @@ export default $config({
           : undefined,
       environment: {
         NEXT_PUBLIC_API_URL: apiUrl,
-        NEXT_PUBLIC_SOCKET_URL: socketUrl,
         NEXT_PUBLIC_ESCROW_ENABLED: escrowEnabled,
         NEXT_PUBLIC_RELEASE_ID: releaseId,
         GOOGLE_SITE_VERIFICATION: process.env.GOOGLE_SITE_VERIFICATION || "",

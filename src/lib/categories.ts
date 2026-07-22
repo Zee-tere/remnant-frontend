@@ -1,8 +1,8 @@
 export const listingCategories = [
-  { label: "Electronics & Gadgets", image: "/images/earpod.png" },
-  { label: "Furniture & Home Decor", image: "/images/floating/blue-chair.png" },
+  { label: "Electronics & Gadgets", image: "/images/earpod.webp" },
+  { label: "Furniture & Home Decor", image: "/images/floating/blue-chair.webp" },
   { label: "Clothing & Fashion", image: "/images/categories/clothing-fashion.svg" },
-  { label: "Shoes & Footwear", image: "/images/sneaker.png" },
+  { label: "Shoes & Footwear", image: "/images/sneaker.webp" },
   { label: "Accessories & Jewelry", image: "/images/categories/accessories-jewelry.svg" },
   { label: "Vehicles & Auto Parts", image: "/images/categories/auto-parts.svg" },
   { label: "Books & Education", image: "/images/categories/books-education.svg" },

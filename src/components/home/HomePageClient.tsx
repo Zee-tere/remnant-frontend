@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import {
   ArrowRight,
   CheckCircle2,
@@ -13,18 +12,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getApiUrl } from "@/lib/api-url";
 import { listingCategories } from "@/lib/categories";
 import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
 
-interface Listing extends ListingCardItem {
-  category: string;
-  condition: string;
-}
-
 const floatingObjects = [
   {
-    src: "/images/floating/mint-cup.png",
+    src: "/images/floating/mint-cup.webp",
     className: "left-[7%] top-[26%] h-24 w-24 rounded-full",
     imageClassName: "object-contain p-1",
     rotate: [0, -5, 0],
@@ -33,7 +26,7 @@ const floatingObjects = [
     visibilityClass: "lg:block",
   },
   {
-    src: "/images/floating/brass-button.png",
+    src: "/images/floating/brass-button.webp",
     className: "right-[9%] top-[20%] h-24 w-24 rounded-[1.6rem]",
     imageClassName: "object-cover",
     rotate: [3, 8, 3],
@@ -42,7 +35,7 @@ const floatingObjects = [
     visibilityClass: "lg:block",
   },
   {
-    src: "/images/floating/teapot-lid.png",
+    src: "/images/floating/teapot-lid.webp",
     className: "left-[13%] bottom-[23%] h-20 w-36 rounded-[1.6rem]",
     imageClassName: "object-cover",
     rotate: [-4, 1, -4],
@@ -51,7 +44,7 @@ const floatingObjects = [
     visibilityClass: "lg:block",
   },
   {
-    src: "/images/floating/blue-chair.png",
+    src: "/images/floating/blue-chair.webp",
     className: "right-[15%] bottom-[21%] h-28 w-28 rounded-[1.7rem]",
     imageClassName: "object-contain p-2",
     rotate: [7, 2, 7],
@@ -60,7 +53,7 @@ const floatingObjects = [
     visibilityClass: "lg:block",
   },
   {
-    src: "/images/floating/brass-compass.png",
+    src: "/images/floating/brass-compass.webp",
     className: "left-[2%] bottom-[36%] h-24 w-28 rounded-[1.6rem]",
     imageClassName: "object-cover",
     rotate: [4, -1, 4],
@@ -69,7 +62,7 @@ const floatingObjects = [
     visibilityClass: "xl:block",
   },
   {
-    src: "/images/floating/watch-gear.png",
+    src: "/images/floating/watch-gear.webp",
     className: "right-[2%] bottom-[37%] h-24 w-28 rounded-[1.6rem]",
     imageClassName: "object-cover",
     rotate: [-3, 3, -3],
@@ -97,20 +90,10 @@ const howItWorks = [
 export default function HomePageClient({
   initialFeaturedListings,
 }: {
-  initialFeaturedListings: Listing[];
+  initialFeaturedListings: ListingCardItem[];
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [featuredListings, setFeaturedListings] = useState<Listing[]>(initialFeaturedListings);
-  const [loadingListings, setLoadingListings] = useState(false);
-
-  useEffect(() => {
-    fetch(`${getApiUrl()}/listings?limit=4`, { cache: "no-store" })
-      .then((res) => (res.ok ? res.json() : Promise.reject(new Error("Listings unavailable"))))
-      .then((data: { listings: Listing[] }) => setFeaturedListings(data.listings || []))
-      .catch(() => undefined)
-      .finally(() => setLoadingListings(false));
-  }, []);
 
   const handleSearch = (event: React.FormEvent) => {
     event.preventDefault();
@@ -121,12 +104,7 @@ export default function HomePageClient({
   return (
     <div className="min-h-screen overflow-hidden bg-white text-foreground">
       <section className="relative mx-auto flex max-w-7xl flex-col items-stretch justify-center px-4 pb-4 pt-4 text-left md:min-h-[720px] md:items-center md:px-8 md:py-[72px] md:text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-          className="max-w-4xl"
-        >
+        <div className="home-entry max-w-4xl">
           <h1 className="max-w-[20rem] text-balance text-[1.85rem] font-bold leading-[1.08] text-[var(--foreground)] sm:max-w-none sm:text-5xl md:mx-auto md:text-7xl md:leading-[1.08]">
             Give your lonely pieces a{" "}
             <span className="relative inline-block text-[var(--brand)]">
@@ -146,14 +124,11 @@ export default function HomePageClient({
             Nigeria&apos;s marketplace for single items, useful parts, and pre-owned goods. Sell, trade,
             donate, repair, or recycle directly with people nearby.
           </p>
-        </motion.div>
+        </div>
 
-        <motion.form
+        <form
           onSubmit={handleSearch}
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.16, duration: 0.45 }}
-          className="relative z-10 mt-5 hidden w-full max-w-3xl md:mt-12 md:block"
+          className="home-entry home-entry-delay-1 relative z-10 mt-5 hidden w-full max-w-3xl md:mt-12 md:block"
         >
           <div className="flex flex-col gap-2 rounded-[1.35rem] bg-white p-1.5 shadow-[0_16px_42px_-34px_rgba(0,108,82,0.5)] ring-1 ring-[var(--border)]/20 md:flex-row md:items-center md:gap-3 md:rounded-full md:border md:border-[var(--border)]/55 md:p-2 md:soft-shadow md:ring-0">
             <div className="relative flex-1">
@@ -176,14 +151,9 @@ export default function HomePageClient({
               <ArrowRight size={18} aria-hidden="true" />
             </Button>
           </div>
-        </motion.form>
+        </form>
 
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.24, duration: 0.45 }}
-          className="relative z-10 mt-6 flex w-full max-w-sm gap-2 md:hidden"
-        >
+        <div className="home-entry home-entry-delay-2 relative z-10 mt-6 flex w-full max-w-sm gap-2 md:hidden">
           <Button asChild className="h-12 flex-1 rounded-full bg-[var(--brand)] text-sm font-bold text-white shadow-[0_18px_38px_-25px_rgba(0,108,82,0.7)] hover:bg-[var(--brand-dark)]">
             <Link href="/marketplace">
               Browse
@@ -196,40 +166,34 @@ export default function HomePageClient({
               <Package size={16} aria-hidden="true" />
             </Link>
           </Button>
-        </motion.div>
+        </div>
 
         {floatingObjects.map((item) => (
-          <motion.div
+          <div
             key={item.src}
-            animate={{ y: item.y, rotate: item.rotate }}
-            transition={{ repeat: Infinity, duration: item.duration, ease: "easeInOut" }}
-            className={`pointer-events-none absolute hidden overflow-hidden border-4 border-white bg-white soft-shadow ${item.visibilityClass} ${item.className}`}
+            style={{
+              "--float-duration": `${item.duration}s`,
+              "--float-y": `${item.y[1]}px`,
+              "--float-rotate": `${item.rotate[1]}deg`,
+              "--float-base-rotate": `${item.rotate[0]}deg`,
+            } as React.CSSProperties}
+            className={`floating-object pointer-events-none absolute hidden overflow-hidden border-4 border-white bg-white soft-shadow ${item.visibilityClass} ${item.className}`}
             aria-hidden="true"
           >
-            <img src={item.src} alt="" draggable={false} className={`h-full w-full ${item.imageClassName}`} />
-          </motion.div>
+            <img src={item.src} alt="" loading="lazy" decoding="async" draggable={false} className={`h-full w-full ${item.imageClassName}`} />
+          </div>
         ))}
       </section>
 
       <section className="bg-white px-4 pb-10 pt-8 md:px-8 md:pb-16 md:pt-0">
         <div className="mx-auto max-w-5xl">
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.45 }}
-            className="relative overflow-hidden border-y border-[var(--border)] bg-white py-2 md:rounded-[2rem] md:border-0 md:bg-[var(--cream)] md:p-6"
-          >
+          <div className="relative overflow-hidden border-y border-[var(--border)] bg-white py-2 md:rounded-[2rem] md:border-0 md:bg-[var(--cream)] md:p-6">
             <div className="relative grid grid-cols-3 gap-2 md:gap-4">
-              {howItWorks.map((step, index) => {
+              {howItWorks.map((step) => {
                 const Icon = step.icon;
                 return (
-                <motion.div
+                <div
                   key={step.title}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.35, delay: index * 0.08 }}
                   className="flex min-w-0 items-center justify-center gap-1.5 bg-white px-1 py-1.5 md:aspect-auto md:justify-start md:gap-3 md:rounded-[1.1rem] md:p-4 md:shadow-[0_14px_34px_-32px_rgba(0,108,82,0.45)]"
                 >
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)] md:h-10 md:w-10">
@@ -239,11 +203,11 @@ export default function HomePageClient({
                     <span className="block text-xs font-black text-[var(--foreground)] md:text-sm">{step.title}</span>
                     <span className="mt-1 hidden text-xs font-semibold leading-5 text-[var(--ink-soft)] md:block">{step.text}</span>
                   </span>
-                </motion.div>
+                </div>
                 );
               })}
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -298,21 +262,9 @@ export default function HomePageClient({
             ))}
           </div>
 
-          {loadingListings ? (
+          {initialFeaturedListings.length > 0 ? (
             <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-4">
-              {[1, 2, 3, 4].map((item) => (
-                <div key={item} className="surface-card overflow-hidden rounded-[0.85rem] md:rounded-[2rem]">
-                  <div className="aspect-square skeleton" />
-                  <div className="p-2.5 md:p-5">
-                    <div className="mb-3 h-4 w-3/4 rounded-full skeleton" />
-                    <div className="h-3 w-1/2 rounded-full skeleton" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : featuredListings.length > 0 ? (
-            <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-4">
-              {featuredListings.map((item) => <ListingCard key={item.id} item={item} />)}
+              {initialFeaturedListings.map((item) => <ListingCard key={item.id} item={item} />)}
             </div>
           ) : (
             <div className="surface-card rounded-[1.35rem] p-6 text-center md:rounded-[2rem] md:p-10">

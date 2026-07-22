@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import {
   Filter,
   HandHeart,
@@ -21,13 +20,7 @@ import { nigerianStates } from "@/lib/nigeria-locations";
 import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
 import type { PublicListingPage } from "@/lib/public-listings";
 
-interface Listing extends ListingCardItem {
-  description: string;
-  category: string;
-  condition: string;
-  slug: string;
-  user?: { id: string; name: string; avatarUrl: string | null; trustTier: string };
-}
+type Listing = ListingCardItem;
 
 const intentionMeta: Record<string, { icon: React.ElementType; label: string; color: string; bg: string }> = {
   SELL: { icon: NairaIcon, label: "For Sale", color: "text-[var(--brand)]", bg: "bg-[var(--brand-soft)]" },
@@ -37,17 +30,31 @@ const intentionMeta: Record<string, { icon: React.ElementType; label: string; co
   RECYCLE: { icon: Recycle, label: "Recycle", color: "text-teal-700", bg: "bg-teal-50" },
 };
 
-export default function MarketplaceClient({ initialData }: { initialData: PublicListingPage }) {
-  const [submittedSearch, setSubmittedSearch] = useState("");
-  const [category, setCategory] = useState("");
-  const [intentionTag, setIntentionTag] = useState("");
-  const [city, setCity] = useState("");
+interface MarketplaceFilters {
+  search: string;
+  category: string;
+  intentionTag: string;
+  city: string;
+}
+
+export default function MarketplaceClient({
+  initialData,
+  initialFilters,
+}: {
+  initialData: PublicListingPage;
+  initialFilters: MarketplaceFilters;
+}) {
+  const [submittedSearch, setSubmittedSearch] = useState(initialFilters.search);
+  const [category, setCategory] = useState(initialFilters.category);
+  const [intentionTag, setIntentionTag] = useState(initialFilters.intentionTag);
+  const [city, setCity] = useState(initialFilters.city);
   const [listings, setListings] = useState<Listing[]>(initialData.listings);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(initialData.total);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(initialData.totalPages);
   const [showFilters, setShowFilters] = useState(false);
+  const isInitialRender = useRef(true);
 
   const fetchListings = async () => {
     setLoading(true);
@@ -70,19 +77,11 @@ export default function MarketplaceClient({ initialData }: { initialData: Public
   };
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const initialSearch = params.get("search") || "";
-    const initialCategory = params.get("category") || "";
-    const initialIntent = params.get("intentionTag") || "";
-    const initialCity = params.get("city") || "";
-    setSubmittedSearch(initialSearch);
-    if (initialCategory) setCategory(initialCategory);
-    if (initialIntent) setIntentionTag(initialIntent);
-    if (initialCity) setCity(initialCity);
-  }, []);
-
-  useEffect(() => {
-    fetchListings();
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    void fetchListings();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, category, intentionTag, city, submittedSearch]);
 
@@ -183,13 +182,9 @@ export default function MarketplaceClient({ initialData }: { initialData: Public
     <div className="min-h-screen bg-[var(--background)]">
       <main className="mx-auto max-w-7xl px-4 pb-20 pt-7 md:px-8 md:pt-10">
         <header className="mb-4 md:mb-8">
-          <motion.h1
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-xl font-bold text-[var(--foreground)] md:text-4xl"
-          >
+          <h1 className="page-heading-entry text-xl font-bold text-[var(--foreground)] md:text-4xl">
             Explore the market
-          </motion.h1>
+          </h1>
         </header>
 
         <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide lg:hidden" aria-label="Filter by intent">
@@ -275,7 +270,7 @@ export default function MarketplaceClient({ initialData }: { initialData: Public
             ) : listings.length > 0 ? (
               <>
                 <div className="grid auto-rows-fr grid-cols-2 gap-2 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
-                  {listings.map((item) => <ListingCard key={item.id} item={item} />)}
+                  {listings.map((item, index) => <ListingCard key={item.id} item={item} eager={index === 0} />)}
                 </div>
 
                 {totalPages > 1 && (
@@ -321,13 +316,7 @@ export default function MarketplaceClient({ initialData }: { initialData: Public
       {showFilters && (
         <div className="fixed inset-0 z-[70] lg:hidden">
           <div className="absolute inset-0 bg-black/35" onClick={() => setShowFilters(false)} />
-          <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="absolute bottom-0 left-0 right-0 flex max-h-[88dvh] flex-col overflow-hidden rounded-t-xl bg-white"
-          >
+          <div className="mobile-filter-entry absolute bottom-0 left-0 right-0 flex max-h-[88dvh] flex-col overflow-hidden rounded-t-xl bg-white">
             <div className="flex shrink-0 items-center justify-between border-b border-[var(--border)]/55 px-4 py-3">
               <div>
                 <h2 className="text-xl font-bold text-[var(--foreground)]">Filters</h2>
@@ -353,7 +342,7 @@ export default function MarketplaceClient({ initialData }: { initialData: Public
                 Apply Filters
               </Button>
             </div>
-          </motion.div>
+          </div>
         </div>
       )}
     </div>

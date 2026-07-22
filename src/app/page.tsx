@@ -3,7 +3,7 @@ import HomePageClient from "@/components/home/HomePageClient";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getPublicListings } from "@/lib/public-listings";
 
-export const revalidate = 300;
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: {
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const listingPage = await getPublicListings({ page: 1, limit: 4 }, 300);
+  const listingPage = await getPublicListings({ page: 1, limit: 4 }, 60);
   const itemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",

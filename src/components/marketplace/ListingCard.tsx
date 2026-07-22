@@ -30,7 +30,15 @@ function formatListedDate(value?: string) {
   return date.toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-export function ListingCard({ item, className = '' }: { item: ListingCardItem; className?: string }) {
+export function ListingCard({
+  item,
+  className = '',
+  eager = false,
+}: {
+  item: ListingCardItem;
+  className?: string;
+  eager?: boolean;
+}) {
   const intent = intentionMeta[item.intentionTag] ?? intentionMeta.SELL;
   const IntentIcon = intent.icon;
 
@@ -42,7 +50,8 @@ export function ListingCard({ item, className = '' }: { item: ListingCardItem; c
             <img
               src={item.images[0]}
               alt={item.title}
-              loading="lazy"
+              loading={eager ? 'eager' : 'lazy'}
+              fetchPriority={eager ? 'high' : 'auto'}
               decoding="async"
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
             />

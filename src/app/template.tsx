@@ -1,22 +1,5 @@
-"use client";
-
 import type { ReactNode } from "react";
-import { motion, useReducedMotion } from "framer-motion";
 
 export default function Template({ children }: { children: ReactNode }) {
-  const reduceMotion = useReducedMotion();
-
-  if (reduceMotion) {
-    return <>{children}</>;
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.16, ease: "easeOut" }}
-    >
-      {children}
-    </motion.div>
-  );
+  return <div className="page-entry">{children}</div>;
 }
