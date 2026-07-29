@@ -103,35 +103,28 @@ export default function HomePageClient({
   };
 
   return (
-    <div className="min-h-screen overflow-hidden bg-white text-foreground">
-      <section className="relative mx-auto flex max-w-7xl flex-col items-stretch justify-center px-4 pb-4 pt-4 text-left md:min-h-[720px] md:items-center md:px-8 md:py-[72px] md:text-center">
-        <div className="home-entry max-w-4xl">
-          <h1 className="max-w-[20rem] text-balance text-[1.85rem] font-bold leading-[1.08] text-[var(--foreground)] sm:max-w-none sm:text-5xl md:mx-auto md:text-7xl md:leading-[1.08]">
-            Give your lonely pieces a{" "}
-            <span className="relative inline-block text-[var(--brand)]">
-              second chance
-              <svg
-                aria-hidden="true"
-                className="absolute -bottom-2 left-0 h-4 w-full text-[var(--brand-container)]"
-                preserveAspectRatio="none"
-                viewBox="0 0 100 10"
-              >
-                <path d="M0 5 Q 50 10 100 5" fill="none" stroke="currentColor" strokeWidth="4" />
-              </svg>
-            </span>
-            .
+    <div className="min-h-screen overflow-hidden bg-[var(--paper)] text-foreground">
+      <section className="cosmic-hero relative mx-auto flex max-w-[96rem] flex-col items-stretch justify-center overflow-hidden px-5 pb-14 pt-12 text-left md:min-h-[720px] md:items-center md:rounded-[2.75rem] md:px-8 md:py-[92px] md:text-center">
+        <div className="cosmic-grain absolute inset-0" aria-hidden="true" />
+        <span className="absolute left-[12%] top-[18%] h-1 w-1 rounded-full bg-[var(--starlight)]/70" aria-hidden="true" />
+        <span className="absolute right-[16%] top-[29%] h-1.5 w-1.5 rounded-full bg-[var(--mineral-blue)]/65" aria-hidden="true" />
+        <span className="absolute bottom-[23%] left-[22%] h-1 w-1 rounded-full bg-[var(--brass)]/60" aria-hidden="true" />
+
+        <div className="home-entry relative z-10 max-w-4xl">
+          <p className="eyebrow mb-5 text-[var(--brand-light)] md:justify-center">Nigeria&apos;s circular marketplace</p>
+          <h1 className="max-w-[21rem] text-balance text-[2.7rem] font-bold leading-[0.96] text-[var(--starlight)] sm:max-w-xl sm:text-5xl md:mx-auto md:max-w-4xl md:text-[5.5rem] md:leading-[0.92]">
+            Everything incomplete is still full of <span className="font-serif italic font-normal text-[var(--brand-light)]">possibility.</span>
           </h1>
-          <p className="mt-4 max-w-[34rem] text-sm font-medium leading-6 text-[var(--ink-soft)] md:mx-auto md:mt-7 md:text-lg md:leading-8">
-            Find the missing half of a pair, or sell, trade, donate, repair, and recycle useful pieces
-            with people nearby.
+          <p className="mt-6 max-w-[35rem] text-[0.98rem] font-medium leading-7 text-[var(--starlight)]/70 md:mx-auto md:mt-8 md:text-lg md:leading-8">
+            Find the missing half of a pair—or pass a useful piece forward through selling, trading, donating, repair, or recycling.
           </p>
         </div>
 
         <form
           onSubmit={handleSearch}
-          className="home-entry home-entry-delay-1 relative z-10 mt-5 hidden w-full max-w-3xl md:mt-12 md:block"
+          className="home-entry home-entry-delay-1 relative z-10 mt-8 w-full max-w-3xl md:mt-12"
         >
-          <div className="flex flex-col gap-2 rounded-[1.35rem] bg-white p-1.5 shadow-[0_16px_42px_-34px_rgba(0,108,82,0.5)] ring-1 ring-[var(--border)]/20 md:flex-row md:items-center md:gap-3 md:rounded-full md:border md:border-[var(--border)]/55 md:p-2 md:soft-shadow md:ring-0">
+          <div className="cosmic-search flex items-center gap-1 rounded-[1.2rem] p-1.5 md:gap-3 md:rounded-full md:p-2">
             <div className="relative flex-1">
               <Search
                 className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--muted-foreground)] md:left-5"
@@ -140,34 +133,30 @@ export default function HomePageClient({
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="I'm looking for a lid for a teapot..."
-                className="h-11 rounded-full border-0 bg-transparent pl-12 pr-4 text-base font-semibold shadow-none focus-visible:ring-0 md:h-14 md:pl-14"
+                placeholder="Find a missing piece..."
+                className="h-12 rounded-full border-0 bg-transparent pl-11 pr-1 text-base font-medium shadow-none focus-visible:ring-0 md:h-14 md:pl-14 md:pr-4"
               />
             </div>
             <Button
               type="submit"
-              className="h-11 rounded-full bg-[var(--secondary-container)] px-6 text-sm font-bold text-[var(--secondary-blue)] hover:bg-[var(--secondary-blue)] hover:text-white md:h-14 md:px-8 md:text-base"
+              aria-label="Find a match"
+              className="h-12 shrink-0 rounded-[0.9rem] bg-[var(--brand)] px-4 text-sm font-bold text-white hover:bg-[var(--brand-dark)] md:h-14 md:rounded-full md:px-8 md:text-base"
             >
-              Find a Pair
+              <span className="hidden xs:inline">Find a match</span>
               <ArrowRight size={18} aria-hidden="true" />
             </Button>
           </div>
         </form>
 
-        <div className="home-entry home-entry-delay-2 relative z-10 mt-6 flex w-full max-w-sm gap-2 md:hidden">
-          <Button asChild className="h-12 flex-1 rounded-full bg-[var(--brand)] text-sm font-bold text-white shadow-[0_18px_38px_-25px_rgba(0,108,82,0.7)] hover:bg-[var(--brand-dark)]">
-            <Link href="/find-a-pair">
-              Find a pair
-              <ArrowRight size={16} aria-hidden="true" />
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="h-12 flex-1 rounded-full border-[var(--border)] bg-white text-sm font-bold text-[var(--brand)] shadow-[0_14px_34px_-30px_rgba(0,108,82,0.45)]">
-            <Link href="/marketplace">
-              Browse
-              <Search size={16} aria-hidden="true" />
-            </Link>
-          </Button>
+        <div className="home-entry home-entry-delay-2 relative z-10 mt-5 flex items-center gap-5 text-sm font-semibold text-[var(--starlight)]/75">
+          <Link href="/marketplace" className="inline-flex items-center gap-2 hover:text-white">
+            Browse the market <ArrowRight size={15} aria-hidden="true" />
+          </Link>
+          <span className="h-1 w-1 rounded-full bg-[var(--brand-light)]" aria-hidden="true" />
+          <Link href="/sell-item" className="hover:text-white">List a piece</Link>
         </div>
+
+        <img src="/images/floating/brass-compass.webp" alt="" className="floating-object cosmic-object pointer-events-none absolute -bottom-8 -right-8 h-36 w-36 rotate-12 rounded-full object-cover opacity-55 md:hidden" aria-hidden="true" />
 
         {floatingObjects.map((item) => (
           <div
@@ -178,7 +167,7 @@ export default function HomePageClient({
               "--float-rotate": `${item.rotate[1]}deg`,
               "--float-base-rotate": `${item.rotate[0]}deg`,
             } as React.CSSProperties}
-            className={`floating-object pointer-events-none absolute hidden overflow-hidden border-4 border-white bg-white soft-shadow ${item.visibilityClass} ${item.className}`}
+            className={`floating-object cosmic-object pointer-events-none absolute hidden overflow-hidden ${item.visibilityClass} ${item.className}`}
             aria-hidden="true"
           >
             <img src={item.src} alt="" loading="lazy" decoding="async" draggable={false} className={`h-full w-full ${item.imageClassName}`} />
@@ -186,23 +175,23 @@ export default function HomePageClient({
         ))}
       </section>
 
-      <section className="bg-white px-4 pb-10 pt-8 md:px-8 md:pb-16 md:pt-0">
+      <section className="relative z-10 -mt-7 px-4 pb-12 md:-mt-12 md:px-8 md:pb-20">
         <div className="mx-auto max-w-5xl">
-          <div className="relative overflow-hidden border-y border-[var(--border)] bg-white py-2 md:rounded-[2rem] md:border-0 md:bg-[var(--cream)] md:p-6">
-            <div className="relative grid grid-cols-3 gap-2 md:gap-4">
+          <div className="relative overflow-hidden rounded-[1.6rem] border border-white/80 bg-white/94 p-3 shadow-[0_28px_70px_-45px_rgba(0,62,48,0.75)] backdrop-blur-xl md:rounded-[2rem] md:p-5">
+            <div className="relative grid grid-cols-1 gap-1 sm:grid-cols-3 md:gap-3">
               {howItWorks.map((step) => {
                 const Icon = step.icon;
                 return (
                 <div
                   key={step.title}
-                  className="flex min-w-0 items-center justify-center gap-1.5 bg-white px-1 py-1.5 md:aspect-auto md:justify-start md:gap-3 md:rounded-[1.1rem] md:p-4 md:shadow-[0_14px_34px_-32px_rgba(0,108,82,0.45)]"
+                  className="flex min-w-0 items-center gap-3 rounded-[1.1rem] px-2 py-3 md:p-4"
                 >
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)] md:h-10 md:w-10">
-                    <Icon size={13} className="md:h-[19px] md:w-[19px]" aria-hidden="true" />
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--brand)]/15 bg-[var(--brand-soft)] text-[var(--brand)]">
+                    <Icon size={18} aria-hidden="true" />
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-xs font-black text-[var(--foreground)] md:text-sm">{step.title}</span>
-                    <span className="mt-1 hidden text-xs font-semibold leading-5 text-[var(--ink-soft)] md:block">{step.text}</span>
+                    <span className="block text-sm font-bold text-[var(--foreground)]">{step.title}</span>
+                    <span className="mt-0.5 block text-xs font-medium leading-5 text-[var(--ink-soft)]">{step.text}</span>
                   </span>
                 </div>
                 );
@@ -212,11 +201,15 @@ export default function HomePageClient({
         </div>
       </section>
 
-      <section className="bg-[var(--cream)] px-4 pb-8 pt-5 md:px-8 md:py-[72px]">
+      <section className="bg-[var(--paper)] px-4 pb-16 pt-2 md:px-8 md:py-[88px]">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-4 flex flex-row items-center justify-between gap-3 md:mb-8 md:flex-row md:items-end">
-            <h2 className="text-2xl font-bold text-[var(--foreground)] md:text-4xl">Marketplace</h2>
-            <Button asChild variant="outline" className="h-11 rounded-full border-[var(--border)] bg-white px-5 text-sm font-bold text-[var(--brand)] hover:bg-[var(--brand-soft)] md:px-6">
+          <div className="mb-6 flex flex-row items-end justify-between gap-3 md:mb-10">
+            <div>
+              <p className="section-kicker mb-2">In orbit now</p>
+              <h2 className="text-[2rem] font-bold text-[var(--foreground)] md:text-5xl">Pieces seeking purpose</h2>
+              <p className="mt-2 hidden max-w-xl text-base font-medium text-[var(--ink-soft)] md:block">Browse what your neighbours are selling, sharing, trading, or trying to complete.</p>
+            </div>
+            <Button asChild variant="outline" className="h-11 shrink-0 rounded-full border-[var(--hairline)] bg-transparent px-4 text-sm font-semibold text-[var(--brand)] hover:bg-[var(--brand-soft)] md:px-6">
               <Link href="/marketplace">
                 View all
                 <ArrowRight size={16} aria-hidden="true" />
@@ -224,26 +217,26 @@ export default function HomePageClient({
             </Button>
           </div>
 
-          <div className="mb-6 flex gap-3 overflow-x-auto pb-1 scrollbar-hide md:hidden" aria-label="Browse categories">
+          <div className="mb-7 flex gap-3 overflow-x-auto pb-2 scrollbar-hide md:hidden" aria-label="Browse categories">
             {listingCategories.map((category) => (
               <Link
                 key={category.label}
                 href={`/marketplace?category=${encodeURIComponent(category.label)}`}
-                className="relative flex min-h-[132px] w-[128px] shrink-0 overflow-hidden rounded-[1.15rem] bg-white p-3 text-left shadow-[0_14px_34px_-32px_rgba(0,108,82,0.4)]"
+                className="relative flex min-h-[150px] w-[142px] shrink-0 overflow-hidden rounded-[1.4rem] border border-white/10 bg-[var(--cosmos)] p-4 text-left shadow-[0_20px_50px_-36px_rgba(0,42,33,0.9)]"
               >
                 <img
                   src={category.image}
                   alt=""
                   loading="lazy"
                   decoding="async"
-                  className="absolute bottom-1 right-1 h-16 w-16 object-contain"
+                  className="absolute -bottom-1 right-0 h-20 w-20 object-contain drop-shadow-[0_12px_18px_rgba(0,0,0,0.2)]"
                   draggable={false}
                 />
                 <span className="relative z-10 flex h-full flex-col justify-between">
                   <span>
-                    <span className="block max-w-[5.9rem] text-[0.82rem] font-black leading-tight text-[var(--foreground)]">{category.label}</span>
+                    <span className="block max-w-[6.5rem] text-[0.84rem] font-semibold leading-tight text-[var(--starlight)]">{category.label}</span>
                   </span>
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/10 text-[var(--brand-light)]">
                     <ArrowRight size={15} aria-hidden="true" />
                   </span>
                 </span>
@@ -251,12 +244,12 @@ export default function HomePageClient({
             ))}
           </div>
 
-          <div className="mb-5 flex gap-2 overflow-x-auto pb-1 md:mb-8">
+          <div className="editorial-rule mb-7 flex gap-5 overflow-x-auto pb-3 pt-4 md:mb-10 md:gap-7">
             {marketplaceActions.map((action) => (
               <Link
                 key={action.href}
                 href={action.href}
-                className="flex min-h-10 shrink-0 items-center rounded-full bg-white px-4 text-sm font-bold text-[var(--ink-soft)] shadow-[0_12px_30px_-28px_rgba(0,108,82,0.45)] transition-colors hover:text-[var(--brand)] md:min-h-11"
+                className="flex min-h-10 shrink-0 items-center text-sm font-semibold text-[var(--ink-soft)] transition-colors hover:text-[var(--brand)] md:min-h-11"
               >
                 {action.label}
               </Link>
@@ -264,7 +257,7 @@ export default function HomePageClient({
           </div>
 
           {initialFeaturedListings.length > 0 ? (
-            <div className="grid grid-cols-2 gap-2 md:gap-4 lg:grid-cols-4">
+            <div className="home-listing-rail pb-2">
               {initialFeaturedListings.map((item) => <ListingCard key={item.id} item={item} />)}
             </div>
           ) : (

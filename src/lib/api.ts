@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type AxiosRequestConfig } from 'axios';
 import { useAuthStore } from './auth';
 import { getApiUrl } from './api-url';
 import { beginActivity, endActivity } from './activity';
@@ -6,6 +6,14 @@ import { beginActivity, endActivity } from './activity';
 const api = axios.create({
   baseURL: getApiUrl(),
 });
+
+type RemnantRequestConfig = AxiosRequestConfig & {
+  _background?: boolean;
+};
+
+function backgroundRequestConfig(): RemnantRequestConfig {
+  return { _background: true };
+}
 
 function normalizeListingPage(data: unknown) {
   const payload = data && typeof data === 'object' ? data as Record<string, unknown> : {};
@@ -26,7 +34,11 @@ function normalizeListingPage(data: unknown) {
 }
 
 api.interceptors.request.use((config) => {
-  (config as typeof config & { _activityId?: number })._activityId = beginActivity();
+  const request = config as typeof config & {
+    _activityId?: number;
+    _background?: boolean;
+  };
+  if (!request._background) request._activityId = beginActivity();
   const token = useAuthStore.getState().accessToken;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -172,20 +184,36 @@ export const pairAlertsApi = {
 };
 
 export const conversationsApi = {
-  getConversations: () =>
-    api.get('/conversations').then((r) => r.data),
+  getConversations: (background = false) =>
+    api.get(
+      '/conversations',
+      background ? backgroundRequestConfig() : undefined,
+    ).then((r) => r.data),
   startConversation: (listingId: string) =>
     api.post('/conversations', { listingId }).then((r) => r.data),
-  getMessages: (conversationId: string) =>
-    api.get(`/conversations/${conversationId}/messages`).then((r) => r.data),
+  getMessages: (conversationId: string, background = false) =>
+    api.get(
+      `/conversations/${conversationId}/messages`,
+      background ? backgroundRequestConfig() : undefined,
+    ).then((r) => r.data),
   createMessage: (conversationId: string, content: string, type = 'TEXT') =>
     api.post(`/conversations/${conversationId}/messages`, { content, type }).then((r) => r.data),
   markAsRead: (conversationId: string) =>
-    api.patch(`/conversations/${conversationId}/read`).then((r) => r.data),
+    api.patch(
+      `/conversations/${conversationId}/read`,
+      undefined,
+      backgroundRequestConfig(),
+    ).then((r) => r.data),
   startGuestConversation: (data: { listingId: string; name: string; email: string; message: string }) =>
     api.post('/conversations/guest', data).then((r) => r.data),
-  getGuestConversation: (conversationId: string, token: string) =>
-    api.get(`/conversations/guest/${conversationId}`, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
+  getGuestConversation: (conversationId: string, token: string, background = false) =>
+    api.get(
+      `/conversations/guest/${conversationId}`,
+      {
+        headers: { 'X-Guest-Token': token },
+        ...(background ? backgroundRequestConfig() : {}),
+      },
+    ).then((r) => r.data),
   createGuestMessage: (conversationId: string, token: string, content: string, type = 'TEXT') =>
     api.post(
       `/conversations/guest/${conversationId}/messages`,
@@ -196,7 +224,10 @@ export const conversationsApi = {
     api.patch(
       `/conversations/guest/${conversationId}/read`,
       undefined,
-      { headers: { 'X-Guest-Token': token } },
+      {
+        headers: { 'X-Guest-Token': token },
+        ...backgroundRequestConfig(),
+      },
     ).then((r) => r.data),
 };
 

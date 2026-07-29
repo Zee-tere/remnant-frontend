@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { AUTH_STORAGE_KEY, useAuthStore } from '@/lib/auth';
+import { LoadingState } from '@/components/feedback/LoadingState';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
@@ -66,7 +67,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   if (!hasHydrated || checkingStoredSession) {
-    return <div className="min-h-screen bg-[var(--background)]" aria-busy="true" />;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[var(--paper)] px-5">
+        <LoadingState
+          label={hasHydrated ? 'Restoring your session' : 'Preparing Remnant'}
+          className="min-h-0"
+        />
+      </div>
+    );
   }
 
   return <>{children}</>;

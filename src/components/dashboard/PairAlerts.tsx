@@ -24,6 +24,7 @@ import { listingCategories } from '@/lib/categories';
 import { nigerianStates } from '@/lib/nigeria-locations';
 import { getApiErrorMessage } from '@/lib/errors';
 import { formatCurrency } from '@/lib/utils';
+import { DashboardSectionLoading } from '@/components/feedback/LoadingState';
 
 interface PairAlertMatch {
   id: string;
@@ -223,7 +224,7 @@ export default function PairAlertsSection() {
   };
 
   if (loading) {
-    return <div className="flex min-h-[280px] items-center justify-center"><Loader2 className="animate-spin text-[var(--brand)]" size={25} /></div>;
+    return <DashboardSectionLoading label="Loading your pair alerts" />;
   }
 
   return (

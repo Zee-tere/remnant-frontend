@@ -7,7 +7,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   CreditCard,
-  Loader2,
   Package,
   PackageCheck,
   ShieldCheck,
@@ -16,6 +15,7 @@ import {
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DashboardSectionLoading } from "@/components/feedback/LoadingState";
 import { transactionsApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
 import { getApiErrorMessage } from "@/lib/errors";
@@ -116,11 +116,7 @@ export default function TransactionsSection() {
   ).length;
 
   if (loading) {
-    return (
-      <div className="flex min-h-[360px] items-center justify-center">
-        <Loader2 className="animate-spin text-[var(--brand)]" size={28} />
-      </div>
-    );
+    return <DashboardSectionLoading label="Loading your transactions" />;
   }
 
   return (

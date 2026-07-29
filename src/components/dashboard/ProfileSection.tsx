@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NameAvatar } from '@/components/ui/name-avatar';
+import { DashboardSectionLoading } from '@/components/feedback/LoadingState';
 import { userApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
 import { getApiErrorMessage } from '@/lib/errors';
@@ -58,11 +59,7 @@ export default function ProfileSection() {
   };
 
   if (!user) {
-    return (
-      <div className="flex min-h-[360px] items-center justify-center">
-        <Loader2 className="animate-spin text-[var(--brand)]" size={30} />
-      </div>
-    );
+    return <DashboardSectionLoading label="Loading your profile" />;
   }
 
   const profileFields = [user.name, user.email, user.city, user.bio];

@@ -25,6 +25,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { matchesApi, notificationsApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
 import { getApiErrorMessage } from '@/lib/errors';
+import { DashboardSectionLoading } from '@/components/feedback/LoadingState';
 import { cn } from '@/lib/utils';
 
 type FilterType = 'all' | 'match' | 'message' | 'transaction' | 'review' | 'listing' | 'system';
@@ -301,11 +302,7 @@ export default function AlertsSection() {
   };
 
   if (loading) {
-    return (
-      <div className="flex min-h-[360px] items-center justify-center">
-        <Loader2 className="animate-spin text-[var(--brand)]" size={28} />
-      </div>
-    );
+    return <DashboardSectionLoading label="Loading your activity" />;
   }
 
   return (

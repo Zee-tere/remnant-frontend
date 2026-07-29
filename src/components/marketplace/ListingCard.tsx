@@ -1,6 +1,6 @@
 import type { ElementType } from 'react';
 import Link from 'next/link';
-import { HandHeart, MapPin, Package, Puzzle, Recycle, RefreshCw, Wrench } from 'lucide-react';
+import { ArrowUpRight, HandHeart, MapPin, Package, Puzzle, Recycle, RefreshCw, Wrench } from 'lucide-react';
 import { NairaIcon } from '@/components/ui/naira-icon';
 import { formatCurrency } from '@/lib/utils';
 
@@ -58,8 +58,8 @@ export function ListingCard({
 
   return (
     <Link href={`/marketplace/${item.slug || item.id}`} className={`group block min-w-0 ${className}`}>
-      <article className="surface-card h-full overflow-hidden rounded-lg">
-        <div className="relative aspect-[5/3] overflow-hidden bg-[var(--sand)] md:aspect-[5/4]">
+      <article className="surface-card h-full overflow-hidden rounded-[1.4rem] transition-transform duration-300 ease-out group-active:scale-[0.985] md:group-hover:-translate-y-1">
+        <div className="relative aspect-[4/3] overflow-hidden bg-[var(--sand)]">
           {item.images?.[0] ? (
             <img
               src={item.images[0]}
@@ -67,37 +67,44 @@ export function ListingCard({
               loading={eager ? 'eager' : 'lazy'}
               fetchPriority={eager ? 'high' : 'auto'}
               decoding="async"
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.035]"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-[var(--muted-foreground)]">
               <Package size={24} className="md:h-[30px] md:w-[30px]" aria-hidden="true" />
             </div>
           )}
-          <span className={`absolute left-1.5 top-1.5 inline-flex items-center gap-1 rounded-full px-2 py-1 text-[0.65rem] font-bold md:left-3 md:top-3 md:px-2.5 md:text-xs ${intent.className}`}>
-            <IntentIcon size={11} className="md:h-3.5 md:w-3.5" aria-hidden="true" />
+          <span className={`absolute left-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[0.68rem] font-bold shadow-sm backdrop-blur-md md:left-3 md:top-3 md:text-xs ${intent.className}`}>
+            <IntentIcon size={12} className="md:h-3.5 md:w-3.5" aria-hidden="true" />
             {intent.label}
           </span>
           {needsPair && (
-            <span className="absolute right-1.5 top-1.5 inline-flex max-w-[55%] items-center gap-1 rounded-full bg-white/95 px-2 py-1 text-[0.62rem] font-bold text-[var(--brand)] shadow-sm md:right-3 md:top-3 md:text-xs">
+            <span className="absolute right-2.5 top-2.5 inline-flex max-w-[58%] items-center gap-1 rounded-full bg-white/92 px-2.5 py-1.5 text-[0.65rem] font-semibold text-[var(--brand)] shadow-sm backdrop-blur-md md:right-3 md:top-3 md:text-xs">
               <Puzzle size={10} className="shrink-0" aria-hidden="true" />
               <span className="truncate">Needs {item.pairingKeyword}</span>
             </span>
           )}
         </div>
 
-        <div className="p-2 md:p-4">
-          <h3 className="line-clamp-1 text-[0.78rem] font-bold leading-4 text-[var(--foreground)] md:text-base md:leading-tight">
-            {item.title}
-          </h3>
-          <p className="mt-0.5 truncate text-[0.72rem] font-bold leading-4 text-[var(--brand)] md:mt-1 md:text-lg md:leading-5">
-            {getListingValue(item)}
-          </p>
-          <div className="mt-1 flex min-w-0 items-center gap-1 text-[0.63rem] font-semibold text-[var(--muted-foreground)] md:mt-1.5 md:text-xs">
-            <MapPin size={11} className="shrink-0 md:h-3 md:w-3" aria-hidden="true" />
+        <div className="p-3.5 md:p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="line-clamp-2 text-[1.02rem] font-semibold leading-[1.2] tracking-[-0.015em] text-[var(--foreground)] md:text-lg">
+                {item.title}
+              </h3>
+              <p className="mt-1.5 truncate text-sm font-bold leading-5 text-[var(--brand)] md:text-lg">
+                {getListingValue(item)}
+              </p>
+            </div>
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--hairline)] text-[var(--brand)] transition-colors group-hover:bg-[var(--brand)] group-hover:text-white" aria-hidden="true">
+              <ArrowUpRight size={16} />
+            </span>
+          </div>
+          <div className="mt-3 flex min-w-0 items-center gap-1.5 border-t border-[var(--hairline)] pt-2.5 text-[0.7rem] font-medium text-[var(--muted-foreground)] md:text-xs">
+            <MapPin size={12} className="shrink-0" aria-hidden="true" />
             <span className="truncate">{item.city || 'Location not set'}</span>
             <span aria-hidden="true">·</span>
-            <span className="shrink-0">Listed {formatListedDate(item.createdAt)}</span>
+            <span className="shrink-0">{formatListedDate(item.createdAt)}</span>
           </div>
         </div>
       </article>

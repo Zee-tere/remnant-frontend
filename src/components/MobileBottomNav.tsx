@@ -68,9 +68,9 @@ export default function MobileBottomNav() {
   return (
     <nav
       aria-label="Mobile primary navigation"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--border)]/70 bg-white/95 pb-[var(--safe-area-bottom)] backdrop-blur-xl md:hidden"
+      className="fixed inset-x-3 bottom-[calc(0.6rem+var(--safe-area-bottom))] z-50 md:hidden"
     >
-      <div className="mx-auto grid h-16 max-w-lg grid-cols-5 px-1">
+      <div className="mx-auto grid h-[4.25rem] max-w-lg grid-cols-5 rounded-[1.45rem] border border-white/70 bg-white/90 px-1.5 shadow-[0_22px_55px_-24px_rgba(0,40,31,0.6)] backdrop-blur-2xl">
         {actions.map((item) => {
           const Icon = item.icon;
           const active = isActive(item);
@@ -78,7 +78,7 @@ export default function MobileBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`relative flex min-w-0 flex-col items-center justify-center gap-0.5 text-[0.69rem] font-bold transition-colors ${
+              className={`relative flex min-w-0 flex-col items-center justify-center gap-1 text-[0.7rem] font-semibold tracking-[0.01em] transition-colors ${
                 item.primary
                   ? "text-[var(--brand)]"
                   : active
@@ -88,14 +88,15 @@ export default function MobileBottomNav() {
               aria-label={item.label}
               aria-current={active ? "page" : undefined}
             >
-              <span className={`flex h-8 w-9 items-center justify-center rounded-lg transition-colors ${item.primary ? "bg-[var(--brand)] text-white" : active ? "bg-[var(--brand-soft)]" : ""}`}>
+              <span className={`relative flex items-center justify-center transition-all duration-200 ${item.primary ? "-mt-7 h-[3.4rem] w-[3.4rem] rounded-full border-[5px] border-[var(--background)] bg-[var(--brand)] text-white shadow-[0_15px_30px_-16px_rgba(0,108,82,0.9)]" : active ? "h-8 w-10 rounded-[0.85rem] bg-[var(--brand-soft)]" : "h-8 w-10 rounded-[0.85rem]"}`}>
                 {item.profile && isAuthenticated ? (
                   <NameAvatar name={user?.name || "Remnant"} className="h-7 w-7 text-xs" />
                 ) : (
                   <Icon className="h-[18px] w-[18px]" strokeWidth={2} aria-hidden="true" />
                 )}
               </span>
-              <span className="leading-none">{item.label}</span>
+              <span className={`${item.primary ? "-mt-1 text-[var(--brand)]" : ""} leading-none`}>{item.label}</span>
+              {active && !item.primary && <span className="absolute bottom-1.5 h-0.5 w-0.5 rounded-full bg-[var(--brand)]" aria-hidden="true" />}
             </Link>
           );
         })}

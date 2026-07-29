@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { BellRing, Filter, Loader2, Search, X } from "lucide-react";
+import { BellRing, Filter, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
+import { ListingGridSkeleton } from "@/components/feedback/LoadingState";
 import { listingsApi } from "@/lib/api";
 import { listingCategories } from "@/lib/categories";
 import { nigerianStates } from "@/lib/nigeria-locations";
@@ -156,9 +157,7 @@ export default function FindPageClient({
       </div>
 
       {loading ? (
-        <div className="flex min-h-[320px] items-center justify-center">
-          <Loader2 size={28} className="animate-spin text-[var(--brand)]" />
-        </div>
+        <ListingGridSkeleton />
       ) : listings.length > 0 ? (
         <section className="grid grid-cols-2 gap-1.5 sm:gap-2 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
           {listings.map((item, index) => <ListingCard key={item.id} item={item} eager={index === 0} />)}

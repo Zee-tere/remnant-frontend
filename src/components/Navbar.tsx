@@ -59,7 +59,7 @@ export default function Navbar() {
   const isAuthRoute = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth/callback"].some(
     (route) => pathname.startsWith(route),
   );
-  const showMobileSearch = !pathname.startsWith("/find-a-pair") && !pathname.startsWith("/user/");
+  const showMobileSearch = pathname !== "/" && !pathname.startsWith("/find-a-pair") && !pathname.startsWith("/user/");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -110,12 +110,12 @@ export default function Navbar() {
   return (
     <header className={`sticky top-0 z-50 w-full px-3 py-2 md:px-6 md:py-3 ${isAuthRoute ? "hidden md:block" : ""}`}>
       <div
-        className={`relative mx-auto flex max-w-7xl items-center gap-2 bg-white/95 py-1 backdrop-blur-md transition-all duration-300 md:justify-between md:gap-0 md:rounded-[2rem] md:border md:px-6 md:py-3 ${
-          scrolled ? "md:border-[var(--border)]/60 md:soft-shadow" : "md:border-[var(--border)]/35 md:shadow-sm md:shadow-[var(--brand)]/5"
+        className={`relative mx-auto flex max-w-7xl items-center gap-2 rounded-[1.35rem] border bg-white/88 px-2 py-1.5 shadow-[0_14px_34px_-30px_rgba(0,62,48,0.7)] backdrop-blur-xl transition-all duration-300 md:justify-between md:gap-0 md:rounded-[2rem] md:px-6 md:py-3 ${
+          scrolled ? "border-[var(--border)]/60 md:soft-shadow" : "border-white/70 md:border-[var(--border)]/35 md:shadow-sm md:shadow-[var(--brand)]/5"
         }`}
       >
         <Link href="/" className="flex shrink-0 items-center text-[var(--brand)]" aria-label="Remnant home">
-          <BrandLogo size="nav" />
+          <BrandLogo size="nav" className={showMobileSearch ? "brand-lockup--mark-only-mobile" : ""} />
         </Link>
 
         <nav className="hidden min-w-0 flex-1 items-center justify-center gap-2 px-4 md:flex" aria-label="Primary navigation">
@@ -228,7 +228,7 @@ export default function Navbar() {
           {showMobileSearch && (
             <form
               onSubmit={handleMobileSearch}
-              className="flex h-10 min-w-0 flex-1 items-center overflow-hidden rounded-lg border-0 bg-white pl-2.5 shadow-none md:hidden"
+              className="flex h-10 min-w-0 flex-1 items-center overflow-hidden rounded-[0.95rem] bg-[var(--sand)]/75 pl-3 md:hidden"
             >
               <input
                 value={mobileSearch}
@@ -249,7 +249,7 @@ export default function Navbar() {
 
           <button
             type="button"
-            className="mobile-menu-button inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)] md:hidden"
+            className="mobile-menu-button inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] bg-[var(--brand-soft)] text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)] md:hidden"
             onPointerDown={(event) => event.stopPropagation()}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}

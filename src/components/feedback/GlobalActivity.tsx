@@ -10,6 +10,7 @@ export function GlobalActivity() {
   const [activeCount, setActiveCount] = useState(0);
   const [visible, setVisible] = useState(false);
   const navigationActivity = useRef<number | undefined>(undefined);
+  const navigationTimeout = useRef<number | undefined>(undefined);
   const routeKey = `${pathname}?${searchParams.toString()}`;
 
   useEffect(() => subscribeToActivity(setActiveCount), []);
@@ -24,6 +25,7 @@ export function GlobalActivity() {
   }, [activeCount]);
 
   useEffect(() => {
+    window.clearTimeout(navigationTimeout.current);
     endActivity(navigationActivity.current);
     navigationActivity.current = undefined;
   }, [routeKey]);
@@ -38,23 +40,27 @@ export function GlobalActivity() {
       const destination = new URL(anchor.href, window.location.href);
       if (destination.origin !== window.location.origin || destination.href === window.location.href) return;
 
+      window.clearTimeout(navigationTimeout.current);
       endActivity(navigationActivity.current);
-      navigationActivity.current = beginActivity();
-      window.setTimeout(() => {
-        endActivity(navigationActivity.current);
-        navigationActivity.current = undefined;
+      const activityId = beginActivity();
+      navigationActivity.current = activityId;
+      navigationTimeout.current = window.setTimeout(() => {
+        endActivity(activityId);
+        if (navigationActivity.current === activityId) navigationActivity.current = undefined;
       }, 8_000);
     };
 
     document.addEventListener("click", handleNavigationClick, true);
-    return () => document.removeEventListener("click", handleNavigationClick, true);
+    return () => {
+      document.removeEventListener("click", handleNavigationClick, true);
+      window.clearTimeout(navigationTimeout.current);
+      endActivity(navigationActivity.current);
+    };
   }, []);
 
   return (
     <div className={`site-activity ${visible ? "site-activity--visible" : ""}`} role="status" aria-live="polite" aria-label={visible ? "Loading" : undefined}>
       <span className="site-activity__track" aria-hidden="true">
-        <span />
-        <span />
         <span />
       </span>
     </div>

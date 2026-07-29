@@ -18,7 +18,13 @@ interface GuestConversation {
     buyer: { id: string; name: string; avatarUrl: string | null };
     seller: { id: string; name: string; avatarUrl: string | null };
   };
-  messages: Array<{ id: string; senderId: string; content: string; createdAt: string }>;
+  messages: Array<{
+    id: string;
+    senderId: string;
+    content: string;
+    createdAt: string;
+    clientState?: "sending";
+  }>;
 }
 
 export default function GuestMessagesPage() {
@@ -28,11 +34,21 @@ export default function GuestMessagesPage() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
-  const endRef = useRef<HTMLDivElement>(null);
+  const messagesViewportRef = useRef<HTMLDivElement>(null);
+  const shouldStickToBottomRef = useRef(true);
 
-  const load = useCallback(async (token: string) => {
-    const result = await conversationsApi.getGuestConversation(id, token);
-    setData(result);
+  const load = useCallback(async (token: string, background = false) => {
+    const result = await conversationsApi.getGuestConversation(id, token, background);
+    setData((current) => {
+      const pending = current?.messages.filter((item) => item.clientState === "sending") ?? [];
+      return {
+        ...result,
+        messages: [
+          ...result.messages,
+          ...pending.filter((item) => !result.messages.some((row: { id: string }) => row.id === item.id)),
+        ],
+      };
+    });
     void conversationsApi.markGuestAsRead(id, token).catch(() => undefined);
   }, [id]);
 
@@ -44,24 +60,71 @@ export default function GuestMessagesPage() {
       return;
     }
     load(token).catch(() => setData(null)).finally(() => setLoading(false));
-    const interval = window.setInterval(() => void load(token).catch(() => undefined), 12000);
-    return () => window.clearInterval(interval);
+    const refreshWhenActive = () => {
+      if (document.visibilityState === "visible") {
+        void load(token, true).catch(() => undefined);
+      }
+    };
+    const interval = window.setInterval(refreshWhenActive, 3500);
+    window.addEventListener("focus", refreshWhenActive);
+    window.addEventListener("online", refreshWhenActive);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refreshWhenActive);
+      window.removeEventListener("online", refreshWhenActive);
+    };
   }, [id, load]);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [data?.messages.length]);
+    const viewport = messagesViewportRef.current;
+    const latest = data?.messages[data.messages.length - 1];
+    if (
+      !viewport ||
+      (!shouldStickToBottomRef.current && latest?.senderId !== data?.conversation.buyerId)
+    ) {
+      return;
+    }
+    const frame = window.requestAnimationFrame(() => {
+      viewport.scrollTop = viewport.scrollHeight;
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [data?.conversation.buyerId, data?.messages]);
 
   const sendMessage = async (event: FormEvent) => {
     event.preventDefault();
     const content = message.trim();
-    if (!content || !accessToken) return;
+    if (!content || !accessToken || !data) return;
+    const temporaryId = `pending-${crypto.randomUUID()}`;
+    const optimisticMessage = {
+      id: temporaryId,
+      senderId: data.conversation.buyerId,
+      content,
+      createdAt: new Date().toISOString(),
+      clientState: "sending" as const,
+    };
+
+    shouldStickToBottomRef.current = true;
     setSending(true);
+    setMessage("");
+    setData((current) => current ? {
+      ...current,
+      messages: [...current.messages, optimisticMessage],
+    } : current);
     try {
-      await conversationsApi.createGuestMessage(id, accessToken, content);
-      setMessage("");
-      await load(accessToken);
+      const created = await conversationsApi.createGuestMessage(id, accessToken, content);
+      setData((current) => current ? {
+        ...current,
+        messages: [
+          ...current.messages.filter((item) => item.id !== temporaryId && item.id !== created.id),
+          created,
+        ].sort((left, right) => new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()),
+      } : current);
     } catch (error) {
+      setData((current) => current ? {
+        ...current,
+        messages: current.messages.filter((item) => item.id !== temporaryId),
+      } : current);
+      setMessage((current) => current || content);
       toast.error(getApiErrorMessage(error, "Could not send message"));
     } finally {
       setSending(false);
@@ -96,7 +159,15 @@ export default function GuestMessagesPage() {
             <p className="truncate text-xs text-[var(--ink-soft)] sm:text-sm">{data.conversation.listing.title}</p>
           </div>
         </header>
-        <div className="h-[calc(100dvh-15.5rem)] min-h-80 space-y-3 overflow-y-auto bg-[var(--background)]/45 px-3 py-4 sm:h-[48vh] sm:px-5">
+        <div
+          ref={messagesViewportRef}
+          onScroll={(event) => {
+            const viewport = event.currentTarget;
+            shouldStickToBottomRef.current =
+              viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 96;
+          }}
+          className="h-[calc(100dvh-15.5rem)] min-h-80 space-y-3 overflow-y-auto overscroll-contain bg-[var(--background)]/45 px-3 py-4 [overflow-anchor:none] sm:h-[48vh] sm:px-5"
+        >
           {data.messages.map((item) => {
             const mine = item.senderId === data.conversation.buyerId;
             return (
@@ -104,16 +175,31 @@ export default function GuestMessagesPage() {
                 {!mine && <NameAvatar name={data.conversation.seller.name} className="h-7 w-7 shrink-0 text-[0.62rem]" />}
                 <div className={`max-w-[82%] rounded-lg px-3 py-2.5 text-sm leading-5 ${mine ? "bg-[var(--brand)] text-white" : "border border-[var(--border)]/70 bg-white text-[var(--foreground)]"}`}>
                   <p>{item.content}</p>
-                  <p className={`mt-1 text-[11px] ${mine ? "text-white/70" : "text-[var(--muted-foreground)]"}`}>{new Date(item.createdAt).toLocaleString("en-NG", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</p>
+                  <p className={`mt-1 text-[11px] ${mine ? "text-white/70" : "text-[var(--muted-foreground)]"}`}>{item.clientState === "sending" ? "Sending…" : new Date(item.createdAt).toLocaleString("en-NG", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</p>
                 </div>
                 {mine && <NameAvatar name={data.conversation.buyer.name || "You"} className="h-7 w-7 shrink-0 text-[0.62rem]" />}
               </div>
             );
           })}
-          <div ref={endRef} />
         </div>
         <form onSubmit={sendMessage} className="flex items-end gap-2 border-t border-[var(--border)]/70 bg-white p-2.5 sm:p-3">
-          <textarea value={message} onChange={(event) => setMessage(event.target.value)} onKeyDown={handleKeyDown} placeholder="Write a message" maxLength={2000} rows={1} className="min-h-10 max-h-28 flex-1 resize-none rounded-md border border-[var(--border)]/70 bg-white px-3 py-2.5 text-sm outline-none focus:border-[var(--brand)]" />
+          <textarea
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={() => {
+              if (!shouldStickToBottomRef.current) return;
+              window.requestAnimationFrame(() => {
+                const viewport = messagesViewportRef.current;
+                if (viewport) viewport.scrollTop = viewport.scrollHeight;
+              });
+            }}
+            aria-label="Message"
+            placeholder="Write a message"
+            maxLength={2000}
+            rows={1}
+            className="min-h-11 max-h-28 flex-1 resize-none rounded-md border border-[var(--border)]/70 bg-white px-3 py-2.5 text-base outline-none focus:border-[var(--brand)] sm:min-h-10 sm:text-sm"
+          />
           <Button type="submit" disabled={sending || !message.trim()} size="icon" className="h-10 w-10 shrink-0 rounded-md bg-[var(--brand)] text-white" aria-label="Send message">
             {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
           </Button>

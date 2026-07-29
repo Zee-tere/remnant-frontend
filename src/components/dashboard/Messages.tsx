@@ -26,6 +26,7 @@ import { conversationsApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
 import { getApiErrorMessage } from '@/lib/errors';
 import { cn } from '@/lib/utils';
+import { DashboardSectionLoading, LoadingState } from '@/components/feedback/LoadingState';
 
 interface ConversationUser {
   id: string;
@@ -55,6 +56,7 @@ interface Message {
   content: string;
   readAt: string | null;
   createdAt: string;
+  clientState?: 'sending';
 }
 
 function formatTime(value: string) {
@@ -86,7 +88,8 @@ export default function MessagesSection() {
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [sending, setSending] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesViewportRef = useRef<HTMLDivElement>(null);
+  const shouldStickToBottomRef = useRef(true);
   const workspaceRef = useRef<HTMLDivElement>(null);
   const [mobileWorkspaceHeight, setMobileWorkspaceHeight] = useState<number | null>(null);
 
@@ -99,7 +102,7 @@ export default function MessagesSection() {
 
     if (!silent) setLoadingConversations(true);
     try {
-      const data = await conversationsApi.getConversations();
+      const data = await conversationsApi.getConversations(silent);
       const rows = Array.isArray(data) ? data : [];
       setConversations(rows);
       setActiveConversationId((current) => current && rows.some((row) => row.id === current) ? current : null);
@@ -113,8 +116,17 @@ export default function MessagesSection() {
 
   useEffect(() => {
     loadConversations();
-    const poll = window.setInterval(() => loadConversations(true), 15000);
-    return () => window.clearInterval(poll);
+    const refreshWhenActive = () => {
+      if (document.visibilityState === 'visible') void loadConversations(true);
+    };
+    const poll = window.setInterval(refreshWhenActive, 12000);
+    window.addEventListener('focus', refreshWhenActive);
+    window.addEventListener('online', refreshWhenActive);
+    return () => {
+      window.clearInterval(poll);
+      window.removeEventListener('focus', refreshWhenActive);
+      window.removeEventListener('online', refreshWhenActive);
+    };
   }, [loadConversations]);
 
   useEffect(() => {
@@ -128,21 +140,27 @@ export default function MessagesSection() {
     const loadMessages = async (silent = false) => {
       if (!silent) setLoadingMessages(true);
       try {
-        const data = await conversationsApi.getMessages(activeConversationId);
+        const data = await conversationsApi.getMessages(activeConversationId, silent);
         if (!cancelled) {
           const rows = Array.isArray(data) ? data : [];
           setMessages((current) => {
+            const pending = current.filter((message) => message.clientState === 'sending');
+            const nextRows = [
+              ...rows,
+              ...pending.filter((message) => !rows.some((row) => row.id === message.id)),
+            ];
             const unchanged =
-              current.length === rows.length &&
+              current.length === nextRows.length &&
               current.every((message, index) => {
-                const next = rows[index];
+                const next = nextRows[index];
                 return (
                   message.id === next?.id &&
                   message.content === next.content &&
-                  message.readAt === next.readAt
+                  message.readAt === next.readAt &&
+                  message.clientState === next.clientState
                 );
               });
-            return unchanged ? current : rows;
+            return unchanged ? current : nextRows;
           });
           conversationsApi.markAsRead(activeConversationId).catch(() => undefined);
         }
@@ -157,19 +175,30 @@ export default function MessagesSection() {
     };
 
     loadMessages();
-    const poll = window.setInterval(() => loadMessages(true), 8000);
+    const refreshWhenActive = () => {
+      if (document.visibilityState === 'visible') void loadMessages(true);
+    };
+    const poll = window.setInterval(refreshWhenActive, 3000);
+    window.addEventListener('focus', refreshWhenActive);
+    window.addEventListener('online', refreshWhenActive);
     return () => {
       cancelled = true;
       window.clearInterval(poll);
+      window.removeEventListener('focus', refreshWhenActive);
+      window.removeEventListener('online', refreshWhenActive);
     };
   }, [activeConversationId]);
 
   useEffect(() => {
+    const viewport = messagesViewportRef.current;
+    if (!viewport || (!shouldStickToBottomRef.current && messages.at(-1)?.senderId !== user?.id)) {
+      return;
+    }
     const frame = window.requestAnimationFrame(() => {
-      messagesEndRef.current?.scrollIntoView({ block: 'end' });
+      viewport.scrollTop = viewport.scrollHeight;
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [messages, activeConversationId]);
+  }, [messages, activeConversationId, user?.id]);
 
   useEffect(() => {
     if (loadingConversations) return;
@@ -233,6 +262,7 @@ export default function MessagesSection() {
   }, [conversations, filter, getOtherUser, searchQuery, user?.id]);
 
   const handleSelectConversation = (conversationId: string) => {
+    shouldStickToBottomRef.current = true;
     setActiveConversationId(conversationId);
     setConversations((current) =>
       current.map((conversation) =>
@@ -249,23 +279,52 @@ export default function MessagesSection() {
   };
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !activeConversationId) return;
+    if (!newMessage.trim() || !activeConversationId || !user) return;
 
     const content = newMessage.trim();
+    const temporaryId = `pending-${crypto.randomUUID()}`;
+    const optimisticMessage: Message = {
+      id: temporaryId,
+      conversationId: activeConversationId,
+      senderId: user.id,
+      type: 'TEXT',
+      content,
+      readAt: null,
+      createdAt: new Date().toISOString(),
+      clientState: 'sending',
+    };
+
+    shouldStickToBottomRef.current = true;
     setSending(true);
     setNewMessage('');
+    setMessages((current) => [...current, optimisticMessage]);
+    setConversations((current) =>
+      current.map((conversation) =>
+        conversation.id === activeConversationId
+          ? { ...conversation, messages: [optimisticMessage] }
+          : conversation,
+      ),
+    );
 
     try {
       const message = await conversationsApi.createMessage(activeConversationId, content, 'TEXT');
-      setMessages((current) => [...current, message]);
+      setMessages((current) => {
+        const withoutTemporary = current.filter(
+          (item) => item.id !== temporaryId && item.id !== message.id,
+        );
+        return [...withoutTemporary, message].sort(
+          (left, right) => new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime(),
+        );
+      });
       setConversations((current) =>
         current.map((conversation) =>
           conversation.id === activeConversationId ? { ...conversation, messages: [message] } : conversation,
         ),
       );
     } catch (error) {
+      setMessages((current) => current.filter((message) => message.id !== temporaryId));
       toast.error(getApiErrorMessage(error, 'Could not send message'));
-      setNewMessage(content);
+      setNewMessage((current) => current || content);
     } finally {
       setSending(false);
     }
@@ -279,11 +338,7 @@ export default function MessagesSection() {
   };
 
   if (loadingConversations) {
-    return (
-      <div className="flex min-h-[360px] items-center justify-center">
-        <Loader2 className="animate-spin text-[var(--brand)]" size={28} />
-      </div>
-    );
+    return <DashboardSectionLoading label="Loading your conversations" />;
   }
 
   const ConversationList = () => (
@@ -438,11 +493,18 @@ export default function MessagesSection() {
           </DropdownMenu>
         </div>
 
-        <div className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain bg-[var(--background)]/45 p-3 [scrollbar-gutter:stable] md:p-4">
+        <div
+          ref={messagesViewportRef}
+          onScroll={(event) => {
+            const viewport = event.currentTarget;
+            const distanceFromBottom =
+              viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+            shouldStickToBottomRef.current = distanceFromBottom < 96;
+          }}
+          className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain bg-[var(--background)]/45 p-3 [overflow-anchor:none] [scrollbar-gutter:stable] md:p-4"
+        >
           {loadingMessages ? (
-            <div className="flex h-full items-center justify-center">
-              <Loader2 className="animate-spin text-[var(--brand)]" size={24} />
-            </div>
+            <LoadingState label="Loading messages" compact className="h-full" />
           ) : messages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
               <MessageSquare className="mb-3 text-muted-foreground/40" size={38} />
@@ -470,13 +532,12 @@ export default function MessagesSection() {
                     >
                       <p className="whitespace-pre-wrap break-words">{message.content}</p>
                       <p className={cn('mt-1 text-[11px]', mine ? 'text-[var(--navy)]/70' : 'text-muted-foreground')}>
-                        {formatTime(message.createdAt)}
+                        {message.clientState === 'sending' ? 'Sending…' : formatTime(message.createdAt)}
                       </p>
                     </div>
                   </div>
                 );
               })}
-              <div ref={messagesEndRef} />
             </div>
           )}
         </div>
@@ -489,7 +550,15 @@ export default function MessagesSection() {
               value={newMessage}
               onChange={(event) => setNewMessage(event.target.value)}
               onKeyDown={handleKeyDown}
+              onFocus={() => {
+                if (!shouldStickToBottomRef.current) return;
+                window.requestAnimationFrame(() => {
+                  const viewport = messagesViewportRef.current;
+                  if (viewport) viewport.scrollTop = viewport.scrollHeight;
+                });
+              }}
               enterKeyHint="send"
+              maxLength={2000}
               rows={1}
               className="min-h-11 max-h-28 flex-1 resize-none bg-transparent px-2 py-2.5 text-base leading-6 outline-none placeholder:text-muted-foreground md:min-h-10 md:py-2 md:text-sm md:leading-5"
             />
@@ -498,6 +567,7 @@ export default function MessagesSection() {
               onClick={handleSendMessage}
               disabled={!newMessage.trim() || sending}
               size="icon"
+              aria-label={sending ? 'Sending message' : 'Send message'}
               className="h-11 w-11 shrink-0 rounded-md bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)] md:h-10 md:w-10"
             >
               {sending ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}

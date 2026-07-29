@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { DashboardSectionLoading } from '@/components/feedback/LoadingState';
 import { userApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
 import { getApiErrorMessage } from '@/lib/errors';
@@ -86,11 +87,7 @@ export default function SettingsSection() {
   };
 
   if (!user) {
-    return (
-      <div className="flex min-h-[360px] items-center justify-center">
-        <Loader2 className="animate-spin text-[var(--brand)]" size={28} />
-      </div>
-    );
+    return <DashboardSectionLoading label="Loading your settings" />;
   }
 
   return (
