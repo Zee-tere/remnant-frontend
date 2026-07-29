@@ -24,7 +24,7 @@ const SettingsSection = dynamic(() => import('@/components/dashboard/SettingsSec
 
 function DashboardLoading() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--paper)] px-5">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--background)] px-5">
       <LoadingState label="Opening your dashboard" className="min-h-0" />
     </div>
   );
@@ -90,7 +90,7 @@ function UserDashboardContent() {
   if (!hasHydrated || !isAuthenticated) return <DashboardLoading />;
 
   return (
-    <div className={`flex bg-[var(--paper)] text-[var(--foreground)] ${activeSection === 'messages' ? 'h-full min-h-0 md:min-h-screen' : 'min-h-screen'}`}>
+    <div className={`flex bg-[var(--background)] text-[var(--foreground)] ${activeSection === 'messages' ? 'h-full min-h-0 md:min-h-screen' : 'min-h-screen'}`}>
       <DashboardSidebar onSelectSection={handleSelectSection} activeSection={activeSection} />
 
       <div
@@ -98,7 +98,7 @@ function UserDashboardContent() {
         className={`dashboard-section-entry min-w-0 flex-1 ${
           activeSection === 'messages'
             ? 'overflow-hidden px-0 pb-0 pt-0 md:overflow-y-auto md:p-8 lg:p-10'
-            : 'overflow-y-auto px-4 pb-10 pt-5 md:p-8 lg:p-10'
+            : 'overflow-y-auto px-3 pb-8 pt-3 md:p-8 lg:p-10'
         }`}
       >
         {renderSection()}

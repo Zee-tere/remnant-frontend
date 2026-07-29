@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   Filter,
   HandHeart,
+  Loader2,
   Package,
   Recycle,
   RefreshCw,
@@ -18,7 +19,6 @@ import { NairaIcon } from "@/components/ui/naira-icon";
 import { nigerianStates } from "@/lib/nigeria-locations";
 import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
 import type { PublicListingPage } from "@/lib/public-listings";
-import { ListingGridSkeleton } from "@/components/feedback/LoadingState";
 
 type Listing = ListingCardItem;
 
@@ -179,30 +179,21 @@ export default function MarketplaceClient({
   );
 
   return (
-    <div className="min-h-screen bg-[var(--paper)]">
-      <main className="mx-auto max-w-7xl px-4 pb-20 pt-3 md:px-8 md:pt-8">
-        <header className="page-heading-entry relative mb-5 overflow-hidden rounded-[1.75rem] bg-[var(--cosmos)] px-5 py-7 text-[var(--starlight)] shadow-[0_24px_60px_-42px_rgba(0,50,39,0.9)] md:mb-9 md:px-10 md:py-11">
-          <div className="cosmic-grain absolute inset-0" aria-hidden="true" />
-          <span className="absolute -right-10 -top-16 h-52 w-52 rounded-full border border-white/10" aria-hidden="true" />
-          <span className="absolute right-12 top-8 h-1.5 w-1.5 rounded-full bg-[var(--mineral-blue)]" aria-hidden="true" />
-          <div className="relative z-10">
-            <p className="eyebrow mb-3 text-[var(--brand-light)]">The live market</p>
-            <h1 className="max-w-xl text-[2.35rem] font-bold leading-none text-[var(--starlight)] md:text-6xl">
-              Find what fits your story.
-            </h1>
-            <p className="mt-3 max-w-xl text-sm font-medium leading-6 text-[var(--starlight)]/65 md:mt-5 md:text-base">
-              Useful pieces moving between people—not into landfills.
-            </p>
-          </div>
+    <div className="min-h-screen bg-[var(--background)]">
+      <main className="mx-auto max-w-7xl px-4 pb-20 pt-7 md:px-8 md:pt-10">
+        <header className="mb-4 md:mb-8">
+          <h1 className="page-heading-entry text-xl font-bold text-[var(--foreground)] md:text-4xl">
+            Explore the market
+          </h1>
         </header>
 
-        <div className="mb-5 flex gap-2 overflow-x-auto border-b border-[var(--hairline)] pb-3 scrollbar-hide lg:hidden" aria-label="Filter by intent">
+        <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide lg:hidden" aria-label="Filter by intent">
           {[{ key: '', label: 'All' }, ...Object.entries(intentionMeta).map(([key, meta]) => ({ key, label: key === 'SELL' ? 'Buy' : meta.label }))].map((item) => (
             <button
               key={item.key || 'all'}
               type="button"
               onClick={() => { setIntentionTag(item.key); setPage(1); }}
-              className={`min-h-11 shrink-0 rounded-full border px-4 text-xs font-semibold transition-colors ${
+              className={`min-h-11 shrink-0 rounded-full border px-3 text-xs font-bold transition-colors ${
                 intentionTag === item.key
                   ? 'border-[var(--brand)] bg-[var(--brand)] text-white'
                   : 'border-[var(--border)] bg-white text-[var(--ink-soft)]'
@@ -273,10 +264,12 @@ export default function MarketplaceClient({
             )}
 
             {loading ? (
-              <ListingGridSkeleton />
+              <div className="flex min-h-[420px] items-center justify-center">
+                <Loader2 size={30} className="animate-spin text-[var(--brand)]" />
+              </div>
             ) : listings.length > 0 ? (
               <>
-                <div className="marketplace-grid auto-rows-fr">
+                <div className="grid auto-rows-fr grid-cols-2 gap-1.5 sm:gap-2 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
                   {listings.map((item, index) => <ListingCard key={item.id} item={item} eager={index === 0} />)}
                 </div>
 
@@ -323,7 +316,7 @@ export default function MarketplaceClient({
       {showFilters && (
         <div className="fixed inset-0 z-[70] lg:hidden">
           <div className="absolute inset-0 bg-black/35" onClick={() => setShowFilters(false)} />
-          <div className="mobile-filter-entry absolute bottom-0 left-0 right-0 flex max-h-[88dvh] flex-col overflow-hidden rounded-t-[2rem] bg-white">
+          <div className="mobile-filter-entry absolute bottom-0 left-0 right-0 flex max-h-[88dvh] flex-col overflow-hidden rounded-t-xl bg-white">
             <div className="flex shrink-0 items-center justify-between border-b border-[var(--border)]/55 px-4 py-3">
               <div>
                 <h2 className="text-xl font-bold text-[var(--foreground)]">Filters</h2>

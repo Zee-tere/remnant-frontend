@@ -318,12 +318,11 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
   }
 
   return (
-    <div className="space-y-5 md:space-y-6">
-      <div className="flex items-end justify-between gap-3 md:flex-row md:items-center">
+    <div className="space-y-3 md:space-y-6">
+      <div className="flex items-center justify-between gap-3 md:flex-row md:items-center">
         <div>
-          <p className="section-kicker mb-1.5">Your constellation</p>
-          <h1 className="text-[2rem] font-bold text-foreground md:text-4xl">My listings</h1>
-          <p className="mt-1 text-xs font-medium text-muted-foreground md:text-sm">
+          <h1 className="text-xl font-bold text-foreground md:text-3xl">My Listings</h1>
+          <p className="text-xs text-muted-foreground md:text-sm">
             {listings.length} total listing{listings.length === 1 ? '' : 's'} · {listings.filter((item) => item.status === 'ACTIVE').length} active
           </p>
         </div>
@@ -351,7 +350,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
         </div>
       </div>
 
-      <div className="rounded-[1.4rem] border border-[var(--hairline)] bg-white/90 p-3 shadow-[0_18px_45px_-40px_rgba(0,62,48,0.7)] md:p-4">
+      <div className="rounded-lg border border-[var(--border)] bg-card p-2.5 shadow-sm md:rounded-xl md:p-4">
         <div className="flex flex-col gap-2 md:flex-row md:gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
@@ -398,16 +397,16 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4">
+      <div className="grid grid-cols-4 gap-1.5 md:gap-4 xl:grid-cols-4">
         {stats.map((stat, index) => (
-          <Card key={stat.label} className={`min-w-0 overflow-hidden rounded-[1.25rem] border-[var(--hairline)] md:rounded-[1.5rem] ${index === 0 ? 'bg-[var(--cosmos)] text-[var(--starlight)]' : 'bg-card'}`}>
-            <CardContent className="flex min-h-28 min-w-0 flex-col justify-between p-3.5 md:min-h-0 md:flex-row md:items-center md:p-5">
+          <Card key={stat.label} className="min-w-0 rounded-lg border-[var(--border)] bg-card md:rounded-xl">
+            <CardContent className="flex min-w-0 flex-col p-2 md:flex-row md:items-center md:justify-between md:p-5">
               <div className="min-w-0">
-                <p className={`line-clamp-2 text-[0.72rem] font-semibold leading-4 md:text-sm ${index === 0 ? 'text-[var(--starlight)]/60' : 'text-muted-foreground'}`}>{stat.label}</p>
-                <p className={`mt-2 truncate text-xl font-bold md:text-2xl ${index === 0 ? 'text-[var(--starlight)]' : 'text-foreground'}`}>{stat.value}</p>
+                <p className="line-clamp-2 min-h-7 text-[0.68rem] font-semibold leading-3.5 text-muted-foreground md:min-h-0 md:text-sm">{stat.label}</p>
+                <p className="mt-1 truncate text-sm font-bold text-foreground md:mt-2 md:text-2xl">{stat.value}</p>
               </div>
-              <div className={cn('mt-2 w-fit rounded-full p-2 md:mt-0 md:p-3', index === 0 ? 'bg-white/10 text-[var(--brand-light)]' : statIconClasses[index])}>
-                <stat.icon size={18} className="md:h-[22px] md:w-[22px]" />
+              <div className={cn('mt-1 hidden w-fit rounded-full p-1.5 md:mt-0 md:block md:p-3', statIconClasses[index])}>
+                <stat.icon size={22} />
               </div>
             </CardContent>
           </Card>
@@ -438,7 +437,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 xl:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2.5 md:gap-5 lg:grid-cols-2 xl:grid-cols-3">
           {filteredListings.map((listing) => (
             <div key={listing.id}>
               <Card className="flex h-full flex-col overflow-hidden rounded-lg border-[var(--border)] bg-card transition-shadow hover:shadow-md md:rounded-xl">

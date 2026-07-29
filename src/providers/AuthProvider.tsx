@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   if (!hasHydrated || checkingStoredSession) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--paper)] px-5">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--background)] px-5">
         <LoadingState
           label={hasHydrated ? 'Restoring your session' : 'Preparing Remnant'}
           className="min-h-0"

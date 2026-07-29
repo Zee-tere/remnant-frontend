@@ -62,6 +62,8 @@ export function GlobalActivity() {
     <div className={`site-activity ${visible ? "site-activity--visible" : ""}`} role="status" aria-live="polite" aria-label={visible ? "Loading" : undefined}>
       <span className="site-activity__track" aria-hidden="true">
         <span />
+        <span />
+        <span />
       </span>
     </div>
   );
