@@ -103,7 +103,7 @@ export default function HelpPage() {
       {/* Help Topics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {helpTopics.map((topic, index) => (
-          <Card key={index} className="hover:shadow-lg transition-shadow">
+          <Card key={index}>
             <CardContent className="p-6">
               <div className="flex flex-col items-center text-center">
                 <div className="h-12 w-12 rounded-full bg-[var(--brand-soft)] dark:bg-[var(--brand-muted)] flex items-center justify-center mb-4">
@@ -168,7 +168,7 @@ export default function HelpPage() {
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {contactOptions.map((option) => (
-            <div key={option.title} className="rounded-xl border border-[var(--border)] bg-card p-5 text-center shadow-sm">
+            <div key={option.title} className="rounded-xl border border-[var(--border)] bg-card p-5 text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--brand-soft)]">
                 <option.icon className="text-[var(--brand)]" size={24} />
               </div>

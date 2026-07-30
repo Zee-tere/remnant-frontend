@@ -72,7 +72,7 @@ export default function GuestOrderPage() {
   return (
     <main className="mx-auto max-w-2xl px-5 py-10 sm:py-14">
       <Link href="/marketplace" className="inline-flex items-center gap-2 text-sm font-bold text-[var(--muted-foreground)] hover:text-[var(--brand)]"><ArrowLeft size={16} /> Marketplace</Link>
-      <div className="mt-6 rounded-lg border border-[var(--border)] bg-white p-6 shadow-sm sm:p-8">
+      <div className="mt-6 rounded-lg border border-[var(--border)] bg-white p-6 sm:p-8">
         <div className="flex items-start gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]"><PackageCheck /></div>
           <div><p className="text-sm font-bold uppercase text-[var(--muted-foreground)]">Order {order.id.slice(0, 8)}</p><h1 className="mt-1 text-2xl font-bold">{order.listing.title}</h1><p className="mt-1 text-sm text-[var(--ink-soft)]">Seller: {order.seller.name}</p></div>

@@ -106,6 +106,14 @@ export default function HomePageClient({
     <div className="min-h-screen overflow-hidden bg-white text-foreground">
       <section className="relative mx-auto flex max-w-7xl flex-col items-stretch justify-center px-4 pb-4 pt-4 text-left md:min-h-[720px] md:items-center md:px-8 md:py-[72px] md:text-center">
         <div className="home-entry max-w-4xl">
+          <img
+            src="/images/earpod.webp"
+            alt="A single wireless earbud waiting for its match"
+            width={448}
+            height={448}
+            fetchPriority="high"
+            className="mx-auto mb-5 h-28 w-28 object-contain md:hidden"
+          />
           <h1 className="max-w-[20rem] text-balance text-[1.85rem] font-bold leading-[1.08] text-[var(--foreground)] sm:max-w-none sm:text-5xl md:mx-auto md:text-7xl md:leading-[1.08]">
             Give your lonely pieces a{" "}
             <span className="relative inline-block text-[var(--brand)]">
@@ -131,7 +139,7 @@ export default function HomePageClient({
           onSubmit={handleSearch}
           className="home-entry home-entry-delay-1 relative z-10 mt-5 hidden w-full max-w-3xl md:mt-12 md:block"
         >
-          <div className="flex flex-col gap-2 rounded-[1.35rem] bg-white p-1.5 shadow-[0_16px_42px_-34px_rgba(0,108,82,0.5)] ring-1 ring-[var(--border)]/20 md:flex-row md:items-center md:gap-3 md:rounded-full md:border md:border-[var(--border)]/55 md:p-2 md:soft-shadow md:ring-0">
+          <div className="flex flex-col gap-2 rounded-[1.35rem] bg-white p-1.5 ring-1 ring-[var(--border)]/20 md:flex-row md:items-center md:gap-3 md:rounded-full md:border md:border-[var(--border)]/55 md:p-2 md:ring-0">
             <div className="relative flex-1">
               <Search
                 className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--muted-foreground)] md:left-5"
@@ -155,13 +163,13 @@ export default function HomePageClient({
         </form>
 
         <div className="home-entry home-entry-delay-2 relative z-10 mt-6 flex w-full max-w-sm gap-2 md:hidden">
-          <Button asChild className="h-12 flex-1 rounded-full bg-[var(--brand)] text-sm font-bold text-white shadow-[0_18px_38px_-25px_rgba(0,108,82,0.7)] hover:bg-[var(--brand-dark)]">
+          <Button asChild className="h-12 flex-1 rounded-full bg-[var(--brand)] text-sm font-bold text-white hover:bg-[var(--brand-dark)]">
             <Link href="/find-a-pair">
               Find a pair
               <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </Button>
-          <Button asChild variant="outline" className="h-12 flex-1 rounded-full border-[var(--border)] bg-white text-sm font-bold text-[var(--brand)] shadow-[0_14px_34px_-30px_rgba(0,108,82,0.45)]">
+          <Button asChild variant="outline" className="h-12 flex-1 rounded-full border-[var(--border)] bg-white text-sm font-bold text-[var(--brand)]">
             <Link href="/marketplace">
               Browse
               <Search size={16} aria-hidden="true" />
@@ -195,7 +203,7 @@ export default function HomePageClient({
                 return (
                 <div
                   key={step.title}
-                  className="flex min-w-0 items-center justify-center gap-1.5 bg-white px-1 py-1.5 md:aspect-auto md:justify-start md:gap-3 md:rounded-[1.1rem] md:p-4 md:shadow-[0_14px_34px_-32px_rgba(0,108,82,0.45)]"
+                  className="flex min-w-0 items-center justify-center gap-1.5 bg-white px-1 py-1.5 md:aspect-auto md:justify-start md:gap-3 md:rounded-[1.1rem] md:border md:border-[var(--border)]/45 md:p-4"
                 >
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)] md:h-10 md:w-10">
                     <Icon size={13} className="md:h-[19px] md:w-[19px]" aria-hidden="true" />
@@ -229,7 +237,7 @@ export default function HomePageClient({
               <Link
                 key={category.label}
                 href={`/marketplace?category=${encodeURIComponent(category.label)}`}
-                className="relative flex min-h-[132px] w-[128px] shrink-0 overflow-hidden rounded-[1.15rem] bg-white p-3 text-left shadow-[0_14px_34px_-32px_rgba(0,108,82,0.4)]"
+                className="relative flex min-h-[132px] w-[128px] shrink-0 overflow-hidden rounded-[1.15rem] border border-[var(--border)]/55 bg-white p-3 text-left"
               >
                 <img
                   src={category.image}
@@ -256,7 +264,7 @@ export default function HomePageClient({
               <Link
                 key={action.href}
                 href={action.href}
-                className="flex min-h-10 shrink-0 items-center rounded-full bg-white px-4 text-sm font-bold text-[var(--ink-soft)] shadow-[0_12px_30px_-28px_rgba(0,108,82,0.45)] transition-colors hover:text-[var(--brand)] md:min-h-11"
+                className="flex min-h-10 shrink-0 items-center border-b border-transparent px-2 text-sm font-bold text-[var(--ink-soft)] transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)] md:min-h-11"
               >
                 {action.label}
               </Link>

@@ -79,7 +79,7 @@ export function ListingCard({
             {intent.label}
           </span>
           {needsPair && (
-            <span className="absolute right-1.5 top-1.5 inline-flex max-w-[55%] items-center gap-1 rounded-full bg-white/95 px-2 py-1 text-[0.62rem] font-bold text-[var(--brand)] shadow-sm md:right-3 md:top-3 md:text-xs">
+            <span className="absolute right-1.5 top-1.5 inline-flex max-w-[55%] items-center gap-1 rounded-full border border-[var(--border)]/55 bg-white px-2 py-1 text-[0.62rem] font-bold text-[var(--brand)] md:right-3 md:top-3 md:text-xs">
               <Puzzle size={10} className="shrink-0" aria-hidden="true" />
               <span className="truncate">Needs {item.pairingKeyword}</span>
             </span>

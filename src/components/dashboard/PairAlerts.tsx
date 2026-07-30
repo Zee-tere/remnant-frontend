@@ -90,7 +90,7 @@ function AlertForm({ busy, onClose, onCreate }: {
             },
           });
         }}
-        className="max-h-[92dvh] w-full overflow-y-auto rounded-t-xl bg-white px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 shadow-2xl sm:max-w-xl sm:rounded-xl sm:p-6"
+        className="max-h-[92dvh] w-full overflow-y-auto rounded-t-xl border border-[var(--border)]/55 bg-white px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 sm:max-w-xl sm:rounded-xl sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="pair-alert-form-title"

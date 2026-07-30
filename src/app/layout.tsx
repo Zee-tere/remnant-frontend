@@ -146,7 +146,7 @@ export default function RootLayout({
             <Navbar />
           </div>
 
-          <main id="main-content" className="flex-grow pb-[calc(4rem+var(--safe-area-bottom))] md:pb-0">
+          <main id="main-content" className="flex-grow md:pb-0">
             {children}
           </main>
 

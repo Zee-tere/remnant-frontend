@@ -350,7 +350,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
         </div>
       </div>
 
-      <div className="rounded-lg border border-[var(--border)] bg-card p-2.5 shadow-sm md:rounded-xl md:p-4">
+      <div className="rounded-lg border border-[var(--border)] bg-card p-2.5 md:rounded-xl md:p-4">
         <div className="flex flex-col gap-2 md:flex-row md:gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
@@ -440,7 +440,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
         <div className="grid grid-cols-2 gap-2.5 md:gap-5 lg:grid-cols-2 xl:grid-cols-3">
           {filteredListings.map((listing) => (
             <div key={listing.id}>
-              <Card className="flex h-full flex-col overflow-hidden rounded-lg border-[var(--border)] bg-card transition-shadow hover:shadow-md md:rounded-xl">
+              <Card className="flex h-full flex-col overflow-hidden rounded-lg border-[var(--border)] bg-card transition-colors hover:border-[var(--brand)]/45 md:rounded-xl">
                 <div className="relative aspect-[5/3] overflow-hidden bg-[var(--sand)] md:aspect-[4/3]">
                   {listing.images?.[0] ? (
                     <img src={listing.images[0]} alt={listing.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
@@ -452,7 +452,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                   <div className="absolute left-2 top-2 md:left-3 md:top-3">
                     <StatusBadge status={listing.status} />
                   </div>
-                  <label className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm dark:bg-black/70 md:right-3 md:top-3 md:h-9 md:w-9">
+                  <label className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border)]/55 bg-white dark:bg-black/70 md:right-3 md:top-3 md:h-9 md:w-9">
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(listing.id)}
@@ -537,7 +537,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
         <div className="fixed inset-0 z-50 flex items-end bg-black/50 p-0 sm:items-center sm:justify-center sm:p-4">
           <form
             onSubmit={handleSaveEdit}
-            className="dashboard-section-entry max-h-[90vh] w-full overflow-y-auto rounded-t-2xl border border-[var(--border)] bg-card p-5 shadow-xl sm:max-w-2xl sm:rounded-2xl sm:p-6"
+            className="dashboard-section-entry max-h-[90vh] w-full overflow-y-auto rounded-t-2xl border border-[var(--border)] bg-card p-5 sm:max-w-2xl sm:rounded-2xl sm:p-6"
           >
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>

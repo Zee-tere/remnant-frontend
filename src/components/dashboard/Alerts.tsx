@@ -423,7 +423,7 @@ export default function AlertsSection() {
                 >
                   <Card
                     className={cn(
-                      'border-l-4 border-y-[var(--border)] border-r-[var(--border)] bg-card transition-shadow hover:shadow-md',
+                      'border-l-4 border-y-[var(--border)] border-r-[var(--border)] bg-card transition-colors hover:border-r-[var(--brand)]/45',
                       config.borderClass,
                       item.unread && 'ring-2 ring-[var(--brand)]/15',
                     )}

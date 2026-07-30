@@ -119,7 +119,7 @@ function AuthCallbackContent() {
 function AuthCallbackShell() {
   return (
     <main className="flex min-h-[70vh] items-center justify-center bg-[var(--background)] px-5">
-      <div className="rounded-[2rem] bg-white p-8 text-center shadow-[0_20px_50px_-30px_rgba(0,108,82,0.45)]">
+      <div className="rounded-[2rem] border border-[var(--border)]/55 bg-white p-8 text-center">
         <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-[var(--brand)]" aria-hidden="true" />
         <h1 className="text-2xl font-bold text-[var(--foreground)]">Finishing sign-in</h1>
         <p className="mt-2 text-sm font-semibold text-[var(--muted-foreground)]">

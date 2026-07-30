@@ -91,7 +91,7 @@ function GuestMessageDialog({
           event.preventDefault();
           void onSubmit({ name, email, message });
         }}
-        className="max-h-[calc(100dvh-0.75rem)] w-full space-y-3 overflow-y-auto rounded-t-lg bg-white px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 shadow-2xl sm:max-w-md sm:rounded-lg sm:p-6"
+        className="max-h-[calc(100dvh-0.75rem)] w-full space-y-3 overflow-y-auto rounded-t-lg border border-[var(--border)]/55 bg-white px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 sm:max-w-md sm:rounded-lg sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="guest-message-title"
@@ -152,7 +152,7 @@ function SellerContactDialog({
 
   return (
     <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/25 sm:items-center sm:p-5" role="presentation">
-      <section className="w-full rounded-t-lg bg-white p-5 shadow-2xl sm:max-w-md sm:rounded-lg sm:p-6" role="dialog" aria-modal="true" aria-labelledby="seller-contact-title">
+      <section className="w-full rounded-t-lg border border-[var(--border)]/55 bg-white p-5 sm:max-w-md sm:rounded-lg sm:p-6" role="dialog" aria-modal="true" aria-labelledby="seller-contact-title">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 id="seller-contact-title" className="text-xl font-bold">Contact the seller</h2>
@@ -308,10 +308,10 @@ export default function ListingDetailClient({ initialListing }: { initialListing
               <div className="flex h-full items-center justify-center text-[var(--muted-foreground)]"><Package size={64} /></div>
             )}
             <div className="absolute right-2 top-2 flex gap-1.5">
-              <button type="button" onClick={handleSaveListing} disabled={isSaving} className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-[var(--brand)] shadow-sm" aria-label="Save listing">
+              <button type="button" onClick={handleSaveListing} disabled={isSaving} className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border)]/55 bg-white text-[var(--brand)]" aria-label="Save listing">
                 {isSaving ? <Loader2 size={17} className="animate-spin" /> : <Heart size={17} />}
               </button>
-              <button type="button" onClick={handleShareListing} className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-[var(--secondary-blue)] shadow-sm" aria-label="Share listing"><Share2 size={17} /></button>
+              <button type="button" onClick={handleShareListing} className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border)]/55 bg-white text-[var(--secondary-blue)]" aria-label="Share listing"><Share2 size={17} /></button>
             </div>
           </motion.div>
 

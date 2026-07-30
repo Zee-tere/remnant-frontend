@@ -110,8 +110,8 @@ export default function Navbar() {
   return (
     <header className={`sticky top-0 z-50 w-full px-3 py-2 md:px-6 md:py-3 ${isAuthRoute ? "hidden md:block" : ""}`}>
       <div
-        className={`relative mx-auto flex max-w-7xl items-center gap-2 rounded-[1.35rem] border bg-white/88 px-2 py-1.5 shadow-[0_14px_34px_-30px_rgba(0,62,48,0.7)] backdrop-blur-xl transition-all duration-300 md:justify-between md:gap-0 md:rounded-[2rem] md:px-6 md:py-3 ${
-          scrolled ? "border-[var(--border)]/60 md:soft-shadow" : "border-white/70 md:border-[var(--border)]/35 md:shadow-sm md:shadow-[var(--brand)]/5"
+        className={`relative mx-auto flex max-w-7xl items-center gap-2 rounded-[1.35rem] border bg-white px-2 py-1.5 transition-colors duration-200 md:justify-between md:gap-0 md:rounded-[2rem] md:px-6 md:py-3 ${
+          scrolled ? "border-[var(--border)]/70" : "border-[var(--border)]/45"
         }`}
       >
         <Link href="/" className="flex shrink-0 items-center text-[var(--brand)]" aria-label="Remnant home">
@@ -264,7 +264,7 @@ export default function Navbar() {
 
               {menuOpen && (
                 <div
-                  className={`navbar-menu mobile-menu-entry absolute -right-3 top-full z-50 mt-2 overflow-hidden bg-white/95 shadow-[0_22px_50px_-34px_rgba(0,62,48,0.65)] backdrop-blur-xl md:hidden ${
+                  className={`navbar-menu mobile-menu-entry absolute -right-3 top-full z-50 mt-2 overflow-hidden bg-white md:hidden ${
                     isAuthenticated
                       ? "w-[15.5rem] rounded-l-xl border-y border-l border-[var(--border)]/65 py-1"
                       : "w-[min(92vw,22rem)] rounded-l-xl border-y border-l border-[var(--border)]/65 p-2"

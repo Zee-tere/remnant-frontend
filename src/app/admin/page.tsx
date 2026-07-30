@@ -104,7 +104,7 @@ function MessageDialog({ target, busy, onClose, onSend }: { target: { id: string
   const [message, setMessage] = useState("");
   return (
     <div className="fixed inset-0 z-[90] flex items-end justify-center bg-black/25 sm:items-center sm:p-5">
-      <form onSubmit={(event) => { event.preventDefault(); void onSend(message); }} className="w-full space-y-4 rounded-t-lg bg-white p-5 shadow-2xl sm:max-w-md sm:rounded-lg" role="dialog" aria-modal="true" aria-labelledby="admin-message-title">
+      <form onSubmit={(event) => { event.preventDefault(); void onSend(message); }} className="w-full space-y-4 rounded-t-lg border border-[var(--border)]/55 bg-white p-5 sm:max-w-md sm:rounded-lg" role="dialog" aria-modal="true" aria-labelledby="admin-message-title">
         <div className="flex items-start justify-between gap-4">
           <div><h2 id="admin-message-title" className="text-lg font-bold">Message {target.name}</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">This appears in the seller&apos;s alerts.</p></div>
           <button type="button" onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-[var(--sand)]" aria-label="Close"><X size={18} /></button>
@@ -127,7 +127,7 @@ function GuestContactDialog({ target, onClose }: { target: { name: string; conta
 
   return (
     <div className="fixed inset-0 z-[90] flex items-end justify-center bg-black/25 sm:items-center sm:p-5">
-      <section className="w-full rounded-t-lg bg-white p-5 shadow-2xl sm:max-w-md sm:rounded-lg" role="dialog" aria-modal="true" aria-labelledby="guest-admin-contact-title">
+      <section className="w-full rounded-t-lg border border-[var(--border)]/55 bg-white p-5 sm:max-w-md sm:rounded-lg" role="dialog" aria-modal="true" aria-labelledby="guest-admin-contact-title">
         <div className="flex items-start justify-between gap-4"><div><h2 id="guest-admin-contact-title" className="text-lg font-bold">Contact {target.name}</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">Guest seller contact methods.</p></div><button type="button" onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-[var(--sand)]" aria-label="Close"><X size={18} /></button></div>
         <div className="mt-5 divide-y divide-[var(--border)] overflow-hidden rounded-lg border border-[var(--border)]">{methods.map((method) => { const Icon = method.icon; return <a key={method.href} href={method.href} target={method.href.startsWith("https://") ? "_blank" : undefined} rel={method.href.startsWith("https://") ? "noreferrer" : undefined} className="flex min-h-14 items-center gap-3 px-4 py-3 hover:bg-[var(--brand-soft)]"><Icon size={17} className="text-[var(--brand)]" /><span className="min-w-0 flex-1 truncate text-sm font-bold">{method.label}</span><ExternalLink size={14} className="text-[var(--muted-foreground)]" /></a>; })}</div>
       </section>

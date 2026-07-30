@@ -55,7 +55,7 @@ function PaymentResult() {
 
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-xl items-center px-5 py-14 text-center">
-      <div className="w-full rounded-lg border border-[var(--border)] bg-white p-7 shadow-sm sm:p-10">
+      <div className="w-full rounded-lg border border-[var(--border)] bg-white p-7 sm:p-10">
         <Icon size={46} className={`mx-auto ${content.color} ${content.spin ? "animate-spin" : ""}`} />
         <h1 className="mt-5 text-2xl font-bold text-[var(--foreground)]">{content.title}</h1>
         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[var(--ink-soft)]">{content.body}</p>

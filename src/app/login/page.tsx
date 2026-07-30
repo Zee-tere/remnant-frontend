@@ -103,7 +103,7 @@ function LoginPageContent() {
           </div>
 
           <form
-            className="surface-card rounded-xl bg-white p-4 md:rounded-[1.5rem] md:p-7"
+            className="bg-white md:rounded-[1.5rem] md:border md:border-[var(--border)]/55 md:p-7"
             onSubmit={(event) => {
               event.preventDefault();
               submitLogin();
@@ -188,9 +188,6 @@ function LoginPageContent() {
               </Button>
             </div>
 
-            <p className="fun-fact-marquee mt-5 overflow-hidden rounded-[1.1rem] bg-[var(--sand)] px-4 py-3 text-sm font-semibold leading-6 text-[var(--ink-soft)]">
-              <span>Fun fact: one reused part can keep a useful item in someone&apos;s home for years.</span>
-            </p>
           </form>
 
           <p className="mt-6 text-center text-sm font-semibold text-[var(--muted-foreground)]">

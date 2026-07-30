@@ -131,7 +131,7 @@ export default function TransactionsSection() {
         </Button>
       </div>
 
-      <section className="rounded-xl border border-[var(--border)] bg-card p-4 shadow-sm">
+      <section className="rounded-xl border border-[var(--border)] bg-card p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <Input
             value={query}
@@ -176,7 +176,7 @@ export default function TransactionsSection() {
             return (
               <section
                 key={transaction.id}
-                className="rounded-xl border border-[var(--border)] bg-card p-4 shadow-sm transition-colors hover:border-[var(--brand)]/50"
+                className="rounded-xl border border-[var(--border)] bg-card p-4 transition-colors hover:border-[var(--brand)]/50"
               >
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                   <div className="flex min-w-0 gap-4">

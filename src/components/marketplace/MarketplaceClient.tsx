@@ -316,10 +316,15 @@ export default function MarketplaceClient({
       {showFilters && (
         <div className="fixed inset-0 z-[70] lg:hidden">
           <div className="absolute inset-0 bg-black/35" onClick={() => setShowFilters(false)} />
-          <div className="mobile-filter-entry absolute bottom-0 left-0 right-0 flex max-h-[88dvh] flex-col overflow-hidden rounded-t-xl bg-white">
+          <div
+            className="mobile-filter-entry absolute bottom-0 left-0 right-0 flex max-h-[88dvh] flex-col overflow-hidden rounded-t-xl bg-white"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="marketplace-filter-title"
+          >
             <div className="flex shrink-0 items-center justify-between border-b border-[var(--border)]/55 px-4 py-3">
               <div>
-                <h2 className="text-xl font-bold text-[var(--foreground)]">Filters</h2>
+                <h2 id="marketplace-filter-title" className="text-xl font-bold text-[var(--foreground)]">Filters</h2>
                 <p className="text-xs text-[var(--muted-foreground)]">Narrow the market</p>
               </div>
               <button
@@ -334,7 +339,7 @@ export default function MarketplaceClient({
             <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
               <FilterPanel embedded />
             </div>
-            <div className="shrink-0 border-t border-[var(--border)]/55 bg-white/95 px-4 pb-[calc(0.75rem+var(--safe-area-bottom))] pt-3 backdrop-blur">
+            <div className="shrink-0 border-t border-[var(--border)]/55 bg-white px-4 pb-[calc(0.75rem+var(--safe-area-bottom))] pt-3">
               <Button
                 className="h-12 w-full rounded-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]"
                 onClick={() => setShowFilters(false)}

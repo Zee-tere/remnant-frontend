@@ -126,7 +126,7 @@ function SignUpPageContent() {
           </div>
 
           <form
-            className="surface-card rounded-xl bg-white p-4 md:rounded-[1.5rem] md:p-7"
+            className="bg-white md:rounded-[1.5rem] md:border md:border-[var(--border)]/55 md:p-7"
             onSubmit={(event) => {
               event.preventDefault();
               if (needsConfirmation) {
@@ -228,9 +228,9 @@ function SignUpPageContent() {
                 {showPassword ? <EyeOff size={17} aria-hidden="true" /> : <Eye size={17} aria-hidden="true" />}
               </button>
             </div>
-            <div className="mb-4 rounded-[1rem] bg-[var(--sand)] px-4 py-3 text-xs font-semibold leading-5 text-[var(--ink-soft)]">
+            <p className="mb-4 text-xs font-semibold leading-5 text-[var(--muted-foreground)]">
               Password must be at least 8 characters and include uppercase, lowercase, and a number.
-            </div>
+            </p>
               </>
             )}
 

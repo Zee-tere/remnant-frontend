@@ -68,9 +68,10 @@ export default function MobileBottomNav() {
   return (
     <nav
       aria-label="Mobile primary navigation"
-      className="fixed inset-x-3 bottom-[calc(0.6rem+var(--safe-area-bottom))] z-50 md:hidden"
+      data-mobile-bottom-dock
+      className="mobile-bottom-dock md:hidden"
     >
-      <div className="mx-auto grid h-[4.25rem] max-w-lg grid-cols-5 rounded-[1.45rem] border border-white/70 bg-white/90 px-1.5 shadow-[0_22px_55px_-24px_rgba(0,40,31,0.6)] backdrop-blur-2xl">
+      <div className="mobile-bottom-dock__bar mx-auto grid h-[4.25rem] max-w-lg grid-cols-5 rounded-[1.35rem] border border-[var(--border)]/70 bg-white px-1.5">
         {actions.map((item) => {
           const Icon = item.icon;
           const active = isActive(item);
@@ -88,7 +89,7 @@ export default function MobileBottomNav() {
               aria-label={item.label}
               aria-current={active ? "page" : undefined}
             >
-              <span className={`relative flex items-center justify-center transition-all duration-200 ${item.primary ? "-mt-7 h-[3.4rem] w-[3.4rem] rounded-full border-[5px] border-[var(--background)] bg-[var(--brand)] text-white shadow-[0_15px_30px_-16px_rgba(0,108,82,0.9)]" : active ? "h-8 w-10 rounded-[0.85rem] bg-[var(--brand-soft)]" : "h-8 w-10 rounded-[0.85rem]"}`}>
+              <span className={`relative flex items-center justify-center transition-all duration-200 ${item.primary ? "-mt-5 h-[3.25rem] w-[3.25rem] rounded-full border-4 border-white bg-[var(--brand)] text-white" : active ? "h-8 w-10 rounded-[0.85rem] bg-[var(--brand-soft)]" : "h-8 w-10 rounded-[0.85rem]"}`}>
                 {item.profile && isAuthenticated ? (
                   <NameAvatar name={user?.name || "Remnant"} className="h-7 w-7 text-xs" />
                 ) : (
