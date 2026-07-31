@@ -83,17 +83,17 @@ export default function FindPageClient({
   return (
     <main className="mx-auto min-h-screen max-w-7xl bg-white px-3 pb-8 pt-2 md:px-8 md:pb-20 md:pt-8">
       <form onSubmit={handleSearch} className="flex items-center gap-2">
-        <div className="relative h-12 min-w-0 flex-1 overflow-hidden rounded-lg border border-[var(--border)]/70 bg-white md:rounded-full">
+        <div className="relative h-12 min-w-0 flex-1 overflow-hidden rounded-lg border border-[var(--border)]/70 bg-white">
           <Input
             type="search"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
             placeholder="Search the market"
-            className="h-12 rounded-lg border-0 bg-transparent pl-4 pr-12 text-base font-medium shadow-none focus-visible:ring-0 md:rounded-full"
+            className="h-12 rounded-lg border-0 bg-transparent pl-4 pr-12 text-base font-medium shadow-none focus-visible:ring-0"
           />
           <button
             type="submit"
-            className="absolute right-0 top-0 flex h-12 w-12 items-center justify-center bg-[var(--brand)] text-white transition-colors hover:bg-[var(--brand-dark)] md:rounded-full"
+            className="absolute right-0 top-0 flex h-12 w-12 items-center justify-center rounded-r-lg bg-[var(--brand)] text-white transition-colors hover:bg-[var(--brand-dark)]"
             aria-label="Search"
           >
             <Search size={16} strokeWidth={2.15} aria-hidden="true" />
@@ -103,7 +103,7 @@ export default function FindPageClient({
           type="button"
           variant="outline"
           onClick={() => setShowFilters((current) => !current)}
-          className="h-12 shrink-0 rounded-lg border-[var(--border)]/70 bg-white px-3 text-sm font-bold md:rounded-full md:px-5"
+          className="h-12 shrink-0 rounded-lg border-[var(--border)]/70 bg-white px-3 text-sm font-bold md:px-5"
         >
           {showFilters ? <X size={15} /> : <Filter size={15} />}
           Filter
@@ -117,7 +117,7 @@ export default function FindPageClient({
           <span className="md:hidden">Missing a piece?</span>
           <span className="hidden md:inline">Looking for one missing piece?</span>
         </p>
-        <Link href={isAuthenticated ? alertPath : `/login?redirect=${encodeURIComponent(alertPath)}`} className="inline-flex h-8 items-center rounded-full px-2 text-xs font-bold text-[var(--brand)] hover:bg-[var(--brand-soft)] md:px-3">
+        <Link href={isAuthenticated ? alertPath : `/login?redirect=${encodeURIComponent(alertPath)}`} className="inline-flex h-8 items-center border-b border-transparent px-1 text-xs font-bold text-[var(--brand)] hover:border-[var(--brand)] md:px-2">
           <span className="md:hidden">Set alert</span>
           <span className="hidden md:inline">Set a private alert</span>
         </Link>
@@ -159,7 +159,7 @@ export default function FindPageClient({
       {loading ? (
         <ListingGridSkeleton />
       ) : listings.length > 0 ? (
-        <section className="grid grid-cols-2 gap-1.5 sm:gap-2 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
+        <section className="grid grid-cols-3 gap-1.5 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
           {listings.map((item, index) => <ListingCard key={item.id} item={item} eager={index === 0} />)}
         </section>
       ) : (

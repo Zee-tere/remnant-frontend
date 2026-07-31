@@ -3,12 +3,14 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { AlertTriangle, ArrowLeft, CheckCircle2, CreditCard, Loader2, PackageCheck } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CheckCircle2, CreditCard, PackageCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { LoadingState } from "@/components/feedback/LoadingState";
 import { transactionsApi } from "@/lib/api";
 import { getApiErrorMessage } from "@/lib/errors";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getSafeCheckoutUrl } from "@/lib/utils";
+import { readSessionValue } from "@/lib/browser-storage";
 
 interface GuestOrder {
   id: string;
@@ -33,7 +35,7 @@ export default function GuestOrderPage() {
   }, [id]);
 
   useEffect(() => {
-    const accessToken = localStorage.getItem(`remnant-guest-order:${id}`) || "";
+    const accessToken = readSessionValue(`remnant-guest-order:${id}`) || "";
     setToken(accessToken);
     if (!accessToken) {
       setLoading(false);
@@ -58,7 +60,7 @@ export default function GuestOrderPage() {
     }
   };
 
-  if (loading) return <div className="flex min-h-[60vh] items-center justify-center"><Loader2 className="animate-spin text-[var(--brand)]" /></div>;
+  if (loading) return <LoadingState label="Loading order" className="min-h-[60vh]" />;
   if (!token || !order) return (
     <main className="mx-auto max-w-lg px-5 py-20 text-center">
       <AlertTriangle className="mx-auto text-amber-600" size={42} />
@@ -69,6 +71,7 @@ export default function GuestOrderPage() {
   );
 
   const checkoutUrl = order.paymentCheckoutUrl || order.escrowCheckoutUrl;
+  const checkoutDestination = getSafeCheckoutUrl(checkoutUrl);
   return (
     <main className="mx-auto max-w-2xl px-5 py-10 sm:py-14">
       <Link href="/marketplace" className="inline-flex items-center gap-2 text-sm font-bold text-[var(--muted-foreground)] hover:text-[var(--brand)]"><ArrowLeft size={16} /> Marketplace</Link>
@@ -82,7 +85,7 @@ export default function GuestOrderPage() {
           <div><p className="text-xs font-bold uppercase text-[var(--muted-foreground)]">Status</p><p className="mt-1 font-bold">{order.status === "FUNDED" ? "PAID" : order.status.replaceAll("_", " ")}</p></div>
         </div>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          {order.status === "INITIATED" && checkoutUrl && <Button onClick={() => { window.location.href = checkoutUrl; }} className="rounded-full bg-[var(--brand)] text-white"><CreditCard size={17} /> Complete payment</Button>}
+          {order.status === "INITIATED" && checkoutDestination && <Button onClick={() => { window.location.assign(checkoutDestination.href); }} className="rounded-full bg-[var(--brand)] text-white"><CreditCard size={17} /> Complete payment</Button>}
           {order.status === "SHIPPED" && <Button disabled={busy} onClick={() => updateOrder("confirm")} className="rounded-full bg-[var(--brand)] text-white"><CheckCircle2 size={17} /> Confirm receipt</Button>}
           {["FUNDED", "SHIPPED", "RECEIVED"].includes(order.status) && <Button disabled={busy} variant="outline" onClick={() => updateOrder("dispute")} className="rounded-full"><AlertTriangle size={17} /> Report a problem</Button>}
         </div>

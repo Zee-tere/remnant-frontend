@@ -4,43 +4,44 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Bell,
   ChevronDown,
-  HandHeart,
-  LayoutDashboard,
-  LogOut,
-  Mail,
-  Package,
-  RefreshCw,
-  ScanSearch,
   Search,
-  Settings,
-  ShieldCheck,
-  ShoppingBag,
-  Store,
-  UserCircle,
-  UploadCloud,
 } from "lucide-react";
+import {
+  FaBell,
+  FaBox,
+  FaCloudArrowUp,
+  FaEnvelope,
+  FaGear,
+  FaHandHoldingHeart,
+  FaPuzzlePiece,
+  FaRightFromBracket,
+  FaRightLeft,
+  FaShieldHalved,
+  FaStore,
+  FaTag,
+  FaUser,
+} from "react-icons/fa6";
 import { useAuthStore } from "@/lib/auth";
 import { NameAvatar } from "@/components/ui/name-avatar";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const productActions = [
-  { label: "Find Pair", href: "/find-a-pair", icon: ScanSearch },
-  { label: "Market", href: "/marketplace", icon: ShoppingBag },
-  { label: "Sell", href: "/sell-item?intent=SELL", icon: Store },
-  { label: "Trade", href: "/sell-item?intent=TRADE", icon: RefreshCw },
-  { label: "Donate", href: "/sell-item?intent=DONATE", icon: HandHeart },
+  { label: "Find Pair", href: "/find-a-pair", icon: FaPuzzlePiece },
+  { label: "Market", href: "/marketplace", icon: FaStore },
+  { label: "Sell", href: "/sell-item?intent=SELL", icon: FaTag },
+  { label: "Trade", href: "/sell-item?intent=TRADE", icon: FaRightLeft },
+  { label: "Donate", href: "/sell-item?intent=DONATE", icon: FaHandHoldingHeart },
 ];
 
 const accountActions = [
-  { label: "Listings", href: "/user/dashboard", icon: Package },
-  { label: "Pair Alerts", href: "/user/dashboard?section=pair-alerts", icon: ScanSearch },
-  { label: "Messages", href: "/user/dashboard?section=messages", icon: Mail },
-  { label: "Alerts", href: "/user/dashboard?section=alerts", icon: Bell },
-  { label: "Upload", href: "/user/dashboard?section=upload", icon: UploadCloud },
-  { label: "Profile", href: "/user/dashboard?section=profile", icon: UserCircle },
-  { label: "Settings", href: "/user/dashboard?section=settings", icon: Settings },
+  { label: "Listings", href: "/user/dashboard", icon: FaBox },
+  { label: "Pair Alerts", href: "/user/dashboard?section=pair-alerts", icon: FaPuzzlePiece },
+  { label: "Messages", href: "/user/dashboard?section=messages", icon: FaEnvelope },
+  { label: "Alerts", href: "/user/dashboard?section=alerts", icon: FaBell },
+  { label: "Upload", href: "/user/dashboard?section=upload", icon: FaCloudArrowUp },
+  { label: "Profile", href: "/user/dashboard?section=profile", icon: FaUser },
+  { label: "Settings", href: "/user/dashboard?section=settings", icon: FaGear },
 ];
 
 export default function Navbar() {
@@ -54,7 +55,7 @@ export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuthStore();
   const displayName = user?.name || "Account";
   const mobileAccountActions = user?.role === "ADMIN"
-    ? [{ label: "Admin", href: "/admin", icon: ShieldCheck }, ...accountActions]
+    ? [{ label: "Admin", href: "/admin", icon: FaShieldHalved }, ...accountActions]
     : accountActions;
   const isAuthRoute = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth/callback"].some(
     (route) => pathname.startsWith(route),
@@ -110,7 +111,7 @@ export default function Navbar() {
   return (
     <header className={`sticky top-0 z-50 w-full px-3 py-2 md:px-6 md:py-3 ${isAuthRoute ? "hidden md:block" : ""}`}>
       <div
-        className={`relative mx-auto flex max-w-7xl items-center gap-2 rounded-[1.35rem] border bg-white px-2 py-1.5 transition-colors duration-200 md:justify-between md:gap-0 md:rounded-[2rem] md:px-6 md:py-3 ${
+        className={`relative mx-auto flex max-w-7xl items-center gap-2 rounded-lg border bg-white px-2 py-1.5 transition-colors duration-200 md:justify-between md:gap-0 md:rounded-xl md:px-6 md:py-3 ${
           scrolled ? "border-[var(--border)]/70" : "border-[var(--border)]/45"
         }`}
       >
@@ -146,7 +147,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setProfileOpen(!profileOpen)}
-                className="profile-button flex items-center gap-2 rounded-full border border-[var(--border)]/55 bg-white px-2.5 py-2 transition-colors hover:border-[var(--brand)]/40 hover:bg-[var(--brand-soft)]"
+                className="profile-button flex items-center gap-2 rounded-lg border border-[var(--border)]/55 bg-white px-2.5 py-2 transition-colors hover:border-[var(--brand)]/60 hover:bg-[var(--sand)]"
                 aria-label="User menu"
                 aria-expanded={profileOpen}
               >
@@ -162,7 +163,7 @@ export default function Navbar() {
               </button>
 
               {profileOpen && (
-                  <div className="absolute right-0 mt-3 w-60 overflow-hidden rounded-[1.5rem] border border-[var(--border)]/60 bg-white py-2 soft-shadow">
+                  <div className="absolute right-0 mt-3 w-60 overflow-hidden rounded-lg border border-[var(--border)]/60 bg-white py-2 soft-shadow">
                     <div className="border-b border-[var(--border)]/45 px-5 py-4">
                       <p className="text-sm font-bold text-foreground">{displayName}</p>
                       <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
@@ -172,7 +173,7 @@ export default function Navbar() {
                       onClick={() => setProfileOpen(false)}
                       className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--brand-soft)]"
                     >
-                      <LayoutDashboard size={16} className="text-[var(--brand)]" aria-hidden="true" />
+                      <FaBox size={15} className="text-[var(--brand)]" aria-hidden="true" />
                       My listings
                     </Link>
                     <Link
@@ -180,7 +181,7 @@ export default function Navbar() {
                       onClick={() => setProfileOpen(false)}
                       className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--brand-soft)]"
                     >
-                      <UserCircle size={16} className="text-[var(--brand)]" aria-hidden="true" />
+                      <FaUser size={15} className="text-[var(--brand)]" aria-hidden="true" />
                       Edit profile
                     </Link>
                     <Link
@@ -188,7 +189,7 @@ export default function Navbar() {
                       onClick={() => setProfileOpen(false)}
                       className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--brand-soft)]"
                     >
-                      <Settings size={16} className="text-[var(--brand)]" aria-hidden="true" />
+                      <FaGear size={15} className="text-[var(--brand)]" aria-hidden="true" />
                       Settings
                     </Link>
                     {user?.role === "ADMIN" && (
@@ -197,7 +198,7 @@ export default function Navbar() {
                         onClick={() => setProfileOpen(false)}
                         className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--brand-soft)]"
                       >
-                        <ShieldCheck size={16} className="text-[var(--brand)]" aria-hidden="true" />
+                        <FaShieldHalved size={15} className="text-[var(--brand)]" aria-hidden="true" />
                         Administration
                       </Link>
                     )}
@@ -207,7 +208,7 @@ export default function Navbar() {
                         onClick={handleLogout}
                         className="flex w-full items-center gap-3 px-5 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50"
                       >
-                        <LogOut size={16} aria-hidden="true" />
+                        <FaRightFromBracket size={15} aria-hidden="true" />
                         Log out
                       </button>
                     </div>
@@ -218,7 +219,7 @@ export default function Navbar() {
             <div className="hidden items-center gap-2 md:flex">
               <Link
                 href="/signup"
-                className="rounded-full bg-[var(--brand)] px-5 py-3 text-sm font-bold text-white soft-shadow transition-colors hover:bg-[var(--brand-dark)]"
+                className="rounded-lg bg-[var(--brand)] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[var(--brand-dark)]"
               >
                 Join Now
               </Link>
@@ -228,7 +229,7 @@ export default function Navbar() {
           {showMobileSearch && (
             <form
               onSubmit={handleMobileSearch}
-              className="flex h-10 min-w-0 flex-1 items-center overflow-hidden rounded-[0.95rem] bg-[var(--sand)]/75 pl-3 md:hidden"
+              className="flex h-10 min-w-0 flex-1 items-center overflow-hidden rounded-lg bg-[var(--sand)] pl-3 md:hidden"
             >
               <input
                 value={mobileSearch}
@@ -239,7 +240,7 @@ export default function Navbar() {
               />
               <button
                 type="submit"
-                className="m-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)]"
+                className="m-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--brand)] transition-colors hover:bg-white"
                 aria-label="Submit search"
               >
                 <Search size={14} strokeWidth={2.15} aria-hidden="true" />
@@ -249,7 +250,7 @@ export default function Navbar() {
 
           <button
             type="button"
-            className="mobile-menu-button inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] bg-[var(--brand-soft)] text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)] md:hidden"
+            className="mobile-menu-button inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--brand)] text-white transition-colors hover:bg-[var(--brand-dark)] md:hidden"
             onPointerDown={(event) => event.stopPropagation()}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -266,8 +267,8 @@ export default function Navbar() {
                 <div
                   className={`navbar-menu mobile-menu-entry absolute -right-3 top-full z-50 mt-2 overflow-hidden bg-white md:hidden ${
                     isAuthenticated
-                      ? "w-[15.5rem] rounded-l-xl border-y border-l border-[var(--border)]/65 py-1"
-                      : "w-[min(92vw,22rem)] rounded-l-xl border-y border-l border-[var(--border)]/65 p-2"
+                      ? "w-[15.5rem] rounded-l-lg border-y border-l border-[var(--border)]/65 py-1"
+                      : "w-[min(92vw,22rem)] rounded-l-lg border-y border-l border-[var(--border)]/65 p-2"
                   }`}
                 >
                   <nav className={isAuthenticated ? "flex flex-col" : "grid grid-cols-3 gap-1.5"} aria-label="Mobile navigation">
@@ -298,7 +299,7 @@ export default function Navbar() {
                         }}
                         className="flex h-12 items-center gap-3 px-4 text-sm font-bold text-red-600 transition-colors hover:bg-red-50"
                       >
-                        <LogOut size={16} aria-hidden="true" />
+                        <FaRightFromBracket size={15} aria-hidden="true" />
                         <span>Log out</span>
                       </button>
                     )}

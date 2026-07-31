@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage, type StateStorage } from 'zustand/middleware';
 import { getApiUrl } from './api-url';
+import { readSessionValue, removeSessionValue, writeSessionValue } from './browser-storage';
 
 export const AUTH_STORAGE_KEY = 'remnant-auth';
 const AUTH_STORAGE_VERSION = 3;
@@ -41,26 +42,10 @@ interface AuthState {
 
 let sessionRefreshPromise: Promise<boolean> | null = null;
 
-const crossTabStorage: StateStorage = {
-  getItem: (name) => {
-    const persisted = window.localStorage.getItem(name);
-    if (persisted) return persisted;
-
-    const previousTabSession = window.sessionStorage.getItem(name);
-    if (previousTabSession) {
-      window.localStorage.setItem(name, previousTabSession);
-      window.sessionStorage.removeItem(name);
-    }
-    return previousTabSession;
-  },
-  setItem: (name, value) => {
-    window.localStorage.setItem(name, value);
-    window.sessionStorage.removeItem(name);
-  },
-  removeItem: (name) => {
-    window.localStorage.removeItem(name);
-    window.sessionStorage.removeItem(name);
-  },
+const sessionStorageAdapter: StateStorage = {
+  getItem: readSessionValue,
+  setItem: writeSessionValue,
+  removeItem: removeSessionValue,
 };
 
 export const useAuthStore = create<AuthState>()(
@@ -180,7 +165,7 @@ export const useAuthStore = create<AuthState>()(
     {
       name: AUTH_STORAGE_KEY,
       version: AUTH_STORAGE_VERSION,
-      storage: createJSONStorage(() => crossTabStorage),
+      storage: createJSONStorage(() => sessionStorageAdapter),
       partialize: (state) => {
         const canRestore = Boolean(state.user && state.refreshToken && state.isAuthenticated);
         return {

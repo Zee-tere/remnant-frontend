@@ -19,7 +19,7 @@ import { DashboardSectionLoading } from "@/components/feedback/LoadingState";
 import { transactionsApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
 import { getApiErrorMessage } from "@/lib/errors";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency, getSafeCheckoutUrl } from "@/lib/utils";
 
 type TransactionStatus =
   | "INITIATED"
@@ -58,10 +58,6 @@ function formatDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Recently";
   return date.toLocaleDateString("en-NG", { month: "short", day: "numeric" });
-}
-
-function isExternalUrl(value: string) {
-  return /^https?:\/\//i.test(value);
 }
 
 export default function TransactionsSection() {
@@ -168,6 +164,7 @@ export default function TransactionsSection() {
         <div className="space-y-3">
           {filtered.map((transaction) => {
             const checkoutUrl = transaction.paymentCheckoutUrl || transaction.escrowCheckoutUrl;
+            const checkoutDestination = getSafeCheckoutUrl(checkoutUrl);
             const meta = statusMeta[transaction.status] ?? statusMeta.INITIATED;
             const Icon = meta.icon;
             const otherUser = transaction.buyer.id === user?.id ? transaction.seller : transaction.buyer;
@@ -206,14 +203,14 @@ export default function TransactionsSection() {
 
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                     <p className="text-lg font-bold text-foreground sm:min-w-28 sm:text-right">{formatCurrency(Number(transaction.amount))}</p>
-                    {transaction.status === "INITIATED" && transaction.buyer.id === user?.id && checkoutUrl ? (
+                    {transaction.status === "INITIATED" && transaction.buyer.id === user?.id && checkoutDestination ? (
                       <Button asChild className="bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]">
-                        {isExternalUrl(checkoutUrl) ? (
-                          <a href={checkoutUrl} rel="noreferrer">
+                        {checkoutDestination.external ? (
+                          <a href={checkoutDestination.href} rel="noopener noreferrer">
                             Complete payment
                           </a>
                         ) : (
-                          <Link href={checkoutUrl}>Complete payment</Link>
+                          <Link href={checkoutDestination.href}>Complete payment</Link>
                         )}
                       </Button>
                     ) : (

@@ -47,8 +47,8 @@ function SellItemPageContent() {
 
               <Button
                 type="button"
-                variant="outline"
-                className="h-13 w-full rounded-full border-[var(--border)] bg-white text-base font-bold text-[var(--brand)] hover:bg-[var(--brand-soft)] md:h-14"
+                variant="secondary"
+                className="h-13 w-full border-0 bg-[var(--sand)] text-base font-bold text-[var(--foreground)] hover:bg-[var(--brand-soft)] md:h-14"
                 onClick={() => router.push(`${listingPath}${listingPath.includes("?") ? "&" : "?"}guest=1`)}
               >
                 <ArrowRight size={18} aria-hidden="true" />

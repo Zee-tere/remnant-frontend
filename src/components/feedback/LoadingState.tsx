@@ -1,5 +1,15 @@
 import { cn } from '@/lib/utils';
 
+export function LoadingMark({ compact = false }: { compact?: boolean }) {
+  return (
+    <span className={cn('remnant-loader', compact && 'remnant-loader--compact')} aria-hidden="true">
+      <span />
+      <span />
+      <span />
+    </span>
+  );
+}
+
 export function LoadingState({
   label = 'Loading',
   className,
@@ -20,7 +30,7 @@ export function LoadingState({
       aria-live="polite"
       aria-busy="true"
     >
-      <span className="loading-orbit" aria-hidden="true" />
+      <LoadingMark />
       <span className="text-sm font-semibold">{label}</span>
     </div>
   );
@@ -28,14 +38,14 @@ export function LoadingState({
 
 export function ListingGridSkeleton({ count = 8 }: { count?: number }) {
   return (
-    <div className="grid auto-rows-fr grid-cols-2 gap-1.5 sm:gap-2 md:grid-cols-3 md:gap-4 xl:grid-cols-4" role="status" aria-label="Loading marketplace items" aria-busy="true">
+    <div className="grid auto-rows-fr grid-cols-3 gap-1.5 md:grid-cols-3 md:gap-4 xl:grid-cols-4" role="status" aria-label="Loading marketplace items" aria-busy="true">
       {Array.from({ length: count }, (_, index) => (
         <div key={index} className="overflow-hidden rounded-lg border border-[var(--border)] bg-white">
-          <div className="skeleton aspect-[5/3] md:aspect-[5/4]" />
-          <div className="space-y-2 p-2 md:p-4">
-            <div className="skeleton h-5 w-4/5 rounded-full" />
-            <div className="skeleton h-4 w-2/5 rounded-full" />
-            <div className="skeleton h-3 w-3/5 rounded-full" />
+          <div className="skeleton aspect-square md:aspect-[5/4]" />
+          <div className="space-y-1.5 p-1.5 md:space-y-2 md:p-4">
+            <div className="skeleton h-3.5 w-4/5 rounded-sm md:h-5" />
+            <div className="skeleton h-3 w-2/5 rounded-sm md:h-4" />
+            <div className="skeleton h-2.5 w-3/5 rounded-sm md:h-3" />
           </div>
         </div>
       ))}
@@ -48,14 +58,14 @@ export function DashboardSectionLoading({ label = 'Loading your dashboard' }: { 
     <div className="space-y-6" role="status" aria-label={label} aria-busy="true">
       <span className="sr-only">{label}</span>
       <div className="space-y-3">
-        <div className="skeleton h-3 w-28 rounded-full" />
-        <div className="skeleton h-9 w-52 rounded-full" />
+        <div className="skeleton h-3 w-28 rounded-sm" />
+        <div className="skeleton h-9 w-52 rounded-md" />
       </div>
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4">
         {Array.from({ length: 4 }, (_, index) => (
           <div key={index} className="min-h-28 rounded-lg border border-[var(--border)] bg-white p-4 md:rounded-xl">
-            <div className="skeleton h-3 w-20 rounded-full" />
-            <div className="skeleton mt-4 h-7 w-12 rounded-full" />
+            <div className="skeleton h-3 w-20 rounded-sm" />
+            <div className="skeleton mt-4 h-7 w-12 rounded-md" />
           </div>
         ))}
       </div>
@@ -77,9 +87,9 @@ export function PageLoadingShell() {
       <span className="sr-only">Loading page</span>
       <div className="mx-auto max-w-7xl">
         <div className="loading-panel relative overflow-hidden rounded-xl border border-[var(--border)] px-5 py-10 md:px-10 md:py-14">
-          <div className="skeleton h-3 w-36 rounded-full" />
-          <div className="skeleton mt-5 h-11 max-w-lg rounded-full md:h-16" />
-          <div className="skeleton mt-4 h-4 max-w-sm rounded-full" />
+          <LoadingMark />
+          <div className="skeleton mt-5 h-11 max-w-lg rounded-md md:h-16" />
+          <div className="skeleton mt-4 h-4 max-w-sm rounded-sm" />
         </div>
         <div className="mt-8">
           <ListingGridSkeleton count={4} />

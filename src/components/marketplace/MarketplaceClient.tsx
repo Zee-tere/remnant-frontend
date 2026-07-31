@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   Filter,
   HandHeart,
-  Loader2,
   Package,
   Recycle,
   RefreshCw,
@@ -18,6 +17,7 @@ import { listingCategories } from "@/lib/categories";
 import { NairaIcon } from "@/components/ui/naira-icon";
 import { nigerianStates } from "@/lib/nigeria-locations";
 import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
+import { LoadingState } from "@/components/feedback/LoadingState";
 import type { PublicListingPage } from "@/lib/public-listings";
 
 type Listing = ListingCardItem;
@@ -114,7 +114,7 @@ export default function MarketplaceClient({
           <select
             value={city}
             onChange={(event) => { setCity(event.target.value); setPage(1); }}
-            className={`h-12 w-full border border-[var(--border)]/70 bg-white px-4 font-semibold text-[var(--foreground)] outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15 ${embedded ? "rounded-lg text-base" : "rounded-full text-sm"}`}
+            className="h-12 w-full rounded-lg border border-[var(--border)]/70 bg-white px-4 font-semibold text-[var(--foreground)] outline-none focus:border-[var(--brand)] focus:outline-2 focus:outline-offset-1 focus:outline-[var(--brand)]"
           >
             <option value="">All states</option>
             {nigerianStates.map((state) => <option key={state} value={state}>{state}</option>)}
@@ -129,7 +129,7 @@ export default function MarketplaceClient({
               setCategory(event.target.value);
               setPage(1);
             }}
-            className={`h-12 w-full border border-[var(--border)]/70 bg-white px-4 font-semibold text-[var(--foreground)] outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15 ${embedded ? "rounded-lg text-base" : "rounded-full text-sm"}`}
+            className="h-12 w-full rounded-lg border border-[var(--border)]/70 bg-white px-4 font-semibold text-[var(--foreground)] outline-none focus:border-[var(--brand)] focus:outline-2 focus:outline-offset-1 focus:outline-[var(--brand)]"
           >
             <option value="">All pieces</option>
             {listingCategories.map((item) => (
@@ -146,7 +146,7 @@ export default function MarketplaceClient({
             {Object.entries(intentionMeta).map(([key, meta]) => {
               const Icon = meta.icon;
               return (
-                <label key={key} className={`flex cursor-pointer items-center gap-3 transition-colors hover:bg-[var(--sand)] ${embedded ? "min-h-11 rounded-lg px-2" : "rounded-full p-1.5"}`}>
+                <label key={key} className={`flex cursor-pointer items-center gap-3 rounded-lg transition-colors hover:bg-[var(--sand)] ${embedded ? "min-h-11 px-2" : "p-1.5"}`}>
                   <span className="relative flex h-6 w-6 items-center justify-center rounded-full border-2 border-[var(--border)]">
                     <input
                       type="radio"
@@ -193,7 +193,7 @@ export default function MarketplaceClient({
               key={item.key || 'all'}
               type="button"
               onClick={() => { setIntentionTag(item.key); setPage(1); }}
-              className={`min-h-11 shrink-0 rounded-full border px-3 text-xs font-bold transition-colors ${
+              className={`min-h-11 shrink-0 rounded-lg border px-3 text-xs font-bold transition-colors ${
                 intentionTag === item.key
                   ? 'border-[var(--brand)] bg-[var(--brand)] text-white'
                   : 'border-[var(--border)] bg-white text-[var(--ink-soft)]'
@@ -229,7 +229,7 @@ export default function MarketplaceClient({
             {hasActiveFilters && (
               <div className="mb-5 flex flex-wrap gap-2">
                 {submittedSearch && (
-                  <span className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-soft)] px-3 py-1 text-sm font-bold text-[var(--brand)]">
+                  <span className="inline-flex items-center gap-2 rounded-md bg-[var(--brand-soft)] px-3 py-1 text-sm font-bold text-[var(--brand)]">
                     {submittedSearch}
                     <button type="button" onClick={() => setSubmittedSearch("")}>
                       <X size={14} aria-hidden="true" />
@@ -237,7 +237,7 @@ export default function MarketplaceClient({
                   </span>
                 )}
                 {category && (
-                  <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm font-bold text-[var(--ink-soft)]">
+                  <span className="inline-flex items-center gap-2 rounded-md border border-[var(--border)]/55 bg-white px-3 py-1 text-sm font-bold text-[var(--ink-soft)]">
                     {category}
                     <button type="button" onClick={() => setCategory("")}>
                       <X size={14} aria-hidden="true" />
@@ -245,7 +245,7 @@ export default function MarketplaceClient({
                   </span>
                 )}
                 {intentionTag && (
-                  <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm font-bold text-[var(--ink-soft)]">
+                  <span className="inline-flex items-center gap-2 rounded-md border border-[var(--border)]/55 bg-white px-3 py-1 text-sm font-bold text-[var(--ink-soft)]">
                     {intentionMeta[intentionTag]?.label}
                     <button type="button" onClick={() => setIntentionTag("")}>
                       <X size={14} aria-hidden="true" />
@@ -253,7 +253,7 @@ export default function MarketplaceClient({
                   </span>
                 )}
                 {city && (
-                  <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm font-bold text-[var(--ink-soft)]">
+                  <span className="inline-flex items-center gap-2 rounded-md border border-[var(--border)]/55 bg-white px-3 py-1 text-sm font-bold text-[var(--ink-soft)]">
                     {city}
                     <button type="button" onClick={() => setCity("")} aria-label="Clear state filter">
                       <X size={14} aria-hidden="true" />
@@ -264,12 +264,10 @@ export default function MarketplaceClient({
             )}
 
             {loading ? (
-              <div className="flex min-h-[420px] items-center justify-center">
-                <Loader2 size={30} className="animate-spin text-[var(--brand)]" />
-              </div>
+              <LoadingState label="Loading marketplace items" compact className="min-h-[320px]" />
             ) : listings.length > 0 ? (
               <>
-                <div className="grid auto-rows-fr grid-cols-2 gap-1.5 sm:gap-2 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
+                <div className="grid auto-rows-fr grid-cols-3 gap-1.5 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
                   {listings.map((item, index) => <ListingCard key={item.id} item={item} eager={index === 0} />)}
                 </div>
 

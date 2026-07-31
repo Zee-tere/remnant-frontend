@@ -3,14 +3,15 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Home, Mail, Package, Plus, Search, ShoppingBag, UserCircle } from "lucide-react";
+import type { IconType } from "react-icons";
+import { FaBox, FaCirclePlus, FaEnvelope, FaHouse, FaMagnifyingGlass, FaStore, FaUser } from "react-icons/fa6";
 import { useAuthStore } from "@/lib/auth";
 import { NameAvatar } from "@/components/ui/name-avatar";
 
 interface NavAction {
   label: string;
   href: string;
-  icon: typeof Home;
+  icon: IconType;
   profile?: boolean;
   primary?: boolean;
 }
@@ -40,18 +41,18 @@ export default function MobileBottomNav() {
 
   const actions: NavAction[] = isAuthenticated
     ? [
-        { label: "Listings", href: "/user/dashboard", icon: Package },
-        { label: "Messages", href: "/user/dashboard?section=messages", icon: Mail },
-        { label: "List", href: "/sell-item", icon: Plus, primary: true },
-        { label: "Pairs", href: "/user/dashboard?section=pair-alerts", icon: Search },
-        { label: "Profile", href: "/user/dashboard?section=profile", icon: UserCircle, profile: true },
+        { label: "Listings", href: "/user/dashboard", icon: FaBox },
+        { label: "Messages", href: "/user/dashboard?section=messages", icon: FaEnvelope },
+        { label: "List", href: "/sell-item", icon: FaCirclePlus, primary: true },
+        { label: "Pairs", href: "/user/dashboard?section=pair-alerts", icon: FaMagnifyingGlass },
+        { label: "Profile", href: "/user/dashboard?section=profile", icon: FaUser, profile: true },
       ]
     : [
-        { label: "Home", href: "/", icon: Home },
-        { label: "Market", href: "/marketplace", icon: ShoppingBag },
-        { label: "List", href: "/sell-item", icon: Plus, primary: true },
-        { label: "Pair", href: "/find-a-pair", icon: Search },
-        { label: "Account", href: "/login", icon: UserCircle, profile: true },
+        { label: "Home", href: "/", icon: FaHouse },
+        { label: "Market", href: "/marketplace", icon: FaStore },
+        { label: "List", href: "/sell-item", icon: FaCirclePlus, primary: true },
+        { label: "Pair", href: "/find-a-pair", icon: FaMagnifyingGlass },
+        { label: "Account", href: "/login", icon: FaUser, profile: true },
       ];
 
   const isActive = (item: NavAction) => {
@@ -71,7 +72,7 @@ export default function MobileBottomNav() {
       data-mobile-bottom-dock
       className="mobile-bottom-dock md:hidden"
     >
-      <div className="mobile-bottom-dock__bar mx-auto grid h-[4.25rem] max-w-lg grid-cols-5 rounded-[1.35rem] border border-[var(--border)]/70 bg-white px-1.5">
+      <div className="mobile-bottom-dock__bar mx-auto grid h-[4.1rem] max-w-lg grid-cols-5 rounded-lg border border-[var(--border)]/70 bg-white px-1.5">
         {actions.map((item) => {
           const Icon = item.icon;
           const active = isActive(item);
@@ -89,15 +90,15 @@ export default function MobileBottomNav() {
               aria-label={item.label}
               aria-current={active ? "page" : undefined}
             >
-              <span className={`relative flex items-center justify-center transition-all duration-200 ${item.primary ? "-mt-5 h-[3.25rem] w-[3.25rem] rounded-full border-4 border-white bg-[var(--brand)] text-white" : active ? "h-8 w-10 rounded-[0.85rem] bg-[var(--brand-soft)]" : "h-8 w-10 rounded-[0.85rem]"}`}>
+              <span className={`relative flex items-center justify-center transition-colors duration-150 ${item.primary ? "-mt-4 h-12 w-12 rounded-lg bg-[var(--brand)] text-white" : active ? "h-8 w-10 text-[var(--brand)]" : "h-8 w-10"}`}>
                 {item.profile && isAuthenticated ? (
                   <NameAvatar name={user?.name || "Remnant"} className="h-7 w-7 text-xs" />
                 ) : (
-                  <Icon className="h-[18px] w-[18px]" strokeWidth={2} aria-hidden="true" />
+                  <Icon className="h-[17px] w-[17px]" aria-hidden="true" />
                 )}
               </span>
               <span className={`${item.primary ? "-mt-1 text-[var(--brand)]" : ""} leading-none`}>{item.label}</span>
-              {active && !item.primary && <span className="absolute bottom-1.5 h-0.5 w-0.5 rounded-full bg-[var(--brand)]" aria-hidden="true" />}
+              {active && !item.primary && <span className="absolute bottom-1 h-0.5 w-4 bg-[var(--brand)]" aria-hidden="true" />}
             </Link>
           );
         })}

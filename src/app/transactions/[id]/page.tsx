@@ -19,9 +19,10 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { LoadingState } from "@/components/feedback/LoadingState";
 import { transactionsApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
-import { cn, formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency, getSafeCheckoutUrl } from "@/lib/utils";
 import { NameAvatar } from "@/components/ui/name-avatar";
 
 type TransactionStatus =
@@ -95,10 +96,6 @@ function formatDate(value: string | null) {
   return date.toLocaleDateString("en-NG", { month: "short", day: "numeric", year: "numeric" });
 }
 
-function isExternalUrl(value: string) {
-  return /^https?:\/\//i.test(value);
-}
-
 export default function TransactionDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -160,19 +157,21 @@ export default function TransactionDetailPage() {
 
   const openCheckout = () => {
     const checkoutUrl = transaction?.paymentCheckoutUrl || transaction?.escrowCheckoutUrl;
-    if (!checkoutUrl) return;
-    if (isExternalUrl(checkoutUrl)) {
-      window.location.href = checkoutUrl;
+    const destination = getSafeCheckoutUrl(checkoutUrl);
+    if (!destination) {
+      toast.error("The payment link is unavailable or unsafe. Please refresh the order.");
       return;
     }
-    router.push(checkoutUrl);
+    if (destination.external) {
+      window.location.assign(destination.href);
+      return;
+    }
+    router.push(destination.href);
   };
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center bg-background">
-        <Loader2 className="animate-spin text-[var(--brand)]" size={30} />
-      </div>
+      <LoadingState label="Loading transaction" className="min-h-[60vh] bg-background" />
     );
   }
 
@@ -288,7 +287,7 @@ export default function TransactionDetailPage() {
 
                 {role === "buyer" && transaction.status === "INITIATED" && (transaction.paymentCheckoutUrl || transaction.escrowCheckoutUrl) && (
                   <Button onClick={openCheckout} className="w-full bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]">
-                    {isExternalUrl(transaction.paymentCheckoutUrl || transaction.escrowCheckoutUrl || "") ? <ExternalLink size={16} /> : <CreditCard size={16} />}
+                    {getSafeCheckoutUrl(transaction.paymentCheckoutUrl || transaction.escrowCheckoutUrl)?.external ? <ExternalLink size={16} /> : <CreditCard size={16} />}
                     Continue payment
                   </Button>
                 )}

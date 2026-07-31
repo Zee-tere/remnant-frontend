@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Clock3, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LoadingMark, LoadingState } from "@/components/feedback/LoadingState";
 import { transactionsApi } from "@/lib/api";
+import { readSessionValue, removeSessionValue } from "@/lib/browser-storage";
 
 type VerificationState = "loading" | "success" | "pending" | "error";
 
@@ -21,7 +23,7 @@ function PaymentResult() {
       setState("error");
       return;
     }
-    const guestPayment = localStorage.getItem(`remnant-guest-payment:${reference}`);
+    const guestPayment = readSessionValue(`remnant-guest-payment:${reference}`);
     if (guestPayment) {
       try {
         const stored = JSON.parse(guestPayment) as { transactionId?: string };
@@ -30,7 +32,7 @@ function PaymentResult() {
           setGuestOrder(true);
         }
       } catch {
-        localStorage.removeItem(`remnant-guest-payment:${reference}`);
+        removeSessionValue(`remnant-guest-payment:${reference}`);
       }
     }
 
@@ -56,7 +58,11 @@ function PaymentResult() {
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-xl items-center px-5 py-14 text-center">
       <div className="w-full rounded-lg border border-[var(--border)] bg-white p-7 sm:p-10">
-        <Icon size={46} className={`mx-auto ${content.color} ${content.spin ? "animate-spin" : ""}`} />
+        {state === "loading" ? (
+          <span className="inline-flex"><LoadingMark /></span>
+        ) : (
+          <Icon size={46} className={`mx-auto ${content.color}`} />
+        )}
         <h1 className="mt-5 text-2xl font-bold text-[var(--foreground)]">{content.title}</h1>
         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[var(--ink-soft)]">{content.body}</p>
         {state !== "loading" && (
@@ -77,5 +83,5 @@ function PaymentResult() {
 }
 
 export default function PaymentCallbackPage() {
-  return <Suspense fallback={<div className="flex min-h-[70vh] items-center justify-center"><Loader2 className="animate-spin text-[var(--brand)]" /></div>}><PaymentResult /></Suspense>;
+  return <Suspense fallback={<LoadingState label="Loading payment status" className="min-h-[70vh]" />}><PaymentResult /></Suspense>;
 }

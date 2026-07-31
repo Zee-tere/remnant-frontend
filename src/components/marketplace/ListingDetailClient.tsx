@@ -36,6 +36,7 @@ import { useAuthStore } from "@/lib/auth";
 import { conditionLabels } from "@/lib/listing-conditions";
 import { getApiErrorMessage } from "@/lib/errors";
 import { formatCurrency } from "@/lib/utils";
+import { writeSessionValue } from "@/lib/browser-storage";
 import type { PublicListing } from "@/lib/public-listings";
 
 type ListingDetail = PublicListing;
@@ -85,13 +86,13 @@ function GuestMessageDialog({
   const [message, setMessage] = useState(`Hi, I am interested in ${listingTitle}.`);
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/25 sm:items-center sm:p-5" role="presentation">
+    <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/45 sm:items-center sm:p-5" role="presentation">
       <form
         onSubmit={(event) => {
           event.preventDefault();
           void onSubmit({ name, email, message });
         }}
-        className="max-h-[calc(100dvh-0.75rem)] w-full space-y-3 overflow-y-auto rounded-t-lg border border-[var(--border)]/55 bg-white px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 sm:max-w-md sm:rounded-lg sm:p-6"
+        className="max-h-[calc(100dvh-0.75rem)] w-full space-y-3 overflow-y-auto rounded-t-lg border border-[var(--border)]/55 bg-white px-4 pb-[calc(var(--safe-area-bottom)+1rem)] pt-4 sm:max-w-md sm:rounded-lg sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="guest-message-title"
@@ -151,8 +152,8 @@ function SellerContactDialog({
   ].filter((option): option is NonNullable<typeof option> => Boolean(option));
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/25 sm:items-center sm:p-5" role="presentation">
-      <section className="w-full rounded-t-lg border border-[var(--border)]/55 bg-white p-5 sm:max-w-md sm:rounded-lg sm:p-6" role="dialog" aria-modal="true" aria-labelledby="seller-contact-title">
+    <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/45 sm:items-center sm:p-5" role="presentation">
+      <section className="max-h-[calc(100dvh-0.75rem)] w-full overflow-y-auto rounded-t-lg border border-[var(--border)]/55 bg-white px-5 pb-[calc(var(--safe-area-bottom)+1.25rem)] pt-5 sm:max-w-md sm:rounded-lg sm:p-6" role="dialog" aria-modal="true" aria-labelledby="seller-contact-title">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 id="seller-contact-title" className="text-xl font-bold">Contact the seller</h2>
@@ -195,6 +196,23 @@ export default function ListingDetailClient({ initialListing }: { initialListing
   const [isSaving, setIsSaving] = useState(false);
   const [showGuestMessage, setShowGuestMessage] = useState(false);
   const [sellerContact, setSellerContact] = useState<SellerContact | null>(null);
+
+  useEffect(() => {
+    const dialogOpen = showGuestMessage || Boolean(sellerContact);
+    if (!dialogOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setShowGuestMessage(false);
+      setSellerContact(null);
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [sellerContact, showGuestMessage]);
 
   useEffect(() => {
     listingsApi
@@ -244,7 +262,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
     setIsMessaging(true);
     try {
       const result = await conversationsApi.startGuestConversation({ listingId: listing.id, ...details });
-      localStorage.setItem(`remnant-guest-conversation:${result.conversation.id}`, result.guestToken);
+      writeSessionValue(`remnant-guest-conversation:${result.conversation.id}`, result.guestToken);
       setShowGuestMessage(false);
       router.push(`/guest/messages/${result.conversation.id}`);
     } catch (error) {
@@ -328,7 +346,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
 
         <section className="lg:col-span-5">
           <div className="sticky top-24 space-y-4">
-            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[0.7rem] font-bold md:px-3 md:text-sm ${intent.className}`}>
+            <span className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.7rem] font-bold md:px-3 md:text-sm ${intent.className}`}>
               <IntentIcon size={12} className="md:h-4 md:w-4" /> {intent.label}
             </span>
             <div>
@@ -395,7 +413,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
       {similarListings.length > 0 && (
         <section className="mt-8 border-t border-[var(--border)] pt-5 md:mt-12 md:pt-8">
           <h2 className="mb-3 text-lg font-bold md:text-2xl">Similar items</h2>
-          <div className="grid auto-cols-[46%] grid-flow-col gap-2 overflow-x-auto pb-2 scrollbar-hide sm:auto-cols-[31%] lg:auto-cols-[23%] md:gap-4">
+          <div className="grid auto-cols-[31%] grid-flow-col gap-1.5 overflow-x-auto pb-2 scrollbar-hide lg:auto-cols-[23%] md:gap-4">
             {similarListings.map((item) => <ListingCard key={item.id} item={item} />)}
           </div>
         </section>

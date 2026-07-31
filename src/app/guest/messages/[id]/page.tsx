@@ -7,8 +7,10 @@ import { AlertTriangle, ArrowLeft, Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { NameAvatar } from "@/components/ui/name-avatar";
+import { LoadingState } from "@/components/feedback/LoadingState";
 import { conversationsApi } from "@/lib/api";
 import { getApiErrorMessage } from "@/lib/errors";
+import { readSessionValue } from "@/lib/browser-storage";
 
 interface GuestConversation {
   conversation: {
@@ -53,7 +55,7 @@ export default function GuestMessagesPage() {
   }, [id]);
 
   useEffect(() => {
-    const token = localStorage.getItem(`remnant-guest-conversation:${id}`) || "";
+    const token = readSessionValue(`remnant-guest-conversation:${id}`) || "";
     setAccessToken(token);
     if (!token) {
       setLoading(false);
@@ -138,7 +140,7 @@ export default function GuestMessagesPage() {
     }
   };
 
-  if (loading) return <div className="flex min-h-[60vh] items-center justify-center"><Loader2 className="animate-spin text-[var(--brand)]" /></div>;
+  if (loading) return <LoadingState label="Loading conversation" className="min-h-[60vh]" />;
   if (!accessToken || !data) return (
     <main className="mx-auto max-w-lg px-5 py-20 text-center">
       <AlertTriangle className="mx-auto text-amber-600" size={42} />

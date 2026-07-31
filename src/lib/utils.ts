@@ -33,3 +33,21 @@ export function truncateText(text: string, maxLength: number): string {
 export function generateId(): string {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
+
+export function getSafeCheckoutUrl(value: string | null | undefined) {
+  if (!value) return null;
+
+  if (value.startsWith('/') && !value.startsWith('//') && !value.startsWith('/\\')) {
+    return { href: value, external: false };
+  }
+
+  try {
+    const url = new URL(value);
+    const hostname = url.hostname.toLowerCase();
+    const trustedPaystackHost = hostname === 'checkout.paystack.com' || hostname.endsWith('.paystack.com');
+    if (url.protocol !== 'https:' || url.username || url.password || !trustedPaystackHost) return null;
+    return { href: url.toString(), external: true };
+  } catch {
+    return null;
+  }
+}

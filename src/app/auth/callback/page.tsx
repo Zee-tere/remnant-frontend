@@ -3,10 +3,10 @@
 import { Suspense, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/lib/auth";
 import { getApiUrl } from "@/lib/api-url";
+import { LoadingMark } from "@/components/feedback/LoadingState";
 import {
   clearExpectedAuthState,
   decodeAuthState,
@@ -120,7 +120,7 @@ function AuthCallbackShell() {
   return (
     <main className="flex min-h-[70vh] items-center justify-center bg-[var(--background)] px-5">
       <div className="rounded-[2rem] border border-[var(--border)]/55 bg-white p-8 text-center">
-        <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-[var(--brand)]" aria-hidden="true" />
+        <span className="mb-4 inline-flex"><LoadingMark /></span>
         <h1 className="text-2xl font-bold text-[var(--foreground)]">Finishing sign-in</h1>
         <p className="mt-2 text-sm font-semibold text-[var(--muted-foreground)]">
           You will be redirected in a moment.
