@@ -47,7 +47,6 @@ const accountActions = [
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [mobileSearch, setMobileSearch] = useState("");
   const pathname = usePathname();
   const router = useRouter();
@@ -61,14 +60,6 @@ export default function Navbar() {
     (route) => pathname.startsWith(route),
   );
   const showMobileSearch = pathname !== "/" && !pathname.startsWith("/find-a-pair") && !pathname.startsWith("/user/");
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const handleScroll = () => setScrolled(window.scrollY > 10);
-    handleScroll();
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -109,12 +100,8 @@ export default function Navbar() {
   };
 
   return (
-    <header className={`sticky top-0 z-50 w-full px-3 py-2 md:px-6 md:py-3 ${isAuthRoute ? "hidden md:block" : ""}`}>
-      <div
-        className={`relative mx-auto flex max-w-7xl items-center gap-2 rounded-lg border bg-white px-2 py-1.5 transition-colors duration-200 md:justify-between md:gap-0 md:rounded-xl md:px-6 md:py-3 ${
-          scrolled ? "border-[var(--border)]/70" : "border-[var(--border)]/45"
-        }`}
-      >
+    <header className={`sticky top-0 z-50 w-full border-b border-[var(--sand)] bg-white px-3 py-1.5 md:px-6 md:py-3 ${isAuthRoute ? "hidden md:block" : ""}`}>
+      <div className="relative mx-auto flex max-w-7xl items-center gap-2 bg-white px-0 py-1 text-[var(--foreground)] md:justify-between md:gap-0 md:px-2 md:py-2">
         <Link href="/" className="flex shrink-0 items-center text-[var(--brand)]" aria-label="Remnant home">
           <BrandLogo size="nav" className={showMobileSearch ? "brand-lockup--mark-only-mobile" : ""} />
         </Link>
@@ -147,7 +134,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setProfileOpen(!profileOpen)}
-                className="profile-button flex items-center gap-2 rounded-lg border border-[var(--border)]/55 bg-white px-2.5 py-2 transition-colors hover:border-[var(--brand)]/60 hover:bg-[var(--sand)]"
+                className="profile-button flex items-center gap-2 px-1 py-2 transition-colors hover:text-[var(--brand)]"
                 aria-label="User menu"
                 aria-expanded={profileOpen}
               >
@@ -250,7 +237,7 @@ export default function Navbar() {
 
           <button
             type="button"
-            className="mobile-menu-button inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--brand)] text-white transition-colors hover:bg-[var(--brand-dark)] md:hidden"
+              className="mobile-menu-button inline-flex h-12 w-12 shrink-0 items-center justify-center bg-transparent text-[var(--brand)] transition-colors hover:text-[var(--brand-dark)] md:hidden"
             onPointerDown={(event) => event.stopPropagation()}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -279,10 +266,10 @@ export default function Navbar() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setMenuOpen(false)}
-                        className={`flex font-bold transition-colors ${isAuthenticated ? "h-12 items-center gap-3 border-b border-[var(--border)]/45 px-4 text-sm last:border-b-0" : "min-h-16 flex-col items-start justify-between rounded-lg p-2.5 text-xs"} ${
+                        className={`flex font-bold transition-colors ${isAuthenticated ? "h-12 items-center gap-3 border-b border-[var(--sand)] px-4 text-sm last:border-b-0" : "min-h-16 flex-col items-start justify-between px-2 py-2.5 text-xs"} ${
                           !isAuthenticated && item.href === "/marketplace" && isActive(item.href)
-                            ? "bg-[var(--brand-soft)] text-[var(--brand)]"
-                            : "text-[var(--ink-soft)] hover:bg-[var(--sand)] hover:text-[var(--brand)]"
+                            ? "text-[var(--brand)]"
+                            : "text-[var(--ink-soft)] hover:text-[var(--brand)]"
                         }`}
                       >
                         <Icon size={isAuthenticated ? 16 : 18} aria-hidden="true" />

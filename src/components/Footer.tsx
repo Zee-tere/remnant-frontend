@@ -49,7 +49,7 @@ export default function Footer() {
                 href={link.href}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--border)]/60 text-[var(--secondary-blue)] transition-colors hover:border-[var(--brand)] hover:bg-[var(--sand)] hover:text-[var(--brand)]"
+                className="inline-flex h-9 w-9 items-center justify-center text-[var(--secondary-blue)] transition-colors hover:text-[var(--brand)]"
                 aria-label={link.label}
               >
                 <link.icon size={16} aria-hidden="true" />

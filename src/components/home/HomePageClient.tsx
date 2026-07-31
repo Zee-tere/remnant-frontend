@@ -13,63 +13,6 @@ import { Input } from "@/components/ui/input";
 import { listingCategories } from "@/lib/categories";
 import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
 
-const floatingObjects = [
-  {
-    src: "/images/floating/mint-cup.webp",
-    className: "left-[7%] top-[26%] h-24 w-24 rounded-lg",
-    imageClassName: "object-contain p-1",
-    rotate: [0, -5, 0],
-    y: [0, -12, 0],
-    duration: 4.8,
-    visibilityClass: "lg:block",
-  },
-  {
-    src: "/images/floating/brass-button.webp",
-    className: "right-[9%] top-[20%] h-24 w-24 rounded-[1.6rem]",
-    imageClassName: "object-cover",
-    rotate: [3, 8, 3],
-    y: [0, 10, 0],
-    duration: 5.5,
-    visibilityClass: "lg:block",
-  },
-  {
-    src: "/images/floating/teapot-lid.webp",
-    className: "left-[13%] bottom-[23%] h-20 w-36 rounded-[1.6rem]",
-    imageClassName: "object-cover",
-    rotate: [-4, 1, -4],
-    y: [0, 9, 0],
-    duration: 5.2,
-    visibilityClass: "lg:block",
-  },
-  {
-    src: "/images/floating/blue-chair.webp",
-    className: "right-[15%] bottom-[21%] h-28 w-28 rounded-[1.7rem]",
-    imageClassName: "object-contain p-2",
-    rotate: [7, 2, 7],
-    y: [0, -13, 0],
-    duration: 5.8,
-    visibilityClass: "lg:block",
-  },
-  {
-    src: "/images/floating/brass-compass.webp",
-    className: "left-[2%] bottom-[36%] h-24 w-28 rounded-[1.6rem]",
-    imageClassName: "object-cover",
-    rotate: [4, -1, 4],
-    y: [0, -9, 0],
-    duration: 6.1,
-    visibilityClass: "xl:block",
-  },
-  {
-    src: "/images/floating/watch-gear.webp",
-    className: "right-[2%] bottom-[37%] h-24 w-28 rounded-[1.6rem]",
-    imageClassName: "object-cover",
-    rotate: [-3, 3, -3],
-    y: [0, 11, 0],
-    duration: 5.9,
-    visibilityClass: "xl:block",
-  },
-];
-
 const marketplaceActions = [
   { label: "Find a pair", href: "/find-a-pair" },
   { label: "Buy", href: "/marketplace" },
@@ -102,24 +45,19 @@ export default function HomePageClient({
 
   return (
     <div className="min-h-screen overflow-hidden bg-white text-foreground">
-      <section className="relative mx-auto flex max-w-7xl flex-col items-stretch justify-center px-4 pb-2 pt-1 text-left md:min-h-[720px] md:items-center md:px-8 md:py-[72px] md:text-center">
+      <section className="relative mx-auto flex max-w-7xl flex-col items-stretch justify-center px-4 pb-0 pt-0 text-left md:min-h-[560px] md:items-center md:px-8 md:py-14 md:text-center">
         <div className="max-w-4xl">
-          <img
-            src="/images/earpod.webp"
-            alt="A single wireless earbud waiting for its match"
-            width={448}
-            height={448}
-            fetchPriority="high"
-            className="mx-auto mb-2 h-20 w-20 object-contain md:hidden"
-          />
-          <h1 className="max-w-[19rem] text-balance text-[1.55rem] font-bold leading-[1.08] text-[var(--foreground)] sm:max-w-none sm:text-5xl md:mx-auto md:text-7xl md:leading-[1.08]">
+          <h1 className="max-w-[18rem] text-balance text-[1.38rem] font-bold leading-[1.04] text-[var(--foreground)] sm:max-w-none sm:text-5xl md:mx-auto md:text-7xl md:leading-[1.06]">
             Give your lonely pieces a{" "}
-            <span className="inline-block border-b-2 border-[var(--brand)] pb-0.5 text-[var(--brand)]">
+            <span className="hero-flourish relative inline-block pb-1 text-[var(--brand)]">
               second chance
+              <svg className="hero-flourish__line" viewBox="0 0 150 12" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M2 7.5 C36 2.5 92 11 148 4.5" />
+              </svg>
             </span>
             .
           </h1>
-          <p className="mt-2 max-w-[34rem] text-[0.78rem] font-medium leading-5 text-[var(--ink-soft)] md:mx-auto md:mt-7 md:text-lg md:leading-8">
+          <p className="mt-1 max-w-[32rem] text-xs font-medium leading-[1.15rem] text-[var(--ink-soft)] md:mx-auto md:mt-6 md:text-lg md:leading-8">
             Find the missing half of a pair, or sell, trade, donate, repair, and recycle useful pieces
             with people nearby.
           </p>
@@ -152,48 +90,32 @@ export default function HomePageClient({
           </div>
         </form>
 
-        <div className="relative z-10 mt-3 grid w-full max-w-sm grid-cols-[1.12fr_0.88fr] gap-2 md:hidden">
-          <Button asChild className="h-10 rounded-lg bg-[var(--brand)] px-3 text-xs font-bold text-white hover:bg-[var(--brand-dark)]">
-            <Link href="/find-a-pair">
+        <div className="relative z-10 mt-0.5 flex w-full max-w-sm items-center gap-5 md:hidden">
+          <Button asChild variant="link" className="hero-action-entry hero-action-entry--primary h-9 px-0 text-xs font-black text-[var(--brand)] no-underline">
+            <Link href="/find-a-pair" className="group">
               Find a pair
-              <ArrowRight size={14} aria-hidden="true" />
+              <ArrowRight size={13} className="transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true" />
             </Link>
           </Button>
-          <Button asChild variant="secondary" className="h-10 rounded-lg bg-[var(--sand)] px-3 text-xs font-bold text-[var(--foreground)] hover:bg-[var(--brand-soft)]">
-            <Link href="/marketplace">
+          <Button asChild variant="link" className="hero-action-entry hero-action-entry--secondary h-9 px-0 text-xs font-bold text-[var(--foreground)] no-underline">
+            <Link href="/marketplace" className="group">
               Browse
-              <Search size={14} aria-hidden="true" />
+              <Search size={13} className="transition-transform duration-200 group-hover:scale-110" aria-hidden="true" />
             </Link>
           </Button>
         </div>
-
-        {floatingObjects.map((item) => (
-          <div
-            key={item.src}
-            style={{
-              "--float-duration": `${item.duration}s`,
-              "--float-y": `${item.y[1]}px`,
-              "--float-rotate": `${item.rotate[1]}deg`,
-              "--float-base-rotate": `${item.rotate[0]}deg`,
-            } as React.CSSProperties}
-            className={`floating-object pointer-events-none absolute hidden overflow-hidden border-4 border-white bg-white soft-shadow ${item.visibilityClass} ${item.className}`}
-            aria-hidden="true"
-          >
-            <img src={item.src} alt="" loading="lazy" decoding="async" draggable={false} className={`h-full w-full ${item.imageClassName}`} />
-          </div>
-        ))}
       </section>
 
-      <section className="bg-white px-4 pb-5 pt-3 md:px-8 md:pb-16 md:pt-0">
+      <section className="bg-white px-4 pb-3 pt-0 md:px-8 md:pb-12 md:pt-0">
         <div className="mx-auto max-w-5xl">
-          <div className="relative overflow-hidden border-y border-[var(--border)] bg-white py-1.5 md:rounded-xl md:border md:bg-[var(--cream)] md:p-6">
-            <div className="relative grid grid-cols-3 divide-x divide-[var(--border)] md:gap-4 md:divide-x-0">
+          <div className="relative overflow-hidden bg-white py-1 md:p-5">
+            <div className="relative grid grid-cols-3 md:gap-4">
               {howItWorks.map((step) => {
                 const Icon = step.icon;
                 return (
                 <div
                   key={step.title}
-                  className="flex min-w-0 items-center justify-center gap-1.5 bg-white px-1 py-1 md:aspect-auto md:justify-start md:gap-3 md:rounded-lg md:border md:border-[var(--border)]/45 md:p-4"
+                  className="flex min-w-0 items-center justify-center gap-1.5 bg-white px-1 py-1 md:aspect-auto md:justify-start md:gap-3 md:p-4"
                 >
                   <span className="flex h-5 w-5 shrink-0 items-center justify-center text-[var(--brand)] md:h-9 md:w-9">
                     <Icon size={13} className="md:h-[19px] md:w-[19px]" aria-hidden="true" />
@@ -210,7 +132,7 @@ export default function HomePageClient({
         </div>
       </section>
 
-      <section className="bg-[var(--cream)] px-4 pb-8 pt-4 md:px-8 md:py-[72px]">
+      <section className="bg-[var(--cream)] px-4 pb-8 pt-3 md:px-8 md:py-16">
         <div className="mx-auto max-w-7xl">
           <div className="mb-4 flex flex-row items-center justify-between gap-3 md:mb-8 md:flex-row md:items-end">
             <h2 className="text-2xl font-bold text-[var(--foreground)] md:text-4xl">Marketplace</h2>
@@ -222,12 +144,12 @@ export default function HomePageClient({
             </Button>
           </div>
 
-          <div className="mb-4 flex overflow-x-auto border-y border-[var(--border)] py-2 scrollbar-hide md:hidden" aria-label="Browse categories">
+          <div className="mb-3 flex snap-x snap-proximity gap-3 overflow-x-auto py-1 scrollbar-hide md:hidden" aria-label="Browse categories">
             {listingCategories.map((category) => (
               <Link
                 key={category.label}
                 href={`/marketplace?category=${encodeURIComponent(category.label)}`}
-                className="relative flex min-h-[102px] w-[104px] shrink-0 overflow-hidden border-r border-[var(--border)] bg-white p-2 text-left last:border-r-0"
+                className="relative flex min-h-[94px] w-[96px] shrink-0 snap-start overflow-hidden bg-white p-1 text-left"
               >
                 <img
                   src={category.image}
@@ -266,7 +188,7 @@ export default function HomePageClient({
               {initialFeaturedListings.map((item) => <ListingCard key={item.id} item={item} />)}
             </div>
           ) : (
-            <div className="surface-card rounded-[1.35rem] p-6 text-center md:rounded-[2rem] md:p-10">
+            <div className="border-t border-[#f1f0ec] px-4 py-8 text-center md:py-10">
               <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center text-[var(--brand)]">
                 <FaBox size={30} aria-hidden="true" />
               </div>

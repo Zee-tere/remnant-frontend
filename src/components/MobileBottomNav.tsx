@@ -22,9 +22,10 @@ export default function MobileBottomNav() {
   const { isAuthenticated, user } = useAuthStore();
   const hiddenRoutes = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth/callback"];
   const isMessageView =
-    isAuthenticated &&
-    pathname === "/user/dashboard" &&
-    searchParams.get("section") === "messages";
+    (isAuthenticated &&
+      pathname === "/user/dashboard" &&
+      searchParams.get("section") === "messages") ||
+    pathname.startsWith("/guest/messages/");
   const isHiddenRoute = hiddenRoutes.some((route) => pathname.startsWith(route));
   const suppressMobileDock = isHiddenRoute || isMessageView || pathname.startsWith("/admin");
 
@@ -90,7 +91,7 @@ export default function MobileBottomNav() {
               aria-label={item.label}
               aria-current={active ? "page" : undefined}
             >
-              <span className={`relative flex items-center justify-center transition-colors duration-150 ${item.primary ? "-mt-4 h-12 w-12 rounded-lg bg-[var(--brand)] text-white" : active ? "h-8 w-10 text-[var(--brand)]" : "h-8 w-10"}`}>
+              <span className={`relative flex items-center justify-center transition-colors duration-150 ${item.primary ? "-mt-2 h-10 w-10 text-[var(--brand)]" : active ? "h-8 w-10 text-[var(--brand)]" : "h-8 w-10"}`}>
                 {item.profile && isAuthenticated ? (
                   <NameAvatar name={user?.name || "Remnant"} className="h-7 w-7 text-xs" />
                 ) : (

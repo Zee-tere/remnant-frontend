@@ -109,7 +109,7 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
     <div className="flex min-h-full flex-col p-5">
       <div className="mb-6">
         <div className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+          <div className="flex h-10 w-10 items-center justify-center text-[var(--brand)]">
             <span className="font-bold">R</span>
           </div>
           <div>
@@ -119,7 +119,7 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
         </div>
       </div>
 
-      <div className="surface-card mb-6 rounded-[2rem] p-5 text-[var(--foreground)]">
+      <div className="mb-6 border-y border-[#f1f0ec] py-5 text-[var(--foreground)]">
         <div className="mb-4 flex items-center gap-3">
           <div className="relative">
             <NameAvatar name={user?.name ?? 'Remnant'} className="h-14 w-14 text-lg" />
@@ -131,23 +131,23 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="rounded-[1.25rem] bg-[var(--brand-soft)] p-2">
+        <div className="grid grid-cols-3 divide-x divide-[#f1f0ec] text-center">
+          <div className="p-2">
             <p className="font-bold">{stats.listings}</p>
             <p className="text-[11px] text-[var(--muted-foreground)]">Listings</p>
           </div>
-          <div className="rounded-[1.25rem] bg-[#e2f7ff] p-2">
+          <div className="p-2">
             <p className="font-bold">{stats.pendingMatches}</p>
             <p className="text-[11px] text-[var(--muted-foreground)]">Matches</p>
           </div>
-          <div className="rounded-[1.25rem] bg-[#fff6cf] p-2">
+          <div className="p-2">
             <p className="font-bold">{stats.unreadMessages}</p>
             <p className="text-[11px] text-[var(--muted-foreground)]">Messages</p>
           </div>
         </div>
       </div>
 
-      <nav className="space-y-2">
+      <nav className="divide-y divide-[#f4f3ef]">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const active = activeSection === item.section;
@@ -158,11 +158,10 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
               type="button"
               onClick={() => handleSelect(item.section)}
               className={cn(
-                'flex w-full items-center justify-between rounded-[1.5rem] p-3 text-left transition-colors',
+                'flex w-full items-center justify-between p-3 text-left transition-colors',
                 active
-                  ? 'border border-[var(--border)]/55 bg-white soft-shadow'
-                  : 'hover:bg-[var(--sand)]',
-                item.highlight && 'ring-1 ring-[var(--brand)]/20',
+                  ? 'text-[var(--brand)]'
+                  : 'hover:text-[var(--brand)]',
               )}
             >
               <div className="flex min-w-0 items-center gap-3">
@@ -170,8 +169,8 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
                   className={cn(
                     'flex h-10 w-10 items-center justify-center rounded-full',
                     active
-                      ? 'bg-[var(--brand-soft)] text-[var(--brand)]'
-                      : 'bg-white text-muted-foreground',
+                      ? 'text-[var(--brand)]'
+                      : 'text-muted-foreground',
                   )}
                 >
                   <Icon size={19} />
@@ -180,13 +179,13 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
               </div>
 
               {typeof item.count === 'number' && item.count > 0 && (
-                <span className="ml-2 rounded-full bg-[var(--brand-soft)] px-2 py-1 text-xs font-semibold text-[var(--brand)]">
+                <span className="ml-2 px-1 text-xs font-semibold text-[var(--brand)]">
                   {item.count}
                 </span>
               )}
 
               {item.highlight && (
-                <span className="ml-2 rounded-full bg-[var(--brand-soft)] px-2 py-1 text-xs font-semibold text-[var(--brand)]">
+                <span className="ml-2 px-1 text-xs font-semibold text-[var(--brand)]">
                   New
                 </span>
               )}
@@ -196,7 +195,7 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
       </nav>
 
       <div className="mt-auto pt-6">
-        <div className="mb-4 rounded-[1.5rem] bg-[var(--sand)] p-4">
+        <div className="mb-4 border-y border-[#f1f0ec] py-4">
           <p className="mb-2 text-sm font-medium text-foreground">Quick Stats</p>
           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
             <span>Active: {stats.activeListings}</span>
@@ -206,7 +205,7 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
           </div>
         </div>
 
-        <Button type="button" variant="outline" className="w-full rounded-full border-[var(--border)] bg-white font-bold text-red-600 hover:bg-red-50" onClick={handleLogout}>
+        <Button type="button" variant="link" className="w-full justify-start px-0 font-bold text-red-600 no-underline hover:text-red-700" onClick={handleLogout}>
           <LogOut size={18} />
           Log out
         </Button>

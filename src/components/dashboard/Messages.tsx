@@ -27,6 +27,7 @@ import { useAuthStore } from '@/lib/auth';
 import { getApiErrorMessage } from '@/lib/errors';
 import { cn } from '@/lib/utils';
 import { DashboardSectionLoading, LoadingState } from '@/components/feedback/LoadingState';
+import { useMobileVisualViewport } from '@/hooks/use-mobile-visual-viewport';
 
 interface ConversationUser {
   id: string;
@@ -89,9 +90,9 @@ export default function MessagesSection() {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [sending, setSending] = useState(false);
   const messagesViewportRef = useRef<HTMLDivElement>(null);
+  const composerRef = useRef<HTMLTextAreaElement>(null);
   const shouldStickToBottomRef = useRef(true);
-  const workspaceRef = useRef<HTMLDivElement>(null);
-  const [mobileWorkspaceHeight, setMobileWorkspaceHeight] = useState<number | null>(null);
+  const mobileViewportStyle = useMobileVisualViewport(true);
 
   const loadConversations = useCallback(async (silent = false) => {
     if (!isAuthenticated) {
@@ -201,38 +202,20 @@ export default function MessagesSection() {
   }, [messages, activeConversationId, user?.id]);
 
   useEffect(() => {
-    if (loadingConversations) return;
+    const composer = composerRef.current;
+    if (!composer) return;
+    composer.style.height = '0px';
+    composer.style.height = `${Math.min(112, Math.max(44, composer.scrollHeight))}px`;
+  }, [newMessage]);
 
-    let frame = 0;
-    const updateWorkspaceHeight = () => {
-      window.cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(() => {
-        if (window.innerWidth >= 768 || !workspaceRef.current) {
-          setMobileWorkspaceHeight(null);
-          return;
-        }
-
-        const viewport = window.visualViewport;
-        const viewportBottom = viewport
-          ? viewport.offsetTop + viewport.height
-          : window.innerHeight;
-        const workspaceTop = workspaceRef.current.getBoundingClientRect().top;
-        setMobileWorkspaceHeight(Math.max(280, Math.floor(viewportBottom - workspaceTop)));
-      });
-    };
-
-    updateWorkspaceHeight();
-    window.addEventListener('resize', updateWorkspaceHeight);
-    window.visualViewport?.addEventListener('resize', updateWorkspaceHeight);
-    window.visualViewport?.addEventListener('scroll', updateWorkspaceHeight);
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-      window.removeEventListener('resize', updateWorkspaceHeight);
-      window.visualViewport?.removeEventListener('resize', updateWorkspaceHeight);
-      window.visualViewport?.removeEventListener('scroll', updateWorkspaceHeight);
-    };
-  }, [activeConversationId, loadingConversations]);
+  useEffect(() => {
+    if (!activeConversationId || !shouldStickToBottomRef.current) return;
+    const frame = window.requestAnimationFrame(() => {
+      const viewport = messagesViewportRef.current;
+      if (viewport) viewport.scrollTop = viewport.scrollHeight;
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeConversationId, mobileViewportStyle]);
 
   const activeConversation = conversations.find((conversation) => conversation.id === activeConversationId) ?? null;
 
@@ -343,7 +326,7 @@ export default function MessagesSection() {
 
   const ConversationList = () => (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="border-b border-[var(--border)]/70 p-3 md:p-4">
+      <div className="border-b border-[#f1f0ec] px-3 pb-3 pt-4 md:p-4">
         <div className="mb-3 flex items-end justify-between md:hidden">
           <div>
             <h1 className="text-lg font-bold text-foreground">Messages</h1>
@@ -362,15 +345,18 @@ export default function MessagesSection() {
             className="h-11 rounded-md pl-9 text-base md:h-10 md:text-sm"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-5">
           {(['all', 'unread'] as const).map((filterType) => (
             <Button
               key={filterType}
               type="button"
-              variant={filter === filterType ? 'default' : 'outline'}
+              variant="link"
               size="sm"
               onClick={() => setFilter(filterType)}
-              className={filter !== filterType ? 'border-[var(--border)]' : ''}
+              className={cn(
+                'h-8 px-0 text-xs no-underline',
+                filter === filterType ? 'font-black text-[var(--brand)]' : 'text-muted-foreground',
+              )}
             >
               {filterType === 'all' ? 'All' : 'Unread'}
             </Button>
@@ -381,7 +367,7 @@ export default function MessagesSection() {
       <div className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain">
         {filteredConversations.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center px-6 py-12 text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--brand-soft)]">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center text-[var(--brand)]">
               <MessageSquare className="text-[var(--brand)]" size={26} />
             </div>
             <h3 className="font-semibold text-foreground">No conversations</h3>
@@ -402,8 +388,8 @@ export default function MessagesSection() {
                   type="button"
                   onClick={() => handleSelectConversation(conversation.id)}
                   className={cn(
-                    'w-full border-b border-[var(--border)]/60 p-3 text-left transition-colors hover:bg-muted/50 md:p-4',
-                    activeConversationId === conversation.id && 'bg-[var(--brand-soft)]/60 dark:bg-[var(--brand-muted)]/40',
+                    'w-full border-b border-[#f1f0ec] p-3 text-left transition-colors hover:bg-muted/35 md:p-4',
+                    activeConversationId === conversation.id && 'text-[var(--brand)]',
                   )}
                 >
                   <div className="flex items-start gap-3">
@@ -439,7 +425,7 @@ export default function MessagesSection() {
     if (!activeConversation) {
       return (
         <div className="flex h-full min-h-[420px] flex-col items-center justify-center bg-card px-6 text-center">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--brand-soft)]">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center text-[var(--brand)]">
             <MessageSquare className="text-[var(--brand)]" size={30} />
           </div>
           <h3 className="text-lg font-semibold text-foreground">Select a conversation</h3>
@@ -453,10 +439,10 @@ export default function MessagesSection() {
     const otherUser = getOtherUser(activeConversation);
 
     return (
-      <div className="flex h-full min-h-0 flex-col overflow-hidden bg-card">
-        <div className="flex min-h-14 items-center justify-between gap-3 border-b border-[var(--border)]/70 px-2.5 py-2 md:p-4">
+      <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white">
+        <div className="flex min-h-14 items-center justify-between gap-3 border-b border-[#f1f0ec] px-2 py-1.5 md:p-4">
           <div className="flex min-w-0 items-center gap-3">
-            <button type="button" onClick={() => setActiveConversationId(null)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md hover:bg-muted lg:hidden" aria-label="Back to conversations">
+            <button type="button" onClick={() => setActiveConversationId(null)} className="flex h-11 w-11 shrink-0 items-center justify-center text-[var(--foreground)] hover:text-[var(--brand)] lg:hidden" aria-label="Back to conversations">
               <ArrowLeft size={18} />
             </button>
             <NameAvatar name={otherUser.name} className="h-9 w-9 text-xs md:h-10 md:w-10 md:text-sm" />
@@ -501,7 +487,7 @@ export default function MessagesSection() {
               viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
             shouldStickToBottomRef.current = distanceFromBottom < 96;
           }}
-          className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain bg-[var(--background)]/45 p-3 [overflow-anchor:none] [scrollbar-gutter:stable] md:p-4"
+          className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain bg-white px-3 py-4 [overflow-anchor:none] [scrollbar-gutter:stable] md:px-4"
         >
           {loadingMessages ? (
             <LoadingState label="Loading messages" compact className="h-full" />
@@ -511,7 +497,7 @@ export default function MessagesSection() {
               <p className="text-sm text-muted-foreground">No messages yet.</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-1.5">
               {messages.map((message) => {
                 const mine = message.senderId === user?.id;
                 return (
@@ -524,14 +510,14 @@ export default function MessagesSection() {
                     )}
                     <div
                       className={cn(
-                        'max-w-[84%] rounded-lg px-3 py-2 text-sm leading-5 md:max-w-[76%] md:py-2.5',
+                        'max-w-[84%] rounded-[18px] px-3 py-2 text-sm leading-5 md:max-w-[76%] md:py-2.5',
                         mine
-                          ? 'rounded-br-md bg-[var(--brand)] text-[var(--navy)]'
-                          : 'rounded-bl-md bg-muted text-foreground',
+                          ? 'rounded-br-md bg-[var(--brand)] text-white'
+                          : 'rounded-bl-md bg-[#f1f1ef] text-foreground',
                       )}
                     >
                       <p className="whitespace-pre-wrap break-words">{message.content}</p>
-                      <p className={cn('mt-1 text-[11px]', mine ? 'text-[var(--navy)]/70' : 'text-muted-foreground')}>
+                      <p className={cn('mt-1 text-[11px]', mine ? 'text-white/70' : 'text-muted-foreground')}>
                         {message.clientState === 'sending' ? 'Sending…' : formatTime(message.createdAt)}
                       </p>
                     </div>
@@ -542,9 +528,10 @@ export default function MessagesSection() {
           )}
         </div>
 
-        <div className="shrink-0 border-t border-[var(--border)]/70 bg-white px-2.5 pb-[calc(0.625rem+var(--safe-area-bottom))] pt-2.5 md:p-3">
-          <div className="flex items-end gap-2 rounded-lg border border-[var(--border)]/60 bg-white p-1.5">
+        <div className="shrink-0 border-t border-[#f1f0ec] bg-white px-2.5 pb-[calc(0.5rem+var(--safe-area-bottom))] pt-2 md:p-3">
+          <div className="flex items-end gap-1 rounded-xl border border-[#e7e7e3] bg-white px-1.5 py-1">
             <textarea
+              ref={composerRef}
               aria-label="Message"
               placeholder="Type your message"
               value={newMessage}
@@ -560,7 +547,7 @@ export default function MessagesSection() {
               enterKeyHint="send"
               maxLength={2000}
               rows={1}
-              className="min-h-11 max-h-28 flex-1 resize-none bg-transparent px-2 py-2.5 text-base leading-6 outline-none placeholder:text-muted-foreground md:min-h-10 md:py-2 md:text-sm md:leading-5"
+              className="min-h-11 max-h-28 flex-1 resize-none overflow-y-auto bg-transparent px-2 py-2.5 text-base leading-6 outline-none placeholder:text-muted-foreground md:min-h-10 md:py-2 md:text-sm md:leading-5"
             />
             <Button
               type="button"
@@ -568,7 +555,7 @@ export default function MessagesSection() {
               disabled={!newMessage.trim() || sending}
               size="icon"
               aria-label={sending ? 'Sending message' : 'Send message'}
-              className="h-11 w-11 shrink-0 rounded-md bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)] md:h-10 md:w-10"
+              className="h-11 w-11 shrink-0 bg-transparent text-[var(--brand)] hover:bg-transparent hover:text-[var(--brand-dark)] md:h-10 md:w-10"
             >
               {sending ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
             </Button>
@@ -589,9 +576,8 @@ export default function MessagesSection() {
       </div>
 
       <div
-        ref={workspaceRef}
-        style={mobileWorkspaceHeight ? { height: `${mobileWorkspaceHeight}px` } : undefined}
-        className="grid h-[calc(100dvh-4.5rem)] min-h-[280px] grid-cols-1 overflow-hidden border-y border-[var(--border)]/70 bg-card md:h-auto md:min-h-[620px] md:rounded-xl md:border lg:grid-cols-[340px_1fr]"
+        style={mobileViewportStyle}
+        className="fixed inset-x-0 top-0 z-[80] grid h-dvh min-h-[280px] grid-cols-1 overflow-hidden bg-white md:static md:z-auto md:h-auto md:min-h-[620px] md:transform-none md:rounded-xl md:border md:border-[var(--border)]/70 lg:grid-cols-[340px_1fr]"
       >
         <div className={cn('min-h-0 border-b border-[var(--border)]/70 lg:block lg:border-b-0 lg:border-r', activeConversationId ? 'hidden' : 'block')}>
           {ConversationList()}

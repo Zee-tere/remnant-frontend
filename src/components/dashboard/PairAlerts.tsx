@@ -243,20 +243,20 @@ export default function PairAlertsSection() {
         </Button>
       </header>
 
-      <div className="flex items-start gap-2.5 rounded-lg border border-[var(--border)]/70 bg-white px-3 py-2.5 text-xs leading-5 text-[var(--ink-soft)] md:px-4 md:py-3 md:text-sm">
+      <div className="flex items-start gap-2.5 border-y border-[#f1f0ec] px-1 py-2.5 text-xs leading-5 text-[var(--ink-soft)] md:py-3 md:text-sm">
         <BellRing size={16} className="mt-0.5 shrink-0 text-[var(--brand)]" />
         Alerts are private saved searches. They never appear as marketplace listings.
       </div>
 
       {alerts.length === 0 ? (
         <section className="flex min-h-[240px] flex-col items-center justify-center border-y border-[var(--border)] px-5 text-center">
-          <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-[var(--brand-soft)] text-[var(--brand)]"><ScanSearch size={21} /></span>
+          <span className="flex h-11 w-11 items-center justify-center text-[var(--brand)]"><ScanSearch size={21} /></span>
           <h2 className="mt-3 text-base font-bold">Nothing on watch yet</h2>
           <p className="mt-1 max-w-sm text-sm text-[var(--muted-foreground)]">Save a missing piece, part, or single item and Remnant will compare it with new listings.</p>
           <Button type="button" onClick={() => setShowForm(true)} variant="outline" className="mt-4 rounded-full border-[var(--border)] font-bold">Create your first alert</Button>
         </section>
       ) : (
-        <section className="divide-y divide-[var(--border)] overflow-hidden rounded-lg border border-[var(--border)] bg-white">
+        <section className="divide-y divide-[#f1f0ec] overflow-hidden bg-white">
           {alerts.map((alert) => (
             <article key={alert.id} className="p-3 md:p-5">
               <div className="flex items-start gap-3">
@@ -282,7 +282,7 @@ export default function PairAlertsSection() {
                   {alert.matches.length > 0 ? (
                     <div className="mt-3 grid gap-1.5 sm:grid-cols-2">
                       {alert.matches.slice(0, 4).map((match) => (
-                        <Link key={match.id} href={`/marketplace/${match.listing.slug || match.listing.id}`} className="group flex min-w-0 items-center gap-2 rounded-md border border-[var(--border)]/70 p-1.5 transition-colors hover:border-[var(--brand)]/35 hover:bg-[var(--brand-soft)]/45">
+                        <Link key={match.id} href={`/marketplace/${match.listing.slug || match.listing.id}`} className="group flex min-w-0 items-center gap-2 border-b border-[#f1f0ec] p-1.5 transition-colors last:border-b-0 hover:text-[var(--brand)]">
                           <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-[var(--sand)]">
                             {match.listing.images?.[0] ? <img src={match.listing.images[0]} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" /> : <ScanSearch size={16} className="text-[var(--muted-foreground)]" />}
                           </span>

@@ -262,6 +262,20 @@
     border-radius: 0.625rem !important;
   }
 
+  :is(span, div):not([data-preserve-icon-frame]):has(> svg:only-child) {
+    background-color: transparent !important;
+    border-color: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  :is(button, a):has(> svg:only-child) {
+    background-color: transparent !important;
+    border-color: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
   input:focus,
   textarea:focus,
   select:focus {
@@ -427,6 +441,54 @@
     font-size: 1.1rem;
   }
 
+  .hero-flourish__line {
+    position: absolute;
+    right: -0.08em;
+    bottom: -0.04em;
+    left: -0.08em;
+    width: calc(100% + 0.16em);
+    height: 0.42em;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .hero-flourish__line path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.1;
+    stroke-linecap: round;
+    stroke-dasharray: 170;
+    stroke-dashoffset: 170;
+    animation: hero-flourish-draw 520ms cubic-bezier(0.2, 0.8, 0.2, 1) 180ms forwards;
+  }
+
+  .hero-action-entry {
+    opacity: 0;
+    transform: translate3d(0, 5px, 0);
+    animation: hero-action-enter 260ms ease-out forwards;
+  }
+
+  .hero-action-entry--primary {
+    animation-delay: 330ms;
+  }
+
+  .hero-action-entry--secondary {
+    animation-delay: 400ms;
+  }
+
+  @keyframes hero-flourish-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes hero-action-enter {
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
   .card-hover {
     @apply transition-colors duration-200 hover:border-[var(--brand)]/45;
   }
@@ -550,7 +612,12 @@
     overscroll-behavior: none;
   }
 
+  body.mobile-chat-active .safe-top {
+    display: none;
+  }
+
   body.mobile-chat-active #main-content {
+    height: 100dvh;
     padding-bottom: 0;
   }
 
@@ -567,6 +634,16 @@
     transition-duration: 200ms;
   }
 
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-flourish__line path,
+  .hero-action-entry {
+    animation: none !important;
+    opacity: 1;
+    stroke-dashoffset: 0;
+    transform: none;
+  }
 }
 
 @media (max-width: 359px) {

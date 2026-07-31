@@ -103,7 +103,7 @@ export default function FindPageClient({
           type="button"
           variant="outline"
           onClick={() => setShowFilters((current) => !current)}
-          className="h-12 shrink-0 rounded-lg border-[var(--border)]/70 bg-white px-3 text-sm font-bold md:px-5"
+          className="h-12 shrink-0 border-0 bg-transparent px-1 text-sm font-bold shadow-none hover:bg-transparent hover:text-[var(--brand)] md:px-3"
         >
           {showFilters ? <X size={15} /> : <Filter size={15} />}
           Filter
@@ -124,7 +124,7 @@ export default function FindPageClient({
       </section>
 
       {showFilters && (
-        <section className="mt-3 grid gap-3 rounded-lg border border-[var(--border)] bg-white p-3 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end md:p-4">
+        <section className="mt-3 grid gap-3 border-y border-[#f1f0ec] bg-white py-3 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end md:px-1 md:py-4">
           <label className="space-y-1">
             <span className="text-xs font-bold text-[var(--muted-foreground)]">State</span>
             <select value={city} onChange={(event) => setCity(event.target.value)} className="h-11 w-full rounded-md border border-[var(--border)] bg-white px-3 text-base">

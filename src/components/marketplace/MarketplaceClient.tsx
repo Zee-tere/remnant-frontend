@@ -108,8 +108,8 @@ export default function MarketplaceClient({
       </div>
       )}
 
-      <div className={embedded ? "space-y-5" : "space-y-8"}>
-        <div>
+      <div className={embedded ? "divide-y divide-[#f1f0ec]" : "space-y-8"}>
+        <div className={embedded ? "pb-4" : ""}>
           <h3 className={`${embedded ? "mb-2 text-xs" : "mb-4 text-sm"} font-bold uppercase text-[var(--muted-foreground)]`}>State</h3>
           <select
             value={city}
@@ -121,7 +121,7 @@ export default function MarketplaceClient({
           </select>
         </div>
 
-        <div>
+        <div className={embedded ? "py-4" : ""}>
           <h3 className={`${embedded ? "mb-2 text-xs" : "mb-4 text-sm"} font-bold uppercase text-[var(--muted-foreground)]`}>Category</h3>
           <select
             value={category}
@@ -140,13 +140,13 @@ export default function MarketplaceClient({
           </select>
         </div>
 
-        <div>
+        <div className={embedded ? "py-4" : ""}>
           <h3 className={`${embedded ? "mb-2 text-xs" : "mb-4 text-sm"} font-bold uppercase text-[var(--muted-foreground)]`}>Intent</h3>
-          <div className={embedded ? "space-y-0.5" : "space-y-3"}>
+          <div className={embedded ? "divide-y divide-[#f4f3ef]" : "space-y-3"}>
             {Object.entries(intentionMeta).map(([key, meta]) => {
               const Icon = meta.icon;
               return (
-                <label key={key} className={`flex cursor-pointer items-center gap-3 rounded-lg transition-colors hover:bg-[var(--sand)] ${embedded ? "min-h-11 px-2" : "p-1.5"}`}>
+                <label key={key} className={`flex cursor-pointer items-center gap-3 transition-colors hover:text-[var(--brand)] ${embedded ? "min-h-11 px-1" : "p-1.5"}`}>
                   <span className="relative flex h-6 w-6 items-center justify-center rounded-full border-2 border-[var(--border)]">
                     <input
                       type="radio"
@@ -169,7 +169,7 @@ export default function MarketplaceClient({
           </div>
         </div>
 
-        <div className="border-t border-[var(--border)]/45 pt-5">
+        <div className={embedded ? "pt-4" : "border-t border-[var(--border)]/45 pt-5"}>
           <p className="text-sm font-semibold text-[var(--ink-soft)]">
             <span className="text-2xl font-bold text-[var(--brand)]">{total}</span> item{total !== 1 && "s"} found
           </p>
@@ -187,16 +187,16 @@ export default function MarketplaceClient({
           </h1>
         </header>
 
-        <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide lg:hidden" aria-label="Filter by intent">
+        <div className="mb-4 flex divide-x divide-[#f1f0ec] overflow-x-auto border-y border-[#f1f0ec] scrollbar-hide lg:hidden" aria-label="Filter by intent">
           {[{ key: '', label: 'All' }, ...Object.entries(intentionMeta).map(([key, meta]) => ({ key, label: key === 'SELL' ? 'Buy' : meta.label }))].map((item) => (
             <button
               key={item.key || 'all'}
               type="button"
               onClick={() => { setIntentionTag(item.key); setPage(1); }}
-              className={`min-h-11 shrink-0 rounded-lg border px-3 text-xs font-bold transition-colors ${
+              className={`min-h-11 shrink-0 px-3 text-xs font-bold transition-colors ${
                 intentionTag === item.key
-                  ? 'border-[var(--brand)] bg-[var(--brand)] text-white'
-                  : 'border-[var(--border)] bg-white text-[var(--ink-soft)]'
+                  ? 'text-[var(--brand)]'
+                  : 'text-[var(--ink-soft)]'
               }`}
             >
               {item.label}
@@ -218,7 +218,7 @@ export default function MarketplaceClient({
                 variant="outline"
                 size="sm"
                 onClick={() => setShowFilters(true)}
-                className="rounded-full border-[var(--border)] bg-white font-bold"
+                className="border-0 bg-transparent px-1 font-bold shadow-none hover:bg-transparent hover:text-[var(--brand)]"
               >
                 <Filter size={15} aria-hidden="true" />
                 Filters
@@ -229,7 +229,7 @@ export default function MarketplaceClient({
             {hasActiveFilters && (
               <div className="mb-5 flex flex-wrap gap-2">
                 {submittedSearch && (
-                  <span className="inline-flex items-center gap-2 rounded-md bg-[var(--brand-soft)] px-3 py-1 text-sm font-bold text-[var(--brand)]">
+                  <span className="inline-flex items-center gap-2 px-1 py-1 text-sm font-bold text-[var(--brand)]">
                     {submittedSearch}
                     <button type="button" onClick={() => setSubmittedSearch("")}>
                       <X size={14} aria-hidden="true" />
@@ -237,7 +237,7 @@ export default function MarketplaceClient({
                   </span>
                 )}
                 {category && (
-                  <span className="inline-flex items-center gap-2 rounded-md border border-[var(--border)]/55 bg-white px-3 py-1 text-sm font-bold text-[var(--ink-soft)]">
+                  <span className="inline-flex items-center gap-2 px-1 py-1 text-sm font-bold text-[var(--ink-soft)]">
                     {category}
                     <button type="button" onClick={() => setCategory("")}>
                       <X size={14} aria-hidden="true" />
@@ -245,7 +245,7 @@ export default function MarketplaceClient({
                   </span>
                 )}
                 {intentionTag && (
-                  <span className="inline-flex items-center gap-2 rounded-md border border-[var(--border)]/55 bg-white px-3 py-1 text-sm font-bold text-[var(--ink-soft)]">
+                  <span className="inline-flex items-center gap-2 px-1 py-1 text-sm font-bold text-[var(--ink-soft)]">
                     {intentionMeta[intentionTag]?.label}
                     <button type="button" onClick={() => setIntentionTag("")}>
                       <X size={14} aria-hidden="true" />
@@ -253,7 +253,7 @@ export default function MarketplaceClient({
                   </span>
                 )}
                 {city && (
-                  <span className="inline-flex items-center gap-2 rounded-md border border-[var(--border)]/55 bg-white px-3 py-1 text-sm font-bold text-[var(--ink-soft)]">
+                  <span className="inline-flex items-center gap-2 px-1 py-1 text-sm font-bold text-[var(--ink-soft)]">
                     {city}
                     <button type="button" onClick={() => setCity("")} aria-label="Clear state filter">
                       <X size={14} aria-hidden="true" />
@@ -296,7 +296,7 @@ export default function MarketplaceClient({
                 )}
               </>
             ) : (
-              <div className="surface-card rounded-[2rem] px-6 py-16 text-center">
+              <div className="border-t border-[#f1f0ec] px-6 py-16 text-center">
                 <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
                   <Package size={30} aria-hidden="true" />
                 </div>
@@ -328,7 +328,7 @@ export default function MarketplaceClient({
               <button
                 type="button"
                 onClick={() => setShowFilters(false)}
-                className="flex h-11 w-11 items-center justify-center rounded-lg bg-[var(--sand)] text-[var(--ink-soft)]"
+                className="flex h-11 w-11 items-center justify-center text-[var(--ink-soft)]"
                 aria-label="Close filters"
               >
                 <X size={20} aria-hidden="true" />
