@@ -400,7 +400,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
         {purposes.map((purpose) => {
           const Icon = purpose.icon;
           const selected = formData.purpose === purpose.value;
@@ -414,15 +414,15 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             >
               <div
                 className={cn(
-                  'flex min-h-[108px] flex-col rounded-lg border-2 bg-white p-3 text-left transition-all active:scale-[0.99] md:min-h-0 md:rounded-[1.5rem] md:p-5',
+                  'flex min-h-[124px] flex-col rounded-xl border bg-white p-3.5 text-left transition-[border-color,background-color,transform] duration-150 active:scale-[0.99] md:min-h-[176px] md:rounded-2xl md:p-5',
                   selected ? 'border-[var(--brand)] bg-[var(--brand-soft)]' : 'border-[var(--border)]/55 hover:border-[var(--brand)]/45',
                 )}
               >
-                <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] md:mb-4 md:h-14 md:w-14 md:rounded-full">
+                <div className="icon-frame mb-3 h-10 w-10 md:mb-5 md:h-12 md:w-12" data-preserve-icon-frame>
                   <Icon className="h-[18px] w-[18px] md:h-[25px] md:w-[25px]" aria-hidden="true" />
                 </div>
                 <h3 className="text-sm font-bold md:text-xl">{purpose.label}</h3>
-                <p className="mt-1 text-[0.72rem] font-medium leading-4 text-[var(--ink-soft)] md:mt-2 md:text-sm md:leading-6">{purpose.description}</p>
+                <p className="mt-1 text-[0.78rem] font-medium leading-5 text-[var(--ink-soft)] md:mt-2 md:text-sm md:leading-6">{purpose.description}</p>
               </div>
             </button>
           );
@@ -453,7 +453,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
         className={cn(
-          'flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-5 text-center transition-all md:rounded-[2rem] md:p-12',
+          'flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-5 text-center transition-[border-color,background-color,transform] duration-150 md:rounded-2xl md:p-12',
           dragActive ? 'border-[var(--brand)] bg-[var(--brand-soft)]' : 'border-[var(--border)] bg-[var(--sand)] hover:border-[var(--brand)] hover:bg-[var(--brand-soft)]',
         )}
       >
@@ -644,7 +644,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
                 />
                 <div
                   className={cn(
-                    'h-full rounded-[1.25rem] border-2 bg-white p-4 transition-all',
+                    'h-full rounded-xl border bg-white p-4 transition-[border-color,background-color] duration-150',
                     formData.donationMode === option.value ? 'border-[var(--brand)] bg-[var(--brand-soft)]' : 'border-[var(--border)]/55',
                     option.disabled && 'opacity-55',
                   )}
@@ -1016,7 +1016,10 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             <span>{uploadProgress}%</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--sand)]">
-            <motion.div animate={{ width: `${uploadProgress}%` }} className="h-full rounded-full bg-[var(--brand)]" />
+            <div
+              className="h-full origin-left rounded-full bg-[var(--brand)] transition-transform duration-200 ease-out"
+              style={{ transform: `scaleX(${uploadProgress / 100})` }}
+            />
           </div>
         </div>
       )}
@@ -1099,8 +1102,8 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         <div className="relative flex items-center justify-between">
           <div className="absolute left-0 right-0 top-[1.125rem] h-1 rounded-full bg-[var(--sand)] md:top-5" />
           <div
-            className="absolute left-0 top-[1.125rem] h-1 rounded-full bg-[var(--brand)] transition-all duration-300 md:top-5"
-            style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
+            className="absolute left-0 top-[1.125rem] h-1 w-full origin-left rounded-full bg-[var(--brand)] transition-transform duration-300 ease-out md:top-5"
+            style={{ transform: `scaleX(${(step - 1) / (steps.length - 1)})` }}
           />
           {steps.map((item, index) => {
             const stepNumber = index + 1;

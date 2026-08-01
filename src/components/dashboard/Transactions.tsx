@@ -122,7 +122,7 @@ export default function TransactionsSection() {
           <h1 className="text-2xl font-bold text-foreground md:text-3xl">Transactions</h1>
           <p className="text-sm text-muted-foreground">{activeCount} active order{activeCount === 1 ? "" : "s"}</p>
         </div>
-        <Button asChild className="w-fit bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]">
+        <Button asChild className="w-fit bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]">
           <Link href="/marketplace">Browse marketplace</Link>
         </Button>
       </div>
@@ -204,7 +204,7 @@ export default function TransactionsSection() {
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                     <p className="text-lg font-bold text-foreground sm:min-w-28 sm:text-right">{formatCurrency(Number(transaction.amount))}</p>
                     {transaction.status === "INITIATED" && transaction.buyer.id === user?.id && checkoutDestination ? (
-                      <Button asChild className="bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]">
+                      <Button asChild className="bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]">
                         {checkoutDestination.external ? (
                           <a href={checkoutDestination.href} rel="noopener noreferrer">
                             Complete payment

@@ -32,41 +32,50 @@ export default async function IntentLandingPage({ pageKey }: { pageKey: IntentPa
     <main className="min-h-screen bg-white">
       {result.listings.length > 0 && <JsonLd data={itemList} />}
 
-      <section className="border-b border-[var(--border)]/40 px-4 py-12 md:px-8 md:py-20">
-        <div className="mx-auto max-w-5xl">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--brand)]">Remnant Market Nigeria</p>
-          <h1 className="mt-3 max-w-3xl text-3xl font-bold leading-tight text-[var(--foreground)] md:text-6xl">
+      <section className="border-b border-[var(--line-soft)] bg-[var(--background)] px-4 py-14 sm:px-5 md:px-8 md:py-24">
+        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[minmax(0,1fr)_15rem] md:items-end">
+          <div>
+          <p className="section-kicker">Remnant Market Nigeria</p>
+          <h1 className="mt-5 max-w-4xl text-4xl font-bold leading-[1.02] text-[var(--foreground)] md:text-6xl lg:text-7xl">
             {config.heading}
           </h1>
           <p className="mt-5 max-w-2xl text-base font-medium leading-7 text-[var(--ink-soft)] md:text-lg md:leading-8">
             {config.intro}
           </p>
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <Button asChild className="h-12 rounded-full bg-[var(--brand)] px-6 font-bold text-white hover:bg-[var(--brand-dark)]">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Button asChild className="h-12 px-6 font-bold text-white">
               <Link href={`/sell-item?intent=${config.intentTag}`}>
                 {config.actionLabel}
                 <ArrowRight size={16} aria-hidden="true" />
               </Link>
             </Button>
-            <Button asChild variant="outline" className="h-12 rounded-full border-[var(--border)] bg-white px-6 font-bold text-[var(--brand)]">
+            <Button asChild variant="outline" className="h-12 bg-white px-6 font-bold text-[var(--brand)]">
               <Link href={`/marketplace?intentionTag=${config.intentTag}`}>Browse current listings</Link>
             </Button>
+          </div>
+          </div>
+          <div className="hidden border-l border-[var(--line-soft)] pl-6 md:block" aria-hidden="true">
+            <p className="text-5xl font-bold tabular-nums text-[var(--brand)]">01</p>
+            <div className="paired-rule mt-4" />
+            <p className="mt-5 text-sm font-bold leading-6 text-[var(--ink-soft)]">One clear intent.<br />One useful next move.</p>
           </div>
         </div>
       </section>
 
       <section className="px-4 py-10 md:px-8 md:py-14" aria-labelledby={`${pageKey}-how`}>
         <div className="mx-auto max-w-5xl">
-          <h2 id={`${pageKey}-how`} className="text-xl font-bold text-[var(--foreground)] md:text-3xl">
+          <p className="section-kicker mb-3">Three simple steps</p>
+          <h2 id={`${pageKey}-how`} className="text-3xl font-bold text-[var(--foreground)] md:text-4xl">
             How it works
           </h2>
           <div className="mt-6 grid grid-cols-1 gap-5 border-y border-[var(--border)]/45 py-6 md:grid-cols-3 md:gap-8">
-            {steps.map((step) => (
+            {steps.map((step, index) => (
               <div key={step.title} className="flex gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+                <span className="icon-frame h-10 w-10" data-preserve-icon-frame>
                   <step.icon size={18} aria-hidden="true" />
                 </span>
                 <div>
+                  <p className="mb-1 text-[0.68rem] font-black tabular-nums text-[var(--muted-foreground)]">0{index + 1}</p>
                   <h3 className="font-bold text-[var(--foreground)]">{step.title}</h3>
                   <p className="mt-1 text-sm font-medium leading-6 text-[var(--ink-soft)]">{step.text}</p>
                 </div>
@@ -79,7 +88,7 @@ export default async function IntentLandingPage({ pageKey }: { pageKey: IntentPa
       <section className="bg-[var(--cream)] px-4 py-10 md:px-8 md:py-16" aria-labelledby={`${pageKey}-listings`}>
         <div className="mx-auto max-w-7xl">
           <div className="flex items-center justify-between gap-4">
-            <h2 id={`${pageKey}-listings`} className="text-xl font-bold text-[var(--foreground)] md:text-3xl">
+            <h2 id={`${pageKey}-listings`} className="text-3xl font-bold text-[var(--foreground)] md:text-4xl">
               {config.listingsLabel}
             </h2>
             <Link href={`/marketplace?intentionTag=${config.intentTag}`} className="shrink-0 text-sm font-bold text-[var(--brand)] hover:underline">
@@ -88,7 +97,7 @@ export default async function IntentLandingPage({ pageKey }: { pageKey: IntentPa
           </div>
 
           {result.listings.length > 0 ? (
-            <div className="mt-6 grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
+            <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
               {result.listings.map((listing) => <ListingCard key={listing.id} item={listing} />)}
             </div>
           ) : (
@@ -102,12 +111,12 @@ export default async function IntentLandingPage({ pageKey }: { pageKey: IntentPa
         </div>
       </section>
 
-      <nav className="px-4 py-10 md:px-8" aria-label="Other ways to use Remnant">
-        <div className="mx-auto flex max-w-5xl flex-wrap gap-x-5 gap-y-3 text-sm font-bold text-[var(--brand)]">
+      <nav className="border-t border-[var(--line-soft)] px-4 py-10 sm:px-5 md:px-8" aria-label="Other ways to use Remnant">
+        <div className="mx-auto flex max-w-5xl flex-wrap gap-2 text-sm font-bold text-[var(--brand)]">
           {Object.entries(intentPages)
             .filter(([key]) => key !== pageKey)
             .map(([key, item]) => (
-              <Link key={key} href={item.path} className="hover:underline">
+              <Link key={key} href={item.path} className="inline-flex min-h-11 items-center rounded-lg border border-[var(--border)]/70 bg-white px-3 transition-colors hover:border-[var(--brand)]/30 hover:bg-[var(--brand-soft)]">
                 {item.heading}
               </Link>
             ))}

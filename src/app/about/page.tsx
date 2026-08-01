@@ -28,7 +28,7 @@ export default function AboutPage() {
     <div className="min-h-screen bg-white">
       <section className="mx-auto max-w-7xl px-5 py-14 text-center md:px-8 md:py-28">
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--border)]/55 bg-white px-4 py-2 text-xs font-bold text-[var(--brand)] soft-shadow md:mb-6 md:text-sm">
+          <div className="section-kicker mb-5 md:mb-7">
             <Puzzle size={16} aria-hidden="true" />
             Our story
           </div>
@@ -63,7 +63,7 @@ export default function AboutPage() {
               { value: '0', label: 'Listing fee', sub: 'Free to post' },
               { value: 'Safe', label: 'Trust', sub: 'Profiles and clear records' },
             ].map((stat) => (
-              <div key={stat.label} className="surface-card rounded-[2rem] p-5">
+              <div key={stat.label} className="border-t border-[var(--border)]/70 py-5">
                 <p className="text-3xl font-bold text-[var(--brand)]">{stat.value}</p>
                 <p className="mt-1 text-sm font-bold text-[var(--foreground)]">{stat.label}</p>
                 <p className="mt-1 text-xs font-medium text-[var(--muted-foreground)]">{stat.sub}</p>
@@ -79,10 +79,10 @@ export default function AboutPage() {
           <p className="mt-3 font-medium text-[var(--ink-soft)]">Our principles shape every feature we build.</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid border-y border-[var(--line-soft)] md:grid-cols-3 md:divide-x md:divide-[var(--line-soft)]">
           {values.map((value) => (
-            <div key={value.title} className="surface-card lift-card rounded-[2rem] p-7">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+            <div key={value.title} className="border-b border-[var(--line-soft)] p-6 last:border-b-0 md:border-b-0 md:p-8">
+              <div className="icon-frame mb-5 h-11 w-11" data-preserve-icon-frame>
                 <value.icon size={24} aria-hidden="true" />
               </div>
               <h3 className="text-xl font-bold text-[var(--foreground)] md:text-2xl">{value.title}</h3>
@@ -117,7 +117,7 @@ export default function AboutPage() {
       </section>
 
       <section className="px-5 py-20 text-center md:px-8">
-        <div className="mx-auto max-w-3xl rounded-[2rem] bg-[var(--brand)] p-8 text-white soft-shadow md:p-12">
+        <div className="mx-auto max-w-3xl rounded-2xl bg-[var(--brand)] p-8 text-white md:p-12">
           <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-white/15">
             <Sparkles size={28} aria-hidden="true" />
           </div>

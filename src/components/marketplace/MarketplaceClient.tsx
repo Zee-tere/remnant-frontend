@@ -17,7 +17,7 @@ import { listingCategories } from "@/lib/categories";
 import { NairaIcon } from "@/components/ui/naira-icon";
 import { nigerianStates } from "@/lib/nigeria-locations";
 import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
-import { LoadingState } from "@/components/feedback/LoadingState";
+import { ListingGridSkeleton } from "@/components/feedback/LoadingState";
 import type { PublicListingPage } from "@/lib/public-listings";
 
 type Listing = ListingCardItem;
@@ -54,10 +54,12 @@ export default function MarketplaceClient({
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(initialData.totalPages);
   const [showFilters, setShowFilters] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const isInitialRender = useRef(true);
 
   const fetchListings = async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       const params: Record<string, string> = { page: page.toString(), limit: "12" };
       if (submittedSearch) params.search = submittedSearch;
@@ -71,6 +73,7 @@ export default function MarketplaceClient({
       setTotalPages(data.totalPages || 1);
     } catch {
       setListings([]);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -96,7 +99,7 @@ export default function MarketplaceClient({
   const hasActiveFilters = category || intentionTag || city || submittedSearch;
 
   const FilterPanel = ({ embedded = false }: { embedded?: boolean } = {}) => (
-    <div className={embedded ? "" : "surface-card rounded-[2rem] p-6"}>
+    <div className={embedded ? "" : "surface-card rounded-2xl p-6"}>
       {!embedded && (
       <div className="mb-7 flex items-center justify-between">
         <h2 className="text-2xl font-bold text-[var(--foreground)]">Filters</h2>
@@ -180,23 +183,27 @@ export default function MarketplaceClient({
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <main className="mx-auto max-w-7xl px-4 pb-20 pt-7 md:px-8 md:pt-10">
-        <header className="mb-4 md:mb-8">
-          <h1 className="page-heading-entry text-xl font-bold text-[var(--foreground)] md:text-4xl">
+      <main className="mx-auto max-w-7xl px-4 pb-20 pt-7 sm:px-5 md:px-8 md:pt-12">
+        <header className="mb-6 md:mb-10">
+          <p className="section-kicker mb-3">Browse by what happens next</p>
+          <h1 className="page-heading-entry text-4xl font-bold text-[var(--foreground)] md:text-6xl">
             Explore the market
           </h1>
+          <p className="mt-3 max-w-2xl text-base font-medium leading-7 text-[var(--ink-soft)]">
+            Useful pieces for sale, trade, donation, repair, and recycling—clearly labelled from the start.
+          </p>
         </header>
 
-        <div className="mb-4 flex divide-x divide-[#f1f0ec] overflow-x-auto border-y border-[#f1f0ec] scrollbar-hide lg:hidden" aria-label="Filter by intent">
+        <div className="mb-5 flex gap-1 overflow-x-auto border-y border-[var(--line-soft)] py-1 scrollbar-hide lg:hidden" aria-label="Filter by intent">
           {[{ key: '', label: 'All' }, ...Object.entries(intentionMeta).map(([key, meta]) => ({ key, label: key === 'SELL' ? 'Buy' : meta.label }))].map((item) => (
             <button
               key={item.key || 'all'}
               type="button"
               onClick={() => { setIntentionTag(item.key); setPage(1); }}
-              className={`min-h-11 shrink-0 px-3 text-xs font-bold transition-colors ${
+              className={`min-h-11 shrink-0 rounded-lg px-3 text-sm font-bold transition-colors ${
                 intentionTag === item.key
-                  ? 'text-[var(--brand)]'
-                  : 'text-[var(--ink-soft)]'
+                  ? 'bg-[var(--brand-soft)] text-[var(--brand)]'
+                  : 'text-[var(--ink-soft)] hover:bg-white hover:text-[var(--brand)]'
               }`}
             >
               {item.label}
@@ -264,10 +271,19 @@ export default function MarketplaceClient({
             )}
 
             {loading ? (
-              <LoadingState label="Loading marketplace items" compact className="min-h-[320px]" />
+              <ListingGridSkeleton count={12} />
+            ) : loadError ? (
+              <div className="border-y border-[var(--line-soft)] px-5 py-16 text-center" role="alert">
+                <span className="icon-frame mx-auto h-12 w-12" data-preserve-icon-frame>
+                  <Package size={22} aria-hidden="true" />
+                </span>
+                <h2 className="mt-4 text-xl font-bold text-[var(--foreground)]">The market did not load</h2>
+                <p className="mx-auto mt-2 max-w-sm text-sm font-medium text-[var(--ink-soft)]">Check your connection and try again.</p>
+                <Button type="button" variant="outline" onClick={() => void fetchListings()} className="mt-5">Try again</Button>
+              </div>
             ) : listings.length > 0 ? (
               <>
-                <div className="grid auto-rows-fr grid-cols-3 gap-1.5 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
+                <div className="grid auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 xl:grid-cols-4">
                   {listings.map((item, index) => <ListingCard key={item.id} item={item} eager={index === 0} />)}
                 </div>
 
@@ -297,7 +313,7 @@ export default function MarketplaceClient({
               </>
             ) : (
               <div className="border-t border-[#f1f0ec] px-6 py-16 text-center">
-                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+                <div className="icon-frame mx-auto mb-5 h-14 w-14" data-preserve-icon-frame>
                   <Package size={30} aria-hidden="true" />
                 </div>
                 <h3 className="text-2xl font-bold text-[var(--foreground)]">No items found</h3>
@@ -315,20 +331,21 @@ export default function MarketplaceClient({
         <div className="fixed inset-0 z-[70] lg:hidden">
           <div className="absolute inset-0 bg-black/35" onClick={() => setShowFilters(false)} />
           <div
-            className="mobile-filter-entry absolute bottom-0 left-0 right-0 flex max-h-[88dvh] flex-col overflow-hidden rounded-t-xl bg-white"
+            className="mobile-filter-entry absolute bottom-0 left-0 right-0 flex max-h-[88dvh] flex-col overflow-hidden rounded-t-2xl bg-white"
             role="dialog"
             aria-modal="true"
             aria-labelledby="marketplace-filter-title"
           >
             <div className="flex shrink-0 items-center justify-between border-b border-[var(--border)]/55 px-4 py-3">
               <div>
+                <span className="mb-2 block h-1 w-10 rounded-full bg-[var(--border)] lg:hidden" aria-hidden="true" />
                 <h2 id="marketplace-filter-title" className="text-xl font-bold text-[var(--foreground)]">Filters</h2>
                 <p className="text-xs text-[var(--muted-foreground)]">Narrow the market</p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowFilters(false)}
-                className="flex h-11 w-11 items-center justify-center text-[var(--ink-soft)]"
+                className="flex h-11 w-11 items-center justify-center rounded-xl text-[var(--ink-soft)] hover:bg-[var(--brand-soft)] hover:text-[var(--brand)]"
                 aria-label="Close filters"
               >
                 <X size={20} aria-hidden="true" />

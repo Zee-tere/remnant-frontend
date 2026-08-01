@@ -4,44 +4,50 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  Bell,
+  Box,
   ChevronDown,
+  HandHeart,
+  LogIn,
+  LogOut,
+  MessageCircle,
+  PackagePlus,
+  RefreshCw,
+  ScanSearch,
   Search,
+  Settings,
+  ShieldCheck,
+  Store,
+  Tag,
+  UserRound,
+  type LucideIcon,
 } from "lucide-react";
-import {
-  FaBell,
-  FaBox,
-  FaCloudArrowUp,
-  FaEnvelope,
-  FaGear,
-  FaHandHoldingHeart,
-  FaPuzzlePiece,
-  FaRightFromBracket,
-  FaRightLeft,
-  FaShieldHalved,
-  FaStore,
-  FaTag,
-  FaUser,
-} from "react-icons/fa6";
 import { useAuthStore } from "@/lib/auth";
 import { NameAvatar } from "@/components/ui/name-avatar";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 
-const productActions = [
-  { label: "Find Pair", href: "/find-a-pair", icon: FaPuzzlePiece },
-  { label: "Market", href: "/marketplace", icon: FaStore },
-  { label: "Sell", href: "/sell-item?intent=SELL", icon: FaTag },
-  { label: "Trade", href: "/sell-item?intent=TRADE", icon: FaRightLeft },
-  { label: "Donate", href: "/sell-item?intent=DONATE", icon: FaHandHoldingHeart },
+interface NavigationAction {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+}
+
+const productActions: NavigationAction[] = [
+  { label: "Find a pair", href: "/find-a-pair", icon: ScanSearch },
+  { label: "Marketplace", href: "/marketplace", icon: Store },
+  { label: "Sell", href: "/sell", icon: Tag },
+  { label: "Trade", href: "/trade", icon: RefreshCw },
+  { label: "Donate", href: "/donate", icon: HandHeart },
 ];
 
 const accountActions = [
-  { label: "Listings", href: "/user/dashboard", icon: FaBox },
-  { label: "Pair Alerts", href: "/user/dashboard?section=pair-alerts", icon: FaPuzzlePiece },
-  { label: "Messages", href: "/user/dashboard?section=messages", icon: FaEnvelope },
-  { label: "Alerts", href: "/user/dashboard?section=alerts", icon: FaBell },
-  { label: "Upload", href: "/user/dashboard?section=upload", icon: FaCloudArrowUp },
-  { label: "Profile", href: "/user/dashboard?section=profile", icon: FaUser },
-  { label: "Settings", href: "/user/dashboard?section=settings", icon: FaGear },
+  { label: "Listings", href: "/user/dashboard", icon: Box },
+  { label: "Pair alerts", href: "/user/dashboard?section=pair-alerts", icon: ScanSearch },
+  { label: "Messages", href: "/user/dashboard?section=messages", icon: MessageCircle },
+  { label: "Alerts", href: "/user/dashboard?section=alerts", icon: Bell },
+  { label: "Upload", href: "/user/dashboard?section=upload", icon: PackagePlus },
+  { label: "Profile", href: "/user/dashboard?section=profile", icon: UserRound },
+  { label: "Settings", href: "/user/dashboard?section=settings", icon: Settings },
 ];
 
 export default function Navbar() {
@@ -54,7 +60,7 @@ export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuthStore();
   const displayName = user?.name || "Account";
   const mobileAccountActions = user?.role === "ADMIN"
-    ? [{ label: "Admin", href: "/admin", icon: FaShieldHalved }, ...accountActions]
+    ? [{ label: "Admin", href: "/admin", icon: ShieldCheck }, ...accountActions]
     : accountActions;
   const isAuthRoute = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth/callback"].some(
     (route) => pathname.startsWith(route),
@@ -100,32 +106,34 @@ export default function Navbar() {
   };
 
   return (
-    <header className={`sticky top-0 z-50 w-full border-b border-[var(--sand)] bg-white px-3 py-1.5 md:px-6 md:py-3 ${isAuthRoute ? "hidden md:block" : ""}`}>
-      <div className="relative mx-auto flex max-w-7xl items-center gap-2 bg-white px-0 py-1 text-[var(--foreground)] md:justify-between md:gap-0 md:px-2 md:py-2">
+    <header className={`sticky top-0 z-50 w-full border-b border-[var(--line-soft)] bg-white px-3 py-1.5 md:px-6 md:py-2 ${isAuthRoute ? "hidden md:block" : ""}`}>
+      <div className="relative mx-auto flex min-h-12 max-w-7xl items-center gap-2 bg-white px-0 text-[var(--foreground)] md:min-h-14 md:justify-between md:gap-0 md:px-2">
         <Link href="/" className="flex shrink-0 items-center text-[var(--brand)]" aria-label="Remnant home">
           <BrandLogo size="nav" className={showMobileSearch ? "brand-lockup--mark-only-mobile" : ""} />
         </Link>
 
-        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-2 px-4 md:flex" aria-label="Primary navigation">
-          {productActions.map((item, index) => (
-            <React.Fragment key={item.href}>
+        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 px-4 md:flex" aria-label="Primary navigation">
+          {productActions.map((item) => {
+            const active = isActive(item.href);
+            return (
               <Link
+                key={item.href}
                 href={item.href}
-                className={`relative z-10 px-1 py-2 text-xs font-black uppercase tracking-[0.16em] transition-all duration-200 ${
-                  item.href === "/marketplace" && isActive(item.href)
-                    ? "text-[var(--brand)]"
-                    : "text-[var(--foreground)] hover:text-[var(--brand)]"
+                className={`relative z-10 min-h-11 px-3 py-3 text-[0.8rem] font-bold transition-colors duration-150 ${
+                  active ? "text-[var(--brand)]" : "text-[var(--ink-soft)] hover:text-[var(--brand)]"
                 }`}
+                aria-current={active ? "page" : undefined}
               >
                 {item.label}
+                {active && (
+                  <span className="absolute inset-x-3 bottom-1 flex h-1 items-center gap-1" aria-hidden="true">
+                    <span className="h-0.5 flex-1 bg-[var(--brand)]" />
+                    <span className="h-0.5 w-1.5 bg-[var(--brand)]" />
+                  </span>
+                )}
               </Link>
-              {index < productActions.length - 1 && (
-                <span className="text-sm font-black text-[var(--brand)]" aria-hidden="true">
-                  .
-                </span>
-              )}
-            </React.Fragment>
-          ))}
+            );
+          })}
         </nav>
 
         <div className="relative z-20 flex min-w-0 flex-1 items-center justify-end gap-2 md:flex-initial md:shrink-0">
@@ -134,7 +142,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setProfileOpen(!profileOpen)}
-                className="profile-button flex items-center gap-2 px-1 py-2 transition-colors hover:text-[var(--brand)]"
+                className="profile-button flex min-h-11 items-center gap-2 rounded-xl px-2 py-1.5 transition-colors hover:bg-[var(--brand-soft)] hover:text-[var(--brand)]"
                 aria-label="User menu"
                 aria-expanded={profileOpen}
               >
@@ -150,7 +158,7 @@ export default function Navbar() {
               </button>
 
               {profileOpen && (
-                  <div className="absolute right-0 mt-3 w-60 overflow-hidden rounded-lg border border-[var(--border)]/60 bg-white py-2 soft-shadow">
+                  <div className="absolute right-0 mt-2 w-64 overflow-hidden rounded-xl border border-[var(--border)]/70 bg-white py-2 soft-shadow">
                     <div className="border-b border-[var(--border)]/45 px-5 py-4">
                       <p className="text-sm font-bold text-foreground">{displayName}</p>
                       <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
@@ -160,7 +168,7 @@ export default function Navbar() {
                       onClick={() => setProfileOpen(false)}
                       className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--brand-soft)]"
                     >
-                      <FaBox size={15} className="text-[var(--brand)]" aria-hidden="true" />
+                      <Box size={16} className="text-[var(--brand)]" aria-hidden="true" />
                       My listings
                     </Link>
                     <Link
@@ -168,7 +176,7 @@ export default function Navbar() {
                       onClick={() => setProfileOpen(false)}
                       className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--brand-soft)]"
                     >
-                      <FaUser size={15} className="text-[var(--brand)]" aria-hidden="true" />
+                      <UserRound size={16} className="text-[var(--brand)]" aria-hidden="true" />
                       Edit profile
                     </Link>
                     <Link
@@ -176,7 +184,7 @@ export default function Navbar() {
                       onClick={() => setProfileOpen(false)}
                       className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--brand-soft)]"
                     >
-                      <FaGear size={15} className="text-[var(--brand)]" aria-hidden="true" />
+                      <Settings size={16} className="text-[var(--brand)]" aria-hidden="true" />
                       Settings
                     </Link>
                     {user?.role === "ADMIN" && (
@@ -185,7 +193,7 @@ export default function Navbar() {
                         onClick={() => setProfileOpen(false)}
                         className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--brand-soft)]"
                       >
-                        <FaShieldHalved size={15} className="text-[var(--brand)]" aria-hidden="true" />
+                        <ShieldCheck size={16} className="text-[var(--brand)]" aria-hidden="true" />
                         Administration
                       </Link>
                     )}
@@ -195,7 +203,7 @@ export default function Navbar() {
                         onClick={handleLogout}
                         className="flex w-full items-center gap-3 px-5 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50"
                       >
-                        <FaRightFromBracket size={15} aria-hidden="true" />
+                        <LogOut size={16} aria-hidden="true" />
                         Log out
                       </button>
                     </div>
@@ -203,12 +211,19 @@ export default function Navbar() {
                 )}
             </div>
           ) : (
-            <div className="hidden items-center gap-2 md:flex">
+            <div className="hidden items-center gap-1 md:flex">
+              <Link
+                href="/login"
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-bold text-[var(--ink-soft)] transition-colors hover:bg-[var(--brand-soft)] hover:text-[var(--brand)]"
+              >
+                <LogIn size={16} aria-hidden="true" />
+                Log in
+              </Link>
               <Link
                 href="/signup"
-                className="rounded-lg bg-[var(--brand)] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[var(--brand-dark)]"
+                className="inline-flex min-h-11 items-center rounded-xl bg-[var(--brand)] px-5 py-2 text-sm font-bold text-white transition-[background-color,transform] duration-150 hover:bg-[var(--brand-dark)] active:scale-[0.98]"
               >
-                Join Now
+                Join free
               </Link>
             </div>
           )}
@@ -216,18 +231,18 @@ export default function Navbar() {
           {showMobileSearch && (
             <form
               onSubmit={handleMobileSearch}
-              className="flex h-10 min-w-0 flex-1 items-center overflow-hidden rounded-lg bg-[var(--sand)] pl-3 md:hidden"
+              className="flex h-11 min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-[var(--line-soft)] bg-[var(--sand)] pl-3 md:hidden"
             >
               <input
                 value={mobileSearch}
                 onChange={(event) => setMobileSearch(event.target.value)}
                 placeholder="Search the market"
-                className="h-10 min-w-0 flex-1 bg-transparent pr-1.5 text-sm font-medium text-[var(--foreground)] outline-none placeholder:font-medium placeholder:text-[var(--muted-foreground)]"
+                className="h-11 min-w-0 flex-1 bg-transparent pr-1.5 text-base font-medium text-[var(--foreground)] outline-none placeholder:font-normal placeholder:text-[var(--muted-foreground)]"
                 aria-label="Search items"
               />
               <button
                 type="submit"
-                className="m-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--brand)] transition-colors hover:bg-white"
+                className="m-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)]"
                 aria-label="Submit search"
               >
                 <Search size={14} strokeWidth={2.15} aria-hidden="true" />
@@ -237,7 +252,7 @@ export default function Navbar() {
 
           <button
             type="button"
-              className="mobile-menu-button inline-flex h-12 w-12 shrink-0 items-center justify-center bg-transparent text-[var(--brand)] transition-colors hover:text-[var(--brand-dark)] md:hidden"
+              className="mobile-menu-button inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-transparent text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)] hover:text-[var(--brand-dark)] md:hidden"
             onPointerDown={(event) => event.stopPropagation()}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -245,20 +260,20 @@ export default function Navbar() {
           >
             <span className="relative block h-4 w-5" aria-hidden="true">
               <span className={`absolute left-0 top-0.5 h-0.5 w-5 rounded-full bg-current transition-transform duration-200 ${menuOpen ? "translate-y-[6px] rotate-45" : ""}`} />
-              <span className={`absolute left-0 top-[7px] h-0.5 w-5 rounded-full bg-current transition-all duration-150 ${menuOpen ? "scale-x-0 opacity-0" : ""}`} />
+              <span className={`absolute left-0 top-[7px] h-0.5 w-5 rounded-full bg-current transition-[transform,opacity] duration-150 ${menuOpen ? "scale-x-0 opacity-0" : ""}`} />
               <span className={`absolute left-0 top-[13px] h-0.5 w-5 rounded-full bg-current transition-transform duration-200 ${menuOpen ? "-translate-y-[6px] -rotate-45" : ""}`} />
             </span>
           </button>
 
               {menuOpen && (
                 <div
-                  className={`navbar-menu mobile-menu-entry absolute -right-3 top-full z-50 mt-2 overflow-hidden bg-white md:hidden ${
+                  className={`navbar-menu mobile-menu-entry absolute -right-1 top-full z-50 mt-2 overflow-hidden border border-[var(--border)]/70 bg-white soft-shadow md:hidden ${
                     isAuthenticated
-                      ? "w-[15.5rem] rounded-l-lg border-y border-l border-[var(--border)]/65 py-1"
-                      : "w-[min(92vw,22rem)] rounded-l-lg border-y border-l border-[var(--border)]/65 p-2"
+                      ? "w-[min(88vw,19rem)] rounded-xl py-1"
+                      : "w-[min(94vw,23rem)] rounded-xl p-2"
                   }`}
                 >
-                  <nav className={isAuthenticated ? "flex flex-col" : "grid grid-cols-3 gap-1.5"} aria-label="Mobile navigation">
+                  <nav className={isAuthenticated ? "flex flex-col" : "grid grid-cols-2 gap-1.5"} aria-label="Mobile navigation">
                     {(isAuthenticated ? mobileAccountActions : productActions).map((item) => {
                       const Icon = item.icon;
                       return (
@@ -266,13 +281,14 @@ export default function Navbar() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setMenuOpen(false)}
-                        className={`flex font-bold transition-colors ${isAuthenticated ? "h-12 items-center gap-3 border-b border-[var(--sand)] px-4 text-sm last:border-b-0" : "min-h-16 flex-col items-start justify-between px-2 py-2.5 text-xs"} ${
-                          !isAuthenticated && item.href === "/marketplace" && isActive(item.href)
-                            ? "text-[var(--brand)]"
-                            : "text-[var(--ink-soft)] hover:text-[var(--brand)]"
+                        className={`flex rounded-lg font-bold transition-colors ${isAuthenticated ? "min-h-12 items-center gap-3 px-4 text-sm hover:bg-[var(--brand-soft)]" : "min-h-20 flex-col items-start justify-between border border-transparent bg-[var(--cream)] px-3 py-3 text-sm hover:border-[var(--brand)]/20 hover:bg-[var(--brand-soft)]"} ${
+                          isActive(item.href) ? "text-[var(--brand)]" : "text-[var(--ink-soft)] hover:text-[var(--brand)]"
                         }`}
+                        aria-current={isActive(item.href) ? "page" : undefined}
                       >
-                        <Icon size={isAuthenticated ? 16 : 18} aria-hidden="true" />
+                        <span className="icon-frame h-8 w-8" data-preserve-icon-frame>
+                          <Icon size={16} aria-hidden="true" />
+                        </span>
                         <span>{item.label}</span>
                       </Link>
                       );
@@ -284,9 +300,9 @@ export default function Navbar() {
                           setMenuOpen(false);
                           handleLogout();
                         }}
-                        className="flex h-12 items-center gap-3 px-4 text-sm font-bold text-red-600 transition-colors hover:bg-red-50"
+                        className="flex min-h-12 items-center gap-3 rounded-lg px-4 text-sm font-bold text-red-700 transition-colors hover:bg-red-50"
                       >
-                        <FaRightFromBracket size={15} aria-hidden="true" />
+                        <LogOut size={16} aria-hidden="true" />
                         <span>Log out</span>
                       </button>
                     )}

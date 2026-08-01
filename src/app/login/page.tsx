@@ -71,7 +71,7 @@ function LoginPageContent() {
   return (
     <main className="min-h-screen bg-[var(--warm-white)] px-4 py-5 md:px-8 md:py-10">
       <section className="mx-auto grid min-h-[calc(100dvh-2.5rem)] max-w-6xl grid-cols-[minmax(0,1fr)] items-center gap-8 lg:min-h-[74vh] lg:grid-cols-[0.95fr_1fr]">
-        <div className="hidden rounded-[2rem] bg-[var(--navy)] p-10 text-white lg:block">
+        <div className="auth-story-panel relative hidden overflow-hidden rounded-2xl bg-[var(--navy)] p-10 text-white lg:block">
           <Link href="/" className="inline-flex text-[var(--brand-light)]" aria-label="Remnant home">
             <BrandLogo size="auth" />
           </Link>

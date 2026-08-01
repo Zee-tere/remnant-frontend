@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { BellRing, Filter, Search, X } from "lucide-react";
+import { BellRing, Filter, PackageSearch, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,19 +81,26 @@ export default function FindPageClient({
   const hasFilters = Boolean(category || city || intent);
 
   return (
-    <main className="mx-auto min-h-screen max-w-7xl bg-white px-3 pb-8 pt-2 md:px-8 md:pb-20 md:pt-8">
+    <main className="mx-auto min-h-screen max-w-7xl bg-[var(--background)] px-4 pb-10 pt-7 sm:px-5 md:px-8 md:pb-20 md:pt-12">
+      <header className="mb-6 md:mb-9">
+        <p className="section-kicker mb-3">Search by the detail that matters</p>
+        <h1 className="max-w-3xl text-4xl font-bold text-[var(--foreground)] md:text-6xl">Find the piece that fits.</h1>
+        <p className="mt-3 max-w-2xl text-base font-medium leading-7 text-[var(--ink-soft)]">
+          Try the object, brand, model, colour, size, or the exact missing part.
+        </p>
+      </header>
       <form onSubmit={handleSearch} className="flex items-center gap-2">
-        <div className="relative h-12 min-w-0 flex-1 overflow-hidden rounded-lg border border-[var(--border)]/70 bg-white">
+        <div className="relative h-13 min-w-0 flex-1 overflow-hidden rounded-xl border border-[var(--border)]/75 bg-white transition-[border-color,box-shadow] focus-within:border-[var(--brand)] focus-within:ring-4 focus-within:ring-[var(--brand)]/10">
           <Input
             type="search"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
             placeholder="Search the market"
-            className="h-12 rounded-lg border-0 bg-transparent pl-4 pr-12 text-base font-medium shadow-none focus-visible:ring-0"
+            className="h-13 border-0 bg-transparent pl-4 pr-14 text-base font-medium shadow-none focus-visible:ring-0"
           />
           <button
             type="submit"
-            className="absolute right-0 top-0 flex h-12 w-12 items-center justify-center rounded-r-lg bg-[var(--brand)] text-white transition-colors hover:bg-[var(--brand-dark)]"
+            className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-lg bg-[var(--brand)] text-white transition-[background-color,transform] hover:bg-[var(--brand-dark)] active:scale-[0.97]"
             aria-label="Search"
           >
             <Search size={16} strokeWidth={2.15} aria-hidden="true" />
@@ -103,7 +110,7 @@ export default function FindPageClient({
           type="button"
           variant="outline"
           onClick={() => setShowFilters((current) => !current)}
-          className="h-12 shrink-0 border-0 bg-transparent px-1 text-sm font-bold shadow-none hover:bg-transparent hover:text-[var(--brand)] md:px-3"
+          className="h-13 shrink-0 border-[var(--border)] bg-white px-3 text-sm font-bold shadow-none md:px-4"
         >
           {showFilters ? <X size={15} /> : <Filter size={15} />}
           Filter
@@ -111,8 +118,8 @@ export default function FindPageClient({
         </Button>
       </form>
 
-      <section className="mt-2 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-[var(--border)]/70 px-0.5 py-2.5 md:mt-4 md:py-3" aria-label="Pair alerts">
-        <BellRing size={16} className="shrink-0 text-[var(--brand)]" aria-hidden="true" />
+      <section className="mt-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--line-soft)] px-0.5 py-3 md:mt-5 md:py-4" aria-label="Pair alerts">
+        <span className="icon-frame h-9 w-9" data-preserve-icon-frame><BellRing size={16} aria-hidden="true" /></span>
         <p className="min-w-0 truncate text-xs font-semibold text-[var(--ink-soft)] md:text-sm">
           <span className="md:hidden">Missing a piece?</span>
           <span className="hidden md:inline">Looking for one missing piece?</span>
@@ -124,7 +131,18 @@ export default function FindPageClient({
       </section>
 
       {showFilters && (
-        <section className="mt-3 grid gap-3 border-y border-[#f1f0ec] bg-white py-3 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end md:px-1 md:py-4">
+        <div className="fixed inset-0 z-[70] md:static md:z-auto">
+          <div className="absolute inset-0 bg-black/35 md:hidden" onClick={() => setShowFilters(false)} />
+          <section className="mobile-filter-entry absolute inset-x-0 bottom-0 max-h-[84dvh] overflow-y-auto rounded-t-2xl bg-white px-4 pb-[calc(1rem+var(--safe-area-bottom))] pt-3 md:static md:mt-4 md:grid md:max-h-none md:grid-cols-[1fr_1fr_1fr_auto] md:items-end md:gap-3 md:overflow-visible md:rounded-none md:border-y md:border-[var(--line-soft)] md:bg-transparent md:px-1 md:py-4 md:[animation:none]" aria-label="Search filters">
+          <div className="mb-4 flex items-center justify-between border-b border-[var(--line-soft)] pb-3 md:hidden">
+            <div>
+              <span className="mb-2 block h-1 w-10 rounded-full bg-[var(--border)]" aria-hidden="true" />
+              <h2 className="text-xl font-bold">Refine the search</h2>
+            </div>
+            <button type="button" onClick={() => setShowFilters(false)} className="flex h-11 w-11 items-center justify-center rounded-xl text-[var(--ink-soft)] hover:bg-[var(--brand-soft)]" aria-label="Close filters">
+              <X size={19} aria-hidden="true" />
+            </button>
+          </div>
           <label className="space-y-1">
             <span className="text-xs font-bold text-[var(--muted-foreground)]">State</span>
             <select value={city} onChange={(event) => setCity(event.target.value)} className="h-11 w-full rounded-md border border-[var(--border)] bg-white px-3 text-base">
@@ -145,11 +163,12 @@ export default function FindPageClient({
               {intentOptions.map((item) => <option key={item.value || "all"} value={item.value}>{item.label}</option>)}
             </select>
           </label>
-          <div className="flex gap-2">
-            {hasFilters && <Button type="button" variant="outline" onClick={resetFilters} className="rounded-full">Reset</Button>}
-            <Button type="button" onClick={() => { void loadListings(); setShowFilters(false); }} className="rounded-full bg-[var(--brand)] font-bold text-white">Apply</Button>
+          <div className="mt-4 flex gap-2 md:mt-0">
+            {hasFilters && <Button type="button" variant="outline" onClick={resetFilters}>Reset</Button>}
+            <Button type="button" onClick={() => { void loadListings(); setShowFilters(false); }} className="flex-1 font-bold text-white md:flex-none">Apply filters</Button>
           </div>
-        </section>
+          </section>
+        </div>
       )}
 
       <div className="mb-3 mt-4 flex items-center justify-between md:mb-5 md:mt-6">
@@ -159,13 +178,17 @@ export default function FindPageClient({
       {loading ? (
         <ListingGridSkeleton />
       ) : listings.length > 0 ? (
-        <section className="grid grid-cols-3 gap-1.5 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
+        <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 xl:grid-cols-4">
           {listings.map((item, index) => <ListingCard key={item.id} item={item} eager={index === 0} />)}
         </section>
       ) : (
-        <section className="border-t border-[var(--border)] py-16 text-center">
-          <h1 className="text-lg font-bold text-[var(--foreground)]">No items found</h1>
-          <p className="mt-1 text-sm text-[var(--muted-foreground)]">Try another search or remove a filter.</p>
+        <section className="border-y border-[var(--line-soft)] py-16 text-center">
+          <span className="icon-frame mx-auto h-12 w-12" data-preserve-icon-frame><PackageSearch size={22} aria-hidden="true" /></span>
+          <h2 className="mt-4 text-xl font-bold text-[var(--foreground)]">No pieces found yet</h2>
+          <p className="mx-auto mt-2 max-w-sm text-sm font-medium text-[var(--muted-foreground)]">Try another detail, remove a filter, or save a private alert for later.</p>
+          <Button asChild variant="outline" className="mt-5">
+            <Link href={isAuthenticated ? alertPath : `/login?redirect=${encodeURIComponent(alertPath)}`}>Set a pair alert</Link>
+          </Button>
         </section>
       )}
     </main>

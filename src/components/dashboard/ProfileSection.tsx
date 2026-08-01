@@ -106,29 +106,29 @@ export default function ProfileSection() {
             <p className="truncate text-xs font-bold text-[var(--foreground)]">
               {trustTierLabels[user.trustTier] ?? user.trustTier}
             </p>
-            <p className="mt-0.5 text-[0.69rem] font-semibold text-[var(--muted-foreground)]">Trust</p>
+            <p className="mt-0.5 text-xs font-semibold text-[var(--muted-foreground)]">Trust</p>
           </div>
           <div className="min-w-0 px-2 py-2.5 text-center">
             <p className="truncate text-xs font-bold text-[var(--foreground)]">{user.points.toLocaleString()}</p>
-            <p className="mt-0.5 text-[0.69rem] font-semibold text-[var(--muted-foreground)]">Points</p>
+            <p className="mt-0.5 text-xs font-semibold text-[var(--muted-foreground)]">Points</p>
           </div>
           <div className="min-w-0 px-2 py-2.5 text-center">
             <p className="truncate text-xs font-bold text-[var(--foreground)]">{profileStrength}%</p>
-            <p className="mt-0.5 text-[0.69rem] font-semibold text-[var(--muted-foreground)]">Profile</p>
+            <p className="mt-0.5 text-xs font-semibold text-[var(--muted-foreground)]">Profile</p>
           </div>
         </div>
 
         <div className="px-4 py-3">
-          <div className="mb-1.5 flex items-center justify-between text-[0.7rem] font-semibold text-[var(--muted-foreground)]">
+          <div className="mb-1.5 flex items-center justify-between text-xs font-semibold text-[var(--muted-foreground)]">
             <span>Profile strength</span>
             <span>{profileStrength}%</span>
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-[var(--sand)]">
             <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${profileStrength}%` }}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: profileStrength / 100 }}
               transition={{ duration: 0.4, ease: 'easeOut' }}
-              className="h-full rounded-full bg-[var(--brand)]"
+              className="h-full origin-left rounded-full bg-[var(--brand)]"
             />
           </div>
         </div>
@@ -197,10 +197,10 @@ export default function ProfileSection() {
             </p>
 
             <div className="mt-3 flex flex-wrap justify-start gap-1.5 md:mt-6 md:justify-center md:gap-3 lg:justify-start">
-              <span className="rounded-full bg-[var(--brand-soft)] px-2 py-1 text-[0.65rem] font-bold text-[var(--brand)] md:px-4 md:py-2 md:text-sm">
+              <span className="rounded-md bg-[var(--brand-soft)] px-2 py-1 text-xs font-bold text-[var(--brand)] md:px-4 md:py-2 md:text-sm">
                 {user.points} points
               </span>
-              <span className="rounded-full bg-[#fff6cf] px-2 py-1 text-[0.65rem] font-bold text-[var(--tertiary-gold)] md:px-4 md:py-2 md:text-sm">
+              <span className="rounded-md bg-[#fff6cf] px-2 py-1 text-xs font-bold text-[var(--tertiary-gold)] md:px-4 md:py-2 md:text-sm">
                 {user.city || 'City not set'}
               </span>
             </div>
@@ -218,7 +218,7 @@ export default function ProfileSection() {
             <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)] md:mb-5 md:h-12 md:w-12">
               <stat.icon size={15} className="md:h-[23px] md:w-[23px]" aria-hidden="true" />
             </div>
-            <p className="truncate text-[0.58rem] font-bold uppercase text-[var(--muted-foreground)] md:text-sm">{stat.label}</p>
+            <p className="truncate text-xs font-bold uppercase text-[var(--muted-foreground)] md:text-sm">{stat.label}</p>
             <p className="mt-1 truncate text-xs font-bold text-[var(--foreground)] md:mt-2 md:text-2xl">{stat.value}</p>
           </div>
         ))}
@@ -257,10 +257,10 @@ export default function ProfileSection() {
           </p>
           <div className="mt-4 h-2 overflow-hidden rounded-full bg-[var(--sand)] md:mt-6">
             <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${profileStrength}%` }}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: profileStrength / 100 }}
               transition={{ duration: 0.55, ease: 'easeOut' }}
-              className="h-full rounded-full bg-[var(--brand)]"
+              className="h-full origin-left rounded-full bg-[var(--brand)]"
             />
           </div>
           <p className="mt-2 text-right text-xs font-bold text-[var(--muted-foreground)] md:text-sm">Profile strength: {profileStrength}%</p>

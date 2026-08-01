@@ -308,7 +308,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
             We could not refresh them just now. Try again to load the latest activity.
           </p>
-          <Button type="button" onClick={() => void fetchListings()} className="mt-5 bg-[var(--brand)] text-[var(--navy)]">
+          <Button type="button" onClick={() => void fetchListings()} className="mt-5 bg-[var(--brand)] text-white">
             <RefreshCw size={16} />
             Try again
           </Button>
@@ -341,7 +341,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
           <Button
             type="button"
             onClick={() => onSelectSection?.('upload')}
-            className="h-9 rounded-full bg-[var(--brand)] px-3 text-xs text-white hover:bg-[var(--brand-dark)] md:h-10 md:px-4 md:text-sm md:text-[var(--navy)] md:hover:bg-[var(--brand-light)]"
+            className="h-9 bg-[var(--brand)] px-3 text-xs text-white hover:bg-[var(--brand-dark)] md:h-10 md:px-4 md:text-sm"
           >
             <Package size={16} />
             <span className="hidden xs:inline">New Listing</span>
@@ -430,7 +430,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
             <Button
               type="button"
               onClick={() => onSelectSection?.('upload')}
-              className="mt-6 bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]"
+              className="mt-6 bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]"
             >
               Create listing
             </Button>
@@ -615,7 +615,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
               <Button type="button" variant="outline" onClick={() => setEditingListing(null)}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]">
+              <Button type="submit" className="bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]">
                 Save changes
               </Button>
             </div>

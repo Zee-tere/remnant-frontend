@@ -24,7 +24,7 @@ export default function TermsPage() {
   return (
     <div className="min-h-screen bg-white">
       <section className="mx-auto max-w-5xl px-5 py-16 text-center md:px-8 md:py-24">
-        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+        <div className="icon-frame mx-auto mb-6 h-14 w-14 text-[var(--brand)]">
           <FileText size={28} aria-hidden="true" />
         </div>
         <h1 className="text-3xl font-bold text-[var(--foreground)] md:text-6xl">Terms of Service</h1>
@@ -34,10 +34,10 @@ export default function TermsPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-5 pb-20 md:px-8">
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid border-y border-[var(--line-soft)] md:grid-cols-3 md:divide-x md:divide-[var(--line-soft)]">
           {terms.map((term) => (
-            <article key={term.title} className="surface-card rounded-[2rem] p-7">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+            <article key={term.title} className="border-b border-[var(--line-soft)] py-7 last:border-b-0 md:border-b-0 md:px-8 md:py-9">
+              <div className="icon-frame mb-6 text-[var(--brand)]">
                 <BadgeCheck size={24} aria-hidden="true" />
               </div>
               <h2 className="text-2xl font-bold text-[var(--foreground)]">{term.title}</h2>
@@ -46,13 +46,13 @@ export default function TermsPage() {
           ))}
         </div>
 
-        <div className="mt-10 rounded-[2rem] border border-[var(--border)]/50 bg-[var(--cream)] p-7 text-center md:p-10">
+        <div className="mt-10 rounded-2xl border border-[var(--line-soft)] bg-[var(--cream)] p-7 text-center md:p-10">
           <ShieldCheck className="mx-auto text-[var(--secondary-blue)]" size={30} aria-hidden="true" />
           <h2 className="mt-4 text-3xl font-bold text-[var(--foreground)]">Need help with a transaction?</h2>
           <p className="mx-auto mt-3 max-w-xl font-medium leading-7 text-[var(--ink-soft)]">
             The Help Center explains support channels and safe exchange basics.
           </p>
-          <Button asChild className="mt-6 rounded-full bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">
+          <Button asChild className="mt-6 bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">
             <Link href="/help">
               Visit Help Center
               <ArrowRight size={16} aria-hidden="true" />

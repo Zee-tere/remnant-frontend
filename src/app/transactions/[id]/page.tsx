@@ -181,7 +181,7 @@ export default function TransactionDetailPage() {
         <AlertTriangle className="mb-4 text-amber-600" size={44} />
         <h1 className="text-2xl font-bold text-foreground">Transaction not found</h1>
         <p className="mt-2 text-sm text-muted-foreground">The transaction may have been removed or is not linked to this account.</p>
-        <Button asChild className="mt-6 bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]">
+        <Button asChild className="mt-6 bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]">
           <Link href="/user/dashboard?section=transactions">Back to transactions</Link>
         </Button>
       </div>
@@ -226,7 +226,7 @@ export default function TransactionDetailPage() {
                         className={cn(
                           "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border",
                           complete
-                            ? "border-[var(--brand)] bg-[var(--brand)] text-[var(--navy)]"
+                            ? "border-[var(--brand)] bg-[var(--brand)] text-white"
                             : "border-[var(--border)] bg-background text-muted-foreground",
                         )}
                       >
@@ -286,7 +286,7 @@ export default function TransactionDetailPage() {
                 </div>
 
                 {role === "buyer" && transaction.status === "INITIATED" && (transaction.paymentCheckoutUrl || transaction.escrowCheckoutUrl) && (
-                  <Button onClick={openCheckout} className="w-full bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]">
+                  <Button onClick={openCheckout} className="w-full bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]">
                     {getSafeCheckoutUrl(transaction.paymentCheckoutUrl || transaction.escrowCheckoutUrl)?.external ? <ExternalLink size={16} /> : <CreditCard size={16} />}
                     Continue payment
                   </Button>
@@ -308,7 +308,7 @@ export default function TransactionDetailPage() {
                         )
                       }
                       disabled={actionLoading === "ship"}
-                      className="w-full bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]"
+                      className="w-full bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]"
                     >
                       {actionLoading === "ship" ? <Loader2 className="animate-spin" size={16} /> : <Truck size={16} />}
                       Mark shipped
@@ -322,7 +322,7 @@ export default function TransactionDetailPage() {
                       runAction("confirm", () => transactionsApi.confirmReceipt(transaction.id), "Receipt confirmed")
                     }
                     disabled={actionLoading === "confirm"}
-                    className="w-full bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]"
+                    className="w-full bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]"
                   >
                     {actionLoading === "confirm" ? <Loader2 className="animate-spin" size={16} /> : <PackageCheck size={16} />}
                     Confirm receipt

@@ -101,7 +101,7 @@ export default function SettingsSection() {
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]"
+          className="bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]"
         >
           {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
           Save changes

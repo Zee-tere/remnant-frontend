@@ -437,7 +437,7 @@ export default function AlertsSection() {
                           <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
                               <h3 className="font-semibold text-foreground">{item.title}</h3>
-                              {item.unread && <Badge className="bg-[var(--brand)] text-[var(--navy)]">New</Badge>}
+                              {item.unread && <Badge className="bg-[var(--brand)] text-white">New</Badge>}
                               {item.source === 'match' && (
                                 <Badge variant="outline" className="border-[var(--border)]">
                                   {item.score}% match

@@ -174,7 +174,7 @@ export default function HelpPage() {
               </div>
               <h3 className="mb-2 text-lg font-semibold text-foreground">{option.title}</h3>
               <p className="mb-4 text-sm text-muted-foreground">{option.description}</p>
-              <Button asChild className="w-full bg-[var(--brand)] text-[var(--navy)] hover:bg-[var(--brand-light)]">
+              <Button asChild className="w-full bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]">
                 <Link href={option.href}>{option.action}</Link>
               </Button>
             </div>

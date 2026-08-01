@@ -158,12 +158,12 @@ export default function SellerGuidePage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-12">
-        <TabsList className="grid grid-cols-2 md:grid-cols-5 mb-8">
-          <TabsTrigger value="getting-started">Getting Started</TabsTrigger>
-          <TabsTrigger value="pricing">Pricing Guide</TabsTrigger>
-          <TabsTrigger value="photos">Photos & Descriptions</TabsTrigger>
-          <TabsTrigger value="safety">Safety & Exchanges</TabsTrigger>
-          <TabsTrigger value="success">Success Tips</TabsTrigger>
+        <TabsList className="mb-8 flex h-auto w-full snap-x justify-start gap-1 overflow-x-auto rounded-xl p-1">
+          <TabsTrigger className="min-h-11 min-w-fit shrink-0 snap-start px-4" value="getting-started">Getting Started</TabsTrigger>
+          <TabsTrigger className="min-h-11 min-w-fit shrink-0 snap-start px-4" value="pricing">Pricing Guide</TabsTrigger>
+          <TabsTrigger className="min-h-11 min-w-fit shrink-0 snap-start px-4" value="photos">Photos & Descriptions</TabsTrigger>
+          <TabsTrigger className="min-h-11 min-w-fit shrink-0 snap-start px-4" value="safety">Safety & Exchanges</TabsTrigger>
+          <TabsTrigger className="min-h-11 min-w-fit shrink-0 snap-start px-4" value="success">Success Tips</TabsTrigger>
         </TabsList>
 
         {/* Getting Started Tab */}
@@ -773,7 +773,7 @@ export default function SellerGuidePage() {
 
       {/* CTA */}
       <div className="text-center mt-12">
-        <Card className="bg-[var(--brand)] text-[var(--navy)]">
+        <Card className="bg-[var(--brand)] text-white">
           <CardContent className="p-8">
             <h3 className="text-2xl font-bold mb-4">Ready to Start Selling?</h3>
             <p className="mb-6 opacity-90">
@@ -783,7 +783,7 @@ export default function SellerGuidePage() {
               <Button asChild size="lg" className="bg-white text-[var(--navy)] hover:bg-white/90">
                 <Link href="/sell-item">List Your First Item</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="border-[var(--navy)] text-[var(--navy)] hover:bg-white/30">
+              <Button asChild size="lg" variant="outline" className="border-white/70 bg-transparent text-white hover:bg-white hover:text-[var(--brand)]">
                 <Link href="mailto:support@remnantmarket.co?subject=Seller%20support">Contact Support</Link>
               </Button>
             </div>
