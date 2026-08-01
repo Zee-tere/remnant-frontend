@@ -301,7 +301,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
     return (
       <div className="mx-auto flex min-h-[420px] max-w-xl items-center justify-center px-4">
         <div className="w-full border-y border-[var(--border)] py-10 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center text-[var(--brand)]">
             <RefreshCw size={22} aria-hidden="true" />
           </div>
           <h1 className="text-xl font-semibold text-foreground">Your listings are still here</h1>
@@ -416,7 +416,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
       {filteredListings.length === 0 ? (
         <Card className="border-[var(--border)] bg-card">
           <CardContent className="flex flex-col items-center px-6 py-14 text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--brand-soft)]">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center text-[var(--brand)]">
               <Package className="text-[var(--brand)]" size={30} />
             </div>
             <h3 className="text-lg font-semibold text-foreground">

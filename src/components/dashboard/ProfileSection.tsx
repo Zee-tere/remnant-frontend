@@ -170,7 +170,7 @@ export default function ProfileSection() {
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-md bg-[var(--brand-soft)] text-[var(--brand)] md:hidden"
+            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center text-[var(--brand)] md:hidden"
             aria-label="Edit profile"
           >
             <Edit size={15} aria-hidden="true" />
@@ -215,7 +215,7 @@ export default function ProfileSection() {
           { label: 'Location', value: user.city || 'Not set', icon: MapPin },
         ].map((stat) => (
           <div key={stat.label} className="surface-card min-w-0 rounded-lg p-2.5 md:rounded-[2rem] md:p-6">
-            <div className="mb-2 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)] md:mb-5 md:h-12 md:w-12">
+            <div className="mb-2 flex h-7 w-7 items-center justify-center text-[var(--brand)] md:mb-5 md:h-12 md:w-12">
               <stat.icon size={15} className="md:h-[23px] md:w-[23px]" aria-hidden="true" />
             </div>
             <p className="truncate text-xs font-bold uppercase text-[var(--muted-foreground)] md:text-sm">{stat.label}</p>
@@ -227,7 +227,7 @@ export default function ProfileSection() {
       <div className="hidden gap-8 md:grid lg:grid-cols-12">
         <div className="surface-card rounded-lg p-4 md:rounded-[2rem] md:p-6 lg:col-span-5">
           <div className="mb-3 flex items-center gap-2 md:mb-5 md:gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)] md:h-11 md:w-11">
+            <div className="flex h-8 w-8 items-center justify-center text-[var(--brand)] md:h-11 md:w-11">
               <User size={21} aria-hidden="true" />
             </div>
             <h2 className="text-base font-bold md:text-2xl">Profile Details</h2>

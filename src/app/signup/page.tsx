@@ -160,7 +160,7 @@ function SignUpPageContent() {
                   placeholder="Code from email"
                   autoComplete="one-time-code"
                   required
-                  className="mb-4 h-[52px] w-full rounded-full border border-[var(--border)] bg-white px-5 py-3 text-base font-semibold text-[var(--foreground)] outline-none transition focus:border-[var(--brand)] focus:shadow-[0_0_0_3px_rgba(0,108,82,0.12)]"
+                  className="mb-4 h-[52px] w-full rounded-full border border-[var(--border)] bg-white px-5 py-3 text-base font-semibold text-[var(--foreground)] outline-none transition focus:border-[var(--brand)]"
                 />
               </>
             ) : (
@@ -182,7 +182,7 @@ function SignUpPageContent() {
                 placeholder="Your name"
                 autoComplete="name"
                 required
-                className="h-[52px] w-full rounded-full border border-[var(--border)] bg-white px-11 py-3 text-base font-semibold text-[var(--foreground)] outline-none transition focus:border-[var(--brand)] focus:shadow-[0_0_0_3px_rgba(0,108,82,0.12)]"
+                className="h-[52px] w-full rounded-full border border-[var(--border)] bg-white px-11 py-3 text-base font-semibold text-[var(--foreground)] outline-none transition focus:border-[var(--brand)]"
               />
             </div>
 
@@ -203,7 +203,7 @@ function SignUpPageContent() {
                 placeholder="you@example.com"
                 autoComplete="email"
                 required
-                className="h-[52px] w-full rounded-full border border-[var(--border)] bg-white px-11 py-3 text-base font-semibold text-[var(--foreground)] outline-none transition focus:border-[var(--brand)] focus:shadow-[0_0_0_3px_rgba(0,108,82,0.12)]"
+                className="h-[52px] w-full rounded-full border border-[var(--border)] bg-white px-11 py-3 text-base font-semibold text-[var(--foreground)] outline-none transition focus:border-[var(--brand)]"
               />
             </div>
 
@@ -225,7 +225,7 @@ function SignUpPageContent() {
                 autoComplete="new-password"
                 required
                 minLength={8}
-                className="h-[52px] w-full rounded-full border border-[var(--border)] bg-white px-11 py-3 pr-12 text-base font-semibold text-[var(--foreground)] outline-none transition focus:border-[var(--brand)] focus:shadow-[0_0_0_3px_rgba(0,108,82,0.12)]"
+                className="h-[52px] w-full rounded-full border border-[var(--border)] bg-white px-11 py-3 pr-12 text-base font-semibold text-[var(--foreground)] outline-none transition focus:border-[var(--brand)]"
               />
               <button
                 type="button"

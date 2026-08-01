@@ -94,7 +94,7 @@ export default function FindPageClient({
         <ActionArtwork name="find" priority className="h-16 w-16 md:h-44 md:w-44" />
       </header>
       <form onSubmit={handleSearch} className="flex items-center gap-2">
-        <div className="relative h-13 min-w-0 flex-1 overflow-hidden rounded-xl border border-[var(--border)]/75 bg-white transition-[border-color,box-shadow] focus-within:border-[var(--brand)] focus-within:ring-4 focus-within:ring-[var(--brand)]/10">
+        <div className="relative h-13 min-w-0 flex-1 overflow-hidden rounded-xl border border-[var(--border)]/75 bg-white transition-colors focus-within:border-[var(--brand)]">
           <Input
             type="search"
             value={searchTerm}
@@ -104,7 +104,7 @@ export default function FindPageClient({
           />
           <button
             type="submit"
-            className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-lg bg-[var(--brand)] text-white transition-[background-color,transform] hover:bg-[var(--brand-dark)] active:scale-[0.97]"
+            className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center bg-white text-[var(--aqua)] transition-[color,transform] hover:text-[var(--brand)] active:scale-[0.97]"
             aria-label="Search"
           >
             <Search size={16} strokeWidth={2.15} aria-hidden="true" />

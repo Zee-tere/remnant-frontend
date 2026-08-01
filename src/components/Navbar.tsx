@@ -231,7 +231,7 @@ export default function Navbar() {
           {showMobileSearch && (
             <form
               onSubmit={handleMobileSearch}
-              className="flex h-11 min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-[var(--line-soft)] bg-[var(--sand)] pl-3 md:hidden"
+              className="flex h-11 min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-[var(--line-soft)] bg-white pl-3 md:hidden"
             >
               <input
                 value={mobileSearch}
@@ -242,7 +242,7 @@ export default function Navbar() {
               />
               <button
                 type="submit"
-                className="m-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)]"
+                className="m-1 flex h-9 w-9 shrink-0 items-center justify-center bg-white text-[var(--aqua)] transition-colors hover:text-[var(--brand)]"
                 aria-label="Submit search"
               >
                 <Search size={14} strokeWidth={2.15} aria-hidden="true" />
@@ -252,7 +252,7 @@ export default function Navbar() {
 
           <button
             type="button"
-              className="mobile-menu-button inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-transparent text-[var(--brand)] transition-colors hover:bg-[var(--brand-soft)] hover:text-[var(--brand-dark)] md:hidden"
+            className="mobile-menu-button inline-flex h-12 w-12 shrink-0 items-center justify-center bg-transparent text-[var(--brand)] transition-colors hover:text-[var(--brand-dark)] md:hidden"
             onPointerDown={(event) => event.stopPropagation()}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -267,13 +267,9 @@ export default function Navbar() {
 
               {menuOpen && (
                 <div
-                  className={`navbar-menu mobile-menu-entry absolute -right-1 top-full z-50 mt-2 overflow-hidden border border-[var(--border)]/70 bg-white soft-shadow md:hidden ${
-                    isAuthenticated
-                      ? "w-[min(88vw,19rem)] rounded-xl py-1"
-                      : "w-[min(94vw,23rem)] rounded-xl p-2"
-                  }`}
+                  className="navbar-menu mobile-menu-entry fixed inset-x-0 top-[3.75rem] z-50 border-y border-[var(--line-soft)] bg-white px-3 py-1.5 md:hidden"
                 >
-                  <nav className={isAuthenticated ? "flex flex-col" : "grid grid-cols-2 gap-1.5"} aria-label="Mobile navigation">
+                  <nav className="grid grid-cols-2" aria-label="Mobile navigation">
                     {(isAuthenticated ? mobileAccountActions : productActions).map((item) => {
                       const Icon = item.icon;
                       return (
@@ -281,13 +277,13 @@ export default function Navbar() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setMenuOpen(false)}
-                        className={`flex rounded-lg font-bold transition-colors ${isAuthenticated ? "min-h-12 items-center gap-3 px-4 text-sm hover:bg-[var(--brand-soft)]" : "min-h-20 flex-col items-start justify-between border border-transparent bg-[var(--cream)] px-3 py-3 text-sm hover:border-[var(--brand)]/20 hover:bg-[var(--brand-soft)]"} ${
+                        className={`flex min-h-11 items-center gap-2 border-b border-[var(--line-soft)] px-3 py-2 text-xs font-bold transition-colors even:border-l ${
                           isActive(item.href) ? "text-[var(--brand)]" : "text-[var(--ink-soft)] hover:text-[var(--brand)]"
                         }`}
                         aria-current={isActive(item.href) ? "page" : undefined}
                       >
-                        <span className="icon-frame h-8 w-8" data-preserve-icon-frame>
-                          <Icon size={16} aria-hidden="true" />
+                        <span className="icon-frame h-7 w-7" data-preserve-icon-frame>
+                          <Icon size={15} aria-hidden="true" />
                         </span>
                         <span>{item.label}</span>
                       </Link>
@@ -300,7 +296,7 @@ export default function Navbar() {
                           setMenuOpen(false);
                           handleLogout();
                         }}
-                        className="flex min-h-12 items-center gap-3 rounded-lg px-4 text-sm font-bold text-red-700 transition-colors hover:bg-red-50"
+                        className="flex min-h-11 items-center gap-2 border-b border-[var(--line-soft)] px-3 py-2 text-xs font-bold text-red-700 transition-colors even:border-l"
                       >
                         <LogOut size={16} aria-hidden="true" />
                         <span>Log out</span>

@@ -168,7 +168,7 @@ function SellerContactDialog({
             const Icon = option.icon;
             return (
               <a key={option.href} href={option.href} target={option.href.startsWith("https://") ? "_blank" : undefined} rel={option.href.startsWith("https://") ? "noreferrer" : undefined} className="flex min-h-16 items-center gap-3 bg-white px-4 py-3 transition-colors hover:bg-[var(--brand-soft)]">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-soft)] text-[var(--brand)]"><Icon size={18} aria-hidden="true" /></span>
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center text-[var(--brand)]"><Icon size={18} aria-hidden="true" /></span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-bold">{option.label}</span>
                   <span className="block truncate text-xs text-[var(--muted-foreground)]">{option.hint}</span>

@@ -806,7 +806,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       <fieldset className="rounded-lg bg-white p-3.5 md:col-span-2 md:rounded-none md:bg-transparent md:p-0">
         <legend className="sr-only">Buyer contact options</legend>
         <div className="mb-3 flex items-start gap-2.5">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] md:h-9 md:w-9">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center text-[var(--brand)] md:h-9 md:w-9">
             <Phone size={17} aria-hidden="true" />
           </div>
           <div className="min-w-0">

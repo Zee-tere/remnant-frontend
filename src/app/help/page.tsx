@@ -169,7 +169,7 @@ export default function HelpPage() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {contactOptions.map((option) => (
             <div key={option.title} className="rounded-xl border border-[var(--border)] bg-card p-5 text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--brand-soft)]">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center text-[var(--brand)]">
                 <option.icon className="text-[var(--brand)]" size={24} />
               </div>
               <h3 className="mb-2 text-lg font-semibold text-foreground">{option.title}</h3>

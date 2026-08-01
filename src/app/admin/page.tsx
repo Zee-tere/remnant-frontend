@@ -239,7 +239,7 @@ export default function AdminPage() {
           </div>
           <div className="mt-8 grid gap-3 md:grid-cols-2">
             <button type="button" onClick={() => setActiveTab("reports")} className="flex min-h-20 items-center gap-4 border-y border-[var(--border)] px-2 py-4 text-left hover:bg-[var(--brand-soft)]"><span className="flex h-11 w-11 items-center justify-center rounded-lg bg-red-50 text-red-700"><AlertTriangle size={20} /></span><span><strong className="block">Review reports</strong><span className="text-sm text-[var(--muted-foreground)]">Check member reports and take action.</span></span></button>
-            <button type="button" onClick={() => setActiveTab("listings")} className="flex min-h-20 items-center gap-4 border-y border-[var(--border)] px-2 py-4 text-left hover:bg-[var(--brand-soft)]"><span className="flex h-11 w-11 items-center justify-center rounded-lg bg-[var(--brand-soft)] text-[var(--brand)]"><Package size={20} /></span><span><strong className="block">Manage listings</strong><span className="text-sm text-[var(--muted-foreground)]">Flag, remove, restore, or contact a seller.</span></span></button>
+            <button type="button" onClick={() => setActiveTab("listings")} className="flex min-h-20 items-center gap-4 border-y border-[var(--border)] px-2 py-4 text-left"><span className="flex h-11 w-11 items-center justify-center text-[var(--brand)]"><Package size={20} /></span><span><strong className="block">Manage listings</strong><span className="text-sm text-[var(--muted-foreground)]">Flag, remove, restore, or contact a seller.</span></span></button>
           </div>
         </section>
       )}
@@ -248,7 +248,7 @@ export default function AdminPage() {
         <form onSubmit={(event) => { event.preventDefault(); const nextSearch = search.trim(); if (nextSearch === appliedSearch) void loadData(activeTab); else setAppliedSearch(nextSearch); }} className="mt-5 flex gap-2">
           <div className="relative min-w-0 flex-1"><Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" /><Input value={search} onChange={(event) => setSearch(event.target.value)} className="h-11 rounded-full bg-white pl-9" placeholder={activeTab === "users" ? "Search members" : "Search listings or sellers"} /></div>
           {activeTab === "listings" && <select value={listingStatus} onChange={(event) => setListingStatus(event.target.value)} className="h-11 max-w-32 rounded-full border border-[var(--border)] bg-white px-3 text-sm font-bold"><option value="">All</option><option>ACTIVE</option><option>FLAGGED</option><option>PAUSED</option><option>COMPLETED</option></select>}
-          <Button type="submit" className="h-11 rounded-full bg-[var(--brand)] px-4 text-white"><Search size={16} /><span className="hidden sm:inline">Find</span></Button>
+          <Button type="submit" variant="outline" className="h-11 rounded-full border-[var(--border)] bg-white px-4 text-[var(--aqua)] hover:bg-white hover:text-[var(--brand)]"><Search size={16} /><span className="hidden sm:inline">Find</span></Button>
         </form>
       )}
 

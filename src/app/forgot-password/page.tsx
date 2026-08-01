@@ -45,7 +45,7 @@ export default function ForgotPasswordPage() {
           Back to login
         </Link>
         <form onSubmit={submit} className="surface-card rounded-[1.5rem] bg-white p-6 md:p-8">
-          <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+          <div className="mb-5 flex h-12 w-12 items-center justify-center text-[var(--brand)]">
             <ShieldCheck size={23} aria-hidden="true" />
           </div>
           <h1 className="text-3xl font-bold text-[var(--foreground)]">Reset password</h1>

@@ -104,7 +104,7 @@ export default async function IntentLandingPage({ pageKey }: { pageKey: IntentPa
           </div>
 
           {result.listings.length > 0 ? (
-            <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
+            <div className="mt-7 grid grid-cols-3 gap-2 md:gap-4 lg:grid-cols-4">
               {result.listings.map((listing) => <ListingCard key={listing.id} item={listing} />)}
             </div>
           ) : (

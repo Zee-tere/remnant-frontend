@@ -154,7 +154,7 @@ export default function TransactionsSection() {
 
       {filtered.length === 0 ? (
         <section className="flex min-h-[320px] flex-col items-center justify-center rounded-xl border border-dashed border-[var(--border)] bg-card px-6 text-center">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-[var(--brand-soft)]">
+          <div className="mb-4 flex h-14 w-14 items-center justify-center text-[var(--brand)]">
             <Package className="text-[var(--brand)]" size={26} />
           </div>
           <h3 className="text-lg font-semibold text-foreground">No transactions</h3>

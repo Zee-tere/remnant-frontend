@@ -360,7 +360,7 @@ When `prefers-reduced-motion: reduce` is set:
 - Sticky and compact.
 - Use full logo where page context permits; use the mark when inline search needs the width.
 - Product/search pages prioritize search and filter access.
-- Hamburger/account menu exposes secondary routes without crowding the header.
+- Hamburger/account menu opens as a flat, full-width two-column list below the header. It has no floating-card shadow, oversized tiles, or single-column stack that consumes most of the viewport.
 - The authenticated menu includes account actions; admin appears only for eligible roles.
 
 ### Mobile bottom dock
@@ -394,7 +394,7 @@ Desktop footer contains Marketplace, Sell, Trade, Donate, Repair, Recycle, Susta
 - Visible label above every persistent field.
 - Placeholder demonstrates format; it never replaces the label.
 - Helper/error text sits below the control without shifting unrelated layout.
-- Search may use an embedded submit button.
+- Search may use an embedded submit button. On mobile, the submit affordance remains white/transparent with a colored icon; solid emerald search fills are reserved for desktop where the text action benefits from stronger emphasis.
 - Textareas expose expected detail and character limits where useful.
 - Autofocus only when it clearly saves effort and will not force an unwanted mobile keyboard.
 
@@ -417,9 +417,11 @@ Information order:
 
 The whole card may link to the detail page. Nested management actions must be separate accessible controls. On touch devices, do not hide important actions behind hover.
 
+Mobile discovery cards use a compact 4:3 image, three-column grid at 390 px where readable, reduced metadata, and minimal padding. Desktop retains its larger card composition.
+
 ### Category tile
 
-Use the existing category image/icon, category label, and a quiet interactive background. The art remains the focal cue. Tiles may scroll horizontally on mobile and resolve into a grid on larger screens.
+Use the existing category image/icon and category label. On mobile, these sit directly in the horizontal carousel without a colored box; desktop may use quiet bounded backgrounds. The art remains the focal cue.
 
 ### Toasts and notifications
 
@@ -476,16 +478,16 @@ Each state includes:
 
 **Structure:**
 
-1. Minimal hero with “Give your lonely pieces a second chance.”
+1. Minimal hero with “Give lonely pieces a next place.” Mobile begins directly with this heading; the basket artwork appears only from the desktop breakpoint.
 2. Hand-drawn emerald underline or connector under the key phrase.
-3. Desktop search prompt such as “I’m looking for a lid for a teapot…” and Find a Pair action.
-4. Mobile-first links to Find a Pair and Browse; search remains available through the shell.
-5. Three-step “How it works”: List, Match, Alert.
+3. Compact mobile search immediately follows the supporting copy; desktop retains the larger Find a Pair search treatment.
+4. Mobile-first links to Find a Pair and Browse remain close to search.
+5. Three-step “How it works”: List, Match, Alert. Mobile presents all three in one concise row; desktop expands the explanations.
 6. Category strip/grid using existing artwork.
 7. Intent actions: Find a pair, Buy, Sell, Trade, Donate, Repair, Recycle.
 8. Featured marketplace listing grid and meaningful empty state.
 
-The hero may include restrained isolated-object motion on large screens. Mobile must remain quick, readable, and uncluttered.
+The hero may include restrained isolated-object motion on large screens. Mobile has no hero artwork, background glow, or decorative preamble and must remain quick, readable, and uncluttered.
 
 ### 13.2 Marketplace — `/marketplace`
 
@@ -503,7 +505,7 @@ Pagination must show current position, disable impossible actions, and preserve 
 
 **Structure:** prominent search field, filter trigger, private pair-alert prompt, optional filters, result count, results, no-result state.
 
-Filters: state, category, and intent. The search submit is a distinct emerald control inside/adjacent to the field. The pair-alert prompt connects signed-in users to dashboard Pair Alerts and directs signed-out users through authentication without losing their mental context.
+Filters: state, category, and intent. The search submit is a colored icon on white for mobile and may become a stronger emerald control on desktop. The pair-alert prompt connects signed-in users to dashboard Pair Alerts and directs signed-out users through authentication without losing their mental context.
 
 No-results copy should recommend changing a query/filter and offer to create a private alert. This page should feel like an instrument for matching, with subtle connector motion after results arrive.
 
@@ -588,7 +590,7 @@ Validate at the stage where the information is requested. Preserve values when m
 
 **Goal:** quick, confident account access.
 
-Mobile uses a single focused form with logo/back context. Desktop may use a two-panel layout: a restrained brand/story panel and the form panel. Fields: email, password, visibility toggle, password guidance as needed. Actions: Log in, Google sign-in, Forgot password, Create account.
+Mobile uses a single scaled form with the logo pinned near the top, the back link immediately below it, and a small fingerprint identity cue instead of marketplace artwork. Desktop may use a two-panel layout: a restrained brand/story panel and the form panel. Fields: email, password, visibility toggle, password guidance as needed. Actions: Log in, Google sign-in, Forgot password, Create account.
 
 Errors remain close to their cause and may also use the established toast for request failure. Preserve the intended destination after successful authentication.
 

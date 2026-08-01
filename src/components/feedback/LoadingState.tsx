@@ -38,14 +38,14 @@ export function LoadingState({
 
 export function ListingGridSkeleton({ count = 8 }: { count?: number }) {
   return (
-    <div className="grid auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 xl:grid-cols-4" role="status" aria-label="Loading marketplace items" aria-busy="true">
+    <div className="grid auto-rows-fr grid-cols-3 gap-2 md:gap-4 xl:grid-cols-4" role="status" aria-label="Loading marketplace items" aria-busy="true">
       {Array.from({ length: count }, (_, index) => (
         <div key={index} className="overflow-hidden rounded-xl border border-[var(--border)]/70 bg-white md:rounded-2xl">
-          <div className="skeleton aspect-square md:aspect-[5/4]" />
-          <div className="space-y-2 p-3 md:p-4">
-            <div className="skeleton h-3.5 w-4/5 rounded-sm md:h-5" />
-            <div className="skeleton h-3 w-2/5 rounded-sm md:h-4" />
-            <div className="skeleton h-2.5 w-3/5 rounded-sm md:h-3" />
+          <div className="skeleton aspect-[4/3] md:aspect-[5/4]" />
+          <div className="space-y-1.5 p-2 md:space-y-2 md:p-4">
+            <div className="skeleton h-3 w-4/5 rounded-sm md:h-5" />
+            <div className="skeleton h-2.5 w-2/5 rounded-sm md:h-4" />
+            <div className="skeleton h-2 w-3/5 rounded-sm md:h-3" />
           </div>
         </div>
       ))}

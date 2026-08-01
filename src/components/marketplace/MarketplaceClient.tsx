@@ -287,7 +287,7 @@ export default function MarketplaceClient({
               </div>
             ) : listings.length > 0 ? (
               <>
-                <div className="grid auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 xl:grid-cols-4">
+                <div className="grid auto-rows-fr grid-cols-3 gap-2 md:gap-4 xl:grid-cols-4">
                   {listings.map((item, index) => <ListingCard key={item.id} item={item} eager={index === 0} />)}
                 </div>
 

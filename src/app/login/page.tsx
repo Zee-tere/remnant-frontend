@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, ArrowRight, Eye, EyeOff, Loader2, Mail, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Fingerprint, Loader2, Mail, ShieldCheck } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -70,8 +70,8 @@ function LoginPageContent() {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--warm-white)] px-4 py-5 md:px-8 md:py-10">
-      <section className="mx-auto grid min-h-[calc(100dvh-2.5rem)] max-w-6xl grid-cols-[minmax(0,1fr)] items-center gap-8 lg:min-h-[74vh] lg:grid-cols-[0.95fr_1fr]">
+    <main className="min-h-screen bg-[var(--warm-white)] px-5 py-3 md:px-8 md:py-10">
+      <section className="mx-auto grid min-h-[calc(100dvh-1.5rem)] max-w-6xl grid-cols-[minmax(0,1fr)] items-start gap-8 lg:min-h-[74vh] lg:grid-cols-[0.95fr_1fr] lg:items-center">
         <div className="auth-story-panel relative hidden overflow-hidden rounded-2xl border border-[var(--line-soft)] bg-white p-10 text-[var(--foreground)] lg:block">
           <Link href="/" className="inline-flex text-[var(--brand)]" aria-label="Remnant home">
             <BrandLogo size="auth" />
@@ -85,25 +85,24 @@ function LoginPageContent() {
           </p>
         </div>
 
-        <div className="mx-auto min-w-0 w-full max-w-md">
-          <Link href="/" className="mb-5 flex w-fit text-[var(--brand)] lg:hidden" aria-label="Remnant home">
+        <div className="mx-auto w-full min-w-0 max-w-[22rem] md:max-w-md">
+          <Link href="/" className="mb-2 flex w-fit text-[var(--brand)] lg:hidden" aria-label="Remnant home">
             <BrandLogo size="default" />
           </Link>
           <Link
             href="/marketplace"
-            className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-[var(--brand)] hover:text-[var(--brand-dark)] md:mb-5"
+            className="mb-3 inline-flex items-center gap-2 text-sm font-bold text-[var(--brand)] hover:text-[var(--brand-dark)] md:mb-5"
           >
             <ArrowLeft size={16} aria-hidden="true" />
             Back to market
           </Link>
 
-          <ActionArtwork
-            name="marketplace"
-            className="mx-auto mb-2 h-16 w-16 lg:hidden"
-            imageClassName="p-0"
-          />
+          <div className="relative mx-auto mb-1 flex h-12 w-12 items-center justify-center text-[var(--lavender)] lg:hidden" aria-hidden="true">
+            <Fingerprint size={36} strokeWidth={1.7} />
+            <span className="absolute bottom-1 right-0 h-2 w-2 rounded-full bg-[var(--amber)]" />
+          </div>
 
-          <div className="mb-5 text-center lg:mb-7 lg:text-left">
+          <div className="mb-4 text-center lg:mb-7 lg:text-left">
             <h1 className="text-[1.75rem] font-bold text-[var(--foreground)] md:text-4xl">Log in</h1>
             <p className="mt-2 text-sm font-semibold text-[var(--muted-foreground)]">
               Pick up where you left off.
@@ -134,7 +133,7 @@ function LoginPageContent() {
                 placeholder="you@example.com"
                 autoComplete="email"
                 required
-                className="h-[52px] w-full rounded-full border border-[var(--border)] bg-white px-11 py-3 text-base font-semibold text-[var(--foreground)] outline-none transition focus:border-[var(--brand)] focus:shadow-[0_0_0_3px_rgba(0,108,82,0.12)]"
+                className="h-12 w-full rounded-full border border-[var(--border)] bg-white px-11 py-3 text-base font-semibold text-[var(--foreground)] outline-none transition focus:border-[var(--brand)] md:h-[52px]"
               />
             </div>
 
@@ -155,7 +154,7 @@ function LoginPageContent() {
                 placeholder="Your password"
                 autoComplete="current-password"
                 required
-                className="h-[52px] w-full rounded-full border border-[var(--border)] bg-white px-11 py-3 pr-12 text-base font-semibold text-[var(--foreground)] outline-none transition focus:border-[var(--brand)] focus:shadow-[0_0_0_3px_rgba(0,108,82,0.12)]"
+                className="h-12 w-full rounded-full border border-[var(--border)] bg-white px-11 py-3 pr-12 text-base font-semibold text-[var(--foreground)] outline-none transition focus:border-[var(--brand)] md:h-[52px]"
               />
               <button
                 type="button"
@@ -179,7 +178,7 @@ function LoginPageContent() {
                 onClick={() => beginAuth("Google")}
                 disabled={loading !== null}
                 variant="outline"
-                className="h-14 w-full rounded-full border-[var(--border)] bg-white text-base font-bold"
+                className="h-12 w-full rounded-full border-[var(--border)] bg-white text-[0.92rem] font-bold md:h-14 md:text-base"
               >
                 {loading === "google" ? <Loader2 className="animate-spin" size={18} /> : <FcGoogle size={20} />}
                 Continue with Google
@@ -188,7 +187,7 @@ function LoginPageContent() {
               <Button
                 type="submit"
                 disabled={loading !== null}
-                className="h-14 w-full rounded-full bg-[var(--brand)] text-base font-bold text-white hover:bg-[var(--brand-dark)]"
+                className="h-12 w-full rounded-full bg-[var(--brand)] text-[0.92rem] font-bold text-white hover:bg-[var(--brand-dark)] md:h-14 md:text-base"
               >
                 {loading === "form" ? <Loader2 className="animate-spin" size={18} /> : <ShieldCheck size={18} />}
                 Log in
@@ -198,7 +197,7 @@ function LoginPageContent() {
 
           </form>
 
-          <p className="mt-6 text-center text-sm font-semibold text-[var(--muted-foreground)]">
+          <p className="mt-4 text-center text-sm font-semibold text-[var(--muted-foreground)] md:mt-6">
             New to Remnant?{" "}
             <Link href={`/signup?redirect=${encodeURIComponent(redirectTo)}`} className="text-[var(--brand)] hover:underline">
               Create an account

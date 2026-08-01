@@ -66,8 +66,8 @@ export function ListingCard({
 
   return (
     <Link href={`/marketplace/${item.slug || item.id}`} className={`group block min-w-0 touch-manipulation ${className}`}>
-      <article className="surface-card h-full overflow-hidden rounded-xl transition-[border-color,transform] duration-200 md:rounded-2xl">
-        <div className="relative aspect-square overflow-hidden bg-[var(--sand)] md:aspect-[5/4]">
+      <article className="surface-card h-full overflow-hidden rounded-lg transition-[border-color,transform] duration-200 md:rounded-2xl">
+        <div className="relative aspect-[4/3] overflow-hidden bg-[var(--sand)] md:aspect-[5/4]">
           {item.images?.[0] ? (
             <img
               src={item.images[0]}
@@ -84,27 +84,27 @@ export function ListingCard({
               </span>
             </div>
           )}
-          <span className={`absolute left-2 top-2 inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.64rem] font-bold leading-none md:left-3 md:top-3 md:px-2.5 md:py-1.5 md:text-xs ${intent.className}`}>
-            <IntentIcon size={11} className="md:h-3.5 md:w-3.5" aria-hidden="true" />
+          <span className={`absolute left-1 top-1 inline-flex items-center gap-0.5 rounded px-1.5 py-1 text-[0.52rem] font-bold leading-none md:left-3 md:top-3 md:gap-1 md:rounded-md md:px-2.5 md:py-1.5 md:text-xs ${intent.className}`}>
+            <IntentIcon size={9} className="md:h-3.5 md:w-3.5" aria-hidden="true" />
             {intent.label}
           </span>
           {needsPair && (
-            <span className="absolute right-2 top-2 inline-flex max-w-[54%] items-center gap-1 rounded-md border border-[var(--border)]/80 bg-white px-2 py-1 text-[0.62rem] font-bold leading-none text-[var(--brand)] md:right-3 md:top-3 md:px-2.5 md:py-1.5 md:text-xs">
+            <span className="absolute right-1 top-1 inline-flex h-5 w-5 items-center justify-center rounded bg-white text-[var(--brand)] md:right-3 md:top-3 md:h-auto md:w-auto md:max-w-[54%] md:gap-1 md:rounded-md md:border md:border-[var(--border)]/80 md:px-2.5 md:py-1.5 md:text-xs">
               <Puzzle size={10} className="shrink-0 md:h-3 md:w-3" aria-hidden="true" />
-              <span className="truncate">Needs {item.pairingKeyword}</span>
+              <span className="hidden truncate md:inline">Needs {item.pairingKeyword}</span>
             </span>
           )}
         </div>
 
-        <div className="p-3 md:p-4">
-          <h3 className="line-clamp-2 min-h-10 text-[0.82rem] font-bold leading-5 text-[var(--foreground)] md:min-h-0 md:text-base md:leading-snug">
+        <div className="p-2 md:p-4">
+          <h3 className="line-clamp-2 min-h-8 text-[0.7rem] font-bold leading-4 text-[var(--foreground)] md:min-h-0 md:text-base md:leading-snug">
             {item.title}
           </h3>
-          <p className="mt-1 truncate text-sm font-bold leading-5 text-[var(--brand)] md:text-lg md:leading-6">
+          <p className="mt-0.5 truncate text-[0.75rem] font-bold leading-4 text-[var(--brand)] md:mt-1 md:text-lg md:leading-6">
             {getListingValue(item)}
           </p>
-          <div className="mt-1.5 flex min-w-0 items-center gap-1 text-[0.7rem] font-semibold leading-4 text-[var(--muted-foreground)] md:mt-2 md:text-xs">
-            <MapPin size={11} className="shrink-0 md:h-3 md:w-3" aria-hidden="true" />
+          <div className="mt-1 flex min-w-0 items-center gap-0.5 text-[0.6rem] font-semibold leading-3 text-[var(--muted-foreground)] md:mt-2 md:gap-1 md:text-xs md:leading-4">
+            <MapPin size={9} className="shrink-0 md:h-3 md:w-3" aria-hidden="true" />
             <span className="truncate">{item.city || 'Location not set'}</span>
             <span className="hidden md:inline" aria-hidden="true">·</span>
             <span className="hidden shrink-0 md:inline">Listed {formatListedDate(item.createdAt)}</span>

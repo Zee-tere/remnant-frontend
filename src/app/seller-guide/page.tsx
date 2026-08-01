@@ -182,7 +182,7 @@ export default function SellerGuidePage() {
                     {steps.map((step) => (
                       <div key={step.step} className="flex items-start gap-4">
                         <div className="flex-shrink-0">
-                          <div className="h-12 w-12 rounded-full bg-[var(--brand-soft)] dark:bg-[var(--brand-muted)] flex items-center justify-center">
+                          <div className="flex h-12 w-12 items-center justify-center text-[var(--brand)]">
                             <step.icon className="text-[var(--brand)] dark:text-[var(--brand)]" size={24} />
                           </div>
                         </div>
@@ -551,7 +551,7 @@ export default function SellerGuidePage() {
                       { step: '6', title: 'Leave Review', description: 'Rate your experience' },
                     ].map((item) => (
                       <div key={item.step} className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-full bg-[var(--brand-soft)] dark:bg-[var(--brand-muted)] flex items-center justify-center">
+                        <div className="flex h-10 w-10 items-center justify-center text-[var(--brand)]">
                           <span className="font-bold text-[var(--brand)]">{item.step}</span>
                         </div>
                         <div>

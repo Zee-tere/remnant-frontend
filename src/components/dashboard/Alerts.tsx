@@ -313,7 +313,7 @@ export default function AlertsSection() {
         className="flex items-center justify-between gap-3"
       >
         <div className="flex items-center gap-3">
-          <div className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--brand-soft)] text-[var(--brand)] md:h-11 md:w-11 md:rounded-xl">
+          <div className="relative flex h-9 w-9 items-center justify-center text-[var(--brand)] md:h-11 md:w-11">
             <Bell size={19} />
             {unreadCount > 0 && (
               <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-semibold text-white">
@@ -396,7 +396,7 @@ export default function AlertsSection() {
       {filteredItems.length === 0 ? (
         <Card className="border-[var(--border)] bg-card">
           <CardContent className="flex flex-col items-center px-6 py-14 text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--brand-soft)]">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center text-[var(--brand)]">
               <Bell className="text-[var(--brand)]" size={30} />
             </div>
             <h3 className="text-lg font-semibold text-foreground">No alerts here</h3>
