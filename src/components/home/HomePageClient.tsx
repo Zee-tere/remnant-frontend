@@ -48,7 +48,7 @@ export default function HomePageClient({
 
   return (
     <div className="min-h-screen overflow-hidden bg-[var(--background)] text-foreground">
-      <section className="mx-auto max-w-7xl px-4 pb-7 pt-7 sm:px-5 md:px-8 md:pb-24 md:pt-14">
+      <section className="mx-auto max-w-7xl px-4 pb-3 pt-7 sm:px-5 md:px-8 md:pb-24 md:pt-14">
         <div className="grid items-center md:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.72fr)] md:gap-14">
           <div className="md:order-1">
             <p className="section-kicker mb-5 !hidden md:!inline-flex">Useful things belong somewhere</p>
@@ -100,7 +100,7 @@ export default function HomePageClient({
         </div>
       </section>
 
-      <section className="bg-white px-4 pb-6 pt-5 sm:px-5 md:px-8 md:py-20">
+      <section className="bg-white px-4 pb-3 pt-3 sm:px-5 md:px-8 md:py-20">
         <div className="mx-auto max-w-6xl">
           <p className="section-kicker mb-3">How it works</p>
           <div className="grid grid-cols-3 gap-2 border-y border-[var(--line-soft)] py-4 md:gap-10 md:py-10">
@@ -118,7 +118,7 @@ export default function HomePageClient({
         </div>
       </section>
 
-      <section className="bg-white px-4 pb-12 pt-4 sm:px-5 md:px-8 md:py-20">
+      <section className="bg-white px-4 pb-12 pt-1 sm:px-5 md:px-8 md:py-20">
         <div className="mx-auto max-w-7xl">
           <div className="mb-4 flex flex-row items-center justify-between gap-3 md:mb-8 md:flex-row md:items-end">
             <div>
