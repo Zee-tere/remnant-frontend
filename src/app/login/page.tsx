@@ -12,6 +12,7 @@ import { useAuthStore } from "@/lib/auth";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { getApiErrorMessage } from "@/lib/errors";
 import { safeInternalPath, startHostedAuth } from "@/lib/hosted-auth";
+import { ActionArtwork } from "@/components/brand/ActionArtwork";
 
 export default function LoginPage() {
   return (
@@ -71,14 +72,15 @@ function LoginPageContent() {
   return (
     <main className="min-h-screen bg-[var(--warm-white)] px-4 py-5 md:px-8 md:py-10">
       <section className="mx-auto grid min-h-[calc(100dvh-2.5rem)] max-w-6xl grid-cols-[minmax(0,1fr)] items-center gap-8 lg:min-h-[74vh] lg:grid-cols-[0.95fr_1fr]">
-        <div className="auth-story-panel relative hidden overflow-hidden rounded-2xl bg-[var(--navy)] p-10 text-white lg:block">
-          <Link href="/" className="inline-flex text-[var(--brand-light)]" aria-label="Remnant home">
+        <div className="auth-story-panel relative hidden overflow-hidden rounded-2xl bg-[var(--lavender-soft)] p-10 text-[var(--foreground)] lg:block">
+          <Link href="/" className="inline-flex text-[var(--brand)]" aria-label="Remnant home">
             <BrandLogo size="auth" />
           </Link>
-          <h1 className="mt-16 max-w-md text-5xl font-bold leading-tight">
+          <ActionArtwork name="marketplace" surface={false} className="mt-8 h-44 w-44" />
+          <h1 className="mt-4 max-w-md text-5xl font-bold leading-tight">
             Welcome back to useful pieces.
           </h1>
-          <p className="mt-5 max-w-sm text-base font-medium leading-7 text-white/65">
+          <p className="mt-5 max-w-sm text-base font-medium leading-7 text-[var(--ink-soft)]">
             Sign in securely to manage listings, messages, matches, and your account.
           </p>
         </div>
@@ -94,6 +96,13 @@ function LoginPageContent() {
             <ArrowLeft size={16} aria-hidden="true" />
             Back to market
           </Link>
+
+          <ActionArtwork
+            name="marketplace"
+            surface={false}
+            className="mx-auto mb-2 h-20 w-20 lg:hidden"
+            imageClassName="p-0"
+          />
 
           <div className="mb-5 text-center lg:mb-7 lg:text-left">
             <h1 className="text-[1.75rem] font-bold text-[var(--foreground)] md:text-4xl">Log in</h1>

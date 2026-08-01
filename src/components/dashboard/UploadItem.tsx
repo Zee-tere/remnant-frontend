@@ -16,9 +16,7 @@ import {
   Recycle,
   RefreshCw,
   ScanSearch,
-  Store,
   Send,
-  UploadCloud,
   Wrench,
   X,
 } from 'lucide-react';
@@ -34,15 +32,16 @@ import { nigerianStates } from '@/lib/nigeria-locations';
 import { NairaIcon } from '@/components/ui/naira-icon';
 import { optimizeImageFile } from '@/lib/image-optimization';
 import { listingConditions } from '@/lib/listing-conditions';
+import { ActionArtwork, type ActionArtworkName } from '@/components/brand/ActionArtwork';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 const purposes = [
-  { label: 'Sell', value: 'SELL', icon: Store, description: 'Find it a buyer.' },
-  { label: 'Trade', value: 'TRADE', icon: RefreshCw, description: 'Swap for what you need.' },
-  { label: 'Donate', value: 'DONATE', icon: Heart, description: 'Give it to someone who can use it.' },
-  { label: 'Repair', value: 'FIX', icon: Wrench, description: 'Get help bringing it back.' },
-  { label: 'Recycle', value: 'RECYCLE', icon: Recycle, description: 'Pass useful parts on.' },
+  { label: 'Sell', value: 'SELL', artwork: 'sell' as ActionArtworkName, description: 'Find it a buyer.' },
+  { label: 'Trade', value: 'TRADE', artwork: 'trade' as ActionArtworkName, description: 'Swap for what you need.' },
+  { label: 'Donate', value: 'DONATE', artwork: 'donate' as ActionArtworkName, description: 'Give it to someone who can use it.' },
+  { label: 'Repair', value: 'FIX', artwork: 'repair' as ActionArtworkName, description: 'Get help bringing it back.' },
+  { label: 'Recycle', value: 'RECYCLE', artwork: 'recycle' as ActionArtworkName, description: 'Pass useful parts on.' },
 ] as const;
 
 type PurposeValue = (typeof purposes)[number]['value'];
@@ -402,7 +401,6 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
         {purposes.map((purpose) => {
-          const Icon = purpose.icon;
           const selected = formData.purpose === purpose.value;
           return (
             <button
@@ -414,13 +412,11 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             >
               <div
                 className={cn(
-                  'flex min-h-[124px] flex-col rounded-xl border bg-white p-3.5 text-left transition-[border-color,background-color,transform] duration-150 active:scale-[0.99] md:min-h-[176px] md:rounded-2xl md:p-5',
-                  selected ? 'border-[var(--brand)] bg-[var(--brand-soft)]' : 'border-[var(--border)]/55 hover:border-[var(--brand)]/45',
+                  'flex min-h-[154px] flex-col rounded-2xl border bg-white p-3 text-left transition-[border-color,background-color,transform] duration-150 active:scale-[0.99] md:min-h-[205px] md:p-4',
+                  selected ? 'border-[var(--brand)] bg-[var(--mint-soft)]' : 'border-[var(--border)]/45 hover:border-[var(--lavender)]/30',
                 )}
               >
-                <div className="icon-frame mb-3 h-10 w-10 md:mb-5 md:h-12 md:w-12" data-preserve-icon-frame>
-                  <Icon className="h-[18px] w-[18px] md:h-[25px] md:w-[25px]" aria-hidden="true" />
-                </div>
+                <ActionArtwork name={purpose.artwork} surface={false} className="mb-1 h-20 w-20 self-center md:h-28 md:w-28" />
                 <h3 className="text-sm font-bold md:text-xl">{purpose.label}</h3>
                 <p className="mt-1 text-[0.78rem] font-medium leading-5 text-[var(--ink-soft)] md:mt-2 md:text-sm md:leading-6">{purpose.description}</p>
               </div>
@@ -457,9 +453,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
           dragActive ? 'border-[var(--brand)] bg-[var(--brand-soft)]' : 'border-[var(--border)] bg-[var(--sand)] hover:border-[var(--brand)] hover:bg-[var(--brand-soft)]',
         )}
       >
-        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-white text-[var(--brand)] soft-shadow md:mb-4 md:h-20 md:w-20 md:rounded-full">
-          <UploadCloud className="h-6 w-6 md:h-[38px] md:w-[38px]" aria-hidden="true" />
-        </div>
+        <ActionArtwork name={selectedPurpose?.artwork || 'sell'} surface={false} className="mb-2 h-20 w-20 md:mb-3 md:h-28 md:w-28" />
         <h3 className="text-base font-bold md:text-xl">{isOptimizing ? 'Preparing photos...' : 'Add photos'}</h3>
         <p className="mt-1 text-sm font-medium text-[var(--muted-foreground)] md:text-base">
           {isOptimizing ? 'Making them faster to load' : 'Tap to browse files'}

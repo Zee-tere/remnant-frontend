@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, Leaf, Recycle, Sparkles } from "lucide-react";
+import { ArrowRight, Recycle, ScanSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ActionArtwork } from "@/components/brand/ActionArtwork";
 
 const impactAreas = [
   {
@@ -11,7 +12,7 @@ const impactAreas = [
   {
     title: "Match the odd pieces",
     body:
-      "AI pairing gives single, mismatched, or incomplete items a real route to the people who can use them.",
+      "Detail-aware pairing gives single, mismatched, or incomplete items a real route to the people who can use them.",
   },
   {
     title: "Recycle with intent",
@@ -24,9 +25,7 @@ export default function SustainabilityPage() {
   return (
     <div className="min-h-screen bg-white">
       <section className="mx-auto max-w-5xl px-5 py-16 text-center md:px-8 md:py-24">
-        <div className="icon-frame mx-auto mb-6 h-14 w-14 text-[var(--brand)]">
-          <Leaf size={28} aria-hidden="true" />
-        </div>
+        <ActionArtwork name="recycle" priority className="mx-auto mb-7 h-32 w-32 md:h-44 md:w-44 md:rounded-[2rem]" />
         <h1 className="text-3xl font-bold text-[var(--foreground)] md:text-6xl">Sustainability</h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg font-medium leading-8 text-[var(--ink-soft)]">
           Remnant is built for the useful things that usually fall through the cracks of ordinary marketplaces.
@@ -47,7 +46,7 @@ export default function SustainabilityPage() {
         </div>
 
         <div className="mt-10 rounded-2xl border border-[var(--line-soft)] bg-[var(--cream)] p-7 text-center md:p-10">
-          <Sparkles className="mx-auto text-[var(--secondary-blue)]" size={30} aria-hidden="true" />
+          <ScanSearch className="mx-auto text-[var(--secondary-blue)]" size={30} aria-hidden="true" />
           <h2 className="mt-4 text-3xl font-bold text-[var(--foreground)]">Start with one piece</h2>
           <p className="mx-auto mt-3 max-w-xl font-medium leading-7 text-[var(--ink-soft)]">
             List something incomplete, search for a match, or browse items already waiting for their next use.

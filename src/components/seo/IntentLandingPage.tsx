@@ -5,12 +5,21 @@ import { ListingCard } from "@/components/marketplace/ListingCard";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { intentPages, type IntentPageKey } from "@/lib/intent-pages";
 import { getListingPath, getPublicListings } from "@/lib/public-listings";
+import { ActionArtwork, type ActionArtworkName } from "@/components/brand/ActionArtwork";
 
 const steps = [
   { title: "List it", text: "Add clear photos, condition, and location.", icon: PackagePlus },
   { title: "Get found", text: "People browse by need, intent, category, and state.", icon: MapPin },
   { title: "Agree directly", text: "Use Remnant messages to arrange the exchange.", icon: MessageSquare },
 ];
+
+const intentArtwork: Record<IntentPageKey, ActionArtworkName> = {
+  sell: "sell",
+  trade: "trade",
+  donate: "donate",
+  repair: "repair",
+  recycle: "recycle",
+};
 
 export default async function IntentLandingPage({ pageKey }: { pageKey: IntentPageKey }) {
   const config = intentPages[pageKey];
@@ -33,7 +42,7 @@ export default async function IntentLandingPage({ pageKey }: { pageKey: IntentPa
       {result.listings.length > 0 && <JsonLd data={itemList} />}
 
       <section className="border-b border-[var(--line-soft)] bg-[var(--background)] px-4 py-14 sm:px-5 md:px-8 md:py-24">
-        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[minmax(0,1fr)_15rem] md:items-end">
+        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[minmax(0,1fr)_22rem] md:items-center md:gap-14">
           <div>
           <p className="section-kicker">Remnant Market Nigeria</p>
           <h1 className="mt-5 max-w-4xl text-4xl font-bold leading-[1.02] text-[var(--foreground)] md:text-6xl lg:text-7xl">
@@ -54,10 +63,8 @@ export default async function IntentLandingPage({ pageKey }: { pageKey: IntentPa
             </Button>
           </div>
           </div>
-          <div className="hidden border-l border-[var(--line-soft)] pl-6 md:block" aria-hidden="true">
-            <p className="text-5xl font-bold tabular-nums text-[var(--brand)]">01</p>
-            <div className="paired-rule mt-4" />
-            <p className="mt-5 text-sm font-bold leading-6 text-[var(--ink-soft)]">One clear intent.<br />One useful next move.</p>
+          <div className="pastel-stage flex min-h-[210px] items-center justify-center rounded-[2rem] md:min-h-[340px]" aria-hidden="true">
+            <ActionArtwork name={intentArtwork[pageKey]} surface={false} className="h-[210px] w-[210px] md:h-[330px] md:w-[330px]" />
           </div>
         </div>
       </section>
@@ -102,6 +109,7 @@ export default async function IntentLandingPage({ pageKey }: { pageKey: IntentPa
             </div>
           ) : (
             <div className="mt-6 border-y border-[var(--border)]/45 py-10">
+              <ActionArtwork name={intentArtwork[pageKey]} className="mb-4 h-24 w-24" />
               <p className="font-semibold text-[var(--ink-soft)]">No active listings here yet.</p>
               <Link href={`/sell-item?intent=${config.intentTag}`} className="mt-2 inline-flex font-bold text-[var(--brand)] hover:underline">
                 Add the first one
@@ -116,8 +124,9 @@ export default async function IntentLandingPage({ pageKey }: { pageKey: IntentPa
           {Object.entries(intentPages)
             .filter(([key]) => key !== pageKey)
             .map(([key, item]) => (
-              <Link key={key} href={item.path} className="inline-flex min-h-11 items-center rounded-lg border border-[var(--border)]/70 bg-white px-3 transition-colors hover:border-[var(--brand)]/30 hover:bg-[var(--brand-soft)]">
-                {item.heading}
+              <Link key={key} href={item.path} className="inline-flex min-h-14 items-center gap-2 rounded-xl border border-[var(--border)]/55 bg-white py-1.5 pl-1.5 pr-3 transition-colors hover:border-[var(--lavender)]/25 hover:bg-[var(--lavender-soft)]">
+                <ActionArtwork name={intentArtwork[key as IntentPageKey]} surface={false} className="h-11 w-11" />
+                <span>{item.heading}</span>
               </Link>
             ))}
         </div>

@@ -13,6 +13,7 @@ interface NavAction {
   icon: LucideIcon;
   profile?: boolean;
   primary?: boolean;
+  tone?: string;
 }
 
 export default function MobileBottomNav() {
@@ -41,18 +42,18 @@ export default function MobileBottomNav() {
 
   const actions: NavAction[] = isAuthenticated
     ? [
-        { label: "Listings", href: "/user/dashboard", icon: Box },
-        { label: "Messages", href: "/user/dashboard?section=messages", icon: MessageCircle },
+        { label: "Listings", href: "/user/dashboard", icon: Box, tone: "bg-[var(--mint-soft)] text-[var(--brand)]" },
+        { label: "Messages", href: "/user/dashboard?section=messages", icon: MessageCircle, tone: "bg-[var(--lavender-soft)] text-[var(--lavender)]" },
         { label: "List", href: "/sell-item", icon: CirclePlus, primary: true },
-        { label: "Pairs", href: "/user/dashboard?section=pair-alerts", icon: ScanSearch },
-        { label: "Profile", href: "/user/dashboard?section=profile", icon: UserRound, profile: true },
+        { label: "Pairs", href: "/user/dashboard?section=pair-alerts", icon: ScanSearch, tone: "bg-[var(--aqua-soft)] text-[var(--aqua)]" },
+        { label: "Profile", href: "/user/dashboard?section=profile", icon: UserRound, profile: true, tone: "bg-[var(--amber-soft)] text-[var(--amber)]" },
       ]
     : [
-        { label: "Home", href: "/", icon: House },
-        { label: "Market", href: "/marketplace", icon: Store },
+        { label: "Home", href: "/", icon: House, tone: "bg-[var(--mint-soft)] text-[var(--brand)]" },
+        { label: "Market", href: "/marketplace", icon: Store, tone: "bg-[var(--lavender-soft)] text-[var(--lavender)]" },
         { label: "List", href: "/sell-item", icon: CirclePlus, primary: true },
-        { label: "Pair", href: "/find-a-pair", icon: ScanSearch },
-        { label: "Account", href: "/login", icon: UserRound, profile: true },
+        { label: "Pair", href: "/find-a-pair", icon: ScanSearch, tone: "bg-[var(--aqua-soft)] text-[var(--aqua)]" },
+        { label: "Account", href: "/login", icon: UserRound, profile: true, tone: "bg-[var(--amber-soft)] text-[var(--amber)]" },
       ];
 
   const isActive = (item: NavAction) => {
@@ -92,7 +93,7 @@ export default function MobileBottomNav() {
             >
               <span
                 data-preserve-icon-frame
-                className={`relative flex items-center justify-center transition-colors duration-150 ${item.primary ? "-mt-3 h-11 w-11 rounded-xl bg-[var(--brand)] text-white" : active ? "h-8 w-10 rounded-lg bg-[var(--brand-soft)] text-[var(--brand)]" : "h-8 w-10"}`}
+                className={`relative flex items-center justify-center transition-[color,background-color,transform] duration-150 ${item.primary ? "-mt-3 h-11 w-11 rounded-xl bg-[var(--brand)] text-white" : `h-8 w-10 rounded-lg ${item.tone || ""} ${active ? "scale-105" : "opacity-80"}`}`}
               >
                 {item.profile && isAuthenticated ? (
                   <NameAvatar name={user?.name || "Remnant"} className="h-7 w-7 text-xs" />

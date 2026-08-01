@@ -48,18 +48,18 @@ The experience should make a lone shoe, pot lid, remote, broken device, or spare
 
 ---
 
-## 3. Creative direction: Grounded Cosmic Utility
+## 3. Creative direction: Soft Dimensional Utility
 
-Remnant's world sits between a repair bench and a star map. It should feel inventive, human, precise, and quietly immersive.
+Remnant's world sits between a well-organized repair bench and a small collection of tactile objects. It should feel inventive, human, precise, youthful, and quietly immersive.
 
-“Cosmic” is a metaphor for finding relationships between scattered things. It is expressed through pairing, alignment, orbit, connection lines, progressive reveals, and isolated objects finding a place. It is not expressed through generic space wallpaper.
+The dimensional language is reserved for meaningful objects: finding, selling, trading, donating, repairing, recycling, matching, and shopping. These objects use simplified 3D form, soft material, and restrained color. The interface around them stays crisp, fast, and spacious.
 
 ### The visual character
 
 - **Grounded:** white and warm-neutral surfaces, real objects, practical language, Nigerian locations, clear prices, and legible controls.
-- **Cosmic:** small orbit paths, constellation-like connectors, quiet field motion, focal glows, and matched elements moving into alignment.
+- **Dimensional:** a cohesive family of soft 3D objects gives major actions an immediate, tactile identity.
 - **Editorial:** confident headings, deliberate asymmetry, useful negative space, and content-led composition.
-- **Tactile:** object photography, illustrated category tiles, strong borders, and clear pressed/selected states.
+- **Tactile:** object photography, illustrated category tiles, matte 3D action art, strong borders, and clear pressed/selected states.
 - **Trustworthy:** no visual tricks around price, condition, identity, safety, or transaction status.
 
 ### What the product must not look like
@@ -78,6 +78,7 @@ Remnant's world sits between a repair bench and a star map. It should feel inven
 - Do not place a gradient headline above three generic feature cards.
 - Do not use sparkle icons as decoration on routine controls.
 - Do not use large purple radial gradients, fake AI chat surfaces, or arbitrary floating blobs.
+- Do not apply clay styling to form fields, tables, navigation shells, or every control. Dimensional artwork is a focal cue, not the entire UI treatment.
 - Do not make every section a rounded card. Let typography, rules, bands, and open space structure pages.
 - Use familiar interaction patterns, but give Remnant character through object composition, writing, category art, intent color, and matching motion.
 
@@ -178,6 +179,12 @@ The interface is light-first. Dark tokens may remain available, but a complete d
 | Soft ink | `#3E4944` | body and secondary text |
 | Muted | `#6E7A74` | metadata and helper text |
 | Border | `#BDC9C2` | dividers, inputs, cards |
+| Mint soft | `#E9F7F1` | spacious action and illustration fields |
+| Aqua | `#177D88` | secondary dimensional accents |
+| Aqua soft | `#E6F7F8` | informational art fields |
+| Lavender | `#6959A8` | expressive secondary accents |
+| Lavender soft | `#F0EEFB` | calm editorial and illustration fields |
+| Amber soft | `#FFF4DC` | warm action and caution fields |
 
 ### Semantic intent colors
 
@@ -274,13 +281,17 @@ Use one family with contrast created through scale, weight, spacing, and composi
 ### Icon system
 
 - Preserve existing product-category artwork in `public/images/categories` and current product illustrations.
-- Use Font Awesome 6 icons for product/action semantics already established by the interface.
-- Use Lucide for interface actions, navigation, status, and utility controls.
+- Use the Remnant dimensional action family in `public/images/actions` for hero moments, primary intent choices, onboarding decisions, and empty states.
+- The action family currently covers marketplace, find, sell, trade, donate, repair, recycle, and alerts. Extend it in the same matte, simplified, front-isometric style rather than mixing unrelated 3D packs.
+- Use Lucide for compact interface actions, navigation, status, and utility controls. Small line icons may sit on quiet mint, aqua, lavender, or amber tiles when this improves scanning.
 - Default utility icon: 16–20 px, 2–2.25 stroke weight.
-- Feature icon: 24–32 px.
+- Feature line icon: 24–32 px. Dimensional action artwork: 64–112 px in mobile sections and 144–240 px in major desktop compositions.
 - Icons require labels unless their meaning is universal and an accessible name is supplied.
 - Do not use emoji as production icons.
 - Do not wrap every icon in a colored circle. Containers indicate grouping, state, or hierarchy—not decoration.
+- Dimensional artwork is decorative when adjacent text already names the action; expose no duplicate screen-reader label.
+- Export action artwork as transparent WebP, keep each file below roughly 60 KB where practical, set intrinsic dimensions, and lazy-load anything below the fold.
+- Never use neon glow, glass, glossy plastic, or gradient-filled UI surfaces. Gentle shading inside the rendered object is allowed to communicate volume.
 
 ### Listing photography
 

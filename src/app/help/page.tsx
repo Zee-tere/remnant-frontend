@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { useState } from 'react';
 import Link from 'next/link';
 import { Search, MessageSquare, Phone, Mail, Book, Shield, CreditCard, Package } from 'lucide-react';
+import { ActionArtwork } from '@/components/brand/ActionArtwork';
 
 export default function HelpPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,7 +24,7 @@ export default function HelpPage() {
     {
       category: 'Buying & Selling',
       questions: [
-        { question: 'How does the matching system work?', answer: 'Our AI scans listings for complementary items. If you list a "Left AirPod", we\'ll match you with users looking for or selling "Right AirPod".' },
+        { question: 'How does the matching system work?', answer: 'Remnant compares listing details for complementary items. If you list a "Left AirPod", we\'ll match you with users looking for or selling a "Right AirPod".' },
         { question: 'How do I buy an item?', answer: 'Open an item and message the seller to agree on the next step.' },
         { question: 'How do I pay a seller?', answer: 'Remnant does not process payments yet. Agree on payment and collection directly with the seller in messages.' },
         { question: 'How do I know if a seller is trustworthy?', answer: 'Check profile details and keep the conversation inside Remnant.' },
@@ -76,6 +77,7 @@ export default function HelpPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Hero Section */}
       <div className="text-center mb-12">
+        <ActionArtwork name="find" priority className="mx-auto mb-6 h-28 w-28 md:h-40 md:w-40 md:rounded-[2rem]" />
         <h1 className="text-4xl font-bold mb-4">How can we help you?</h1>
         <p className="text-base text-neutral-600 dark:text-neutral-400 mb-8 max-w-2xl mx-auto">
           Find quick answers or contact support.
@@ -101,22 +103,20 @@ export default function HelpPage() {
       </div>
 
       {/* Help Topics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <div className="mb-12 grid grid-cols-1 border-y border-[var(--line-soft)] md:grid-cols-2 lg:grid-cols-4 lg:divide-x lg:divide-[var(--line-soft)]">
         {helpTopics.map((topic, index) => (
-          <Card key={index}>
-            <CardContent className="p-6">
-              <div className="flex flex-col items-center text-center">
-                <div className="h-12 w-12 rounded-full bg-[var(--brand-soft)] dark:bg-[var(--brand-muted)] flex items-center justify-center mb-4">
-                  <topic.icon className="text-[var(--brand)] dark:text-[var(--brand)]" size={24} />
+          <article key={index} className="border-b border-[var(--line-soft)] p-6 text-center last:border-b-0 lg:border-b-0">
+              <div className="flex h-full flex-col items-center text-center">
+                <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl ${['bg-[var(--mint-soft)] text-[var(--brand)]','bg-[var(--lavender-soft)] text-[var(--lavender)]','bg-[var(--amber-soft)] text-[var(--amber)]','bg-[var(--aqua-soft)] text-[var(--aqua)]'][index]}`}>
+                  <topic.icon size={24} />
                 </div>
                 <h3 className="font-semibold text-lg mb-2">{topic.title}</h3>
-                <p className="text-sm text-neutral-500 mb-4">{topic.description}</p>
-                <Button asChild variant="outline" className="w-full">
+                <p className="mb-4 flex-1 text-sm text-neutral-500">{topic.description}</p>
+                <Button asChild variant="outline" className="w-full bg-white">
                   <Link href={topic.link}>Learn More</Link>
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+          </article>
         ))}
       </div>
 

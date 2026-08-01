@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Heart, Puzzle, Shield, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, Heart, Puzzle, Shield, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ActionArtwork } from '@/components/brand/ActionArtwork';
 
 const values = [
   {
@@ -38,6 +39,7 @@ export default function AboutPage() {
           <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-6 text-[var(--ink-soft)] md:mt-7 md:text-lg md:leading-8">
             Remnant helps incomplete, broken, or singular things find someone who can use them.
           </p>
+          <ActionArtwork name="marketplace" priority className="mx-auto mt-8 h-36 w-36 md:mt-10 md:h-52 md:w-52 md:rounded-[2rem]" />
         </motion.div>
       </section>
 
@@ -59,7 +61,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-2 gap-4">
             {[
               { value: '5', label: 'Intent tags', sub: 'Sell, trade, donate, repair, recycle' },
-              { value: 'AI', label: 'Matching', sub: 'Finds complementary needs' },
+              { value: 'Pair', label: 'Matching', sub: 'Connects complementary needs' },
               { value: '0', label: 'Listing fee', sub: 'Free to post' },
               { value: 'Safe', label: 'Trust', sub: 'Profiles and clear records' },
             ].map((stat) => (
@@ -101,7 +103,7 @@ export default function AboutPage() {
             {[
               'List the item',
               'Choose intent',
-              'AI scans matches',
+              'Remnant checks matches',
               'Connect safely',
               'Complete the exchange',
             ].map((title, index) => (
@@ -119,7 +121,7 @@ export default function AboutPage() {
       <section className="px-5 py-20 text-center md:px-8">
         <div className="mx-auto max-w-3xl rounded-2xl bg-[var(--brand)] p-8 text-white md:p-12">
           <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-white/15">
-            <Sparkles size={28} aria-hidden="true" />
+            <Heart size={28} aria-hidden="true" />
           </div>
           <h2 className="text-2xl font-bold md:text-4xl">Give your items a second life.</h2>
           <p className="mx-auto mt-4 max-w-xl text-white/85">

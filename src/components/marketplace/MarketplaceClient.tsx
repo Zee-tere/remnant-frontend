@@ -19,6 +19,7 @@ import { nigerianStates } from "@/lib/nigeria-locations";
 import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
 import { ListingGridSkeleton } from "@/components/feedback/LoadingState";
 import type { PublicListingPage } from "@/lib/public-listings";
+import { ActionArtwork } from "@/components/brand/ActionArtwork";
 
 type Listing = ListingCardItem;
 
@@ -184,14 +185,17 @@ export default function MarketplaceClient({
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <main className="mx-auto max-w-7xl px-4 pb-20 pt-7 sm:px-5 md:px-8 md:pt-12">
-        <header className="mb-6 md:mb-10">
-          <p className="section-kicker mb-3">Browse by what happens next</p>
-          <h1 className="page-heading-entry text-4xl font-bold text-[var(--foreground)] md:text-6xl">
-            Explore the market
-          </h1>
-          <p className="mt-3 max-w-2xl text-base font-medium leading-7 text-[var(--ink-soft)]">
-            Useful pieces for sale, trade, donation, repair, and recycling—clearly labelled from the start.
-          </p>
+        <header className="mb-7 grid grid-cols-[minmax(0,1fr)_5.5rem] items-center gap-4 md:mb-12 md:grid-cols-[minmax(0,1fr)_11rem] md:gap-10">
+          <div>
+            <p className="section-kicker mb-3">Browse by what happens next</p>
+            <h1 className="page-heading-entry text-4xl font-bold text-[var(--foreground)] md:text-6xl">
+              Explore the market
+            </h1>
+            <p className="mt-3 max-w-2xl text-base font-medium leading-7 text-[var(--ink-soft)]">
+              Useful pieces for sale, trade, donation, repair, and recycling—clearly labelled from the start.
+            </p>
+          </div>
+          <ActionArtwork name="marketplace" priority className="h-[5.5rem] w-[5.5rem] md:h-44 md:w-44 md:rounded-[2rem]" />
         </header>
 
         <div className="mb-5 flex gap-1 overflow-x-auto border-y border-[var(--line-soft)] py-1 scrollbar-hide lg:hidden" aria-label="Filter by intent">
@@ -313,9 +317,7 @@ export default function MarketplaceClient({
               </>
             ) : (
               <div className="border-t border-[#f1f0ec] px-6 py-16 text-center">
-                <div className="icon-frame mx-auto mb-5 h-14 w-14" data-preserve-icon-frame>
-                  <Package size={30} aria-hidden="true" />
-                </div>
+                <ActionArtwork name="sell" className="mx-auto mb-5 h-24 w-24" />
                 <h3 className="text-2xl font-bold text-[var(--foreground)]">No items found</h3>
                 <p className="mx-auto mt-3 max-w-md font-medium text-[var(--ink-soft)]">No items match these filters.</p>
                 <Button asChild className="mt-7 rounded-full bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">

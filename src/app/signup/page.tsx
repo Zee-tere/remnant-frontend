@@ -12,6 +12,7 @@ import { useAuthStore } from "@/lib/auth";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { getApiErrorMessage } from "@/lib/errors";
 import { safeInternalPath, startHostedAuth } from "@/lib/hosted-auth";
+import { ActionArtwork } from "@/components/brand/ActionArtwork";
 
 const benefits = ["Free to list", "Better match visibility", "Safer message history"];
 
@@ -89,17 +90,18 @@ function SignUpPageContent() {
   return (
     <main className="min-h-screen bg-[var(--warm-white)] px-4 py-5 md:px-8 md:py-10">
       <section className="mx-auto grid min-h-[calc(100dvh-2.5rem)] max-w-6xl grid-cols-[minmax(0,1fr)] items-center gap-8 lg:min-h-[74vh] lg:grid-cols-[0.95fr_1fr]">
-        <div className="auth-story-panel relative hidden overflow-hidden rounded-2xl bg-[var(--navy)] p-10 text-white lg:block">
-          <Link href="/" className="inline-flex text-[var(--brand-light)]" aria-label="Remnant home">
+        <div className="auth-story-panel relative hidden overflow-hidden rounded-2xl bg-[var(--mint-soft)] p-10 text-[var(--foreground)] lg:block">
+          <Link href="/" className="inline-flex text-[var(--brand)]" aria-label="Remnant home">
             <BrandLogo size="auth" />
           </Link>
-          <h1 className="mt-16 max-w-md text-5xl font-bold leading-tight">
+          <ActionArtwork name="sell" surface={false} className="mt-8 h-44 w-44" />
+          <h1 className="mt-4 max-w-md text-5xl font-bold leading-tight">
             Give every useful piece a place.
           </h1>
           <div className="mt-7 space-y-3">
             {benefits.map((benefit) => (
-              <div key={benefit} className="flex items-center gap-3 text-sm font-bold text-white/75">
-                <CheckCircle2 size={18} className="text-[var(--brand-light)]" />
+              <div key={benefit} className="flex items-center gap-3 text-sm font-bold text-[var(--ink-soft)]">
+                <CheckCircle2 size={18} className="text-[var(--brand)]" />
                 {benefit}
               </div>
             ))}
@@ -117,6 +119,13 @@ function SignUpPageContent() {
             <ArrowLeft size={16} aria-hidden="true" />
             Back to market
           </Link>
+
+          <ActionArtwork
+            name="sell"
+            surface={false}
+            className="mx-auto mb-2 h-20 w-20 lg:hidden"
+            imageClassName="p-0"
+          />
 
           <div className="mb-5 text-center lg:mb-7 lg:text-left">
             <h1 className="text-[1.75rem] font-bold text-[var(--foreground)] md:text-4xl">Create account</h1>
