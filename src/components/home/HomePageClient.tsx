@@ -51,7 +51,7 @@ export default function HomePageClient({
       <section className="mx-auto max-w-7xl px-4 pb-7 pt-7 sm:px-5 md:px-8 md:pb-24 md:pt-14">
         <div className="grid items-center md:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.72fr)] md:gap-14">
           <div className="md:order-1">
-            <p className="section-kicker mb-5 hidden md:flex">Useful things belong somewhere</p>
+            <p className="section-kicker mb-5 !hidden md:!inline-flex">Useful things belong somewhere</p>
             <h1 className="max-w-[24rem] text-balance text-[2.65rem] font-bold leading-[0.98] tracking-[-0.052em] text-[var(--foreground)] sm:max-w-2xl sm:text-6xl md:max-w-3xl md:text-[4.8rem]">
               Give lonely pieces a{" "}
               <span className="hero-flourish relative inline-block pb-1 text-[var(--brand)]">
@@ -122,7 +122,7 @@ export default function HomePageClient({
         <div className="mx-auto max-w-7xl">
           <div className="mb-4 flex flex-row items-center justify-between gap-3 md:mb-8 md:flex-row md:items-end">
             <div>
-              <p className="section-kicker mb-3 hidden md:flex">Freshly listed</p>
+              <p className="section-kicker mb-3 !hidden md:!inline-flex">Freshly listed</p>
               <h2 className="text-3xl font-bold text-[var(--foreground)] md:text-5xl">Marketplace</h2>
             </div>
             <Button asChild variant="outline" className="h-10 rounded-lg border-[var(--border)] bg-white px-4 text-xs font-bold text-[var(--brand)] hover:bg-[var(--sand)] md:h-11 md:px-6 md:text-sm">
