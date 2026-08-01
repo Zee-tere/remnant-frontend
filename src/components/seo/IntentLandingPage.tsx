@@ -63,8 +63,8 @@ export default async function IntentLandingPage({ pageKey }: { pageKey: IntentPa
             </Button>
           </div>
           </div>
-          <div className="pastel-stage flex min-h-[210px] items-center justify-center rounded-[2rem] md:min-h-[340px]" aria-hidden="true">
-            <ActionArtwork name={intentArtwork[pageKey]} surface={false} className="h-[210px] w-[210px] md:h-[330px] md:w-[330px]" />
+          <div className="flex min-h-[160px] items-center justify-center md:min-h-[340px]" aria-hidden="true">
+            <ActionArtwork name={intentArtwork[pageKey]} className="h-[150px] w-[150px] md:h-[330px] md:w-[330px]" />
           </div>
         </div>
       </section>
@@ -109,7 +109,7 @@ export default async function IntentLandingPage({ pageKey }: { pageKey: IntentPa
             </div>
           ) : (
             <div className="mt-6 border-y border-[var(--border)]/45 py-10">
-              <ActionArtwork name={intentArtwork[pageKey]} className="mb-4 h-24 w-24" />
+              <ActionArtwork name={intentArtwork[pageKey]} className="mb-4 h-[4.5rem] w-[4.5rem] md:h-24 md:w-24" />
               <p className="font-semibold text-[var(--ink-soft)]">No active listings here yet.</p>
               <Link href={`/sell-item?intent=${config.intentTag}`} className="mt-2 inline-flex font-bold text-[var(--brand)] hover:underline">
                 Add the first one
@@ -125,7 +125,7 @@ export default async function IntentLandingPage({ pageKey }: { pageKey: IntentPa
             .filter(([key]) => key !== pageKey)
             .map(([key, item]) => (
               <Link key={key} href={item.path} className="inline-flex min-h-14 items-center gap-2 rounded-xl border border-[var(--border)]/55 bg-white py-1.5 pl-1.5 pr-3 transition-colors hover:border-[var(--lavender)]/25 hover:bg-[var(--lavender-soft)]">
-                <ActionArtwork name={intentArtwork[key as IntentPageKey]} surface={false} className="h-11 w-11" />
+                <ActionArtwork name={intentArtwork[key as IntentPageKey]} className="h-9 w-9 md:h-11 md:w-11" />
                 <span>{item.heading}</span>
               </Link>
             ))}

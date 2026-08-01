@@ -72,11 +72,11 @@ function LoginPageContent() {
   return (
     <main className="min-h-screen bg-[var(--warm-white)] px-4 py-5 md:px-8 md:py-10">
       <section className="mx-auto grid min-h-[calc(100dvh-2.5rem)] max-w-6xl grid-cols-[minmax(0,1fr)] items-center gap-8 lg:min-h-[74vh] lg:grid-cols-[0.95fr_1fr]">
-        <div className="auth-story-panel relative hidden overflow-hidden rounded-2xl bg-[var(--lavender-soft)] p-10 text-[var(--foreground)] lg:block">
+        <div className="auth-story-panel relative hidden overflow-hidden rounded-2xl border border-[var(--line-soft)] bg-white p-10 text-[var(--foreground)] lg:block">
           <Link href="/" className="inline-flex text-[var(--brand)]" aria-label="Remnant home">
             <BrandLogo size="auth" />
           </Link>
-          <ActionArtwork name="marketplace" surface={false} className="mt-8 h-44 w-44" />
+          <ActionArtwork name="marketplace" className="mt-8 h-44 w-44" />
           <h1 className="mt-4 max-w-md text-5xl font-bold leading-tight">
             Welcome back to useful pieces.
           </h1>
@@ -99,8 +99,7 @@ function LoginPageContent() {
 
           <ActionArtwork
             name="marketplace"
-            surface={false}
-            className="mx-auto mb-2 h-20 w-20 lg:hidden"
+            className="mx-auto mb-2 h-16 w-16 lg:hidden"
             imageClassName="p-0"
           />
 

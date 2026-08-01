@@ -77,7 +77,7 @@ export default function HelpPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Hero Section */}
       <div className="text-center mb-12">
-        <ActionArtwork name="find" priority className="mx-auto mb-6 h-28 w-28 md:h-40 md:w-40 md:rounded-[2rem]" />
+        <ActionArtwork name="find" priority className="mx-auto mb-5 h-20 w-20 md:mb-6 md:h-40 md:w-40" />
         <h1 className="text-4xl font-bold mb-4">How can we help you?</h1>
         <p className="text-base text-neutral-600 dark:text-neutral-400 mb-8 max-w-2xl mx-auto">
           Find quick answers or contact support.
@@ -107,7 +107,7 @@ export default function HelpPage() {
         {helpTopics.map((topic, index) => (
           <article key={index} className="border-b border-[var(--line-soft)] p-6 text-center last:border-b-0 lg:border-b-0">
               <div className="flex h-full flex-col items-center text-center">
-                <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl ${['bg-[var(--mint-soft)] text-[var(--brand)]','bg-[var(--lavender-soft)] text-[var(--lavender)]','bg-[var(--amber-soft)] text-[var(--amber)]','bg-[var(--aqua-soft)] text-[var(--aqua)]'][index]}`}>
+                <div className={`mb-4 flex h-10 w-10 items-center justify-center ${['text-[var(--brand)]','text-[var(--lavender)]','text-[var(--amber)]','text-[var(--aqua)]'][index]}`}>
                   <topic.icon size={24} />
                 </div>
                 <h3 className="font-semibold text-lg mb-2">{topic.title}</h3>

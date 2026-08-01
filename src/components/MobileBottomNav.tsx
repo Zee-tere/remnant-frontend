@@ -42,18 +42,18 @@ export default function MobileBottomNav() {
 
   const actions: NavAction[] = isAuthenticated
     ? [
-        { label: "Listings", href: "/user/dashboard", icon: Box, tone: "bg-[var(--mint-soft)] text-[var(--brand)]" },
-        { label: "Messages", href: "/user/dashboard?section=messages", icon: MessageCircle, tone: "bg-[var(--lavender-soft)] text-[var(--lavender)]" },
+        { label: "Listings", href: "/user/dashboard", icon: Box, tone: "text-[var(--brand)]" },
+        { label: "Messages", href: "/user/dashboard?section=messages", icon: MessageCircle, tone: "text-[var(--lavender)]" },
         { label: "List", href: "/sell-item", icon: CirclePlus, primary: true },
-        { label: "Pairs", href: "/user/dashboard?section=pair-alerts", icon: ScanSearch, tone: "bg-[var(--aqua-soft)] text-[var(--aqua)]" },
-        { label: "Profile", href: "/user/dashboard?section=profile", icon: UserRound, profile: true, tone: "bg-[var(--amber-soft)] text-[var(--amber)]" },
+        { label: "Pairs", href: "/user/dashboard?section=pair-alerts", icon: ScanSearch, tone: "text-[var(--aqua)]" },
+        { label: "Profile", href: "/user/dashboard?section=profile", icon: UserRound, profile: true, tone: "text-[var(--amber)]" },
       ]
     : [
-        { label: "Home", href: "/", icon: House, tone: "bg-[var(--mint-soft)] text-[var(--brand)]" },
-        { label: "Market", href: "/marketplace", icon: Store, tone: "bg-[var(--lavender-soft)] text-[var(--lavender)]" },
+        { label: "Home", href: "/", icon: House, tone: "text-[var(--brand)]" },
+        { label: "Market", href: "/marketplace", icon: Store, tone: "text-[var(--lavender)]" },
         { label: "List", href: "/sell-item", icon: CirclePlus, primary: true },
-        { label: "Pair", href: "/find-a-pair", icon: ScanSearch, tone: "bg-[var(--aqua-soft)] text-[var(--aqua)]" },
-        { label: "Account", href: "/login", icon: UserRound, profile: true, tone: "bg-[var(--amber-soft)] text-[var(--amber)]" },
+        { label: "Pair", href: "/find-a-pair", icon: ScanSearch, tone: "text-[var(--aqua)]" },
+        { label: "Account", href: "/login", icon: UserRound, profile: true, tone: "text-[var(--amber)]" },
       ];
 
   const isActive = (item: NavAction) => {
@@ -93,12 +93,12 @@ export default function MobileBottomNav() {
             >
               <span
                 data-preserve-icon-frame
-                className={`relative flex items-center justify-center transition-[color,background-color,transform] duration-150 ${item.primary ? "-mt-3 h-11 w-11 rounded-xl bg-[var(--brand)] text-white" : `h-8 w-10 rounded-lg ${item.tone || ""} ${active ? "scale-105" : "opacity-80"}`}`}
+                className={`relative flex items-center justify-center transition-[color,transform] duration-150 ${item.primary ? "-mt-3 h-10 w-10 rounded-xl bg-[var(--brand)] text-white" : `h-7 w-8 ${item.tone || ""} ${active ? "scale-105" : "opacity-80"}`}`}
               >
                 {item.profile && isAuthenticated ? (
                   <NameAvatar name={user?.name || "Remnant"} className="h-7 w-7 text-xs" />
                 ) : (
-                  <Icon className={item.primary ? "h-5 w-5" : "h-[18px] w-[18px]"} aria-hidden="true" />
+                  <Icon className={item.primary ? "h-[18px] w-[18px]" : "h-[17px] w-[17px]"} aria-hidden="true" />
                 )}
               </span>
               <span className={`${item.primary ? "-mt-1 text-[var(--brand)]" : ""} leading-none`}>{item.label}</span>

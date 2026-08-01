@@ -94,10 +94,8 @@ export default function HomePageClient({
             </div>
           </div>
 
-          <div className="pastel-stage order-1 mx-auto flex min-h-[220px] w-full max-w-[27rem] items-center justify-center rounded-[2rem] md:order-2 md:min-h-[420px] md:rounded-[2.5rem]">
-            <span className="absolute left-[13%] top-[16%] h-2.5 w-10 rounded-full bg-[#8fd8c2]" aria-hidden="true" />
-            <span className="absolute bottom-[17%] right-[13%] h-3 w-3 rotate-45 rounded-sm bg-[#9385df]" aria-hidden="true" />
-            <ActionArtwork name="marketplace" priority surface={false} className="h-[210px] w-[210px] md:h-[390px] md:w-[390px]" imageClassName="transition-transform duration-300 motion-safe:hover:scale-[1.025]" />
+          <div className="order-1 mx-auto flex min-h-[160px] w-full max-w-[22rem] items-center justify-center md:order-2 md:min-h-[420px] md:max-w-[27rem]">
+            <ActionArtwork name="marketplace" priority className="h-[150px] w-[150px] md:h-[390px] md:w-[390px]" imageClassName="transition-transform duration-300 motion-safe:hover:scale-[1.025]" />
           </div>
         </div>
       </section>
@@ -107,8 +105,8 @@ export default function HomePageClient({
           <p className="section-kicker mb-3">A simple route forward</p>
           <div className="grid gap-7 border-y border-[var(--line-soft)] py-8 md:grid-cols-3 md:gap-10 md:py-10">
             {howItWorks.map((step) => (
-              <article key={step.title} className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-4 md:grid-cols-1 md:items-start md:gap-5">
-                <ActionArtwork name={step.artwork} className="h-[5.5rem] w-[5.5rem] md:h-28 md:w-28" />
+              <article key={step.title} className="grid grid-cols-[4rem_minmax(0,1fr)] items-center gap-4 md:grid-cols-1 md:items-start md:gap-5">
+                <ActionArtwork name={step.artwork} className="h-16 w-16 md:h-28 md:w-28" />
                 <div>
                   <span className="text-xs font-black tabular-nums text-[var(--lavender)]">{step.number}</span>
                   <h2 className="mt-1 text-xl font-bold text-[var(--foreground)] md:text-2xl">{step.title}</h2>
@@ -120,7 +118,7 @@ export default function HomePageClient({
         </div>
       </section>
 
-      <section className="bg-[#f8faf8] px-4 pb-12 pt-10 sm:px-5 md:px-8 md:py-20">
+      <section className="bg-white px-4 pb-12 pt-10 sm:px-5 md:px-8 md:py-20">
         <div className="mx-auto max-w-7xl">
           <div className="mb-4 flex flex-row items-center justify-between gap-3 md:mb-8 md:flex-row md:items-end">
             <div>
@@ -164,14 +162,14 @@ export default function HomePageClient({
 
           <div className="mb-8 md:mb-12">
             <p className="mb-4 text-sm font-bold text-[var(--ink-soft)]">Choose what happens next</p>
-            <div className="grid auto-cols-[5.7rem] grid-flow-col gap-2 overflow-x-auto pb-2 scrollbar-hide lg:grid-flow-row lg:grid-cols-7 lg:overflow-visible">
+            <div className="grid auto-cols-[4.8rem] grid-flow-col gap-2 overflow-x-auto pb-2 scrollbar-hide lg:grid-flow-row lg:grid-cols-7 lg:overflow-visible">
             {marketplaceActions.map((action) => (
               <Link
                 key={action.href}
                 href={action.href}
-                className="group flex min-h-[6.9rem] shrink-0 flex-col items-center justify-center gap-1.5 rounded-2xl bg-white px-2 py-2 text-center text-xs font-bold text-[var(--ink-soft)] transition-[color,transform] hover:text-[var(--brand)] active:scale-[0.98] md:min-h-[8rem] md:text-sm"
+                className="group flex min-h-[5.8rem] shrink-0 flex-col items-center justify-center gap-1 rounded-xl bg-white px-1 py-1.5 text-center text-[0.7rem] font-bold text-[var(--ink-soft)] transition-[color,transform] hover:text-[var(--brand)] active:scale-[0.98] md:min-h-[8rem] md:gap-1.5 md:px-2 md:py-2 md:text-sm"
               >
-                <ActionArtwork name={action.artwork} surface={false} className="h-[4.3rem] w-[4.3rem] md:h-[5.2rem] md:w-[5.2rem]" imageClassName="transition-transform duration-200 motion-safe:group-hover:scale-105" />
+                <ActionArtwork name={action.artwork} className="h-[3.35rem] w-[3.35rem] md:h-[5.2rem] md:w-[5.2rem]" imageClassName="transition-transform duration-200 motion-safe:group-hover:scale-105" />
                 <span>{action.label}</span>
               </Link>
             ))}
@@ -184,7 +182,7 @@ export default function HomePageClient({
             </div>
           ) : (
             <div className="border-t border-[#f1f0ec] px-4 py-8 text-center md:py-10">
-              <ActionArtwork name="sell" className="mx-auto mb-5 h-24 w-24" />
+              <ActionArtwork name="sell" className="mx-auto mb-5 h-[4.5rem] w-[4.5rem] md:h-24 md:w-24" />
               <h3 className="text-2xl font-bold">No listings yet</h3>
               <Button asChild className="mt-7 rounded-full bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">
                 <Link href="/sell-item">List an item</Link>

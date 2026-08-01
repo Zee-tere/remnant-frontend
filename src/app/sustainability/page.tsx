@@ -25,7 +25,7 @@ export default function SustainabilityPage() {
   return (
     <div className="min-h-screen bg-white">
       <section className="mx-auto max-w-5xl px-5 py-16 text-center md:px-8 md:py-24">
-        <ActionArtwork name="recycle" priority className="mx-auto mb-7 h-32 w-32 md:h-44 md:w-44 md:rounded-[2rem]" />
+        <ActionArtwork name="recycle" priority className="mx-auto mb-6 h-[5.5rem] w-[5.5rem] md:mb-7 md:h-44 md:w-44" />
         <h1 className="text-3xl font-bold text-[var(--foreground)] md:text-6xl">Sustainability</h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg font-medium leading-8 text-[var(--ink-soft)]">
           Remnant is built for the useful things that usually fall through the cracks of ordinary marketplaces.

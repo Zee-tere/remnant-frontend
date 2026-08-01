@@ -39,7 +39,7 @@ export default function AboutPage() {
           <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-6 text-[var(--ink-soft)] md:mt-7 md:text-lg md:leading-8">
             Remnant helps incomplete, broken, or singular things find someone who can use them.
           </p>
-          <ActionArtwork name="marketplace" priority className="mx-auto mt-8 h-36 w-36 md:mt-10 md:h-52 md:w-52 md:rounded-[2rem]" />
+          <ActionArtwork name="marketplace" priority className="mx-auto mt-8 h-24 w-24 md:mt-10 md:h-52 md:w-52" />
         </motion.div>
       </section>
 

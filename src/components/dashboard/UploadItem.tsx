@@ -416,7 +416,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
                   selected ? 'border-[var(--brand)] bg-[var(--mint-soft)]' : 'border-[var(--border)]/45 hover:border-[var(--lavender)]/30',
                 )}
               >
-                <ActionArtwork name={purpose.artwork} surface={false} className="mb-1 h-20 w-20 self-center md:h-28 md:w-28" />
+                <ActionArtwork name={purpose.artwork} className="mb-1 h-16 w-16 self-center md:h-28 md:w-28" />
                 <h3 className="text-sm font-bold md:text-xl">{purpose.label}</h3>
                 <p className="mt-1 text-[0.78rem] font-medium leading-5 text-[var(--ink-soft)] md:mt-2 md:text-sm md:leading-6">{purpose.description}</p>
               </div>
@@ -453,7 +453,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
           dragActive ? 'border-[var(--brand)] bg-[var(--brand-soft)]' : 'border-[var(--border)] bg-[var(--sand)] hover:border-[var(--brand)] hover:bg-[var(--brand-soft)]',
         )}
       >
-        <ActionArtwork name={selectedPurpose?.artwork || 'sell'} surface={false} className="mb-2 h-20 w-20 md:mb-3 md:h-28 md:w-28" />
+        <ActionArtwork name={selectedPurpose?.artwork || 'sell'} className="mb-2 h-16 w-16 md:mb-3 md:h-28 md:w-28" />
         <h3 className="text-base font-bold md:text-xl">{isOptimizing ? 'Preparing photos...' : 'Add photos'}</h3>
         <p className="mt-1 text-sm font-medium text-[var(--muted-foreground)] md:text-base">
           {isOptimizing ? 'Making them faster to load' : 'Tap to browse files'}

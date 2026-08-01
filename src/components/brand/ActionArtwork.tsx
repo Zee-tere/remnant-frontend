@@ -10,35 +10,21 @@ export type ActionArtworkName =
   | "recycle"
   | "alert";
 
-const surfaces: Record<ActionArtworkName, string> = {
-  marketplace: "bg-[var(--lavender-soft)]",
-  find: "bg-[var(--sky-soft)]",
-  sell: "bg-[var(--mint-soft)]",
-  trade: "bg-[var(--aqua-soft)]",
-  donate: "bg-[var(--amber-soft)]",
-  repair: "bg-[var(--lavender-soft)]",
-  recycle: "bg-[var(--mint-soft)]",
-  alert: "bg-[var(--amber-soft)]",
-};
-
 export function ActionArtwork({
   name,
   className,
   imageClassName,
   priority = false,
-  surface = true,
 }: {
   name: ActionArtworkName;
   className?: string;
   imageClassName?: string;
   priority?: boolean;
-  surface?: boolean;
 }) {
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-[1.4rem]",
-        surface && surfaces[name],
+        "inline-flex shrink-0 items-center justify-center",
         className,
       )}
       aria-hidden="true"

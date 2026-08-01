@@ -91,7 +91,7 @@ export default function FindPageClient({
             Try the object, brand, model, colour, size, or the exact missing part.
           </p>
         </div>
-        <ActionArtwork name="find" priority className="h-[5.5rem] w-[5.5rem] md:h-44 md:w-44 md:rounded-[2rem]" />
+        <ActionArtwork name="find" priority className="h-16 w-16 md:h-44 md:w-44" />
       </header>
       <form onSubmit={handleSearch} className="flex items-center gap-2">
         <div className="relative h-13 min-w-0 flex-1 overflow-hidden rounded-xl border border-[var(--border)]/75 bg-white transition-[border-color,box-shadow] focus-within:border-[var(--brand)] focus-within:ring-4 focus-within:ring-[var(--brand)]/10">
@@ -187,7 +187,7 @@ export default function FindPageClient({
         </section>
       ) : (
         <section className="border-y border-[var(--line-soft)] py-16 text-center">
-          <ActionArtwork name="find" className="mx-auto h-24 w-24" />
+          <ActionArtwork name="find" className="mx-auto h-[4.5rem] w-[4.5rem] md:h-24 md:w-24" />
           <h2 className="mt-4 text-xl font-bold text-[var(--foreground)]">No pieces found yet</h2>
           <p className="mx-auto mt-2 max-w-sm text-sm font-medium text-[var(--muted-foreground)]">Try another detail, remove a filter, or save a private alert for later.</p>
           <Button asChild variant="outline" className="mt-5">

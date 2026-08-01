@@ -195,7 +195,7 @@ export default function MarketplaceClient({
               Useful pieces for sale, trade, donation, repair, and recycling—clearly labelled from the start.
             </p>
           </div>
-          <ActionArtwork name="marketplace" priority className="h-[5.5rem] w-[5.5rem] md:h-44 md:w-44 md:rounded-[2rem]" />
+          <ActionArtwork name="marketplace" priority className="h-16 w-16 md:h-44 md:w-44" />
         </header>
 
         <div className="mb-5 flex gap-1 overflow-x-auto border-y border-[var(--line-soft)] py-1 scrollbar-hide lg:hidden" aria-label="Filter by intent">
@@ -317,7 +317,7 @@ export default function MarketplaceClient({
               </>
             ) : (
               <div className="border-t border-[#f1f0ec] px-6 py-16 text-center">
-                <ActionArtwork name="sell" className="mx-auto mb-5 h-24 w-24" />
+                <ActionArtwork name="sell" className="mx-auto mb-5 h-[4.5rem] w-[4.5rem] md:h-24 md:w-24" />
                 <h3 className="text-2xl font-bold text-[var(--foreground)]">No items found</h3>
                 <p className="mx-auto mt-3 max-w-md font-medium text-[var(--ink-soft)]">No items match these filters.</p>
                 <Button asChild className="mt-7 rounded-full bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">

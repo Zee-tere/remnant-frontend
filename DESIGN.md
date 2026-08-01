@@ -161,7 +161,9 @@ Empty, error, permission, and no-result states must explain what happened and of
 
 ## 6. Color system
 
-The interface is light-first. Dark tokens may remain available, but a complete dark theme must not ship until every page and state has been deliberately reviewed.
+The interface is light-first and uses a true white page canvas. Dark tokens may remain available, but a complete dark theme must not ship until every page and state has been deliberately reviewed.
+
+Large page and section backgrounds remain white. Mint, aqua, lavender, and amber belong inside the dimensional objects, status semantics, small accents, and deliberately bounded controls—not as full-page washes or halos behind artwork.
 
 | Token | Value | Purpose |
 |---|---:|---|
@@ -283,15 +285,16 @@ Use one family with contrast created through scale, weight, spacing, and composi
 - Preserve existing product-category artwork in `public/images/categories` and current product illustrations.
 - Use the Remnant dimensional action family in `public/images/actions` for hero moments, primary intent choices, onboarding decisions, and empty states.
 - The action family currently covers marketplace, find, sell, trade, donate, repair, recycle, and alerts. Extend it in the same matte, simplified, front-isometric style rather than mixing unrelated 3D packs.
-- Use Lucide for compact interface actions, navigation, status, and utility controls. Small line icons may sit on quiet mint, aqua, lavender, or amber tiles when this improves scanning.
+- Use Lucide for compact interface actions, navigation, status, and utility controls. Carry the dimensional family into these controls through restrained emerald, aqua, lavender, and amber strokes, without a colored tile or glow behind every icon.
 - Default utility icon: 16–20 px, 2–2.25 stroke weight.
-- Feature line icon: 24–32 px. Dimensional action artwork: 64–112 px in mobile sections and 144–240 px in major desktop compositions.
+- Feature line icon: 24–32 px. Dimensional action artwork: 48–96 px in routine mobile sections, up to 150 px in a mobile hero, and 144–390 px in major desktop compositions.
 - Icons require labels unless their meaning is universal and an accessible name is supplied.
 - Do not use emoji as production icons.
 - Do not wrap every icon in a colored circle. Containers indicate grouping, state, or hierarchy—not decoration.
 - Dimensional artwork is decorative when adjacent text already names the action; expose no duplicate screen-reader label.
 - Export action artwork as transparent WebP, keep each file below roughly 60 KB where practical, set intrinsic dimensions, and lazy-load anything below the fold.
 - Never use neon glow, glass, glossy plastic, or gradient-filled UI surfaces. Gentle shading inside the rendered object is allowed to communicate volume.
+- Present dimensional artwork directly on the white canvas. Do not add a lavender, mint, aqua, or off-white panel behind transparent artwork unless the panel communicates an actual selected or semantic state.
 
 ### Listing photography
 
