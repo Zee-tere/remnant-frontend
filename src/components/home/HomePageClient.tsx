@@ -143,9 +143,11 @@ export default function HomePageClient({
             ))}
           </article>
         ))}
-        <div className="absolute bottom-2 left-4 z-20 flex gap-1" aria-label={`Slide ${activeSlide + 1} of ${mobileHeroSlides.length}`}>
+        <div className="absolute bottom-0.5 left-2.5 z-20 flex gap-0" aria-label={`Slide ${activeSlide + 1} of ${mobileHeroSlides.length}`}>
           {mobileHeroSlides.map((slide, index) => (
-            <button key={slide.title} type="button" onClick={() => setActiveSlide(index)} className={`h-1.5 rounded-full transition-[width,background-color] ${activeSlide === index ? "w-5 bg-[var(--brand)]" : "w-1.5 bg-[var(--border)]"}`} aria-label={`Show slide ${index + 1}`} />
+            <button key={slide.title} type="button" onClick={() => setActiveSlide(index)} className="flex h-5 w-5 items-center justify-center" aria-label={`Show slide ${index + 1}`}>
+              <span className={`h-1 rounded-full transition-[width,background-color] ${activeSlide === index ? "w-3 bg-[var(--brand)]" : "w-1 bg-[var(--border)]"}`} aria-hidden="true" />
+            </button>
           ))}
         </div>
       </section>
@@ -153,7 +155,6 @@ export default function HomePageClient({
       <section className="mx-auto hidden max-w-7xl px-4 pb-3 pt-7 sm:px-5 md:block md:px-8 md:pb-24 md:pt-14">
         <div className="grid items-center md:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.72fr)] md:gap-14">
           <div className="md:order-1">
-            <p className="section-kicker mb-5 !hidden md:!inline-flex">Useful things belong somewhere</p>
             <h1 className="max-w-[24rem] text-balance text-[2.65rem] font-bold leading-[0.98] tracking-[-0.052em] text-[var(--foreground)] sm:max-w-2xl sm:text-6xl md:max-w-3xl md:text-[4.8rem]">
               Give lonely pieces a{" "}
               <span className="hero-flourish relative inline-block pb-1 text-[var(--brand)]">
@@ -181,7 +182,7 @@ export default function HomePageClient({
                 </div>
                 <Button type="submit" aria-label="Find a pair" variant="ghost" className="h-10 w-10 border-0 bg-white px-0 text-[var(--aqua)] hover:bg-white hover:text-[var(--brand)] md:h-14 md:w-auto md:bg-[var(--brand)] md:px-8 md:text-base md:text-white md:hover:bg-[var(--brand-dark)] md:hover:text-white">
                   <span className="hidden md:inline">Find a pair</span>
-                  <ArrowRight size={18} aria-hidden="true" />
+                  <Search size={18} aria-hidden="true" />
                 </Button>
               </div>
             </form>
@@ -204,7 +205,7 @@ export default function HomePageClient({
 
       <section className="hidden bg-white px-4 pb-3 pt-3 sm:px-5 md:block md:px-8 md:py-20">
         <div className="mx-auto max-w-6xl">
-          <p className="section-kicker mb-3">How it works</p>
+          <h2 className="mb-5 text-3xl font-bold text-[var(--foreground)] md:mb-8 md:text-4xl">How it works</h2>
           <div className="grid grid-cols-3 gap-2 border-y border-[var(--line-soft)] py-4 md:gap-10 md:py-10">
             {howItWorks.map((step) => (
               <article key={step.title} className="flex min-w-0 flex-col items-center text-center md:items-start md:text-left">
@@ -224,7 +225,6 @@ export default function HomePageClient({
         <div className="mx-auto max-w-7xl">
           <div className="mb-2 flex flex-row items-center justify-end gap-3 md:mb-8 md:justify-between md:items-end">
             <div className="hidden md:block">
-              <p className="section-kicker mb-3 !hidden md:!inline-flex">Freshly listed</p>
               <h2 className="text-3xl font-bold text-[var(--foreground)] md:text-5xl">Marketplace</h2>
             </div>
             <Button asChild variant="ghost" className="h-9 rounded-lg px-1 text-xs font-bold text-[var(--brand)] hover:bg-white hover:text-[var(--brand-dark)] md:h-11 md:border md:border-[var(--border)] md:px-6 md:text-sm">

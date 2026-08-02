@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Heart, Puzzle, Shield, Users } from 'lucide-react';
+import { ArrowRight, Heart, Shield, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ActionArtwork } from '@/components/brand/ActionArtwork';
 
@@ -29,10 +29,6 @@ export default function AboutPage() {
     <div className="min-h-screen bg-white">
       <section className="mx-auto max-w-7xl px-5 py-14 text-center md:px-8 md:py-28">
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
-          <div className="section-kicker mb-5 md:mb-7">
-            <Puzzle size={16} aria-hidden="true" />
-            Our story
-          </div>
           <h1 className="mx-auto max-w-4xl text-[1.85rem] font-bold leading-tight text-[var(--foreground)] md:text-7xl">
             Every piece still has a purpose.
           </h1>

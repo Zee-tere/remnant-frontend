@@ -85,7 +85,6 @@ export default function FindPageClient({
     <main className="mx-auto min-h-screen max-w-7xl bg-[var(--background)] px-4 pb-10 pt-7 sm:px-5 md:px-8 md:pb-20 md:pt-12">
       <header className="mb-7 grid grid-cols-[minmax(0,1fr)_5.5rem] items-center gap-4 md:mb-11 md:grid-cols-[minmax(0,1fr)_11rem] md:gap-10">
         <div>
-          <p className="section-kicker mb-3">Search by the detail that matters</p>
           <h1 className="max-w-3xl text-4xl font-bold text-[var(--foreground)] md:text-6xl">Find the piece that fits.</h1>
           <p className="mt-3 max-w-2xl text-base font-medium leading-7 text-[var(--ink-soft)]">
             Try the object, brand, model, colour, size, or the exact missing part.

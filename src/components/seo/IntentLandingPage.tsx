@@ -44,8 +44,7 @@ export default async function IntentLandingPage({ pageKey }: { pageKey: IntentPa
       <section className="border-b border-[var(--line-soft)] bg-[var(--background)] px-4 py-14 sm:px-5 md:px-8 md:py-24">
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[minmax(0,1fr)_22rem] md:items-center md:gap-14">
           <div>
-          <p className="section-kicker">Remnant Market Nigeria</p>
-          <h1 className="mt-5 max-w-4xl text-4xl font-bold leading-[1.02] text-[var(--foreground)] md:text-6xl lg:text-7xl">
+          <h1 className="max-w-4xl text-4xl font-bold leading-[1.02] text-[var(--foreground)] md:text-6xl lg:text-7xl">
             {config.heading}
           </h1>
           <p className="mt-5 max-w-2xl text-base font-medium leading-7 text-[var(--ink-soft)] md:text-lg md:leading-8">
@@ -71,7 +70,6 @@ export default async function IntentLandingPage({ pageKey }: { pageKey: IntentPa
 
       <section className="px-4 py-10 md:px-8 md:py-14" aria-labelledby={`${pageKey}-how`}>
         <div className="mx-auto max-w-5xl">
-          <p className="section-kicker mb-3">Three simple steps</p>
           <h2 id={`${pageKey}-how`} className="text-3xl font-bold text-[var(--foreground)] md:text-4xl">
             How it works
           </h2>

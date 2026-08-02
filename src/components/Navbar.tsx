@@ -14,6 +14,7 @@ import {
   PackagePlus,
   RefreshCw,
   ScanSearch,
+  Search,
   Settings,
   ShieldCheck,
   Store,
@@ -24,7 +25,6 @@ import {
 import { useAuthStore } from "@/lib/auth";
 import { NameAvatar } from "@/components/ui/name-avatar";
 import { BrandLogo } from "@/components/brand/BrandLogo";
-import { ActionArtwork } from "@/components/brand/ActionArtwork";
 
 interface NavigationAction {
   label: string;
@@ -33,7 +33,7 @@ interface NavigationAction {
 }
 
 const productActions: NavigationAction[] = [
-  { label: "Find a pair", href: "/find-a-pair", icon: ScanSearch },
+  { label: "Find a pair", href: "/find-a-pair", icon: Search },
   { label: "Marketplace", href: "/marketplace", icon: Store },
   { label: "Sell", href: "/sell", icon: Tag },
   { label: "Trade", href: "/trade", icon: RefreshCw },
@@ -226,7 +226,7 @@ export default function Navbar() {
               className="flex h-10 min-w-0 items-center gap-1 rounded-xl border border-[var(--line-soft)] bg-white px-2 pr-2.5 text-[0.72rem] font-bold text-[var(--brand)] md:hidden"
               aria-label="Find a pair"
             >
-              <ActionArtwork name="find" priority className="h-7 w-7" />
+              <Search size={16} strokeWidth={2.1} aria-hidden="true" />
               <span className="whitespace-nowrap">Find a pair</span>
             </Link>
           )}

@@ -217,7 +217,6 @@ export default function MarketplaceClient({
 
         <header className="mb-7 grid grid-cols-[minmax(0,1fr)_5.5rem] items-center gap-4 md:mb-12 md:grid-cols-[minmax(0,1fr)_11rem] md:gap-10">
           <div>
-            <p className="section-kicker mb-3">Browse by what happens next</p>
             <h1 className="page-heading-entry text-4xl font-bold text-[var(--foreground)] md:text-6xl">
               Explore the market
             </h1>

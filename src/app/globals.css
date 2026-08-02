@@ -355,25 +355,6 @@
     padding-inline: 1rem;
   }
 
-  .section-kicker {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--brand);
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    line-height: 1;
-    text-transform: uppercase;
-  }
-
-  .section-kicker::before {
-    width: 1.5rem;
-    height: 2px;
-    background: currentColor;
-    content: "";
-  }
-
   .paired-rule {
     position: relative;
     height: 0.375rem;
