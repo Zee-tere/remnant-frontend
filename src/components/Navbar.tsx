@@ -14,7 +14,6 @@ import {
   PackagePlus,
   RefreshCw,
   ScanSearch,
-  Search,
   Settings,
   ShieldCheck,
   Store,
@@ -25,6 +24,7 @@ import {
 import { useAuthStore } from "@/lib/auth";
 import { NameAvatar } from "@/components/ui/name-avatar";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { ActionArtwork } from "@/components/brand/ActionArtwork";
 
 interface NavigationAction {
   label: string;
@@ -53,7 +53,6 @@ const accountActions = [
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [mobileSearch, setMobileSearch] = useState("");
   const pathname = usePathname();
   const router = useRouter();
 
@@ -65,7 +64,7 @@ export default function Navbar() {
   const isAuthRoute = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth/callback"].some(
     (route) => pathname.startsWith(route),
   );
-  const showMobileSearch = pathname !== "/" && !pathname.startsWith("/find-a-pair") && !pathname.startsWith("/user/");
+  const showMobilePairAction = !pathname.startsWith("/find-a-pair") && !pathname.startsWith("/user/");
 
   useEffect(() => {
     setMenuOpen(false);
@@ -92,13 +91,6 @@ export default function Navbar() {
     router.push("/");
   };
 
-  const handleMobileSearch = (event: React.FormEvent) => {
-    event.preventDefault();
-    const search = mobileSearch.trim();
-    router.push(`/find-a-pair${search ? `?search=${encodeURIComponent(search)}` : ""}`);
-    setMenuOpen(false);
-  };
-
   const isActive = (href: string) => {
     if (href.includes("#")) return pathname === "/";
     if (href === "/") return pathname === "/";
@@ -109,7 +101,7 @@ export default function Navbar() {
     <header className={`sticky top-0 z-50 w-full border-b border-[var(--line-soft)] bg-white px-3 py-1.5 md:px-6 md:py-2 ${isAuthRoute ? "hidden md:block" : ""}`}>
       <div className="relative mx-auto flex min-h-12 max-w-7xl items-center gap-2 bg-white px-0 text-[var(--foreground)] md:min-h-14 md:justify-between md:gap-0 md:px-2">
         <Link href="/" className="flex shrink-0 items-center text-[var(--brand)]" aria-label="Remnant home">
-          <BrandLogo size="nav" className={showMobileSearch ? "brand-lockup--mark-only-mobile" : ""} />
+          <BrandLogo size="nav" className={showMobilePairAction ? "brand-lockup--mark-only-mobile" : ""} />
         </Link>
 
         <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 px-4 md:flex" aria-label="Primary navigation">
@@ -228,26 +220,15 @@ export default function Navbar() {
             </div>
           )}
 
-          {showMobileSearch && (
-            <form
-              onSubmit={handleMobileSearch}
-              className="flex h-11 min-w-0 flex-1 items-center overflow-hidden rounded-xl border border-[var(--line-soft)] bg-white pl-3 md:hidden"
+          {showMobilePairAction && (
+            <Link
+              href="/find-a-pair"
+              className="flex h-10 min-w-0 items-center gap-1 rounded-xl border border-[var(--line-soft)] bg-white px-2 pr-2.5 text-[0.72rem] font-bold text-[var(--brand)] md:hidden"
+              aria-label="Find a pair"
             >
-              <input
-                value={mobileSearch}
-                onChange={(event) => setMobileSearch(event.target.value)}
-                placeholder="Search the market"
-                className="h-11 min-w-0 flex-1 bg-transparent pr-1.5 text-base font-medium text-[var(--foreground)] outline-none placeholder:font-normal placeholder:text-[var(--muted-foreground)]"
-                aria-label="Search items"
-              />
-              <button
-                type="submit"
-                className="m-1 flex h-9 w-9 shrink-0 items-center justify-center bg-white text-[var(--aqua)] transition-colors hover:text-[var(--brand)]"
-                aria-label="Submit search"
-              >
-                <Search size={14} strokeWidth={2.15} aria-hidden="true" />
-              </button>
-            </form>
+              <ActionArtwork name="find" priority className="h-7 w-7" />
+              <span className="whitespace-nowrap">Find a pair</span>
+            </Link>
           )}
 
           <button

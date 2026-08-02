@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -24,6 +24,55 @@ const marketplaceActions: Array<{ label: string; href: string; artwork: ActionAr
   { label: "Recycle", href: "/sell-item?intent=RECYCLE", artwork: "recycle" },
 ];
 
+const mobileHeroSlides: Array<{
+  eyebrow: string;
+  title: string;
+  text: string;
+  artwork: ActionArtworkName;
+  objects: Array<{ src: string; className: string }>;
+}> = [
+  {
+    eyebrow: "Missing one piece?",
+    title: "Find the exact bit that makes it whole.",
+    text: "Search by model, size, side, or the detail only you know.",
+    artwork: "find",
+    objects: [
+      { src: "/images/floating/teapot-lid.webp", className: "-bottom-5 -right-2 h-20 rotate-6 opacity-35" },
+      { src: "/images/earpod.webp", className: "-top-3 right-16 h-12 -rotate-12 opacity-25" },
+    ],
+  },
+  {
+    eyebrow: "Still useful?",
+    title: "Sell it or swap it for what fits now.",
+    text: "A clear next step for the things you have outgrown.",
+    artwork: "trade",
+    objects: [
+      { src: "/images/sneaker.webp", className: "-bottom-5 -right-4 h-20 -rotate-6 opacity-30" },
+      { src: "/images/floating/watch-gear.webp", className: "-top-4 right-16 h-12 rotate-12 opacity-25" },
+    ],
+  },
+  {
+    eyebrow: "Let it travel",
+    title: "Give useful things a useful next place.",
+    text: "Donate locally and let someone else continue the story.",
+    artwork: "donate",
+    objects: [
+      { src: "/images/floating/mint-cup.webp", className: "-bottom-5 -right-1 h-20 rotate-6 opacity-30" },
+      { src: "/images/jewelry.png", className: "-top-2 right-16 h-11 -rotate-12 opacity-25" },
+    ],
+  },
+  {
+    eyebrow: "Not finished yet",
+    title: "Repair, recycle, and keep value moving.",
+    text: "Choose the route that wastes less and makes more sense.",
+    artwork: "repair",
+    objects: [
+      { src: "/images/floating/brass-compass.webp", className: "-bottom-5 -right-2 h-20 rotate-12 opacity-30" },
+      { src: "/images/floating/brass-button.webp", className: "-top-3 right-16 h-11 -rotate-6 opacity-25" },
+    ],
+  },
+];
+
 const howItWorks = [
   { number: "01", title: "List", text: "Describe the useful piece and what should happen next.", artwork: "sell" as const },
   { number: "02", title: "Match", text: "Search the detail, model, size, or missing half that matters.", artwork: "find" as const },
@@ -39,6 +88,16 @@ export default function HomePageClient({
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const timer = window.setInterval(
+      () => setActiveSlide((current) => (current + 1) % mobileHeroSlides.length),
+      4800,
+    );
+    return () => window.clearInterval(timer);
+  }, []);
 
   const handleSearch = (event: React.FormEvent) => {
     event.preventDefault();
@@ -48,7 +107,50 @@ export default function HomePageClient({
 
   return (
     <div className="min-h-screen overflow-hidden bg-[var(--background)] text-foreground">
-      <section className="mx-auto max-w-7xl px-4 pb-3 pt-7 sm:px-5 md:px-8 md:pb-24 md:pt-14">
+      <section className="bg-white pb-1 pt-1 md:hidden" aria-label="Choose what happens next">
+        <p className="px-4 pb-1 text-[0.7rem] font-bold text-[var(--ink-soft)]">Choose what happens next</p>
+        <div className="flex snap-x snap-mandatory gap-1.5 overflow-x-auto px-3 pb-1 scrollbar-hide">
+          {marketplaceActions.map((action) => (
+            <Link
+              key={action.href}
+              href={action.href}
+              className="flex w-[4.35rem] shrink-0 snap-start flex-col items-center gap-0.5 py-1 text-center text-[0.66rem] font-bold text-[var(--ink-soft)] active:scale-[0.98]"
+            >
+              <ActionArtwork name={action.artwork} className="h-[2.65rem] w-[2.65rem]" />
+              <span>{action.label}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="relative h-[clamp(9.5rem,20dvh,11.5rem)] w-full overflow-hidden border-y border-[var(--line-soft)] bg-white md:hidden" aria-roledescription="carousel" aria-label="What you can do on Remnant">
+        {mobileHeroSlides.map((slide, index) => (
+          <article
+            key={slide.title}
+            className={`absolute inset-0 overflow-hidden px-4 py-3 transition-[opacity,transform] duration-500 ${
+              activeSlide === index ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-3 opacity-0"
+            }`}
+            aria-hidden={activeSlide !== index}
+          >
+            <div className="relative z-10 max-w-[68%]">
+              <p className="text-[0.62rem] font-black uppercase tracking-[0.13em] text-[var(--brand)]">{slide.eyebrow}</p>
+              <h1 className="mt-1 text-[1.22rem] font-bold leading-[1.08] tracking-[-0.035em] text-[var(--foreground)]">{slide.title}</h1>
+              <p className="mt-1.5 max-w-[16rem] text-[0.72rem] font-medium leading-[1.35] text-[var(--ink-soft)]">{slide.text}</p>
+            </div>
+            <ActionArtwork name={slide.artwork} priority={index === 0} className="absolute right-4 top-1/2 h-[5.4rem] w-[5.4rem] -translate-y-1/2" />
+            {slide.objects.map((object) => (
+              <img key={object.src} src={object.src} alt="" loading={index === 0 ? "eager" : "lazy"} decoding="async" className={`absolute w-auto object-contain ${object.className}`} />
+            ))}
+          </article>
+        ))}
+        <div className="absolute bottom-2 left-4 z-20 flex gap-1" aria-label={`Slide ${activeSlide + 1} of ${mobileHeroSlides.length}`}>
+          {mobileHeroSlides.map((slide, index) => (
+            <button key={slide.title} type="button" onClick={() => setActiveSlide(index)} className={`h-1.5 rounded-full transition-[width,background-color] ${activeSlide === index ? "w-5 bg-[var(--brand)]" : "w-1.5 bg-[var(--border)]"}`} aria-label={`Show slide ${index + 1}`} />
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto hidden max-w-7xl px-4 pb-3 pt-7 sm:px-5 md:block md:px-8 md:pb-24 md:pt-14">
         <div className="grid items-center md:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.72fr)] md:gap-14">
           <div className="md:order-1">
             <p className="section-kicker mb-5 !hidden md:!inline-flex">Useful things belong somewhere</p>
@@ -100,7 +202,7 @@ export default function HomePageClient({
         </div>
       </section>
 
-      <section className="bg-white px-4 pb-3 pt-3 sm:px-5 md:px-8 md:py-20">
+      <section className="hidden bg-white px-4 pb-3 pt-3 sm:px-5 md:block md:px-8 md:py-20">
         <div className="mx-auto max-w-6xl">
           <p className="section-kicker mb-3">How it works</p>
           <div className="grid grid-cols-3 gap-2 border-y border-[var(--line-soft)] py-4 md:gap-10 md:py-10">
@@ -118,22 +220,22 @@ export default function HomePageClient({
         </div>
       </section>
 
-      <section className="bg-white px-4 pb-12 pt-1 sm:px-5 md:px-8 md:py-20">
+      <section className="bg-white px-3 pb-12 pt-3 sm:px-5 md:px-8 md:py-20">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-4 flex flex-row items-center justify-between gap-3 md:mb-8 md:flex-row md:items-end">
-            <div>
+          <div className="mb-2 flex flex-row items-center justify-end gap-3 md:mb-8 md:justify-between md:items-end">
+            <div className="hidden md:block">
               <p className="section-kicker mb-3 !hidden md:!inline-flex">Freshly listed</p>
               <h2 className="text-3xl font-bold text-[var(--foreground)] md:text-5xl">Marketplace</h2>
             </div>
-            <Button asChild variant="outline" className="h-10 rounded-lg border-[var(--border)] bg-white px-4 text-xs font-bold text-[var(--brand)] hover:bg-[var(--sand)] md:h-11 md:px-6 md:text-sm">
+            <Button asChild variant="ghost" className="h-9 rounded-lg px-1 text-xs font-bold text-[var(--brand)] hover:bg-white hover:text-[var(--brand-dark)] md:h-11 md:border md:border-[var(--border)] md:px-6 md:text-sm">
               <Link href="/marketplace">
-                View all
+                View more
                 <ArrowRight size={16} aria-hidden="true" />
               </Link>
             </Button>
           </div>
 
-          <div className="mb-5 flex snap-x snap-proximity gap-2 overflow-x-auto py-1 scrollbar-hide md:mb-10 md:gap-3" aria-label="Browse categories">
+          <div className="mb-5 hidden snap-x snap-proximity gap-2 overflow-x-auto py-1 scrollbar-hide md:flex md:mb-10 md:gap-3" aria-label="Browse categories">
             {listingCategories.map((category, index) => (
               <Link
                 key={category.label}
@@ -160,7 +262,7 @@ export default function HomePageClient({
             ))}
           </div>
 
-          <div className="mb-5 md:mb-12">
+          <div className="mb-5 hidden md:block md:mb-12">
             <p className="mb-2 text-xs font-bold text-[var(--ink-soft)] md:mb-4 md:text-sm">Choose what happens next</p>
             <div className="grid auto-cols-[4.8rem] grid-flow-col gap-2 overflow-x-auto pb-2 scrollbar-hide lg:grid-flow-row lg:grid-cols-7 lg:overflow-visible">
             {marketplaceActions.map((action) => (

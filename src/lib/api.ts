@@ -121,6 +121,10 @@ export const listingsApi = {
     api.post('/listings', data).then((r) => r.data),
   createGuestListing: (data: Record<string, unknown>) =>
     api.post('/listings/guest', data).then((r) => r.data),
+  getGuestManagement: (id: string, token: string) =>
+    api.get(`/listings/${id}/guest-manage`, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
+  updateGuestStatus: (id: string, token: string, status: 'PAUSED' | 'COMPLETED') =>
+    api.patch(`/listings/${id}/guest-status`, { status }, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
   updateListing: (id: string, data: Record<string, unknown>) =>
     api.patch(`/listings/${id}`, data).then((r) => r.data),
   deleteListing: (id: string) =>
@@ -204,7 +208,7 @@ export const conversationsApi = {
       undefined,
       backgroundRequestConfig(),
     ).then((r) => r.data),
-  startGuestConversation: (data: { listingId: string; name: string; email: string; message: string }) =>
+  startGuestConversation: (data: { listingId: string; name: string; contact: string; offer: string }) =>
     api.post('/conversations/guest', data).then((r) => r.data),
   getGuestConversation: (conversationId: string, token: string, background = false) =>
     api.get(

@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
+  ArrowRight,
   Filter,
   HandHeart,
   Package,
@@ -185,6 +186,35 @@ export default function MarketplaceClient({
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <main className="mx-auto max-w-7xl px-4 pb-20 pt-7 sm:px-5 md:px-8 md:pt-12">
+        <section className="-mx-1 mb-4 md:hidden" aria-label="Browse market categories">
+          <div className="mb-1.5 flex items-center justify-between px-1">
+            <p className="text-xs font-bold text-[var(--foreground)]">Browse categories</p>
+            {category && (
+              <button type="button" onClick={() => { setCategory(""); setPage(1); }} className="min-h-9 px-1 text-[0.7rem] font-bold text-[var(--brand)]">
+                Show all
+              </button>
+            )}
+          </div>
+          <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1 scrollbar-hide">
+            {listingCategories.map((item) => {
+              const active = category === item.label;
+              return (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => { setCategory(active ? "" : item.label); setPage(1); }}
+                  className={`relative flex min-h-[4.8rem] w-[4.9rem] shrink-0 snap-start flex-col items-start justify-between overflow-hidden px-1 py-1 text-left transition-[color,transform] active:scale-[0.98] ${active ? "text-[var(--brand)]" : "text-[var(--foreground)]"}`}
+                  aria-pressed={active}
+                >
+                  <span className="relative z-10 max-w-[4.4rem] text-[0.63rem] font-black leading-[1.08]">{item.label}</span>
+                  <img src={item.image} alt="" loading="lazy" decoding="async" className="absolute bottom-0 right-0 h-10 w-10 object-contain" />
+                  {active && <ArrowRight size={12} className="relative z-10 text-[var(--brand)]" aria-hidden="true" />}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
         <header className="mb-7 grid grid-cols-[minmax(0,1fr)_5.5rem] items-center gap-4 md:mb-12 md:grid-cols-[minmax(0,1fr)_11rem] md:gap-10">
           <div>
             <p className="section-kicker mb-3">Browse by what happens next</p>

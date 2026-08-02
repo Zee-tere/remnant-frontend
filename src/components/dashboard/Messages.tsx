@@ -33,6 +33,7 @@ interface ConversationUser {
   id: string;
   name: string;
   avatarUrl: string | null;
+  isGuest?: boolean;
 }
 
 interface ConversationSummary {
@@ -437,6 +438,7 @@ export default function MessagesSection() {
     }
 
     const otherUser = getOtherUser(activeConversation);
+    const isGuestHandoff = otherUser.isGuest === true;
 
     return (
       <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white">
@@ -528,7 +530,12 @@ export default function MessagesSection() {
           )}
         </div>
 
-        <div className="shrink-0 border-t border-[#f1f0ec] bg-white px-2.5 pb-[calc(0.5rem+var(--safe-area-bottom))] pt-2 md:p-3">
+        {isGuestHandoff ? (
+          <div className="shrink-0 border-t border-[#f1f0ec] bg-white px-4 pb-[calc(0.85rem+var(--safe-area-bottom))] pt-3 md:p-4">
+            <p className="text-sm font-bold text-[var(--foreground)]">Continue outside Remnant</p>
+            <p className="mt-1 text-xs leading-5 text-[var(--ink-soft)]">This buyer sent a guest offer. Use the contact detail in their offer above to reply on the platform they chose.</p>
+          </div>
+        ) : <div className="shrink-0 border-t border-[#f1f0ec] bg-white px-2.5 pb-[calc(0.5rem+var(--safe-area-bottom))] pt-2 md:p-3">
           <div className="flex items-end gap-1 rounded-xl border border-[#e7e7e3] bg-white px-1.5 py-1">
             <textarea
               ref={composerRef}
@@ -563,7 +570,7 @@ export default function MessagesSection() {
           <p className="mt-2 hidden text-center text-xs text-muted-foreground sm:block">
             Agree on payment and collection directly. Never share verification codes.
           </p>
-        </div>
+        </div>}
       </div>
     );
   };

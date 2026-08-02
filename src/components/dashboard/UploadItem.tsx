@@ -369,10 +369,19 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       setUploadProgress(100);
       toast.success(isGuest ? 'Guest listing published' : 'Listing published', {
         description: isGuest
-          ? 'Create an account later to add a profile.'
+          ? 'Your private listing-management link is ready.'
           : 'Your item is live on the marketplace.',
       });
 
+      if (isGuest && typeof listing.managementToken === 'string') {
+        try {
+          window.localStorage.setItem(`remnant-guest-listing:${listing.id}`, listing.managementToken);
+        } catch {
+          // The URL still carries the one-time management key when storage is unavailable.
+        }
+        router.push(`/manage-listing/${listing.id}#token=${encodeURIComponent(listing.managementToken)}`);
+        return;
+      }
       router.push(`/marketplace/${listing.slug || listing.id}`);
     } catch (error) {
       console.error('Upload failed:', error);

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
+  CheckCircle2,
   ChevronDown,
   ExternalLink,
   HandHeart,
@@ -36,7 +37,6 @@ import { useAuthStore } from "@/lib/auth";
 import { conditionLabels } from "@/lib/listing-conditions";
 import { getApiErrorMessage } from "@/lib/errors";
 import { formatCurrency } from "@/lib/utils";
-import { writeSessionValue } from "@/lib/browser-storage";
 import type { PublicListing } from "@/lib/public-listings";
 
 type ListingDetail = PublicListing;
@@ -72,35 +72,49 @@ function GuestMessageDialog({
   listingId,
   listingTitle,
   busy,
+  submitted,
   onClose,
   onSubmit,
 }: {
   listingId: string;
   listingTitle: string;
   busy: boolean;
+  submitted: boolean;
   onClose: () => void;
-  onSubmit: (details: { name: string; email: string; message: string }) => Promise<void>;
+  onSubmit: (details: { name: string; contact: string; offer: string }) => Promise<void>;
 }) {
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState(`Hi, I am interested in ${listingTitle}.`);
+  const [contact, setContact] = useState("");
+  const [offer, setOffer] = useState(`Hi, I am interested in ${listingTitle}.`);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/45 sm:items-center sm:p-5" role="presentation">
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          void onSubmit({ name, email, message });
+          void onSubmit({ name, contact, offer });
         }}
         className="max-h-[calc(100dvh-0.75rem)] w-full space-y-3 overflow-y-auto rounded-t-lg border border-[var(--border)]/55 bg-white px-4 pb-[calc(var(--safe-area-bottom)+1rem)] pt-4 sm:max-w-md sm:rounded-lg sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="guest-message-title"
       >
+        {submitted ? (
+          <div className="py-4 text-center">
+            <CheckCircle2 size={42} className="mx-auto text-[var(--brand)]" aria-hidden="true" />
+            <h2 id="guest-message-title" className="mt-4 text-xl font-bold">Your offer is with the seller</h2>
+            <p className="mx-auto mt-2 max-w-sm text-sm font-medium leading-6 text-[var(--ink-soft)]">
+              They will contact you directly using the phone, WhatsApp, email, or Telegram detail you provided. This guest enquiry will not continue in Remnant chat.
+            </p>
+            <Button type="button" onClick={onClose} className="mt-6 h-12 w-full rounded-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]">
+              Done
+            </Button>
+          </div>
+        ) : <>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 id="guest-message-title" className="text-lg font-bold sm:text-xl">Message the seller</h2>
-            <p className="mt-0.5 text-xs text-[var(--muted-foreground)] sm:mt-1 sm:text-sm">No account needed.</p>
+            <h2 id="guest-message-title" className="text-lg font-bold sm:text-xl">Send an offer</h2>
+            <p className="mt-0.5 text-xs text-[var(--muted-foreground)] sm:mt-1 sm:text-sm">No account needed. The seller will contact you directly.</p>
           </div>
           <button type="button" onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-[var(--sand)]" aria-label="Close">
             <X size={18} />
@@ -111,20 +125,22 @@ function GuestMessageDialog({
           <Input id="guest-name" value={name} onChange={(event) => setName(event.target.value)} minLength={2} maxLength={80} required autoComplete="name" className="h-11 rounded-lg px-3 text-base sm:h-12 sm:rounded-full sm:px-4" />
         </label>
         <label className="block space-y-1.5">
-          <Label htmlFor="guest-email" className="text-xs font-bold leading-5 sm:text-sm">Email</Label>
-          <Input id="guest-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} maxLength={254} required autoComplete="email" className="h-11 rounded-lg px-3 text-base sm:h-12 sm:rounded-full sm:px-4" />
+          <Label htmlFor="guest-contact" className="text-xs font-bold leading-5 sm:text-sm">Contact</Label>
+          <Input id="guest-contact" value={contact} onChange={(event) => setContact(event.target.value)} minLength={5} maxLength={180} required placeholder="Phone, WhatsApp, email, or Telegram" autoComplete="email" className="h-11 rounded-lg px-3 text-base sm:h-12 sm:rounded-full sm:px-4" />
+          <span className="block text-[0.7rem] leading-4 text-[var(--muted-foreground)]">Include the platform you want the seller to use, for example “WhatsApp: +234…”</span>
         </label>
         <label className="block space-y-1.5">
-          <Label htmlFor="guest-message" className="text-xs font-bold leading-5 sm:text-sm">Message</Label>
-          <Textarea id="guest-message" value={message} onChange={(event) => setMessage(event.target.value)} maxLength={2000} required rows={3} className="min-h-[92px] rounded-lg px-3 py-2.5 text-base sm:min-h-[110px] sm:rounded-[1.5rem] sm:px-4 sm:py-3" />
+          <Label htmlFor="guest-offer" className="text-xs font-bold leading-5 sm:text-sm">Offer</Label>
+          <Textarea id="guest-offer" value={offer} onChange={(event) => setOffer(event.target.value)} maxLength={2000} required rows={3} className="min-h-[92px] rounded-lg px-3 py-2.5 text-base sm:min-h-[110px] sm:rounded-[1.5rem] sm:px-4 sm:py-3" />
         </label>
         <Button type="submit" disabled={busy} className="h-12 w-full rounded-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]">
           {busy ? <Loader2 size={18} className="animate-spin" /> : <MessageSquare size={18} />}
-          {busy ? "Sending..." : "Send message"}
+          {busy ? "Sending..." : "Send offer"}
         </Button>
         <p className="text-center text-xs text-[var(--muted-foreground)]">
           <Link href={`/login?redirect=${encodeURIComponent(`/marketplace/${listingId}`)}`} className="font-bold text-[var(--brand)]">Log in instead</Link>
         </p>
+        </>}
       </form>
     </div>
   );
@@ -195,6 +211,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
   const [isMessaging, setIsMessaging] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showGuestMessage, setShowGuestMessage] = useState(false);
+  const [guestHandoffComplete, setGuestHandoffComplete] = useState(false);
   const [sellerContact, setSellerContact] = useState<SellerContact | null>(null);
 
   useEffect(() => {
@@ -242,6 +259,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
       return;
     }
     if (!isAuthenticated) {
+      setGuestHandoffComplete(false);
       setShowGuestMessage(true);
       return;
     }
@@ -257,14 +275,12 @@ export default function ListingDetailClient({ initialListing }: { initialListing
     }
   };
 
-  const handleGuestMessage = async (details: { name: string; email: string; message: string }) => {
+  const handleGuestMessage = async (details: { name: string; contact: string; offer: string }) => {
     if (!listing) return;
     setIsMessaging(true);
     try {
-      const result = await conversationsApi.startGuestConversation({ listingId: listing.id, ...details });
-      writeSessionValue(`remnant-guest-conversation:${result.conversation.id}`, result.guestToken);
-      setShowGuestMessage(false);
-      router.push(`/guest/messages/${result.conversation.id}`);
+      await conversationsApi.startGuestConversation({ listingId: listing.id, ...details });
+      setGuestHandoffComplete(true);
     } catch (error) {
       toast.error(getApiErrorMessage(error, "Could not send message"));
     } finally {
@@ -420,7 +436,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
       )}
 
       {showGuestMessage && (
-        <GuestMessageDialog listingId={listing.id} listingTitle={listing.title} busy={isMessaging} onClose={() => setShowGuestMessage(false)} onSubmit={handleGuestMessage} />
+        <GuestMessageDialog listingId={listing.id} listingTitle={listing.title} busy={isMessaging} submitted={guestHandoffComplete} onClose={() => setShowGuestMessage(false)} onSubmit={handleGuestMessage} />
       )}
       {sellerContact && (
         <SellerContactDialog contact={sellerContact} listingTitle={listing.title} onClose={() => setSellerContact(null)} />
