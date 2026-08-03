@@ -3,9 +3,10 @@ import { cn } from '@/lib/utils';
 export function LoadingMark({ compact = false }: { compact?: boolean }) {
   return (
     <span className={cn('remnant-loader', compact && 'remnant-loader--compact')} aria-hidden="true">
-      <span />
-      <span />
-      <span />
+      <span className="remnant-loader__piece remnant-loader__piece--aqua" />
+      <span className="remnant-loader__piece remnant-loader__piece--lavender" />
+      <span className="remnant-loader__piece remnant-loader__piece--amber" />
+      <span className="remnant-loader__lens" />
     </span>
   );
 }
@@ -30,7 +31,7 @@ export function LoadingState({
       aria-live="polite"
       aria-busy="true"
     >
-      <LoadingMark />
+      <LoadingMark compact={compact} />
       <span className="text-sm font-semibold">{label}</span>
     </div>
   );

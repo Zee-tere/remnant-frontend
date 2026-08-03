@@ -53,6 +53,7 @@ const accountActions = [
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [mobileSearch, setMobileSearch] = useState("");
   const pathname = usePathname();
   const router = useRouter();
 
@@ -64,7 +65,6 @@ export default function Navbar() {
   const isAuthRoute = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth/callback"].some(
     (route) => pathname.startsWith(route),
   );
-  const showMobilePairAction = !pathname.startsWith("/find-a-pair") && !pathname.startsWith("/user/");
 
   useEffect(() => {
     setMenuOpen(false);
@@ -91,6 +91,12 @@ export default function Navbar() {
     router.push("/");
   };
 
+  const handleMobileSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const search = mobileSearch.trim();
+    router.push(`/find-a-pair${search ? `?search=${encodeURIComponent(search)}` : ""}`);
+  };
+
   const isActive = (href: string) => {
     if (href.includes("#")) return pathname === "/";
     if (href === "/") return pathname === "/";
@@ -101,7 +107,7 @@ export default function Navbar() {
     <header className={`sticky top-0 z-50 w-full border-b border-[var(--line-soft)] bg-white px-3 py-1.5 md:px-6 md:py-2 ${isAuthRoute ? "hidden md:block" : ""}`}>
       <div className="relative mx-auto flex min-h-12 max-w-7xl items-center gap-2 bg-white px-0 text-[var(--foreground)] md:min-h-14 md:justify-between md:gap-0 md:px-2">
         <Link href="/" className="flex shrink-0 items-center text-[var(--brand)]" aria-label="Remnant home">
-          <BrandLogo size="nav" className={showMobilePairAction ? "brand-lockup--mark-only-mobile" : ""} />
+          <BrandLogo size="nav" />
         </Link>
 
         <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 px-4 md:flex" aria-label="Primary navigation">
@@ -220,16 +226,23 @@ export default function Navbar() {
             </div>
           )}
 
-          {showMobilePairAction && (
-            <Link
-              href="/find-a-pair"
-              className="flex h-10 min-w-0 items-center gap-1 rounded-xl border border-[var(--line-soft)] bg-white px-2 pr-2.5 text-[0.72rem] font-bold text-[var(--brand)] md:hidden"
+          <form
+            onSubmit={handleMobileSearch}
+            className="flex h-9 min-w-0 max-w-[10.5rem] flex-1 items-center rounded-xl border border-[var(--line-soft)] bg-white pl-2 focus-within:border-[var(--aqua)] md:hidden"
+            role="search"
+          >
+            <input
+              type="search"
+              value={mobileSearch}
+              onChange={(event) => setMobileSearch(event.target.value)}
+              placeholder="Find a pair"
               aria-label="Find a pair"
-            >
-              <Search size={16} strokeWidth={2.1} aria-hidden="true" />
-              <span className="whitespace-nowrap">Find a pair</span>
-            </Link>
-          )}
+              className="h-full min-w-0 flex-1 border-0 bg-transparent px-1 text-[0.72rem] font-semibold text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]"
+            />
+            <button type="submit" className="flex h-9 w-9 shrink-0 items-center justify-center text-[var(--aqua)]" aria-label="Search">
+              <Search className="search-glyph" size={15} strokeWidth={2.1} aria-hidden="true" />
+            </button>
+          </form>
 
           <button
             type="button"
@@ -247,10 +260,15 @@ export default function Navbar() {
           </button>
 
               {menuOpen && (
-                <div
-                  className="navbar-menu mobile-menu-entry fixed inset-x-0 top-[3.75rem] z-50 border-y border-[var(--line-soft)] bg-white px-3 py-1.5 md:hidden"
-                >
-                  <nav className="grid grid-cols-2" aria-label="Mobile navigation">
+                <div className="fixed inset-x-0 bottom-0 top-[3.75rem] z-50 md:hidden">
+                  <button
+                    type="button"
+                    className="absolute inset-0 h-full w-full bg-black/20"
+                    onClick={() => setMenuOpen(false)}
+                    aria-label="Close menu"
+                  />
+                  <div className="navbar-menu mobile-menu-entry relative h-full w-[min(82vw,20rem)] overflow-y-auto border-r border-[var(--line-soft)] bg-white px-3 py-3 text-left">
+                  <nav className="flex flex-col" aria-label="Mobile navigation">
                     {(isAuthenticated ? mobileAccountActions : productActions).map((item) => {
                       const Icon = item.icon;
                       return (
@@ -258,12 +276,12 @@ export default function Navbar() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setMenuOpen(false)}
-                        className={`flex min-h-11 items-center gap-2 border-b border-[var(--line-soft)] px-3 py-2 text-xs font-bold transition-colors even:border-l ${
+                        className={`flex min-h-12 w-full items-center gap-3 border-b border-[var(--line-soft)] px-2 py-2.5 text-left text-sm font-bold transition-colors ${
                           isActive(item.href) ? "text-[var(--brand)]" : "text-[var(--ink-soft)] hover:text-[var(--brand)]"
                         }`}
                         aria-current={isActive(item.href) ? "page" : undefined}
                       >
-                        <span className="icon-frame h-7 w-7" data-preserve-icon-frame>
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center text-[var(--aqua)]">
                           <Icon size={15} aria-hidden="true" />
                         </span>
                         <span>{item.label}</span>
@@ -277,13 +295,14 @@ export default function Navbar() {
                           setMenuOpen(false);
                           handleLogout();
                         }}
-                        className="flex min-h-11 items-center gap-2 border-b border-[var(--line-soft)] px-3 py-2 text-xs font-bold text-red-700 transition-colors even:border-l"
+                        className="flex min-h-12 w-full items-center gap-3 border-b border-[var(--line-soft)] px-2 py-2.5 text-left text-sm font-bold text-red-700 transition-colors"
                       >
                         <LogOut size={16} aria-hidden="true" />
                         <span>Log out</span>
                       </button>
                     )}
                   </nav>
+                  </div>
                 </div>
               )}
         </div>

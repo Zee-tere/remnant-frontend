@@ -62,7 +62,11 @@ export default async function MarketplacePage({ searchParams }: MarketplacePageP
   return (
     <>
       {listingPage.listings.length > 0 && <JsonLd data={itemList} />}
-      <MarketplaceClient initialData={listingPage} initialFilters={initialFilters} />
+      <MarketplaceClient
+        key={`${initialFilters.search}|${initialFilters.category}|${initialFilters.intentionTag}|${initialFilters.city}`}
+        initialData={listingPage}
+        initialFilters={initialFilters}
+      />
     </>
   );
 }

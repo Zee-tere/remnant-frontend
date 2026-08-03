@@ -28,48 +28,31 @@ const mobileHeroSlides: Array<{
   eyebrow: string;
   title: string;
   text: string;
-  artwork: ActionArtworkName;
-  objects: Array<{ src: string; className: string }>;
+  image: string;
 }> = [
   {
     eyebrow: "Missing one piece?",
     title: "Find the exact bit that makes it whole.",
     text: "Search by model, size, side, or the detail only you know.",
-    artwork: "find",
-    objects: [
-      { src: "/images/floating/teapot-lid.webp", className: "-bottom-5 -right-2 h-20 rotate-6 opacity-35" },
-      { src: "/images/earpod.webp", className: "-top-3 right-16 h-12 -rotate-12 opacity-25" },
-    ],
+    image: "/images/hero/find-a-pair.webp",
   },
   {
     eyebrow: "Still useful?",
     title: "Sell it or swap it for what fits now.",
     text: "A clear next step for the things you have outgrown.",
-    artwork: "trade",
-    objects: [
-      { src: "/images/sneaker.webp", className: "-bottom-5 -right-4 h-20 -rotate-6 opacity-30" },
-      { src: "/images/floating/watch-gear.webp", className: "-top-4 right-16 h-12 rotate-12 opacity-25" },
-    ],
+    image: "/images/hero/sell-or-trade.webp",
   },
   {
     eyebrow: "Let it travel",
     title: "Give useful things a useful next place.",
     text: "Donate locally and let someone else continue the story.",
-    artwork: "donate",
-    objects: [
-      { src: "/images/floating/mint-cup.webp", className: "-bottom-5 -right-1 h-20 rotate-6 opacity-30" },
-      { src: "/images/jewelry.png", className: "-top-2 right-16 h-11 -rotate-12 opacity-25" },
-    ],
+    image: "/images/hero/donate-forward.webp",
   },
   {
     eyebrow: "Not finished yet",
     title: "Repair, recycle, and keep value moving.",
     text: "Choose the route that wastes less and makes more sense.",
-    artwork: "repair",
-    objects: [
-      { src: "/images/floating/brass-compass.webp", className: "-bottom-5 -right-2 h-20 rotate-12 opacity-30" },
-      { src: "/images/floating/brass-button.webp", className: "-top-3 right-16 h-11 -rotate-6 opacity-25" },
-    ],
+    image: "/images/hero/repair-recycle.webp",
   },
 ];
 
@@ -132,21 +115,24 @@ export default function HomePageClient({
             }`}
             aria-hidden={activeSlide !== index}
           >
+            <img
+              src={slide.image}
+              alt=""
+              loading={index === 0 ? "eager" : "lazy"}
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover object-center"
+            />
             <div className="relative z-10 max-w-[68%]">
-              <p className="text-[0.62rem] font-black uppercase tracking-[0.13em] text-[var(--brand)]">{slide.eyebrow}</p>
+              <p className="text-[0.62rem] font-black uppercase tracking-[0.13em] text-[var(--aqua)]">{slide.eyebrow}</p>
               <h1 className="mt-1 text-[1.22rem] font-bold leading-[1.08] tracking-[-0.035em] text-[var(--foreground)]">{slide.title}</h1>
               <p className="mt-1.5 max-w-[16rem] text-[0.72rem] font-medium leading-[1.35] text-[var(--ink-soft)]">{slide.text}</p>
             </div>
-            <ActionArtwork name={slide.artwork} priority={index === 0} className="absolute right-4 top-1/2 h-[5.4rem] w-[5.4rem] -translate-y-1/2" />
-            {slide.objects.map((object) => (
-              <img key={object.src} src={object.src} alt="" loading={index === 0 ? "eager" : "lazy"} decoding="async" className={`absolute w-auto object-contain ${object.className}`} />
-            ))}
           </article>
         ))}
         <div className="absolute bottom-0.5 left-2.5 z-20 flex gap-0" aria-label={`Slide ${activeSlide + 1} of ${mobileHeroSlides.length}`}>
           {mobileHeroSlides.map((slide, index) => (
-            <button key={slide.title} type="button" onClick={() => setActiveSlide(index)} className="flex h-5 w-5 items-center justify-center" aria-label={`Show slide ${index + 1}`}>
-              <span className={`h-1 rounded-full transition-[width,background-color] ${activeSlide === index ? "w-3 bg-[var(--brand)]" : "w-1 bg-[var(--border)]"}`} aria-hidden="true" />
+            <button key={slide.title} type="button" onClick={() => setActiveSlide(index)} className="flex h-4 w-4 items-center justify-center" aria-label={`Show slide ${index + 1}`}>
+              <span className={`h-0.5 rounded-full transition-[width,background-color] ${activeSlide === index ? "w-2.5 bg-[var(--aqua)]" : "w-1 bg-[var(--border)]"}`} aria-hidden="true" />
             </button>
           ))}
         </div>

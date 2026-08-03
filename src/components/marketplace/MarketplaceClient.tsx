@@ -20,7 +20,6 @@ import { nigerianStates } from "@/lib/nigeria-locations";
 import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
 import { ListingGridSkeleton } from "@/components/feedback/LoadingState";
 import type { PublicListingPage } from "@/lib/public-listings";
-import { ActionArtwork } from "@/components/brand/ActionArtwork";
 
 type Listing = ListingCardItem;
 
@@ -185,17 +184,16 @@ export default function MarketplaceClient({
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <main className="mx-auto max-w-7xl px-4 pb-20 pt-7 sm:px-5 md:px-8 md:pt-12">
-        <section className="-mx-1 mb-4 md:hidden" aria-label="Browse market categories">
-          <div className="mb-1.5 flex items-center justify-between px-1">
-            <p className="text-xs font-bold text-[var(--foreground)]">Browse categories</p>
+      <main className="mx-auto max-w-7xl px-4 pb-20 pt-4 sm:px-5 md:px-8 md:pt-7">
+        <section className="-mx-1 mb-3 border-b border-[var(--line-soft)] pb-2 md:mb-6" aria-label="Browse market categories">
+          <div className="flex items-center justify-end px-1">
             {category && (
               <button type="button" onClick={() => { setCategory(""); setPage(1); }} className="min-h-9 px-1 text-[0.7rem] font-bold text-[var(--brand)]">
                 Show all
               </button>
             )}
           </div>
-          <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1 scrollbar-hide">
+          <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1 scrollbar-hide md:gap-5">
             {listingCategories.map((item) => {
               const active = category === item.label;
               return (
@@ -203,40 +201,28 @@ export default function MarketplaceClient({
                   key={item.label}
                   type="button"
                   onClick={() => { setCategory(active ? "" : item.label); setPage(1); }}
-                  className={`relative flex min-h-[4.8rem] w-[4.9rem] shrink-0 snap-start flex-col items-start justify-between overflow-hidden px-1 py-1 text-left transition-[color,transform] active:scale-[0.98] ${active ? "text-[var(--brand)]" : "text-[var(--foreground)]"}`}
+                  className={`relative flex min-h-[4.65rem] w-[4.7rem] shrink-0 snap-start flex-col items-start justify-between overflow-hidden border-b-2 px-1 py-1 text-left transition-[border-color,color,transform] active:scale-[0.98] md:min-h-[5.2rem] md:w-[5.6rem] ${active ? "border-[var(--aqua)] text-[var(--foreground)]" : "border-transparent text-[var(--ink-soft)] hover:text-[var(--foreground)]"}`}
                   aria-pressed={active}
                 >
                   <span className="relative z-10 max-w-[4.4rem] text-[0.63rem] font-black leading-[1.08]">{item.label}</span>
-                  <img src={item.image} alt="" loading="lazy" decoding="async" className="absolute bottom-0 right-0 h-10 w-10 object-contain" />
-                  {active && <ArrowRight size={12} className="relative z-10 text-[var(--brand)]" aria-hidden="true" />}
+                  <img src={item.image} alt="" loading="lazy" decoding="async" className="absolute bottom-0 right-0 h-9 w-9 object-contain md:h-11 md:w-11" />
+                  {active && <ArrowRight size={11} className="relative z-10 text-[var(--aqua)]" aria-hidden="true" />}
                 </button>
               );
             })}
           </div>
         </section>
 
-        <header className="mb-7 grid grid-cols-[minmax(0,1fr)_5.5rem] items-center gap-4 md:mb-12 md:grid-cols-[minmax(0,1fr)_11rem] md:gap-10">
-          <div>
-            <h1 className="page-heading-entry text-4xl font-bold text-[var(--foreground)] md:text-6xl">
-              Explore the market
-            </h1>
-            <p className="mt-3 max-w-2xl text-base font-medium leading-7 text-[var(--ink-soft)]">
-              Useful pieces for sale, trade, donation, repair, and recycling—clearly labelled from the start.
-            </p>
-          </div>
-          <ActionArtwork name="marketplace" priority className="h-16 w-16 md:h-44 md:w-44" />
-        </header>
-
-        <div className="mb-5 flex gap-1 overflow-x-auto border-y border-[var(--line-soft)] py-1 scrollbar-hide lg:hidden" aria-label="Filter by intent">
+        <div className="mb-4 flex gap-1 overflow-x-auto border-b border-[var(--line-soft)] scrollbar-hide lg:hidden" aria-label="Filter by intent">
           {[{ key: '', label: 'All' }, ...Object.entries(intentionMeta).map(([key, meta]) => ({ key, label: key === 'SELL' ? 'Buy' : meta.label }))].map((item) => (
             <button
               key={item.key || 'all'}
               type="button"
               onClick={() => { setIntentionTag(item.key); setPage(1); }}
-              className={`min-h-11 shrink-0 rounded-lg px-3 text-sm font-bold transition-colors ${
+              className={`relative min-h-10 shrink-0 border-b-2 px-3 text-xs font-bold transition-colors ${
                 intentionTag === item.key
-                  ? 'bg-[var(--brand-soft)] text-[var(--brand)]'
-                  : 'text-[var(--ink-soft)] hover:bg-white hover:text-[var(--brand)]'
+                  ? 'border-[var(--aqua)] bg-white text-[var(--foreground)]'
+                  : 'border-transparent bg-white text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
               }`}
             >
               {item.label}
@@ -346,7 +332,7 @@ export default function MarketplaceClient({
               </>
             ) : (
               <div className="border-t border-[#f1f0ec] px-6 py-16 text-center">
-                <ActionArtwork name="sell" className="mx-auto mb-5 h-[4.5rem] w-[4.5rem] md:h-24 md:w-24" />
+                <Package className="mx-auto mb-5 text-[var(--lavender)]" size={42} aria-hidden="true" />
                 <h3 className="text-2xl font-bold text-[var(--foreground)]">No items found</h3>
                 <p className="mx-auto mt-3 max-w-md font-medium text-[var(--ink-soft)]">No items match these filters.</p>
                 <Button asChild className="mt-7 rounded-full bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">

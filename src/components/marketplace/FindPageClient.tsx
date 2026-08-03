@@ -13,7 +13,6 @@ import { listingCategories } from "@/lib/categories";
 import { nigerianStates } from "@/lib/nigeria-locations";
 import { getApiErrorMessage } from "@/lib/errors";
 import { useAuthStore } from "@/lib/auth";
-import { ActionArtwork } from "@/components/brand/ActionArtwork";
 
 const intentOptions = [
   { value: "", label: "All intents" },
@@ -82,16 +81,14 @@ export default function FindPageClient({
   const hasFilters = Boolean(category || city || intent);
 
   return (
-    <main className="mx-auto min-h-screen max-w-7xl bg-[var(--background)] px-4 pb-10 pt-7 sm:px-5 md:px-8 md:pb-20 md:pt-12">
-      <header className="mb-7 grid grid-cols-[minmax(0,1fr)_5.5rem] items-center gap-4 md:mb-11 md:grid-cols-[minmax(0,1fr)_11rem] md:gap-10">
-        <div>
-          <h1 className="max-w-3xl text-4xl font-bold text-[var(--foreground)] md:text-6xl">Find the piece that fits.</h1>
-          <p className="mt-3 max-w-2xl text-base font-medium leading-7 text-[var(--ink-soft)]">
-            Try the object, brand, model, colour, size, or the exact missing part.
-          </p>
-        </div>
-        <ActionArtwork name="find" priority className="h-16 w-16 md:h-44 md:w-44" />
-      </header>
+    <main className="mx-auto min-h-screen max-w-7xl bg-white px-4 pb-10 pt-4 sm:px-5 md:px-8 md:pb-20 md:pt-7">
+      <section className="mb-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--line-soft)] px-0.5 pb-3 md:mb-5 md:pb-4" aria-label="Pair alerts">
+        <span className="flex h-9 w-9 items-center justify-center text-[var(--amber)]"><BellRing size={17} aria-hidden="true" /></span>
+        <p className="min-w-0 truncate text-sm font-bold text-[var(--foreground)]">Missing a piece?</p>
+        <Link href={isAuthenticated ? alertPath : `/login?redirect=${encodeURIComponent(alertPath)}`} className="inline-flex h-8 items-center border-b border-transparent px-1 text-xs font-bold text-[var(--brand)] hover:border-[var(--brand)] md:text-sm">
+          Set alert
+        </Link>
+      </section>
       <form onSubmit={handleSearch} className="flex items-center gap-2">
         <div className="relative h-13 min-w-0 flex-1 overflow-hidden rounded-xl border border-[var(--border)]/75 bg-white transition-colors focus-within:border-[var(--brand)]">
           <Input
@@ -106,7 +103,7 @@ export default function FindPageClient({
             className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center bg-white text-[var(--aqua)] transition-[color,transform] hover:text-[var(--brand)] active:scale-[0.97]"
             aria-label="Search"
           >
-            <Search size={16} strokeWidth={2.15} aria-hidden="true" />
+            <Search className="search-glyph" size={17} strokeWidth={2.15} aria-hidden="true" />
           </button>
         </div>
         <Button
@@ -120,18 +117,6 @@ export default function FindPageClient({
           {hasFilters && <span className="h-1.5 w-1.5 rounded-full bg-[var(--brand)]" />}
         </Button>
       </form>
-
-      <section className="mt-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--line-soft)] px-0.5 py-3 md:mt-5 md:py-4" aria-label="Pair alerts">
-        <span className="icon-frame icon-frame--amber h-9 w-9" data-preserve-icon-frame><BellRing size={16} aria-hidden="true" /></span>
-        <p className="min-w-0 truncate text-xs font-semibold text-[var(--ink-soft)] md:text-sm">
-          <span className="md:hidden">Missing a piece?</span>
-          <span className="hidden md:inline">Looking for one missing piece?</span>
-        </p>
-        <Link href={isAuthenticated ? alertPath : `/login?redirect=${encodeURIComponent(alertPath)}`} className="inline-flex h-8 items-center border-b border-transparent px-1 text-xs font-bold text-[var(--brand)] hover:border-[var(--brand)] md:px-2">
-          <span className="md:hidden">Set alert</span>
-          <span className="hidden md:inline">Set a private alert</span>
-        </Link>
-      </section>
 
       {showFilters && (
         <div className="fixed inset-0 z-[70] md:static md:z-auto">
@@ -186,7 +171,7 @@ export default function FindPageClient({
         </section>
       ) : (
         <section className="border-y border-[var(--line-soft)] py-16 text-center">
-          <ActionArtwork name="find" className="mx-auto h-[4.5rem] w-[4.5rem] md:h-24 md:w-24" />
+          <Search className="search-glyph mx-auto text-[var(--aqua)]" size={42} aria-hidden="true" />
           <h2 className="mt-4 text-xl font-bold text-[var(--foreground)]">No pieces found yet</h2>
           <p className="mx-auto mt-2 max-w-sm text-sm font-medium text-[var(--muted-foreground)]">Try another detail, remove a filter, or save a private alert for later.</p>
           <Button asChild variant="outline" className="mt-5">

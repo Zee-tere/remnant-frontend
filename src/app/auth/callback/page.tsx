@@ -100,7 +100,7 @@ function AuthCallbackContent() {
         const refreshToken = data.refreshToken ?? hostedTokens.refreshToken;
         clearExpectedAuthState();
         setAuth(user, accessToken, refreshToken);
-        toast.success("Welcome to Remnant!");
+        toast.success("Welcome back");
         router.replace(returnTo);
       } catch (error) {
         clearExpectedAuthState();

@@ -34,6 +34,7 @@ export default async function FindAPairPage({ searchParams }: FindPageProps) {
   const listings = await getPublicSearchListings(requestParams, 60);
   return (
     <FindPageClient
+      key={`${search}|${category}|${city}|${intent}`}
       initialListings={listings}
       initialSearch={search}
       initialCategory={category}

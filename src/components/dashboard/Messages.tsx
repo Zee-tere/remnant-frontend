@@ -109,8 +109,10 @@ export default function MessagesSection() {
       setConversations(rows);
       setActiveConversationId((current) => current && rows.some((row) => row.id === current) ? current : null);
     } catch (error) {
-      setConversations([]);
-      toast.error(getApiErrorMessage(error, 'Could not load conversations'));
+      if (!silent) {
+        setConversations([]);
+        toast.error(getApiErrorMessage(error, 'Could not load conversations'));
+      }
     } finally {
       if (!silent) setLoadingConversations(false);
     }
@@ -167,7 +169,7 @@ export default function MessagesSection() {
           conversationsApi.markAsRead(activeConversationId).catch(() => undefined);
         }
       } catch (error) {
-        if (!cancelled) {
+        if (!cancelled && !silent) {
           setMessages([]);
           toast.error(getApiErrorMessage(error, 'Could not load messages'));
         }
@@ -180,7 +182,7 @@ export default function MessagesSection() {
     const refreshWhenActive = () => {
       if (document.visibilityState === 'visible') void loadMessages(true);
     };
-    const poll = window.setInterval(refreshWhenActive, 3000);
+    const poll = window.setInterval(refreshWhenActive, 12000);
     window.addEventListener('focus', refreshWhenActive);
     window.addEventListener('online', refreshWhenActive);
     return () => {
