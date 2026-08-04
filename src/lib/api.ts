@@ -140,6 +140,19 @@ export const listingsApi = {
 };
 
 export const authApi = {
+  getConfig: () =>
+    api.get('/auth/config', backgroundRequestConfig()).then((r) => r.data as {
+      supabaseUrl: string | null;
+      supabasePublishableKey: string | null;
+      messagingRealtimeEnabled: boolean;
+    }),
+  createSupabaseToken: () =>
+    api.post('/auth/supabase-token', undefined, backgroundRequestConfig()).then((r) => r.data as {
+      accessToken: string;
+      tokenType: 'Bearer';
+      expiresIn: string;
+      expiresAt: number;
+    }),
   login: (data: { email: string; password: string }) =>
     api.post('/auth/login', data).then((r) => r.data),
   register: (data: { name: string; email: string; password: string }) =>
@@ -188,24 +201,46 @@ export const pairAlertsApi = {
 };
 
 export const conversationsApi = {
-  getConversations: (background = false) =>
+  getConversations: (background = false, limit = 30, cursor?: string) =>
     api.get(
       '/conversations',
-      background ? backgroundRequestConfig() : undefined,
+      {
+        params: { limit, ...(cursor ? { cursor } : {}) },
+        ...(background ? backgroundRequestConfig() : {}),
+      },
     ).then((r) => r.data),
   startConversation: (listingId: string) =>
     api.post('/conversations', { listingId }).then((r) => r.data),
-  getMessages: (conversationId: string, background = false) =>
+  getMessages: (
+    conversationId: string,
+    options: { afterSequence?: number; beforeSequence?: number; limit?: number; background?: boolean } = {},
+  ) =>
     api.get(
       `/conversations/${conversationId}/messages`,
-      background ? backgroundRequestConfig() : undefined,
+      {
+        params: {
+          limit: options.limit ?? 50,
+          ...(options.afterSequence !== undefined ? { afterSequence: options.afterSequence } : {}),
+          ...(options.beforeSequence !== undefined ? { beforeSequence: options.beforeSequence } : {}),
+        },
+        ...(options.background ? backgroundRequestConfig() : {}),
+      },
     ).then((r) => r.data),
-  createMessage: (conversationId: string, content: string, type = 'TEXT') =>
-    api.post(`/conversations/${conversationId}/messages`, { content, type }).then((r) => r.data),
-  markAsRead: (conversationId: string) =>
+  createMessage: (
+    conversationId: string,
+    content: string,
+    type = 'TEXT',
+    clientMessageId?: string,
+  ) =>
+    api.post(`/conversations/${conversationId}/messages`, {
+      content,
+      type,
+      ...(clientMessageId ? { clientMessageId } : {}),
+    }).then((r) => r.data),
+  markAsRead: (conversationId: string, lastReadSequence?: number) =>
     api.patch(
       `/conversations/${conversationId}/read`,
-      undefined,
+      lastReadSequence === undefined ? {} : { lastReadSequence },
       backgroundRequestConfig(),
     ).then((r) => r.data),
   startGuestConversation: (data: { listingId: string; name: string; contact: string; offer: string }) =>

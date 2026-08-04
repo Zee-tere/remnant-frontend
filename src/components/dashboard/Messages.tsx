@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -28,6 +29,7 @@ import { getApiErrorMessage } from '@/lib/errors';
 import { cn } from '@/lib/utils';
 import { DashboardSectionLoading, LoadingState } from '@/components/feedback/LoadingState';
 import { useMobileVisualViewport } from '@/hooks/use-mobile-visual-viewport';
+import { getMessagingRealtime } from '@/lib/messaging-realtime';
 
 interface ConversationUser {
   id: string;
@@ -47,6 +49,11 @@ interface ConversationSummary {
   buyer: ConversationUser;
   seller: ConversationUser;
   messages: Message[];
+  readState: {
+    lastReadSequence: number;
+    otherLastReadSequence: number;
+  };
+  activityAt: string;
   createdAt: string;
 }
 
@@ -54,11 +61,120 @@ interface Message {
   id: string;
   conversationId: string;
   senderId: string;
+  clientMessageId: string;
+  sequence: number;
   type: 'TEXT' | 'IMAGE' | 'OFFER' | 'SYSTEM';
   content: string;
   readAt: string | null;
   createdAt: string;
   clientState?: 'sending';
+}
+
+interface ConversationPage {
+  conversations: ConversationSummary[];
+  hasMore: boolean;
+  nextCursor: string | null;
+}
+
+interface MessagePage {
+  messages: Message[];
+  hasMore: boolean;
+  previousCursor: number | null;
+  nextCursor: number | null;
+}
+
+function asConversationRows(data: ConversationPage | ConversationSummary[]) {
+  return Array.isArray(data) ? data : data.conversations;
+}
+
+function asMessageRows(data: MessagePage | Message[]) {
+  return Array.isArray(data) ? data : data.messages;
+}
+
+function mergeMessages(current: Message[], incoming: Message[]) {
+  const byId = new Map<string, Message>();
+  const clientKeyToId = new Map<string, string>();
+
+  for (const message of [...current, ...incoming]) {
+    const clientKey = `${message.senderId}:${message.clientMessageId || message.id}`;
+    const previousId = clientKeyToId.get(clientKey);
+    if (previousId && previousId !== message.id) {
+      const previous = byId.get(previousId);
+      if (previous?.clientState === 'sending' || !message.clientState) {
+        byId.delete(previousId);
+      }
+    }
+    const previous = byId.get(message.id);
+    byId.set(
+      message.id,
+      previous
+        ? {
+            ...previous,
+            ...message,
+            readAt: message.readAt ?? previous.readAt,
+          }
+        : message,
+    );
+    clientKeyToId.set(clientKey, message.id);
+  }
+
+  return [...byId.values()].sort((left, right) => {
+    if (left.sequence !== right.sequence) return left.sequence - right.sequence;
+    return left.id.localeCompare(right.id);
+  });
+}
+
+function messageFromBroadcast(event: unknown): Message | null {
+  const envelope = event && typeof event === 'object'
+    ? event as Record<string, unknown>
+    : {};
+  const payload = envelope.payload && typeof envelope.payload === 'object'
+    ? envelope.payload as Record<string, unknown>
+    : envelope;
+  const recordCandidate = payload.new ?? payload.record ?? payload;
+  const record = recordCandidate && typeof recordCandidate === 'object'
+    ? recordCandidate as Record<string, unknown>
+    : null;
+
+  if (
+    !record ||
+    typeof record.id !== 'string' ||
+    typeof record.conversationId !== 'string' ||
+    typeof record.senderId !== 'string' ||
+    typeof record.content !== 'string' ||
+    typeof record.sequence !== 'number'
+  ) {
+    return null;
+  }
+  return {
+    id: record.id,
+    conversationId: record.conversationId,
+    senderId: record.senderId,
+    clientMessageId:
+      typeof record.clientMessageId === 'string'
+        ? record.clientMessageId
+        : record.id,
+    sequence: record.sequence,
+    type:
+      record.type === 'IMAGE' || record.type === 'OFFER' || record.type === 'SYSTEM'
+        ? record.type
+        : 'TEXT',
+    content: record.content,
+    readAt: typeof record.readAt === 'string' ? record.readAt : null,
+    createdAt:
+      typeof record.createdAt === 'string'
+        ? record.createdAt
+        : new Date().toISOString(),
+  };
+}
+
+function broadcastPayload(event: unknown) {
+  const envelope = event && typeof event === 'object'
+    ? event as Record<string, unknown>
+    : {};
+  return envelope.payload && typeof envelope.payload === 'object'
+    ? envelope.payload as Record<string, unknown>
+    : envelope;
 }
 
 function formatTime(value: string) {
@@ -88,85 +204,202 @@ export default function MessagesSection() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
   const [loadingConversations, setLoadingConversations] = useState(true);
+  const [loadingMoreConversations, setLoadingMoreConversations] = useState(false);
+  const [nextConversationCursor, setNextConversationCursor] = useState<string | null>(null);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [sending, setSending] = useState(false);
+  const [hasEarlierMessages, setHasEarlierMessages] = useState(false);
+  const [loadingEarlierMessages, setLoadingEarlierMessages] = useState(false);
+  const [realtimeState, setRealtimeState] = useState<'connecting' | 'live' | 'recovering'>('connecting');
+  const [otherUserTyping, setOtherUserTyping] = useState(false);
   const messagesViewportRef = useRef<HTMLDivElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const shouldStickToBottomRef = useRef(true);
+  const messagesRef = useRef<Message[]>([]);
+  const activeChannelRef = useRef<RealtimeChannel | null>(null);
+  const typingStopTimerRef = useRef<number | null>(null);
+  const lastTypingSentAtRef = useRef(0);
   const mobileViewportStyle = useMobileVisualViewport(true);
 
-  const loadConversations = useCallback(async (silent = false) => {
+  const setMergedMessages = useCallback((incoming: Message[]) => {
+    setMessages((current) => {
+      const next = mergeMessages(current, incoming);
+      messagesRef.current = next;
+      return next;
+    });
+  }, []);
+
+  const loadConversations = useCallback(async (silent = false, cursor?: string) => {
     if (!isAuthenticated) {
       setConversations([]);
       setLoadingConversations(false);
       return;
     }
 
-    if (!silent) setLoadingConversations(true);
+    if (!silent && !cursor) setLoadingConversations(true);
+    if (cursor) setLoadingMoreConversations(true);
     try {
-      const data = await conversationsApi.getConversations(silent);
-      const rows = Array.isArray(data) ? data : [];
-      setConversations(rows);
-      setActiveConversationId((current) => current && rows.some((row) => row.id === current) ? current : null);
+      const data = await conversationsApi.getConversations(silent, 30, cursor);
+      const rows = asConversationRows(data);
+      setConversations((current) => {
+        if (!cursor) return rows;
+        const merged = new Map(current.map((conversation) => [conversation.id, conversation]));
+        rows.forEach((conversation) => merged.set(conversation.id, conversation));
+        return [...merged.values()];
+      });
+      setNextConversationCursor(Array.isArray(data) ? null : data.nextCursor);
+      if (!cursor) {
+        setActiveConversationId((current) => current && rows.some((row) => row.id === current) ? current : null);
+      }
     } catch (error) {
       if (!silent) {
         setConversations([]);
         toast.error(getApiErrorMessage(error, 'Could not load conversations'));
       }
     } finally {
-      if (!silent) setLoadingConversations(false);
+      if (!silent && !cursor) setLoadingConversations(false);
+      if (cursor) setLoadingMoreConversations(false);
     }
   }, [isAuthenticated]);
 
   useEffect(() => {
-    loadConversations();
-    const refreshWhenActive = () => {
-      if (document.visibilityState === 'visible') void loadConversations(true);
-    };
-    const poll = window.setInterval(refreshWhenActive, 12000);
-    window.addEventListener('focus', refreshWhenActive);
-    window.addEventListener('online', refreshWhenActive);
-    return () => {
-      window.clearInterval(poll);
-      window.removeEventListener('focus', refreshWhenActive);
-      window.removeEventListener('online', refreshWhenActive);
-    };
-  }, [loadConversations]);
-
-  useEffect(() => {
-    if (!activeConversationId) {
-      setMessages([]);
+    if (!isAuthenticated || !user) {
+      void loadConversations();
       return;
     }
 
     let cancelled = false;
+    let channel: RealtimeChannel | null = null;
+    let connection: Awaited<ReturnType<typeof getMessagingRealtime>> = null;
+    let realtimeConnected = false;
+    let refreshTimer: number | null = null;
 
-    const loadMessages = async (silent = false) => {
+    const bootstrap = async () => {
+      try {
+        connection = await getMessagingRealtime();
+        if (connection && !cancelled) {
+          channel = await connection.createPrivateChannel(`user:${user.id}`);
+          channel.on('broadcast', { event: 'conversation.updated' }, () => {
+            if (!cancelled) void loadConversations(true);
+          });
+          await new Promise<void>((resolve) => {
+            let resolved = false;
+            const timeout = window.setTimeout(() => {
+              if (!resolved) resolve();
+            }, 1500);
+            channel?.subscribe((status) => {
+              if (status === 'SUBSCRIBED') {
+                realtimeConnected = true;
+                if (!resolved) {
+                  resolved = true;
+                  window.clearTimeout(timeout);
+                  resolve();
+                }
+              } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+                realtimeConnected = false;
+              }
+            });
+          });
+          const activeConnection = connection;
+          refreshTimer = window.setInterval(() => {
+            activeConnection.refreshAuth().catch(() => undefined);
+          }, 10 * 60_000);
+        }
+      } catch {
+        realtimeConnected = false;
+      }
+      if (!cancelled) await loadConversations();
+    };
+
+    void bootstrap();
+    const refreshWhenActive = () => {
+      if (document.visibilityState === 'visible') void loadConversations(true);
+    };
+    const poll = window.setInterval(() => {
+      if (!realtimeConnected) refreshWhenActive();
+    }, 15_000);
+    window.addEventListener('focus', refreshWhenActive);
+    window.addEventListener('online', refreshWhenActive);
+    return () => {
+      cancelled = true;
+      window.clearInterval(poll);
+      if (refreshTimer) window.clearInterval(refreshTimer);
+      if (channel && connection) void connection.client.removeChannel(channel);
+      window.removeEventListener('focus', refreshWhenActive);
+      window.removeEventListener('online', refreshWhenActive);
+    };
+  }, [isAuthenticated, loadConversations, user]);
+
+  useEffect(() => {
+    if (!activeConversationId) {
+      setMessages([]);
+      messagesRef.current = [];
+      activeChannelRef.current = null;
+      setOtherUserTyping(false);
+      return;
+    }
+
+    setMessages([]);
+    messagesRef.current = [];
+    setHasEarlierMessages(false);
+
+    let cancelled = false;
+    let channel: RealtimeChannel | null = null;
+    let connection: Awaited<ReturnType<typeof getMessagingRealtime>> = null;
+    let realtimeConnected = false;
+    let bootstrapComplete = false;
+    let bufferedMessages: Message[] = [];
+    let bufferFlushTimer: number | null = null;
+    let readTimer: number | null = null;
+    let typingExpiryTimer: number | null = null;
+    let highestPendingRead = 0;
+    setRealtimeState('connecting');
+
+    const markReadSoon = (sequence: number) => {
+      highestPendingRead = Math.max(highestPendingRead, sequence);
+      if (readTimer) window.clearTimeout(readTimer);
+      readTimer = window.setTimeout(() => {
+        const target = highestPendingRead;
+        conversationsApi.markAsRead(activeConversationId, target).then(() => {
+          setConversations((current) => current.map((conversation) =>
+            conversation.id === activeConversationId
+              ? {
+                  ...conversation,
+                  readState: { ...conversation.readState, lastReadSequence: Math.max(conversation.readState.lastReadSequence, target) },
+                }
+              : conversation,
+          ));
+        }).catch(() => undefined);
+      }, 300);
+    };
+
+    const applyIncoming = (rows: Message[]) => {
+      if (rows.length === 0) return;
+      setMergedMessages(rows);
+      const latestIncoming = [...rows].reverse().find((message) => message.senderId !== user?.id);
+      if (latestIncoming) markReadSoon(latestIncoming.sequence);
+    };
+
+    const catchUp = async (silent = true) => {
+      const afterSequence = messagesRef.current.reduce(
+        (maximum, message) => message.clientState ? maximum : Math.max(maximum, message.sequence),
+        0,
+      );
       if (!silent) setLoadingMessages(true);
       try {
-        const data = await conversationsApi.getMessages(activeConversationId, silent);
+        const data = await conversationsApi.getMessages(activeConversationId, {
+          ...(afterSequence > 0 ? { afterSequence } : {}),
+          limit: 50,
+          background: silent,
+        });
         if (!cancelled) {
-          const rows = Array.isArray(data) ? data : [];
-          setMessages((current) => {
-            const pending = current.filter((message) => message.clientState === 'sending');
-            const nextRows = [
-              ...rows,
-              ...pending.filter((message) => !rows.some((row) => row.id === message.id)),
-            ];
-            const unchanged =
-              current.length === nextRows.length &&
-              current.every((message, index) => {
-                const next = nextRows[index];
-                return (
-                  message.id === next?.id &&
-                  message.content === next.content &&
-                  message.readAt === next.readAt &&
-                  message.clientState === next.clientState
-                );
-              });
-            return unchanged ? current : nextRows;
-          });
-          conversationsApi.markAsRead(activeConversationId).catch(() => undefined);
+          const rows = asMessageRows(data);
+          if (afterSequence === 0 && !Array.isArray(data)) {
+            setHasEarlierMessages(data.hasMore);
+          }
+          applyIncoming(rows);
+          const latest = rows.at(-1);
+          if (latest) markReadSoon(latest.sequence);
         }
       } catch (error) {
         if (!cancelled && !silent) {
@@ -178,20 +411,122 @@ export default function MessagesSection() {
       }
     };
 
-    loadMessages();
-    const refreshWhenActive = () => {
-      if (document.visibilityState === 'visible') void loadMessages(true);
+    const bootstrap = async () => {
+      try {
+        connection = await getMessagingRealtime();
+        if (connection && !cancelled) {
+          channel = await connection.createPrivateChannel(`conversation:${activeConversationId}`);
+          activeChannelRef.current = channel;
+          channel
+            .on('broadcast', { event: 'INSERT' }, (event) => {
+              const message = messageFromBroadcast(event);
+              if (!message || message.conversationId !== activeConversationId) return;
+              if (!bootstrapComplete) bufferedMessages.push(message);
+              else applyIncoming([message]);
+            })
+            .on('broadcast', { event: 'read.position.updated' }, (event) => {
+              const payload = broadcastPayload(event);
+              const readerId = typeof payload.readerId === 'string' ? payload.readerId : null;
+              const lastReadSequence = typeof payload.lastReadSequence === 'number' ? payload.lastReadSequence : null;
+              const readAt = typeof payload.readAt === 'string' ? payload.readAt : new Date().toISOString();
+              if (!readerId || lastReadSequence === null) return;
+              setMessages((current) => {
+                const next = current.map((message) =>
+                  message.senderId !== readerId && message.sequence <= lastReadSequence
+                    ? { ...message, readAt: message.readAt ?? readAt }
+                    : message,
+                );
+                messagesRef.current = next;
+                return next;
+              });
+              setConversations((current) => current.map((conversation) =>
+                conversation.id === activeConversationId
+                  ? {
+                      ...conversation,
+                      readState: readerId === user?.id
+                        ? { ...conversation.readState, lastReadSequence }
+                        : { ...conversation.readState, otherLastReadSequence: lastReadSequence },
+                    }
+                  : conversation,
+              ));
+            })
+            .on('broadcast', { event: 'typing' }, (event) => {
+              const payload = broadcastPayload(event);
+              if (payload.userId === user?.id) return;
+              const isTyping = payload.isTyping === true;
+              setOtherUserTyping(isTyping);
+              if (typingExpiryTimer) window.clearTimeout(typingExpiryTimer);
+              if (isTyping) {
+                typingExpiryTimer = window.setTimeout(() => setOtherUserTyping(false), 3000);
+              }
+            });
+
+          await new Promise<void>((resolve) => {
+            let joined = false;
+            const timeout = window.setTimeout(resolve, 1500);
+            channel?.subscribe((status) => {
+              if (status === 'SUBSCRIBED') {
+                const reconnecting = !realtimeConnected && bootstrapComplete;
+                realtimeConnected = true;
+                setRealtimeState('live');
+                if (!joined) {
+                  joined = true;
+                  window.clearTimeout(timeout);
+                  resolve();
+                } else if (reconnecting) {
+                  void catchUp(true);
+                }
+              } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+                realtimeConnected = false;
+                if (!cancelled) setRealtimeState('recovering');
+              }
+            });
+          });
+        }
+      } catch {
+        realtimeConnected = false;
+        if (!cancelled) setRealtimeState('recovering');
+      }
+
+      bufferFlushTimer = window.setTimeout(() => {
+        if (!bootstrapComplete && bufferedMessages.length > 0) {
+          applyIncoming(bufferedMessages);
+          bufferedMessages = [];
+        }
+      }, 5000);
+      await catchUp(false);
+      bootstrapComplete = true;
+      if (bufferFlushTimer) window.clearTimeout(bufferFlushTimer);
+      applyIncoming(bufferedMessages);
+      bufferedMessages = [];
     };
-    const poll = window.setInterval(refreshWhenActive, 12000);
+
+    void bootstrap();
+    const refreshWhenActive = () => {
+      if (document.visibilityState === 'visible') void catchUp(true);
+    };
+    const poll = window.setInterval(() => {
+      if (!realtimeConnected) refreshWhenActive();
+    }, 15_000);
+    const tokenRefresh = window.setInterval(() => {
+      connection?.refreshAuth().catch(() => undefined);
+    }, 10 * 60_000);
     window.addEventListener('focus', refreshWhenActive);
     window.addEventListener('online', refreshWhenActive);
     return () => {
       cancelled = true;
       window.clearInterval(poll);
+      window.clearInterval(tokenRefresh);
+      if (bufferFlushTimer) window.clearTimeout(bufferFlushTimer);
+      if (readTimer) window.clearTimeout(readTimer);
+      if (typingExpiryTimer) window.clearTimeout(typingExpiryTimer);
+      if (typingStopTimerRef.current) window.clearTimeout(typingStopTimerRef.current);
+      if (channel && connection) void connection.client.removeChannel(channel);
+      if (activeChannelRef.current === channel) activeChannelRef.current = null;
       window.removeEventListener('focus', refreshWhenActive);
       window.removeEventListener('online', refreshWhenActive);
     };
-  }, [activeConversationId]);
+  }, [activeConversationId, setMergedMessages, user?.id]);
 
   useEffect(() => {
     const viewport = messagesViewportRef.current;
@@ -236,7 +571,11 @@ export default function MessagesSection() {
     return conversations.filter((conversation) => {
       const otherUser = getOtherUser(conversation);
       const latest = conversation.messages[0];
-      const unread = Boolean(latest && latest.senderId !== user?.id && !latest.readAt);
+      const unread = Boolean(
+        latest &&
+        latest.senderId !== user?.id &&
+        latest.sequence > conversation.readState.lastReadSequence,
+      );
       const matchesQuery =
         !query ||
         otherUser.name.toLowerCase().includes(query) ||
@@ -255,24 +594,83 @@ export default function MessagesSection() {
         conversation.id === conversationId
           ? {
               ...conversation,
-              messages: conversation.messages.map((message) =>
-                user && message.senderId !== user.id ? { ...message, readAt: message.readAt ?? new Date().toISOString() } : message,
-              ),
+              readState: {
+                ...conversation.readState,
+                lastReadSequence: Math.max(
+                  conversation.readState.lastReadSequence,
+                  conversation.messages[0]?.sequence ?? 0,
+                ),
+              },
             }
           : conversation,
       ),
     );
   };
 
+  const sendTyping = (isTyping: boolean) => {
+    const channel = activeChannelRef.current;
+    if (!channel || !user) return;
+    void channel.send({
+      type: 'broadcast',
+      event: 'typing',
+      payload: { userId: user.id, isTyping },
+    });
+  };
+
+  const handleMessageChange = (value: string) => {
+    setNewMessage(value);
+    const now = Date.now();
+    if (value.trim() && now - lastTypingSentAtRef.current > 1200) {
+      lastTypingSentAtRef.current = now;
+      sendTyping(true);
+    }
+    if (typingStopTimerRef.current) window.clearTimeout(typingStopTimerRef.current);
+    typingStopTimerRef.current = window.setTimeout(() => sendTyping(false), 1800);
+  };
+
+  const loadEarlierMessages = async () => {
+    if (!activeConversationId || loadingEarlierMessages) return;
+    const oldestSequence = messagesRef.current.find((message) => !message.clientState)?.sequence;
+    if (!oldestSequence) return;
+
+    const viewport = messagesViewportRef.current;
+    const previousHeight = viewport?.scrollHeight ?? 0;
+    setLoadingEarlierMessages(true);
+    try {
+      const data = await conversationsApi.getMessages(activeConversationId, {
+        beforeSequence: oldestSequence,
+        limit: 50,
+        background: true,
+      });
+      const rows = asMessageRows(data);
+      setMergedMessages(rows);
+      setHasEarlierMessages(Array.isArray(data) ? false : data.hasMore);
+      window.requestAnimationFrame(() => {
+        if (viewport) viewport.scrollTop += viewport.scrollHeight - previousHeight;
+      });
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Could not load earlier messages'));
+    } finally {
+      setLoadingEarlierMessages(false);
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !activeConversationId || !user) return;
 
     const content = newMessage.trim();
-    const temporaryId = `pending-${crypto.randomUUID()}`;
+    const clientMessageId = crypto.randomUUID();
+    const temporaryId = `pending-${clientMessageId}`;
+    const optimisticSequence = messagesRef.current.reduce(
+      (maximum, message) => Math.max(maximum, message.sequence),
+      0,
+    ) + 1;
     const optimisticMessage: Message = {
       id: temporaryId,
       conversationId: activeConversationId,
       senderId: user.id,
+      clientMessageId,
+      sequence: optimisticSequence,
       type: 'TEXT',
       content,
       readAt: null,
@@ -283,7 +681,8 @@ export default function MessagesSection() {
     shouldStickToBottomRef.current = true;
     setSending(true);
     setNewMessage('');
-    setMessages((current) => [...current, optimisticMessage]);
+    sendTyping(false);
+    setMergedMessages([optimisticMessage]);
     setConversations((current) =>
       current.map((conversation) =>
         conversation.id === activeConversationId
@@ -293,22 +692,25 @@ export default function MessagesSection() {
     );
 
     try {
-      const message = await conversationsApi.createMessage(activeConversationId, content, 'TEXT');
-      setMessages((current) => {
-        const withoutTemporary = current.filter(
-          (item) => item.id !== temporaryId && item.id !== message.id,
-        );
-        return [...withoutTemporary, message].sort(
-          (left, right) => new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime(),
-        );
-      });
+      let message: Message;
+      try {
+        message = await conversationsApi.createMessage(activeConversationId, content, 'TEXT', clientMessageId);
+      } catch {
+        await new Promise((resolve) => window.setTimeout(resolve, 500));
+        message = await conversationsApi.createMessage(activeConversationId, content, 'TEXT', clientMessageId);
+      }
+      setMergedMessages([message]);
       setConversations((current) =>
         current.map((conversation) =>
           conversation.id === activeConversationId ? { ...conversation, messages: [message] } : conversation,
         ),
       );
     } catch (error) {
-      setMessages((current) => current.filter((message) => message.id !== temporaryId));
+      setMessages((current) => {
+        const next = current.filter((message) => message.clientMessageId !== clientMessageId);
+        messagesRef.current = next;
+        return next;
+      });
       toast.error(getApiErrorMessage(error, 'Could not send message'));
       setNewMessage((current) => current || content);
     } finally {
@@ -383,7 +785,11 @@ export default function MessagesSection() {
             {filteredConversations.map((conversation) => {
               const otherUser = getOtherUser(conversation);
               const latest = conversation.messages[0];
-              const unread = Boolean(latest && latest.senderId !== user?.id && !latest.readAt);
+              const unread = Boolean(
+                latest &&
+                latest.senderId !== user?.id &&
+                latest.sequence > conversation.readState.lastReadSequence,
+              );
 
               return (
                 <button
@@ -418,6 +824,20 @@ export default function MessagesSection() {
                 </button>
               );
             })}
+            {nextConversationCursor && (
+              <div className="flex justify-center p-3">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={loadingMoreConversations}
+                  onClick={() => void loadConversations(true, nextConversationCursor)}
+                  className="text-xs text-muted-foreground"
+                >
+                  {loadingMoreConversations ? 'Loading…' : 'Load more conversations'}
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -452,7 +872,15 @@ export default function MessagesSection() {
             <NameAvatar name={otherUser.name} className="h-9 w-9 text-xs md:h-10 md:w-10 md:text-sm" />
             <div className="min-w-0">
               <h3 className="truncate text-sm font-semibold text-foreground md:text-base">{otherUser.name}</h3>
-              <p className="truncate text-xs text-muted-foreground md:text-sm">{activeConversation.listing.title}</p>
+              <p className={cn(
+                'truncate text-xs md:text-sm',
+                otherUserTyping ? 'font-medium text-[var(--brand)]' : 'text-muted-foreground',
+              )}>
+                {otherUserTyping ? 'Typing…' : activeConversation.listing.title}
+              </p>
+              <span className="sr-only">
+                {realtimeState === 'live' ? 'Live messaging connected' : realtimeState === 'recovering' ? 'Reconnecting live messaging' : 'Connecting live messaging'}
+              </span>
             </div>
           </div>
 
@@ -502,6 +930,20 @@ export default function MessagesSection() {
             </div>
           ) : (
             <div className="space-y-1.5">
+              {hasEarlierMessages && (
+                <div className="flex justify-center pb-3">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={loadingEarlierMessages}
+                    onClick={loadEarlierMessages}
+                    className="text-xs text-muted-foreground"
+                  >
+                    {loadingEarlierMessages ? 'Loading…' : 'Load earlier messages'}
+                  </Button>
+                </div>
+              )}
               {messages.map((message) => {
                 const mine = message.senderId === user?.id;
                 return (
@@ -522,7 +964,9 @@ export default function MessagesSection() {
                     >
                       <p className="whitespace-pre-wrap break-words">{message.content}</p>
                       <p className={cn('mt-1 text-[11px]', mine ? 'text-white/70' : 'text-muted-foreground')}>
-                        {message.clientState === 'sending' ? 'Sending…' : formatTime(message.createdAt)}
+                        {message.clientState === 'sending'
+                          ? 'Sending…'
+                          : `${formatTime(message.createdAt)}${mine && message.readAt ? ' · Read' : ''}`}
                       </p>
                     </div>
                   </div>
@@ -544,7 +988,8 @@ export default function MessagesSection() {
               aria-label="Message"
               placeholder="Type your message"
               value={newMessage}
-              onChange={(event) => setNewMessage(event.target.value)}
+              onChange={(event) => handleMessageChange(event.target.value)}
+              onBlur={() => sendTyping(false)}
               onKeyDown={handleKeyDown}
               onFocus={() => {
                 if (!shouldStickToBottomRef.current) return;
