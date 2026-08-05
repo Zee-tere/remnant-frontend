@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { listingsApi } from "@/lib/api";
 import { listingCategories } from "@/lib/categories";
 import { NairaIcon } from "@/components/ui/naira-icon";
@@ -23,12 +24,12 @@ import type { PublicListingPage } from "@/lib/public-listings";
 
 type Listing = ListingCardItem;
 
-const intentionMeta: Record<string, { icon: React.ElementType; label: string; color: string; bg: string }> = {
-  SELL: { icon: NairaIcon, label: "For Sale", color: "text-[var(--brand)]", bg: "bg-[var(--brand-soft)]" },
-  TRADE: { icon: RefreshCw, label: "Trade", color: "text-[var(--secondary-blue)]", bg: "bg-[#e2f7ff]" },
-  DONATE: { icon: HandHeart, label: "Free", color: "text-[var(--tertiary-gold)]", bg: "bg-[#fff6cf]" },
-  FIX: { icon: Wrench, label: "Needs Fix", color: "text-orange-700", bg: "bg-orange-50" },
-  RECYCLE: { icon: Recycle, label: "Recycle", color: "text-teal-700", bg: "bg-teal-50" },
+const intentionMeta: Record<string, { icon: React.ElementType; label: string; color: string }> = {
+  SELL: { icon: NairaIcon, label: "For sale", color: "text-intent-sell" },
+  TRADE: { icon: RefreshCw, label: "Trade", color: "text-intent-trade" },
+  DONATE: { icon: HandHeart, label: "Free", color: "text-intent-donate" },
+  FIX: { icon: Wrench, label: "Repair", color: "text-intent-repair" },
+  RECYCLE: { icon: Recycle, label: "Recycle", color: "text-intent-recycle" },
 };
 
 interface MarketplaceFilters {
@@ -53,7 +54,10 @@ export default function MarketplaceClient({
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(initialData.total);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(initialData.totalPages);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [cursorHistory, setCursorHistory] = useState<Array<string | null>>([]);
+  const [hasMore, setHasMore] = useState(Boolean(initialData.hasMore));
+  const [nextCursor, setNextCursor] = useState<string | null>(initialData.nextCursor ?? null);
   const [showFilters, setShowFilters] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const isInitialRender = useRef(true);
@@ -62,16 +66,30 @@ export default function MarketplaceClient({
     setLoading(true);
     setLoadError(false);
     try {
-      const params: Record<string, string> = { page: page.toString(), limit: "12" };
-      if (submittedSearch) params.search = submittedSearch;
+      if (submittedSearch) {
+        const searchParams: Record<string, string> = { q: submittedSearch, limit: "24" };
+        if (category) searchParams.category = category;
+        if (intentionTag) searchParams.intent = intentionTag;
+        if (city) searchParams.city = city;
+        const items = await listingsApi.searchListings(searchParams);
+        const rows = Array.isArray(items) ? items : [];
+        setListings(rows);
+        setTotal(rows.length);
+        setHasMore(false);
+        setNextCursor(null);
+        return;
+      }
+      const params: Record<string, string> = { pagination: "cursor", limit: "12" };
+      if (cursor) params.cursor = cursor;
       if (category) params.category = category;
       if (intentionTag) params.intentionTag = intentionTag;
       if (city) params.city = city;
 
       const data = await listingsApi.getListings(params);
       setListings(data.listings || []);
-      setTotal(data.total || 0);
-      setTotalPages(data.totalPages || 1);
+      setTotal(typeof data.total === "number" ? data.total : (data.listings || []).length);
+      setHasMore(Boolean(data.hasMore));
+      setNextCursor(typeof data.nextCursor === "string" ? data.nextCursor : null);
     } catch {
       setListings([]);
       setLoadError(true);
@@ -87,20 +105,26 @@ export default function MarketplaceClient({
     }
     void fetchListings();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, category, intentionTag, city, submittedSearch]);
+  }, [cursor, category, intentionTag, city, submittedSearch]);
+
+  const resetPagination = () => {
+    setPage(1);
+    setCursor(null);
+    setCursorHistory([]);
+  };
 
   const clearFilters = () => {
     setCategory("");
     setIntentionTag("");
     setCity("");
     setSubmittedSearch("");
-    setPage(1);
+    resetPagination();
   };
 
   const hasActiveFilters = category || intentionTag || city || submittedSearch;
 
   const FilterPanel = ({ embedded = false }: { embedded?: boolean } = {}) => (
-    <div className={embedded ? "" : "surface-card rounded-2xl p-6"}>
+    <div className={embedded ? "" : "surface-card rounded-card p-6"}>
       {!embedded && (
       <div className="mb-7 flex items-center justify-between">
         <h2 className="text-2xl font-bold text-[var(--foreground)]">Filters</h2>
@@ -115,25 +139,25 @@ export default function MarketplaceClient({
       <div className={embedded ? "divide-y divide-[#f1f0ec]" : "space-y-8"}>
         <div className={embedded ? "pb-4" : ""}>
           <h3 className={`${embedded ? "mb-2 text-xs" : "mb-4 text-sm"} font-bold uppercase text-[var(--muted-foreground)]`}>State</h3>
-          <select
+          <Select
             value={city}
-            onChange={(event) => { setCity(event.target.value); setPage(1); }}
-            className="h-12 w-full rounded-lg border border-[var(--border)]/70 bg-white px-4 font-semibold text-[var(--foreground)] outline-none focus:border-[var(--brand)] focus:outline-2 focus:outline-offset-1 focus:outline-[var(--brand)]"
+            onChange={(event) => { setCity(event.target.value); resetPagination(); }}
+            className="font-semibold"
           >
             <option value="">All states</option>
             {nigerianStates.map((state) => <option key={state} value={state}>{state}</option>)}
-          </select>
+          </Select>
         </div>
 
         <div className={embedded ? "py-4" : ""}>
           <h3 className={`${embedded ? "mb-2 text-xs" : "mb-4 text-sm"} font-bold uppercase text-[var(--muted-foreground)]`}>Category</h3>
-          <select
+          <Select
             value={category}
             onChange={(event) => {
               setCategory(event.target.value);
-              setPage(1);
+              resetPagination();
             }}
-            className="h-12 w-full rounded-lg border border-[var(--border)]/70 bg-white px-4 font-semibold text-[var(--foreground)] outline-none focus:border-[var(--brand)] focus:outline-2 focus:outline-offset-1 focus:outline-[var(--brand)]"
+            className="font-semibold"
           >
             <option value="">All pieces</option>
             {listingCategories.map((item) => (
@@ -141,7 +165,7 @@ export default function MarketplaceClient({
                 {item.label}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         <div className={embedded ? "py-4" : ""}>
@@ -159,7 +183,7 @@ export default function MarketplaceClient({
                       checked={intentionTag === key}
                       onChange={(event) => {
                         setIntentionTag(event.target.value);
-                        setPage(1);
+                        resetPagination();
                       }}
                       className="peer sr-only"
                     />
@@ -175,7 +199,7 @@ export default function MarketplaceClient({
 
         <div className={embedded ? "pt-4" : "border-t border-[var(--border)]/45 pt-5"}>
           <p className="text-sm font-semibold text-[var(--ink-soft)]">
-            <span className="text-2xl font-bold text-[var(--brand)]">{total}</span> item{total !== 1 && "s"} found
+            Showing <span className="text-2xl font-bold text-[var(--brand)]">{total}</span> item{total !== 1 && "s"}
           </p>
         </div>
       </div>
@@ -188,7 +212,7 @@ export default function MarketplaceClient({
         <section className="-mx-1 mb-3 border-b border-[var(--line-soft)] pb-2 md:mb-6" aria-label="Browse market categories">
           <div className="flex items-center justify-end px-1">
             {category && (
-              <button type="button" onClick={() => { setCategory(""); setPage(1); }} className="min-h-9 px-1 text-[0.7rem] font-bold text-[var(--brand)]">
+              <button type="button" onClick={() => { setCategory(""); resetPagination(); }} className="min-h-11 px-1 text-xs font-bold text-[var(--brand)]">
                 Show all
               </button>
             )}
@@ -200,11 +224,11 @@ export default function MarketplaceClient({
                 <button
                   key={item.label}
                   type="button"
-                  onClick={() => { setCategory(active ? "" : item.label); setPage(1); }}
+                  onClick={() => { setCategory(active ? "" : item.label); resetPagination(); }}
                   className={`relative flex min-h-[4.65rem] w-[4.7rem] shrink-0 snap-start flex-col items-start justify-between overflow-hidden border-b-2 px-1 py-1 text-left transition-[border-color,color,transform] active:scale-[0.98] md:min-h-[5.2rem] md:w-[5.6rem] ${active ? "border-[var(--aqua)] text-[var(--foreground)]" : "border-transparent text-[var(--ink-soft)] hover:text-[var(--foreground)]"}`}
                   aria-pressed={active}
                 >
-                  <span className="relative z-10 max-w-[4.4rem] text-[0.63rem] font-black leading-[1.08]">{item.label}</span>
+                  <span className="relative z-10 max-w-[4.4rem] text-xs font-black leading-[1.15]">{item.label}</span>
                   <img src={item.image} alt="" loading="lazy" decoding="async" className="absolute bottom-0 right-0 h-9 w-9 object-contain md:h-11 md:w-11" />
                   {active && <ArrowRight size={11} className="relative z-10 text-[var(--aqua)]" aria-hidden="true" />}
                 </button>
@@ -218,7 +242,7 @@ export default function MarketplaceClient({
             <button
               key={item.key || 'all'}
               type="button"
-              onClick={() => { setIntentionTag(item.key); setPage(1); }}
+              onClick={() => { setIntentionTag(item.key); resetPagination(); }}
               className={`relative min-h-10 shrink-0 border-b-2 px-3 text-xs font-bold transition-colors ${
                 intentionTag === item.key
                   ? 'border-[var(--aqua)] bg-white text-[var(--foreground)]'
@@ -238,7 +262,7 @@ export default function MarketplaceClient({
           <div className="min-w-0 flex-1">
             <div className="mb-5 flex items-center justify-between lg:hidden">
               <p className="text-sm font-semibold text-[var(--ink-soft)]">
-                <span className="font-bold text-[var(--foreground)]">{total}</span> item{total !== 1 && "s"}
+                Showing <span className="font-bold text-[var(--foreground)]">{total}</span> item{total !== 1 && "s"}
               </p>
               <Button
                 variant="outline"
@@ -257,7 +281,7 @@ export default function MarketplaceClient({
                 {submittedSearch && (
                   <span className="inline-flex items-center gap-2 px-1 py-1 text-sm font-bold text-[var(--brand)]">
                     {submittedSearch}
-                    <button type="button" onClick={() => setSubmittedSearch("")}>
+                    <button type="button" onClick={() => { setSubmittedSearch(""); resetPagination(); }}>
                       <X size={14} aria-hidden="true" />
                     </button>
                   </span>
@@ -265,7 +289,7 @@ export default function MarketplaceClient({
                 {category && (
                   <span className="inline-flex items-center gap-2 px-1 py-1 text-sm font-bold text-[var(--ink-soft)]">
                     {category}
-                    <button type="button" onClick={() => setCategory("")}>
+                    <button type="button" onClick={() => { setCategory(""); resetPagination(); }}>
                       <X size={14} aria-hidden="true" />
                     </button>
                   </span>
@@ -273,7 +297,7 @@ export default function MarketplaceClient({
                 {intentionTag && (
                   <span className="inline-flex items-center gap-2 px-1 py-1 text-sm font-bold text-[var(--ink-soft)]">
                     {intentionMeta[intentionTag]?.label}
-                    <button type="button" onClick={() => setIntentionTag("")}>
+                    <button type="button" onClick={() => { setIntentionTag(""); resetPagination(); }}>
                       <X size={14} aria-hidden="true" />
                     </button>
                   </span>
@@ -281,7 +305,7 @@ export default function MarketplaceClient({
                 {city && (
                   <span className="inline-flex items-center gap-2 px-1 py-1 text-sm font-bold text-[var(--ink-soft)]">
                     {city}
-                    <button type="button" onClick={() => setCity("")} aria-label="Clear state filter">
+                    <button type="button" onClick={() => { setCity(""); resetPagination(); }} aria-label="Clear state filter">
                       <X size={14} aria-hidden="true" />
                     </button>
                   </span>
@@ -306,23 +330,34 @@ export default function MarketplaceClient({
                   {listings.map((item, index) => <ListingCard key={item.id} item={item} eager={index === 0} />)}
                 </div>
 
-                {totalPages > 1 && (
+                {(page > 1 || hasMore) && (
                   <div className="mt-12 flex justify-center gap-3">
                     <Button
                       variant="outline"
                       disabled={page <= 1}
-                      onClick={() => setPage(page - 1)}
+                      onClick={() => {
+                        const history = [...cursorHistory];
+                        const previous = history.pop() ?? null;
+                        setCursorHistory(history);
+                        setCursor(previous);
+                        setPage((current) => Math.max(1, current - 1));
+                      }}
                       className="rounded-full border-[var(--border)] bg-white font-bold"
                     >
                       Previous
                     </Button>
                     <span className="flex items-center px-3 text-sm font-bold text-[var(--ink-soft)]">
-                      Page {page} of {totalPages}
+                      Page {page}
                     </span>
                     <Button
                       variant="outline"
-                      disabled={page >= totalPages}
-                      onClick={() => setPage(page + 1)}
+                      disabled={!hasMore || !nextCursor}
+                      onClick={() => {
+                        if (!nextCursor) return;
+                        setCursorHistory((current) => [...current, cursor]);
+                        setCursor(nextCursor);
+                        setPage((current) => current + 1);
+                      }}
                       className="rounded-full border-[var(--border)] bg-white font-bold"
                     >
                       Next

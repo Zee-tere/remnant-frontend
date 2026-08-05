@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import MarketplaceClient from "@/components/marketplace/MarketplaceClient";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { getListingPath, getPublicListings } from "@/lib/public-listings";
+import { getListingPath, getPublicListings, getPublicSearchListings, type PublicListingPage } from "@/lib/public-listings";
 
 export const revalidate = 60;
 
@@ -45,7 +45,27 @@ export default async function MarketplacePage({ searchParams }: MarketplacePageP
   const requestFilters = Object.fromEntries(
     Object.entries(initialFilters).filter(([, value]) => Boolean(value)),
   );
-  const listingPage = await getPublicListings({ page: 1, limit: 12, ...requestFilters }, 60);
+  let listingPage: PublicListingPage;
+  if (initialFilters.search) {
+    const listings = await getPublicSearchListings({
+      q: initialFilters.search,
+      limit: 24,
+      ...(initialFilters.category ? { category: initialFilters.category } : {}),
+      ...(initialFilters.city ? { city: initialFilters.city } : {}),
+      ...(initialFilters.intentionTag ? { intent: initialFilters.intentionTag } : {}),
+    }, 30);
+    listingPage = {
+      listings,
+      total: listings.length,
+      page: 1,
+      limit: 24,
+      totalPages: 1,
+      hasMore: false,
+      nextCursor: null,
+    };
+  } else {
+    listingPage = await getPublicListings({ pagination: "cursor", limit: 12, ...requestFilters }, 30);
+  }
   const itemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",

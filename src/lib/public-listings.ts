@@ -35,6 +35,8 @@ export interface PublicListingPage {
   page: number;
   limit: number;
   totalPages: number;
+  hasMore?: boolean;
+  nextCursor?: string | null;
 }
 
 export interface SitemapListing {
@@ -75,7 +77,7 @@ export async function getPublicListings(
     Object.entries(params).forEach(([key, value]) => searchParams.set(key, String(value)));
 
     const response = await fetch(`${getApiUrl()}/listings?${searchParams.toString()}`, {
-      cache: "no-store",
+      next: { revalidate: _revalidate, tags: ["public-listings"] },
       signal: AbortSignal.timeout(8_000),
     });
     if (!response.ok) return emptyPage;
@@ -95,6 +97,8 @@ export async function getPublicListings(
       page: typeof payload.page === "number" ? payload.page : 1,
       limit: typeof payload.limit === "number" ? payload.limit : listings.length,
       totalPages: typeof payload.totalPages === "number" ? payload.totalPages : 1,
+      hasMore: payload.hasMore === true,
+      nextCursor: typeof payload.nextCursor === "string" ? payload.nextCursor : null,
     };
   } catch {
     return emptyPage;
@@ -110,7 +114,7 @@ export async function getPublicSearchListings(
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => searchParams.set(key, String(value)));
     const response = await fetch(`${getApiUrl()}/listings/search?${searchParams.toString()}`, {
-      cache: "no-store",
+      next: { revalidate: _revalidate, tags: ["public-listing-search"] },
       signal: AbortSignal.timeout(8_000),
     });
     if (!response.ok) return [];

@@ -160,7 +160,7 @@ export default function ProfileSection() {
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="surface-card relative hidden rounded-lg p-4 md:block md:rounded-[2rem] md:p-8"
+        className="surface-card relative hidden rounded-card p-4 md:block md:rounded-feature md:p-8"
       >
         <div className="flex items-start gap-4 md:flex-col md:gap-8 lg:flex-row lg:items-start">
           <div className="shrink-0 self-start md:self-center lg:self-start">
@@ -200,7 +200,7 @@ export default function ProfileSection() {
               <span className="rounded-md bg-[var(--brand-soft)] px-2 py-1 text-xs font-bold text-[var(--brand)] md:px-4 md:py-2 md:text-sm">
                 {user.points} points
               </span>
-              <span className="rounded-md bg-[#fff6cf] px-2 py-1 text-xs font-bold text-[var(--tertiary-gold)] md:px-4 md:py-2 md:text-sm">
+              <span className="rounded-pill bg-state-pending-container px-2 py-1 text-xs font-bold text-state-pending md:px-4 md:py-2 md:text-sm">
                 {user.city || 'City not set'}
               </span>
             </div>
@@ -214,7 +214,7 @@ export default function ProfileSection() {
           { label: 'Impact Points', value: user.points.toLocaleString(), icon: Star },
           { label: 'Location', value: user.city || 'Not set', icon: MapPin },
         ].map((stat) => (
-          <div key={stat.label} className="surface-card min-w-0 rounded-lg p-2.5 md:rounded-[2rem] md:p-6">
+          <div key={stat.label} className="surface-card min-w-0 rounded-card p-2.5 md:rounded-feature md:p-6">
             <div className="mb-2 flex h-7 w-7 items-center justify-center text-[var(--brand)] md:mb-5 md:h-12 md:w-12">
               <stat.icon size={15} className="md:h-[23px] md:w-[23px]" aria-hidden="true" />
             </div>
@@ -225,7 +225,7 @@ export default function ProfileSection() {
       </div>
 
       <div className="hidden gap-8 md:grid lg:grid-cols-12">
-        <div className="surface-card rounded-lg p-4 md:rounded-[2rem] md:p-6 lg:col-span-5">
+        <div className="surface-card rounded-card p-4 md:rounded-feature md:p-6 lg:col-span-5">
           <div className="mb-3 flex items-center gap-2 md:mb-5 md:gap-3">
             <div className="flex h-8 w-8 items-center justify-center text-[var(--brand)] md:h-11 md:w-11">
               <User size={21} aria-hidden="true" />
@@ -233,20 +233,20 @@ export default function ProfileSection() {
             <h2 className="text-base font-bold md:text-2xl">Profile Details</h2>
           </div>
           <div className="space-y-3 text-sm font-semibold text-[var(--ink-soft)]">
-            <div className="flex min-w-0 items-center gap-3 rounded-[1.25rem] bg-[var(--sand)] px-4 py-3">
+            <div className="flex min-w-0 items-center gap-3 rounded-card bg-[var(--sand)] px-4 py-3">
               <Mail size={16} className="shrink-0 text-[var(--brand)]" aria-hidden="true" />
               <span className="truncate">{user.email}</span>
             </div>
-            <div className="flex min-w-0 items-center gap-3 rounded-[1.25rem] bg-[var(--sand)] px-4 py-3">
+            <div className="flex min-w-0 items-center gap-3 rounded-card bg-[var(--sand)] px-4 py-3">
               <MapPin size={16} className="shrink-0 text-[var(--brand)]" aria-hidden="true" />
               <span className="truncate">{user.city || 'City not set'}</span>
             </div>
           </div>
         </div>
 
-        <div className="surface-card rounded-lg p-4 md:rounded-[2rem] md:p-6 lg:col-span-7">
+        <div className="surface-card rounded-card p-4 md:rounded-feature md:p-6 lg:col-span-7">
           <div className="mb-3 flex items-center gap-2 md:mb-5 md:gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#e2f7ff] text-[var(--secondary-blue)] md:h-11 md:w-11">
+            <div className="flex h-8 w-8 items-center justify-center rounded-pill bg-state-info-container text-state-info md:h-11 md:w-11">
               <Shield size={21} aria-hidden="true" />
             </div>
             <h2 className="text-base font-bold md:text-2xl">Curator Standing</h2>
@@ -273,7 +273,7 @@ export default function ProfileSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             onSubmit={handleSave}
-            className="max-h-[90vh] w-full overflow-y-auto rounded-t-xl bg-white p-4 pb-[calc(1rem+var(--safe-area-bottom))] soft-shadow sm:max-w-2xl sm:rounded-[2rem] sm:p-6"
+            className="max-h-[90vh] w-full overflow-y-auto rounded-t-card bg-white p-4 pb-[calc(1rem+var(--safe-area-bottom))] soft-shadow sm:max-w-2xl sm:rounded-feature sm:p-6"
           >
             <div className="mb-5 flex items-center justify-between sm:mb-6">
               <div>
@@ -317,7 +317,7 @@ export default function ProfileSection() {
                   value={form.bio}
                   onChange={(event) => setForm((current) => ({ ...current, bio: event.target.value }))}
                   rows={5}
-                  className="w-full rounded-md border border-[var(--border)] bg-white px-4 py-3 text-base font-medium outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15 sm:rounded-[1.5rem]"
+                  className="w-full rounded-control border border-[var(--border)] bg-white px-4 py-3 text-base font-medium outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
                 />
               </label>
             </div>

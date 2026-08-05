@@ -30,6 +30,8 @@ function normalizeListingPage(data: unknown) {
     page: typeof payload.page === 'number' ? payload.page : 1,
     limit: typeof payload.limit === 'number' ? payload.limit : listings.length,
     totalPages: typeof payload.totalPages === 'number' ? payload.totalPages : 1,
+    hasMore: payload.hasMore === true,
+    nextCursor: typeof payload.nextCursor === 'string' ? payload.nextCursor : null,
   };
 }
 

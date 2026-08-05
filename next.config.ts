@@ -35,7 +35,15 @@ const contentSecurityPolicy = [
 const nextConfig: NextConfig = {
   outputFileTracingRoot: process.cwd(),
   images: {
-    unoptimized: true,
+    formats: ["image/avif", "image/webp"],
+    deviceSizes: [320, 420, 640, 768, 1024, 1280],
+    imageSizes: [64, 96, 160, 240, 320],
+    remotePatterns: [
+      { protocol: "https", hostname: "**.amazonaws.com" },
+      { protocol: "https", hostname: "**.cloudfront.net" },
+      { protocol: "https", hostname: "remnantmarket.co" },
+      { protocol: "https", hostname: "www.remnantmarket.co" },
+    ],
   },
   async headers() {
     return [

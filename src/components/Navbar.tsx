@@ -104,7 +104,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className={`sticky top-0 z-50 w-full border-b border-[var(--line-soft)] bg-white px-3 py-1.5 md:px-6 md:py-2 ${isAuthRoute ? "hidden md:block" : ""}`}>
+    <header className={`sticky top-0 z-[var(--layer-sticky)] w-full border-b border-[var(--line-soft)] bg-white px-3 py-1.5 md:px-6 md:py-2 ${isAuthRoute ? "hidden md:block" : ""}`}>
       <div className="relative mx-auto flex min-h-12 max-w-7xl items-center gap-2 bg-white px-0 text-[var(--foreground)] md:min-h-14 md:justify-between md:gap-0 md:px-2">
         <Link href="/" className="flex shrink-0 items-center text-[var(--brand)]" aria-label="Remnant home">
           <BrandLogo size="nav" />
@@ -237,7 +237,7 @@ export default function Navbar() {
               onChange={(event) => setMobileSearch(event.target.value)}
               placeholder="Find a pair"
               aria-label="Find a pair"
-              className="h-full min-w-0 flex-1 border-0 bg-transparent px-1 text-[0.72rem] font-semibold text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]"
+              className="h-full min-w-0 flex-1 border-0 bg-transparent px-1 text-xs font-semibold text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]"
             />
             <button type="submit" className="flex h-9 w-9 shrink-0 items-center justify-center text-[var(--aqua)]" aria-label="Search">
               <Search className="search-glyph" size={15} strokeWidth={2.1} aria-hidden="true" />
@@ -260,7 +260,7 @@ export default function Navbar() {
           </button>
 
               {menuOpen && (
-                <div className="fixed inset-x-0 bottom-0 top-[3.75rem] z-50 md:hidden">
+                <div className="fixed inset-x-0 bottom-0 top-[3.75rem] z-[var(--layer-overlay)] md:hidden">
                   <button
                     type="button"
                     className="absolute inset-0 h-full w-full bg-black/20"

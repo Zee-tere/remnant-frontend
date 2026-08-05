@@ -73,7 +73,7 @@ export default function MobileBottomNav() {
       data-mobile-bottom-dock
       className="mobile-bottom-dock md:hidden"
     >
-      <div className="mobile-bottom-dock__bar soft-shadow mx-auto grid h-[4.35rem] max-w-lg grid-cols-5 rounded-[1.15rem] border border-[var(--border)]/75 bg-white px-1.5">
+      <div className="mobile-bottom-dock__bar soft-shadow mx-auto grid h-[4.35rem] max-w-lg grid-cols-5 rounded-card border border-[var(--border)]/75 bg-white px-1.5">
         {actions.map((item) => {
           const Icon = item.icon;
           const active = isActive(item);
@@ -93,7 +93,7 @@ export default function MobileBottomNav() {
             >
               <span
                 data-preserve-icon-frame
-                className={`relative flex items-center justify-center transition-[color,transform] duration-150 ${item.primary ? "-mt-3 h-10 w-10 rounded-xl bg-[var(--brand)] text-white" : `h-7 w-8 ${item.tone || ""} ${active ? "scale-105" : "opacity-80"}`}`}
+                className={`relative flex items-center justify-center transition-[color,transform] duration-150 ${item.primary ? "-mt-3 h-10 w-10 rounded-control bg-[var(--brand)] text-white" : `h-7 w-8 ${item.tone || ""} ${active ? "scale-105" : "opacity-80"}`}`}
               >
                 {item.profile && isAuthenticated ? (
                   <NameAvatar name={user?.name || "Remnant"} className="h-7 w-7 text-xs" />

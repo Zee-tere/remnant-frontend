@@ -731,7 +731,7 @@ export default function MessagesSection() {
 
   const ConversationList = () => (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="border-b border-[#f1f0ec] px-3 pb-3 pt-4 md:p-4">
+      <div className="border-b border-[var(--line-soft)] px-3 pb-3 pt-4 md:p-4">
         <div className="mb-3 flex items-end justify-between md:hidden">
           <div>
             <h1 className="text-lg font-bold text-foreground">Messages</h1>
@@ -797,7 +797,7 @@ export default function MessagesSection() {
                   type="button"
                   onClick={() => handleSelectConversation(conversation.id)}
                   className={cn(
-                    'w-full border-b border-[#f1f0ec] p-3 text-left transition-colors hover:bg-muted/35 md:p-4',
+                    'w-full border-b border-[var(--line-soft)] p-3 text-left transition-colors hover:bg-muted/35 md:p-4',
                     activeConversationId === conversation.id && 'text-[var(--brand)]',
                   )}
                 >
@@ -864,7 +864,7 @@ export default function MessagesSection() {
 
     return (
       <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white">
-        <div className="flex min-h-14 items-center justify-between gap-3 border-b border-[#f1f0ec] px-2 py-1.5 md:p-4">
+        <div className="flex min-h-14 items-center justify-between gap-3 border-b border-[var(--line-soft)] px-2 py-1.5 md:p-4">
           <div className="flex min-w-0 items-center gap-3">
             <button type="button" onClick={() => setActiveConversationId(null)} className="flex h-11 w-11 shrink-0 items-center justify-center text-[var(--foreground)] hover:text-[var(--brand)] lg:hidden" aria-label="Back to conversations">
               <ArrowLeft size={18} />
@@ -956,10 +956,10 @@ export default function MessagesSection() {
                     )}
                     <div
                       className={cn(
-                        'max-w-[84%] rounded-[18px] px-3 py-2 text-sm leading-5 md:max-w-[76%] md:py-2.5',
+                        'max-w-[84%] rounded-card px-3 py-2 text-sm leading-5 md:max-w-[76%] md:py-2.5',
                         mine
                           ? 'rounded-br-md bg-[var(--brand)] text-white'
-                          : 'rounded-bl-md bg-[#f1f1ef] text-foreground',
+                          : 'rounded-bl-md bg-[var(--sand)] text-foreground',
                       )}
                     >
                       <p className="whitespace-pre-wrap break-words">{message.content}</p>
@@ -977,12 +977,12 @@ export default function MessagesSection() {
         </div>
 
         {isGuestHandoff ? (
-          <div className="shrink-0 border-t border-[#f1f0ec] bg-white px-4 pb-[calc(0.85rem+var(--safe-area-bottom))] pt-3 md:p-4">
+          <div className="shrink-0 border-t border-[var(--line-soft)] bg-white px-4 pb-[calc(0.85rem+var(--safe-area-bottom))] pt-3 md:p-4">
             <p className="text-sm font-bold text-[var(--foreground)]">Continue outside Remnant</p>
             <p className="mt-1 text-xs leading-5 text-[var(--ink-soft)]">This buyer sent a guest offer. Use the contact detail in their offer above to reply on the platform they chose.</p>
           </div>
-        ) : <div className="shrink-0 border-t border-[#f1f0ec] bg-white px-2.5 pb-[calc(0.5rem+var(--safe-area-bottom))] pt-2 md:p-3">
-          <div className="flex items-end gap-1 rounded-xl border border-[#e7e7e3] bg-white px-1.5 py-1">
+        ) : <div className="shrink-0 border-t border-[var(--line-soft)] bg-white px-2.5 pb-[calc(0.5rem+var(--safe-area-bottom))] pt-2 md:p-3">
+          <div className="flex items-end gap-1 rounded-control border border-[var(--line-soft)] bg-white px-1.5 py-1">
             <textarea
               ref={composerRef}
               aria-label="Message"

@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
+  AlertCircle,
   Camera,
   CheckCircle,
   Gift,
@@ -24,6 +25,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select } from '@/components/ui/select';
 import { listingCategories } from '@/lib/categories';
 import { getApiErrorMessage } from '@/lib/errors';
 import { cn, formatCurrency } from '@/lib/utils';
@@ -33,6 +35,7 @@ import { NairaIcon } from '@/components/ui/naira-icon';
 import { optimizeImageFile } from '@/lib/image-optimization';
 import { listingConditions } from '@/lib/listing-conditions';
 import { ActionArtwork, type ActionArtworkName } from '@/components/brand/ActionArtwork';
+import { IntentBadge } from '@/components/ui/intent-badge';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -54,14 +57,6 @@ const steps = [
   { label: 'Details', icon: Package },
   { label: 'Review', icon: CheckCircle },
 ];
-
-const purposeDisplay: Record<PurposeValue, string> = {
-  SELL: 'Sell',
-  TRADE: 'Trade',
-  DONATE: 'Donate',
-  FIX: 'Repair',
-  RECYCLE: 'Recycle',
-};
 
 function normalizePurpose(value?: string): PurposeValue | '' {
   if (value && purposeValues.includes(value as PurposeValue)) return value as PurposeValue;
@@ -117,7 +112,9 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   const [isUploading, setIsUploading] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [validationError, setValidationError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const validationErrorRef = useRef<HTMLDivElement>(null);
   const selectedPurpose = purposes.find((purpose) => purpose.value === formData.purpose);
   const maxImages = isGuest ? 4 : 8;
 
@@ -129,59 +126,58 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   }, [initialPurpose]);
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
+    setValidationError('');
     setFormData((current) => ({ ...current, [field]: value }));
   };
 
   const handlePurposeSelect = (value: PurposeValue) => {
+    setValidationError('');
     setFormData((current) => ({ ...current, purpose: value }));
     setStep(2);
   };
 
+  const showValidationError = (message: string) => {
+    setValidationError(message);
+    window.requestAnimationFrame(() => validationErrorRef.current?.focus());
+    return false;
+  };
+
   const validateStep = () => {
     if (step === 1 && !formData.purpose) {
-      toast.error('Choose what this item is for');
-      return false;
+      return showValidationError('Choose what this item is for.');
     }
 
     if (step === 2 && images.length === 0) {
-      toast.error('Please add at least one photo');
-      return false;
+      return showValidationError('Add at least one clear photo before continuing.');
     }
 
     if (step === 3) {
       if (!formData.name || !formData.description || !formData.category || !formData.location || !formData.condition) {
-        toast.error('Please complete the item basics');
-        return false;
+        return showValidationError('Complete the item name, category, condition, state, and description.');
       }
 
       if (formData.purpose === 'SELL' && (!formData.price || Number(formData.price) <= 0)) {
-        toast.error('Add a selling price');
-        return false;
+        return showValidationError('Add a selling price greater than zero.');
       }
 
       if (formData.needsPair && !formData.pairNeeded.trim()) {
-        toast.error('Tell us which missing piece you need');
-        return false;
+        return showValidationError('Describe the missing piece this item needs.');
       }
 
       if (formData.purpose === 'TRADE' && !formData.tradeLookingFor) {
-        toast.error('Tell people what you want to trade for');
-        return false;
+        return showValidationError('Tell people what you would like to receive in the trade.');
       }
 
       if (formData.purpose === 'FIX' && (!formData.repairIssue || !formData.repairGoal)) {
-        toast.error('Add the repair issue and the outcome you want');
-        return false;
+        return showValidationError('Add both the repair issue and the outcome you want.');
       }
 
       if (formData.purpose === 'RECYCLE' && (!formData.recycleMaterial || !formData.recyclePreference)) {
-        toast.error('Add the material type and recycle handoff preference');
-        return false;
+        return showValidationError('Add the material type and a recycle handoff preference.');
       }
 
       if (isGuest && !formData.guestPhone.trim() && !formData.guestEmail.trim() && !formData.guestTelegram.trim()) {
-        toast.error('Add a phone number, Telegram link, or email so buyers can reach you');
-        return false;
+        return showValidationError('Add a phone number, Telegram link, or email so buyers can reach you.');
       }
     }
 
@@ -190,10 +186,14 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
   const nextStep = () => {
     if (!validateStep()) return;
+    setValidationError('');
     setStep((current) => Math.min(current + 1, 4));
   };
 
-  const prevStep = () => setStep((current) => Math.max(current - 1, 1));
+  const prevStep = () => {
+    setValidationError('');
+    setStep((current) => Math.max(current - 1, 1));
+  };
 
   const addFiles = async (fileList: FileList | File[]) => {
     const incoming = Array.from(fileList);
@@ -485,18 +485,19 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
           <h3 className="mb-4 text-lg font-bold">Photos ({previewUrls.length}/{maxImages})</h3>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
             {previewUrls.map((url, index) => (
-              <div key={url} className="group relative aspect-square overflow-hidden rounded-[1.5rem] bg-[var(--sand)]">
+              <div key={url} className="group relative aspect-square overflow-hidden rounded-card bg-[var(--sand)]">
                 <img src={url} alt={`Preview ${index + 1}`} className="h-full w-full object-cover" />
                 <button
                   type="button"
+                  data-keep-round
                   onClick={() => handleRemoveImage(index)}
-                  className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-white text-red-600 opacity-100 soft-shadow md:opacity-0 md:transition-opacity md:group-hover:opacity-100"
+                  className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-pill bg-white text-red-600 opacity-100 soft-shadow md:opacity-0 md:transition-opacity md:group-hover:opacity-100"
                   aria-label={`Remove photo ${index + 1}`}
                 >
                   <X size={16} aria-hidden="true" />
                 </button>
                 {index === 0 && (
-                  <span className="absolute left-2 top-2 rounded-full bg-[var(--brand)] px-3 py-1 text-xs font-bold text-white">
+                  <span className="absolute left-2 top-2 rounded-pill bg-[var(--brand)] px-3 py-1 text-xs font-bold text-white">
                     Cover
                   </span>
                 )}
@@ -507,10 +508,10 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       )}
 
       <div className="flex justify-between gap-3">
-        <Button type="button" variant="outline" onClick={prevStep} className="rounded-full border-[var(--border)] bg-white font-bold">
+        <Button type="button" variant="outline" onClick={prevStep} className="border-[var(--border)] bg-white font-bold">
           Back
         </Button>
-        <Button type="button" onClick={nextStep} disabled={isOptimizing} className="rounded-full bg-[var(--brand)] px-8 font-bold text-white hover:bg-[var(--brand-dark)]">
+        <Button type="button" onClick={nextStep} disabled={isOptimizing} className="bg-[var(--brand)] px-8 font-bold text-white hover:bg-[var(--brand-dark)]">
           {isOptimizing ? <Loader2 className="animate-spin" size={16} /> : null}
           Continue
         </Button>
@@ -521,7 +522,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   const renderPairFields = () => {
     if (formData.needsPair) {
       return (
-        <div className="grid gap-3 rounded-lg bg-[var(--brand-soft)] p-3.5 md:col-span-2 md:grid-cols-2 md:gap-4 md:rounded-[1.5rem] md:p-5">
+        <div className="grid gap-3 rounded-card bg-[var(--brand-soft)] p-3.5 md:col-span-2 md:grid-cols-2 md:gap-4 md:p-5">
           <div className="md:col-span-2">
             <h3 className="text-base font-bold md:text-xl">Missing piece details</h3>
             <p className="mt-1 text-xs font-medium leading-5 text-[var(--ink-soft)] md:text-sm">
@@ -533,31 +534,31 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             <Input
               value={formData.pairNeeded}
               onChange={(event) => handleInputChange('pairNeeded', event.target.value)}
-              className="rounded-lg bg-white md:rounded-full"
+              className="bg-white"
               placeholder="Right AirPod Pro 2 earbud"
               required
             />
           </label>
           <label className="space-y-1.5">
             <span className="text-sm font-bold">Side or position</span>
-            <select
+            <Select
               value={formData.pairSide}
               onChange={(event) => handleInputChange('pairSide', event.target.value)}
-              className="h-12 w-full rounded-lg border border-[var(--border)] bg-white px-3 text-base font-medium outline-none focus:border-[var(--brand)] md:rounded-full"
+              className="h-12 w-full rounded-control border border-[var(--border)] bg-white px-3 text-base font-medium outline-none focus:border-[var(--brand)]"
             >
               <option value="">Not applicable</option>
               {['left', 'right', 'top', 'bottom', 'front', 'back', 'upper', 'lower'].map((side) => (
                 <option key={side} value={side}>{side[0].toUpperCase() + side.slice(1)}</option>
               ))}
-            </select>
+            </Select>
           </label>
           <label className="space-y-1.5">
             <span className="text-sm font-bold">Brand <span className="font-medium text-[var(--muted-foreground)]">(optional)</span></span>
-            <Input value={formData.pairBrand} onChange={(event) => handleInputChange('pairBrand', event.target.value)} className="rounded-lg bg-white md:rounded-full" />
+            <Input value={formData.pairBrand} onChange={(event) => handleInputChange('pairBrand', event.target.value)} className="bg-white" />
           </label>
           <label className="space-y-1.5">
             <span className="text-sm font-bold">Model <span className="font-medium text-[var(--muted-foreground)]">(optional)</span></span>
-            <Input value={formData.pairModel} onChange={(event) => handleInputChange('pairModel', event.target.value)} className="rounded-lg bg-white md:rounded-full" />
+            <Input value={formData.pairModel} onChange={(event) => handleInputChange('pairModel', event.target.value)} className="bg-white" />
           </label>
         </div>
       );
@@ -569,7 +570,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   const renderRouteSpecificFields = () => {
     if (formData.purpose === 'SELL') {
       return (
-        <div className="rounded-[1.5rem] bg-[var(--cream)] p-5 md:col-span-2">
+        <div className="rounded-surface bg-[var(--cream)] p-5 md:col-span-2">
           <h3 className="mb-4 flex items-center gap-2 text-xl font-bold">
             <NairaIcon size={20} />
             Sale details
@@ -584,7 +585,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
                 type="number"
                 value={formData.price}
                 onChange={(event) => handleInputChange('price', event.target.value)}
-                className="rounded-full bg-white pl-10"
+                className="bg-white pl-10"
                 required
               />
             </div>
@@ -595,7 +596,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
     if (formData.purpose === 'TRADE') {
       return (
-        <div className="grid gap-5 rounded-[1.5rem] bg-[var(--cream)] p-5 md:col-span-2 md:grid-cols-2">
+        <div className="grid gap-5 rounded-surface bg-[var(--cream)] p-5 md:col-span-2 md:grid-cols-2">
           <h3 className="flex items-center gap-2 text-xl font-bold md:col-span-2">
             <RefreshCw size={20} aria-hidden="true" />
             Trade details
@@ -605,7 +606,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             <Input
               value={formData.tradeLookingFor}
               onChange={(event) => handleInputChange('tradeLookingFor', event.target.value)}
-              className="rounded-full bg-white"
+              className="bg-white"
               placeholder="Right AirPod, chair leg, spare phone, etc."
               required
             />
@@ -615,7 +616,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             <Input
               value={formData.tradeTerms}
               onChange={(event) => handleInputChange('tradeTerms', event.target.value)}
-              className="rounded-full bg-white"
+              className="bg-white"
               placeholder="Local swap, shipping okay, flexible"
             />
           </label>
@@ -625,7 +626,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
     if (formData.purpose === 'DONATE') {
       return (
-        <div className="space-y-5 rounded-[1.5rem] bg-[var(--cream)] p-5 md:col-span-2">
+        <div className="space-y-5 rounded-surface bg-[var(--cream)] p-5 md:col-span-2">
           <h3 className="flex items-center gap-2 text-xl font-bold">
             <Heart size={20} aria-hidden="true" />
             How should the donation work?
@@ -654,7 +655,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
                 >
                   <div className="flex items-center justify-between gap-3">
                     <p className="font-bold">{option.title}</p>
-                    {option.disabled && <span className="rounded-full bg-[var(--sand)] px-2 py-1 text-[0.65rem] font-bold uppercase text-[var(--ink-soft)]">Coming soon</span>}
+                    {option.disabled && <span className="rounded-pill bg-[var(--sand)] px-2 py-1 text-xs font-bold uppercase text-[var(--ink-soft)]">Coming soon</span>}
                   </div>
                   <p className="mt-1 text-sm font-medium text-[var(--ink-soft)]">{option.text}</p>
                 </div>
@@ -668,7 +669,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
                 <Input
                   value={formData.recipientName}
                   onChange={(event) => handleInputChange('recipientName', event.target.value)}
-                  className="rounded-full bg-white"
+                  className="bg-white"
                   placeholder="Optional"
                 />
               </label>
@@ -677,7 +678,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
                 <Input
                   value={formData.recipientContact}
                   onChange={(event) => handleInputChange('recipientContact', event.target.value)}
-                  className="rounded-full bg-white"
+                  className="bg-white"
                   placeholder="Optional"
                 />
               </label>
@@ -686,7 +687,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
                 <Textarea
                   value={formData.recipientNote}
                   onChange={(event) => handleInputChange('recipientNote', event.target.value)}
-                  className="min-h-[110px] rounded-[1.5rem] bg-white text-base"
+                  className="min-h-[110px] bg-white text-base"
                   placeholder="Optional pickup or handoff note"
                 />
               </label>
@@ -698,7 +699,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
     if (formData.purpose === 'FIX') {
       return (
-        <div className="grid gap-5 rounded-[1.5rem] bg-[var(--cream)] p-5 md:col-span-2 md:grid-cols-2">
+        <div className="grid gap-5 rounded-surface bg-[var(--cream)] p-5 md:col-span-2 md:grid-cols-2">
           <h3 className="flex items-center gap-2 text-xl font-bold md:col-span-2">
             <Wrench size={20} aria-hidden="true" />
             What kind of help do you need?
@@ -708,7 +709,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             <Input
               value={formData.repairIssue}
               onChange={(event) => handleInputChange('repairIssue', event.target.value)}
-              className="rounded-full bg-white"
+              className="bg-white"
               placeholder="Broken hinge, missing cable, torn seam"
               required
             />
@@ -718,7 +719,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             <Input
               value={formData.repairGoal}
               onChange={(event) => handleInputChange('repairGoal', event.target.value)}
-              className="rounded-full bg-white"
+              className="bg-white"
               placeholder="Repair, parts only, restoration"
               required
             />
@@ -733,7 +734,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
                 type="number"
                 value={formData.repairBudget}
                 onChange={(event) => handleInputChange('repairBudget', event.target.value)}
-                className="rounded-full bg-white pl-10"
+                className="bg-white pl-10"
                 placeholder="Optional"
               />
             </div>
@@ -743,7 +744,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             <Input
               value={formData.repairTimeline}
               onChange={(event) => handleInputChange('repairTimeline', event.target.value)}
-              className="rounded-full bg-white"
+              className="bg-white"
               placeholder="Optional"
             />
           </label>
@@ -753,7 +754,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
     if (formData.purpose === 'RECYCLE') {
       return (
-        <div className="grid gap-5 rounded-[1.5rem] bg-[var(--cream)] p-5 md:col-span-2 md:grid-cols-2">
+        <div className="grid gap-5 rounded-surface bg-[var(--cream)] p-5 md:col-span-2 md:grid-cols-2">
           <h3 className="flex items-center gap-2 text-xl font-bold md:col-span-2">
             <Recycle size={20} aria-hidden="true" />
             What can be reused?
@@ -763,17 +764,17 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             <Input
               value={formData.recycleMaterial}
               onChange={(event) => handleInputChange('recycleMaterial', event.target.value)}
-              className="rounded-full bg-white"
+              className="bg-white"
               placeholder="Metal, battery, wood, fabric, circuit board"
               required
             />
           </label>
           <label className="space-y-2">
             <span className="text-sm font-bold">Handoff preference</span>
-            <select
+            <Select
               value={formData.recyclePreference}
               onChange={(event) => handleInputChange('recyclePreference', event.target.value)}
-              className="h-12 w-full rounded-full border border-[var(--border)] bg-white px-4 text-base font-medium outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
+              className="h-12 w-full rounded-control border border-[var(--border)] bg-white px-4 text-base font-medium outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
               required
             >
               <option value="">Choose option</option>
@@ -781,14 +782,14 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
               <option value="DROPOFF">I can drop it off</option>
               <option value="SHIP">I can ship it</option>
               <option value="FLEXIBLE">Flexible</option>
-            </select>
+            </Select>
           </label>
           <label className="space-y-2">
             <span className="text-sm font-bold">Quantity or size</span>
             <Input
               value={formData.recycleQuantity}
               onChange={(event) => handleInputChange('recycleQuantity', event.target.value)}
-              className="rounded-full bg-white"
+              className="bg-white"
               placeholder="Optional"
             />
           </label>
@@ -797,7 +798,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             <Input
               value={formData.recycleNotes}
               onChange={(event) => handleInputChange('recycleNotes', event.target.value)}
-              className="rounded-full bg-white"
+              className="bg-white"
               placeholder="Optional"
             />
           </label>
@@ -830,7 +831,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
               type="tel"
               value={formData.guestPhone}
               onChange={(event) => handleInputChange('guestPhone', event.target.value)}
-              className="h-11 rounded-lg bg-white px-3 text-base md:h-12 md:rounded-full md:px-4"
+              className="h-11 bg-white px-3 text-base md:h-12 md:px-4"
               placeholder="+234 800 000 0000"
               autoComplete="tel"
               maxLength={24}
@@ -842,7 +843,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
               type="email"
               value={formData.guestEmail}
               onChange={(event) => handleInputChange('guestEmail', event.target.value)}
-              className="h-11 rounded-lg bg-white px-3 text-base md:h-12 md:rounded-full md:px-4"
+              className="h-11 bg-white px-3 text-base md:h-12 md:px-4"
               placeholder="you@example.com"
               autoComplete="email"
               maxLength={254}
@@ -854,7 +855,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
               type="url"
               value={formData.guestTelegram}
               onChange={(event) => handleInputChange('guestTelegram', event.target.value)}
-              className="h-11 rounded-lg bg-white px-3 text-base md:h-12 md:rounded-full md:px-4"
+              className="h-11 bg-white px-3 text-base md:h-12 md:px-4"
               placeholder="https://t.me/username"
               inputMode="url"
               maxLength={120}
@@ -887,17 +888,17 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
           <Input
             value={formData.name}
             onChange={(event) => handleInputChange('name', event.target.value)}
-            className="rounded-full bg-white"
+            className="bg-white"
             required
           />
         </label>
 
         <label className="space-y-2">
           <span className="text-sm font-bold">Category</span>
-          <select
+          <Select
             value={formData.category}
             onChange={(event) => handleInputChange('category', event.target.value)}
-            className="h-12 w-full rounded-full border border-[var(--border)] bg-white px-4 text-base font-medium outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
+            className="h-12 w-full rounded-control border border-[var(--border)] bg-white px-4 text-base font-medium outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
             required
           >
             <option value="">Choose category</option>
@@ -906,15 +907,15 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
                 {category.label}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
 
         <label className="space-y-2">
           <span className="text-sm font-bold">Condition</span>
-          <select
+          <Select
             value={formData.condition}
             onChange={(event) => handleInputChange('condition', event.target.value)}
-            className="h-12 w-full rounded-full border border-[var(--border)] bg-white px-4 text-base font-medium outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
+            className="h-12 w-full rounded-control border border-[var(--border)] bg-white px-4 text-base font-medium outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
             required
           >
             <option value="">Choose condition</option>
@@ -923,22 +924,22 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
                 {condition.label}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
 
         <label className="space-y-2">
           <span className="text-sm font-bold">
             {formData.purpose === 'RECYCLE' ? 'Pickup or handoff state' : 'State'}
           </span>
-          <select
+          <Select
             value={formData.location}
             onChange={(event) => handleInputChange('location', event.target.value)}
-            className="h-12 w-full rounded-full border border-[var(--border)] bg-white px-4 text-base font-semibold outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
+            className="h-12 w-full rounded-control border border-[var(--border)] bg-white px-4 text-base font-semibold outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/15"
             required
           >
             <option value="">Choose a state</option>
             {nigerianStates.map((state) => <option key={state} value={state}>{state}</option>)}
-          </select>
+          </Select>
         </label>
 
         <label className="space-y-2 md:col-span-2">
@@ -946,7 +947,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
           <Textarea
             value={formData.description}
             onChange={(event) => handleInputChange('description', event.target.value)}
-            className="min-h-[112px] rounded-lg bg-white text-base md:min-h-[150px] md:rounded-[1.5rem]"
+            className="min-h-[112px] bg-white text-base md:min-h-[150px]"
             required
           />
         </label>
@@ -975,10 +976,10 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       </div>
 
       <div className="flex justify-between gap-3">
-        <Button type="button" variant="outline" onClick={prevStep} className="rounded-full border-[var(--border)] bg-white font-bold">
+        <Button type="button" variant="outline" onClick={prevStep} className="border-[var(--border)] bg-white font-bold">
           Back
         </Button>
-        <Button type="button" onClick={nextStep} className="rounded-full bg-[var(--brand)] px-8 font-bold text-white hover:bg-[var(--brand-dark)]">
+        <Button type="button" onClick={nextStep} className="bg-[var(--brand)] px-8 font-bold text-white hover:bg-[var(--brand-dark)]">
           Review
         </Button>
       </div>
@@ -1027,13 +1028,13 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         </div>
       )}
 
-      <div className="surface-card rounded-[1.5rem] p-5">
+      <div className="surface-card rounded-surface p-5">
         <h3 className="mb-4 flex items-center gap-2 text-xl font-bold">
           <ImageIcon size={20} aria-hidden="true" />
           Listing Preview
         </h3>
         <div className="flex flex-col gap-4 md:flex-row">
-          <div className="flex h-36 w-full items-center justify-center overflow-hidden rounded-[1.5rem] bg-[var(--sand)] md:w-36">
+          <div className="flex h-36 w-full items-center justify-center overflow-hidden rounded-card bg-[var(--sand)] md:w-36">
             {previewUrls[0] ? (
               <img src={previewUrls[0]} alt="Listing preview" className="h-full w-full object-cover" />
             ) : (
@@ -1064,13 +1065,13 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       </div>
 
       <div className="flex flex-col-reverse justify-between gap-3 md:flex-row">
-        <Button type="button" variant="outline" onClick={prevStep} disabled={isUploading} className="rounded-full border-[var(--border)] bg-white font-bold">
+        <Button type="button" variant="outline" onClick={prevStep} disabled={isUploading} className="border-[var(--border)] bg-white font-bold">
           Back
         </Button>
         <Button
           type="submit"
           disabled={isUploading}
-          className="rounded-full bg-[var(--brand)] px-8 font-bold text-white hover:bg-[var(--brand-dark)]"
+          className="bg-[var(--brand)] px-8 font-bold text-white hover:bg-[var(--brand-dark)]"
         >
           {isUploading ? <Loader2 className="animate-spin" size={17} /> : <CheckCircle size={17} />}
           {isUploading ? 'Publishing...' : 'Publish Listing'}
@@ -1088,12 +1089,10 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         {(selectedPurpose || isGuest) && (
           <div className="mx-auto mt-2 flex max-w-2xl flex-wrap items-center justify-center gap-2 md:mt-5 md:gap-3">
             {selectedPurpose && (
-              <span className="rounded-full bg-[var(--brand-soft)] px-3 py-1.5 text-xs font-bold text-[var(--brand)] md:px-4 md:py-2 md:text-sm">
-                {purposeDisplay[selectedPurpose.value]}
-              </span>
+              <IntentBadge intent={selectedPurpose.value} />
             )}
             {isGuest && (
-              <span className="rounded-full bg-[#e2f7ff] px-3 py-1.5 text-xs font-bold text-[var(--secondary-blue)] md:px-4 md:py-2 md:text-sm">
+              <span className="rounded-pill bg-[var(--secondary-container)] px-3 py-1.5 text-xs font-bold text-[var(--secondary-blue)] md:px-4 md:py-2 md:text-sm">
                 Guest
               </span>
             )}
@@ -1122,7 +1121,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
                 >
                   {step > stepNumber ? <CheckCircle size={17} className="md:h-[19px] md:w-[19px]" aria-hidden="true" /> : <Icon size={17} className="md:h-[19px] md:w-[19px]" aria-hidden="true" />}
                 </div>
-                <span className={cn('text-[0.7rem] font-bold md:text-sm', active ? 'text-[var(--brand)]' : 'text-[var(--muted-foreground)]')}>
+                <span className={cn('text-xs font-bold md:text-sm', active ? 'text-[var(--brand)]' : 'text-[var(--muted-foreground)]')}>
                   {item.label}
                 </span>
               </div>
@@ -1131,7 +1130,18 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="overflow-hidden bg-transparent p-0 md:rounded-[2rem] md:border md:border-[var(--border)]/45 md:bg-white md:p-8">
+      <form onSubmit={handleSubmit} className="overflow-hidden bg-transparent p-0 md:rounded-feature md:border md:border-[var(--border)]/45 md:bg-white md:p-8">
+        {validationError && (
+          <div
+            ref={validationErrorRef}
+            tabIndex={-1}
+            role="alert"
+            className="mb-5 flex items-start gap-3 rounded-control border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm font-semibold leading-6 text-destructive outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-destructive"
+          >
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+            <span>{validationError}</span>
+          </div>
+        )}
         <AnimatePresence mode="wait">
           {step === 1 && renderIntentStep()}
           {step === 2 && renderPhotosStep()}

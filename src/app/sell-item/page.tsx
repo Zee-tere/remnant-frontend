@@ -36,7 +36,7 @@ function SellItemPageContent() {
     return (
       <main className="flex min-h-[calc(100dvh-7rem)] items-center bg-[var(--background)] px-4 py-8 md:block md:min-h-0 md:px-8 md:py-16">
         <section className="mx-auto max-w-md">
-          <div className="surface-card rounded-xl bg-white p-4 md:rounded-[2rem] md:p-8">
+          <div className="surface-card rounded-card bg-white p-4 md:rounded-feature md:p-8">
             <div className="space-y-3">
               <Button asChild className="h-13 w-full rounded-full bg-[var(--brand)] text-base font-bold text-white hover:bg-[var(--brand-dark)] md:h-14">
                 <Link href={`/signup?redirect=${encodeURIComponent(listingPath)}`}>
@@ -63,7 +63,7 @@ function SellItemPageContent() {
               </Button>
             </div>
 
-            <div className="mt-4 rounded-lg bg-[var(--brand-soft)] p-3.5 md:mt-6 md:rounded-[1.5rem] md:p-5">
+            <div className="mt-4 rounded-card bg-[var(--brand-soft)] p-3.5 md:mt-6 md:rounded-surface md:p-5">
               <p className="flex gap-2 text-sm font-medium leading-5 text-[var(--ink-soft)] md:font-semibold md:leading-6">
                 <ShieldCheck className="mt-0.5 shrink-0 text-[var(--secondary-blue)]" size={18} aria-hidden="true" />
                 A profile saves your listings, keeps messages together, and helps people trust you.

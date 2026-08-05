@@ -175,7 +175,7 @@ export default function GuestMessagesPage() {
       className="fixed inset-x-0 top-0 z-[80] h-dvh bg-white md:static md:mx-auto md:h-auto md:max-w-3xl md:transform-none md:px-5 md:py-12"
     >
       <section className="flex h-full min-h-0 flex-col overflow-hidden bg-white md:h-[min(680px,78dvh)] md:rounded-lg md:border md:border-[var(--border)]/70">
-        <header className="flex items-center gap-2 border-b border-[#f1f0ec] px-2 py-1.5 sm:px-5 sm:py-3">
+        <header className="flex items-center gap-2 border-b border-[var(--line-soft)] px-2 py-1.5 sm:px-5 sm:py-3">
           <Link href={`/marketplace/${data.conversation.listing.id}`} className="flex h-11 w-11 shrink-0 items-center justify-center text-[var(--foreground)] hover:text-[var(--brand)]" aria-label="Back to item"><ArrowLeft size={18} /></Link>
           <NameAvatar name={data.conversation.seller.name} className="h-9 w-9 shrink-0 text-xs" />
           <div className="min-w-0">
@@ -196,12 +196,12 @@ export default function GuestMessagesPage() {
             const mine = item.senderId === data.conversation.buyerId;
             return (
               <div key={item.id} className={`flex items-end gap-2 ${mine ? "justify-end" : "justify-start"}`}>
-                {!mine && <NameAvatar name={data.conversation.seller.name} className="h-7 w-7 shrink-0 text-[0.62rem]" />}
-                <div className={`max-w-[82%] rounded-[18px] px-3 py-2.5 text-sm leading-5 ${mine ? "rounded-br-md bg-[var(--brand)] text-white" : "rounded-bl-md bg-[#f1f1ef] text-[var(--foreground)]"}`}>
+                {!mine && <NameAvatar name={data.conversation.seller.name} className="h-7 w-7 shrink-0 text-xs" />}
+                <div className={`max-w-[82%] rounded-card px-3 py-2.5 text-sm leading-5 ${mine ? "rounded-br-md bg-[var(--brand)] text-white" : "rounded-bl-md bg-[var(--sand)] text-[var(--foreground)]"}`}>
                   <p>{item.content}</p>
                   <p className={`mt-1 text-[11px] ${mine ? "text-white/70" : "text-[var(--muted-foreground)]"}`}>{item.clientState === "sending" ? "Sending…" : new Date(item.createdAt).toLocaleString("en-NG", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</p>
                 </div>
-                {mine && <NameAvatar name={data.conversation.buyer.name || "You"} className="h-7 w-7 shrink-0 text-[0.62rem]" />}
+                {mine && <NameAvatar name={data.conversation.buyer.name || "You"} className="h-7 w-7 shrink-0 text-xs" />}
               </div>
             );
           })}

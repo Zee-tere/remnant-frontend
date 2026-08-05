@@ -98,7 +98,7 @@ function formatDate(value: string) {
 }
 
 function StatusBadge({ value }: { value: string }) {
-  return <span className={`inline-flex rounded-full px-2 py-1 text-[0.68rem] font-bold ${statusTone[value] || "bg-[var(--sand)] text-[var(--ink-soft)]"}`}>{value.replaceAll("_", " ")}</span>;
+  return <span className={`inline-flex rounded-pill px-2 py-1 text-xs font-bold ${statusTone[value] || "bg-[var(--sand)] text-[var(--ink-soft)]"}`}>{value.replaceAll("_", " ")}</span>;
 }
 
 function MessageDialog({ target, busy, onClose, onSend }: { target: { id: string; name: string }; busy: boolean; onClose: () => void; onSend: (message: string) => Promise<void> }) {

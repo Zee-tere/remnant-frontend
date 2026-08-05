@@ -44,14 +44,14 @@ interface TransactionRow {
 }
 
 const statusMeta: Record<TransactionStatus, { label: string; className: string; icon: ElementType }> = {
-  INITIATED: { label: "Awaiting payment", className: "bg-amber-50 text-amber-700", icon: CreditCard },
-  FUNDED: { label: "Paid", className: "bg-emerald-50 text-emerald-700", icon: ShieldCheck },
-  SHIPPED: { label: "Shipped", className: "bg-sky-50 text-sky-700", icon: Truck },
-  RECEIVED: { label: "Received", className: "bg-indigo-50 text-indigo-700", icon: PackageCheck },
-  COMPLETE: { label: "Complete", className: "bg-neutral-100 text-neutral-800", icon: CheckCircle2 },
-  DISPUTED: { label: "Disputed", className: "bg-red-50 text-red-700", icon: AlertTriangle },
-  REFUNDED: { label: "Refunded", className: "bg-neutral-100 text-neutral-700", icon: CreditCard },
-  CANCELLED: { label: "Cancelled", className: "bg-neutral-100 text-neutral-700", icon: CreditCard },
+  INITIATED: { label: "Awaiting payment", className: "bg-state-pending-container text-state-pending", icon: CreditCard },
+  FUNDED: { label: "Payment secured", className: "bg-state-success-container text-state-success", icon: ShieldCheck },
+  SHIPPED: { label: "In transit", className: "bg-state-info-container text-state-info", icon: Truck },
+  RECEIVED: { label: "Received", className: "bg-state-info-container text-state-info", icon: PackageCheck },
+  COMPLETE: { label: "Complete", className: "bg-state-success-container text-state-success", icon: CheckCircle2 },
+  DISPUTED: { label: "Problem reported", className: "bg-state-danger-container text-state-danger", icon: AlertTriangle },
+  REFUNDED: { label: "Refunded", className: "bg-state-neutral-container text-state-neutral", icon: CreditCard },
+  CANCELLED: { label: "Cancelled", className: "bg-state-neutral-container text-state-neutral", icon: CreditCard },
 };
 
 function formatDate(value: string) {
@@ -127,7 +127,7 @@ export default function TransactionsSection() {
         </Button>
       </div>
 
-      <section className="rounded-xl border border-[var(--border)] bg-card p-4">
+      <section className="rounded-card border border-[var(--border)] bg-card p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <Input
             value={query}
@@ -153,7 +153,7 @@ export default function TransactionsSection() {
       </section>
 
       {filtered.length === 0 ? (
-        <section className="flex min-h-[320px] flex-col items-center justify-center rounded-xl border border-dashed border-[var(--border)] bg-card px-6 text-center">
+        <section className="flex min-h-[320px] flex-col items-center justify-center rounded-card border border-dashed border-[var(--border)] bg-card px-6 text-center">
           <div className="mb-4 flex h-14 w-14 items-center justify-center text-[var(--brand)]">
             <Package className="text-[var(--brand)]" size={26} />
           </div>
@@ -173,7 +173,7 @@ export default function TransactionsSection() {
             return (
               <section
                 key={transaction.id}
-                className="rounded-xl border border-[var(--border)] bg-card p-4 transition-colors hover:border-[var(--brand)]/50"
+                className="rounded-card border border-[var(--border)] bg-card p-4 transition-colors hover:border-[var(--brand)]/50"
               >
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                   <div className="flex min-w-0 gap-4">
@@ -188,7 +188,7 @@ export default function TransactionsSection() {
                     </div>
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold", meta.className)}>
+                        <span className={cn("inline-flex items-center gap-1 rounded-pill px-2.5 py-1 text-xs font-bold", meta.className)}>
                           <Icon size={13} />
                           {meta.label}
                         </span>

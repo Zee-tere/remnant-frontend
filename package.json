@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
+    "design:check": "node scripts/check-design-tokens.mjs",
+    "lint": "npm run design:check && eslint .",
     "deploy:dev": "sst deploy --stage dev",
     "deploy:prod": "sst deploy --stage production"
   },

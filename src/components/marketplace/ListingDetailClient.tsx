@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   ChevronDown,
   ExternalLink,
-  HandHeart,
   Heart,
   Loader2,
   Mail,
@@ -17,11 +16,8 @@ import {
   MessageSquare,
   Package,
   Phone,
-  Recycle,
-  RefreshCw,
   Share2,
   Send,
-  Wrench,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -30,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { NameAvatar } from "@/components/ui/name-avatar";
-import { NairaIcon } from "@/components/ui/naira-icon";
+import { IntentBadge, listingIntentMeta, normalizeListingIntent } from "@/components/ui/intent-badge";
 import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
 import { listingsApi, conversationsApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
@@ -41,14 +37,6 @@ import type { PublicListing } from "@/lib/public-listings";
 
 type ListingDetail = PublicListing;
 type SellerContact = { phone?: string; email?: string; telegram?: string };
-
-const intentionMeta: Record<string, { icon: React.ElementType; label: string; className: string }> = {
-  SELL: { icon: NairaIcon, label: "For sale", className: "bg-[var(--brand-soft)] text-[var(--brand)]" },
-  TRADE: { icon: RefreshCw, label: "For trade", className: "bg-[#e2f7ff] text-[var(--secondary-blue)]" },
-  DONATE: { icon: HandHeart, label: "Free", className: "bg-[#fff6cf] text-[var(--tertiary-gold)]" },
-  FIX: { icon: Wrench, label: "Repair", className: "bg-orange-50 text-orange-700" },
-  RECYCLE: { icon: Recycle, label: "Recycle", className: "bg-teal-50 text-teal-700" },
-};
 
 function formatListedDate(value?: string) {
   if (!value) return "Recently";
@@ -61,11 +49,7 @@ function getListingValue(listing: ListingDetail) {
   if (listing.intentionTag === "SELL") {
     return listing.price ? formatCurrency(Number(listing.price)) : "Price on request";
   }
-  if (listing.intentionTag === "TRADE") return "Open to trade";
-  if (listing.intentionTag === "DONATE") return "Free";
-  if (listing.intentionTag === "FIX") return "Needs repair";
-  if (listing.intentionTag === "RECYCLE") return "Ready to recycle";
-  return "View item";
+  return listingIntentMeta[normalizeListingIntent(listing.intentionTag)].valueLabel;
 }
 
 function GuestMessageDialog({
@@ -106,7 +90,7 @@ function GuestMessageDialog({
             <p className="mx-auto mt-2 max-w-sm text-sm font-medium leading-6 text-[var(--ink-soft)]">
               They will contact you directly using the phone, WhatsApp, email, or Telegram detail you provided. This guest enquiry will not continue in Remnant chat.
             </p>
-            <Button type="button" onClick={onClose} className="mt-6 h-12 w-full rounded-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]">
+            <Button type="button" onClick={onClose} className="mt-6 h-12 w-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]">
               Done
             </Button>
           </div>
@@ -116,24 +100,24 @@ function GuestMessageDialog({
             <h2 id="guest-message-title" className="text-lg font-bold sm:text-xl">Send an offer</h2>
             <p className="mt-0.5 text-xs text-[var(--muted-foreground)] sm:mt-1 sm:text-sm">No account needed. The seller will contact you directly.</p>
           </div>
-          <button type="button" onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-[var(--sand)]" aria-label="Close">
+          <button type="button" data-keep-round onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-pill hover:bg-[var(--sand)]" aria-label="Close">
             <X size={18} />
           </button>
         </div>
         <label className="block space-y-1.5">
           <Label htmlFor="guest-name" className="text-xs font-bold leading-5 sm:text-sm">Name</Label>
-          <Input id="guest-name" value={name} onChange={(event) => setName(event.target.value)} minLength={2} maxLength={80} required autoComplete="name" className="h-11 rounded-lg px-3 text-base sm:h-12 sm:rounded-full sm:px-4" />
+          <Input id="guest-name" value={name} onChange={(event) => setName(event.target.value)} minLength={2} maxLength={80} required autoComplete="name" className="h-11 px-3 text-base sm:h-12 sm:px-4" />
         </label>
         <label className="block space-y-1.5">
           <Label htmlFor="guest-contact" className="text-xs font-bold leading-5 sm:text-sm">Contact</Label>
-          <Input id="guest-contact" value={contact} onChange={(event) => setContact(event.target.value)} minLength={5} maxLength={180} required placeholder="Phone, WhatsApp, email, or Telegram" autoComplete="email" className="h-11 rounded-lg px-3 text-base sm:h-12 sm:rounded-full sm:px-4" />
-          <span className="block text-[0.7rem] leading-4 text-[var(--muted-foreground)]">Include the platform you want the seller to use, for example “WhatsApp: +234…”</span>
+          <Input id="guest-contact" value={contact} onChange={(event) => setContact(event.target.value)} minLength={5} maxLength={180} required placeholder="Phone, WhatsApp, email, or Telegram" autoComplete="email" className="h-11 px-3 text-base sm:h-12 sm:px-4" />
+          <span className="block text-xs leading-5 text-[var(--muted-foreground)]">Include the platform you want the seller to use, for example “WhatsApp: +234…”</span>
         </label>
         <label className="block space-y-1.5">
           <Label htmlFor="guest-offer" className="text-xs font-bold leading-5 sm:text-sm">Offer</Label>
-          <Textarea id="guest-offer" value={offer} onChange={(event) => setOffer(event.target.value)} maxLength={2000} required rows={3} className="min-h-[92px] rounded-lg px-3 py-2.5 text-base sm:min-h-[110px] sm:rounded-[1.5rem] sm:px-4 sm:py-3" />
+          <Textarea id="guest-offer" value={offer} onChange={(event) => setOffer(event.target.value)} maxLength={2000} required rows={3} className="min-h-[92px] px-3 py-2.5 text-base sm:min-h-[110px] sm:px-4 sm:py-3" />
         </label>
-        <Button type="submit" disabled={busy} className="h-12 w-full rounded-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]">
+        <Button type="submit" disabled={busy} className="h-12 w-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]">
           {busy ? <Loader2 size={18} className="animate-spin" /> : <MessageSquare size={18} />}
           {busy ? "Sending..." : "Send offer"}
         </Button>
@@ -175,7 +159,7 @@ function SellerContactDialog({
             <h2 id="seller-contact-title" className="text-xl font-bold">Contact the seller</h2>
             <p className="mt-1 text-sm text-[var(--muted-foreground)]">Choose the option that works for you.</p>
           </div>
-          <button type="button" onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-[var(--sand)]" aria-label="Close">
+          <button type="button" data-keep-round onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-pill hover:bg-[var(--sand)]" aria-label="Close">
             <X size={18} />
           </button>
         </div>
@@ -319,8 +303,6 @@ export default function ListingDetailClient({ initialListing }: { initialListing
     }
   };
 
-  const intent = intentionMeta[listing.intentionTag] ?? intentionMeta.SELL;
-  const IntentIcon = intent.icon;
   const selectedSrc = listing.images?.[selectedImage];
   const isGuestSeller = Boolean(listing.isGuestListing || listing.user?.name === "Guest");
   const isOwnListing = listing.user?.id === user?.id;
@@ -335,17 +317,17 @@ export default function ListingDetailClient({ initialListing }: { initialListing
 
       <div className="grid gap-4 lg:grid-cols-12 lg:gap-8">
         <section className="lg:col-span-7">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="group relative aspect-[4/3] overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--sand)] md:aspect-square">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="group relative aspect-[4/3] overflow-hidden rounded-card border border-[var(--border)] bg-[var(--sand)] md:aspect-square">
             {selectedSrc ? (
               <img src={selectedSrc} alt={listing.title} decoding="async" fetchPriority="high" className="h-full w-full object-cover" />
             ) : (
               <div className="flex h-full items-center justify-center text-[var(--muted-foreground)]"><Package size={64} /></div>
             )}
             <div className="absolute right-2 top-2 flex gap-1.5">
-              <button type="button" onClick={handleSaveListing} disabled={isSaving} className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border)]/55 bg-white text-[var(--brand)]" aria-label="Save listing">
+              <button type="button" data-keep-round onClick={handleSaveListing} disabled={isSaving} className="flex h-11 w-11 items-center justify-center rounded-pill border border-[var(--border)]/55 bg-white text-[var(--brand)]" aria-label="Save listing">
                 {isSaving ? <Loader2 size={17} className="animate-spin" /> : <Heart size={17} />}
               </button>
-              <button type="button" onClick={handleShareListing} className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border)]/55 bg-white text-[var(--secondary-blue)]" aria-label="Share listing"><Share2 size={17} /></button>
+              <button type="button" data-keep-round onClick={handleShareListing} className="flex h-11 w-11 items-center justify-center rounded-pill border border-[var(--border)]/55 bg-white text-[var(--secondary-blue)]" aria-label="Share listing"><Share2 size={17} /></button>
             </div>
           </motion.div>
 
@@ -362,9 +344,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
 
         <section className="lg:col-span-5">
           <div className="sticky top-24 space-y-4">
-            <span className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.7rem] font-bold md:px-3 md:text-sm ${intent.className}`}>
-              <IntentIcon size={12} className="md:h-4 md:w-4" /> {intent.label}
-            </span>
+            <IntentBadge intent={listing.intentionTag} />
             <div>
               <h1 className="text-xl font-bold leading-tight md:text-4xl">{listing.title}</h1>
               <p className="mt-2 text-xl font-bold text-[var(--brand)] md:text-3xl">{getListingValue(listing)}</p>
@@ -380,7 +360,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
                   key={panel.key}
                   type="button"
                   onClick={() => setActivePanel((current) => current === panel.key ? null : panel.key)}
-                  className={`flex min-h-11 items-center justify-between rounded-lg border px-3 text-left text-[0.8rem] font-bold md:text-sm ${activePanel === panel.key ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-[var(--border)] bg-white"}`}
+                  className={`flex min-h-11 items-center justify-between rounded-control border px-3 text-left text-sm font-bold ${activePanel === panel.key ? "border-[var(--brand)] bg-[var(--brand-soft)] text-[var(--brand)]" : "border-[var(--border)] bg-white"}`}
                   aria-expanded={activePanel === panel.key}
                 >
                   {panel.label}
@@ -390,7 +370,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
             </div>
 
             {activePanel === "details" && (
-              <div className="rounded-lg border border-[var(--border)] bg-white p-4 text-sm">
+              <div className="rounded-card border border-[var(--border)] bg-white p-4 text-sm">
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
                   <div><dt className="text-xs font-semibold text-[var(--muted-foreground)]">Category</dt><dd className="mt-0.5 font-bold">{listing.category}</dd></div>
                   <div><dt className="text-xs font-semibold text-[var(--muted-foreground)]">Condition</dt><dd className="mt-0.5 font-bold">{conditionLabels[listing.condition] || listing.condition}</dd></div>
@@ -405,7 +385,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
             )}
 
             {activePanel === "seller" && (
-              <div className="flex items-center gap-3 rounded-lg border border-[var(--border)] bg-white p-4">
+              <div className="flex items-center gap-3 rounded-card border border-[var(--border)] bg-white p-4">
                 <NameAvatar name={listing.user?.name || "Guest"} className="h-11 w-11 text-base" />
                 <div className="min-w-0">
                   <p className="truncate font-bold">{listing.user?.name || "Guest seller"}</p>
@@ -417,7 +397,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
             <Button
               onClick={handleMessageSeller}
               disabled={isMessaging || isOwnListing}
-              className="h-12 w-full rounded-full bg-[var(--brand)] text-sm font-bold text-white hover:bg-[var(--brand-dark)]"
+              className="h-12 w-full bg-[var(--brand)] text-sm font-bold text-white hover:bg-[var(--brand-dark)]"
             >
               {isMessaging ? <Loader2 size={18} className="animate-spin" /> : <MessageSquare size={18} />}
               {isOwnListing ? "Your listing" : isMessaging ? "Connecting..." : isGuestSeller ? "Contact seller" : "Message seller"}

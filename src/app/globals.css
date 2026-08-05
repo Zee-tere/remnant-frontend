@@ -40,6 +40,45 @@
   --sky-soft: #eaf5fb;
   --peach-soft: #fff0e8;
 
+  /* Intent semantics: text/icon + container pairs, never color-only meaning. */
+  --intent-sell: #006c52;
+  --intent-sell-container: #e4f4ed;
+  --intent-trade: #006783;
+  --intent-trade-container: #e2f4f8;
+  --intent-donate: #8f3f58;
+  --intent-donate-container: #fbe9ef;
+  --intent-repair: #8a4b00;
+  --intent-repair-container: #fff0d7;
+  --intent-recycle: #13705e;
+  --intent-recycle-container: #e2f4ef;
+  --state-success: #006c52;
+  --state-success-container: #e4f4ed;
+  --state-info: #006783;
+  --state-info-container: #e2f4f8;
+  --state-pending: #6c5e20;
+  --state-pending-container: #fff3c4;
+  --state-danger: #a52a2a;
+  --state-danger-container: #fdeaea;
+  --state-neutral: #3e4944;
+  --state-neutral-container: #f1f2f1;
+
+  /* Shape geometry: exposed to Tailwind as rounded-control/card/surface/feature/pill. */
+  --shape-radius-control: 0.625rem;
+  --shape-radius-card: 1rem;
+  --shape-radius-surface: 1.5rem;
+  --shape-radius-feature: 2rem;
+  --shape-radius-pill: 999px;
+
+  /* Control and layer contracts. */
+  --control-height-sm: 2.5rem;
+  --control-height: 3rem;
+  --control-height-lg: 3.25rem;
+  --layer-base: 0;
+  --layer-sticky: 40;
+  --layer-dock: 60;
+  --layer-overlay: 80;
+  --layer-toast: 120;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: "Avenir Next", "Trebuchet MS", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
@@ -147,10 +186,15 @@
 }
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 6px);
-  --radius-md: calc(var(--radius) - 4px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 8px);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: var(--shape-radius-control);
+  --radius-xl: var(--shape-radius-card);
+  --radius-control: var(--shape-radius-control);
+  --radius-card: var(--shape-radius-card);
+  --radius-surface: var(--shape-radius-surface);
+  --radius-feature: var(--shape-radius-feature);
+  --radius-pill: var(--shape-radius-pill);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -183,6 +227,26 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-intent-sell: var(--intent-sell);
+  --color-intent-sell-container: var(--intent-sell-container);
+  --color-intent-trade: var(--intent-trade);
+  --color-intent-trade-container: var(--intent-trade-container);
+  --color-intent-donate: var(--intent-donate);
+  --color-intent-donate-container: var(--intent-donate-container);
+  --color-intent-repair: var(--intent-repair);
+  --color-intent-repair-container: var(--intent-repair-container);
+  --color-intent-recycle: var(--intent-recycle);
+  --color-intent-recycle-container: var(--intent-recycle-container);
+  --color-state-success: var(--state-success);
+  --color-state-success-container: var(--state-success-container);
+  --color-state-info: var(--state-info);
+  --color-state-info-container: var(--state-info-container);
+  --color-state-pending: var(--state-pending);
+  --color-state-pending-container: var(--state-pending-container);
+  --color-state-danger: var(--state-danger);
+  --color-state-danger-container: var(--state-danger-container);
+  --color-state-neutral: var(--state-neutral);
+  --color-state-neutral-container: var(--state-neutral-container);
 
   --breakpoint-xs: 360px;
   --breakpoint-sm: 640px;
@@ -280,7 +344,7 @@
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   textarea,
   select {
-    border-radius: 0.75rem !important;
+    border-radius: var(--shape-radius-control) !important;
   }
 
   svg.lucide {
@@ -675,7 +739,7 @@
     right: max(0.625rem, var(--safe-area-right));
     bottom: calc(0.45rem + var(--safe-area-bottom));
     left: max(0.625rem, var(--safe-area-left));
-    z-index: 60;
+    z-index: var(--layer-dock);
     pointer-events: none;
     transform: translate3d(0, 0, 0);
     isolation: isolate;

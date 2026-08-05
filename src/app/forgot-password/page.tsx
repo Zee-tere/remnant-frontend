@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
           <ArrowLeft size={16} aria-hidden="true" />
           Back to login
         </Link>
-        <form onSubmit={submit} className="surface-card rounded-[1.5rem] bg-white p-6 md:p-8">
+        <form onSubmit={submit} className="surface-card rounded-surface bg-white p-6 md:p-8">
           <div className="mb-5 flex h-12 w-12 items-center justify-center text-[var(--brand)]">
             <ShieldCheck size={23} aria-hidden="true" />
           </div>
@@ -57,7 +57,7 @@ export default function ForgotPasswordPage() {
             <span className="text-sm font-bold">Email address</span>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" size={17} aria-hidden="true" />
-              <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} disabled={codeSent} required autoComplete="email" className="h-[52px] w-full rounded-full border border-[var(--border)] bg-white pl-11 pr-4 text-base font-semibold outline-none focus:border-[var(--brand)] disabled:bg-[var(--sand)]" />
+              <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} disabled={codeSent} required autoComplete="email" className="h-[52px] w-full rounded-control border border-[var(--border)] bg-white pl-11 pr-4 text-base font-semibold outline-none focus:border-[var(--brand)] disabled:bg-[var(--sand)]" />
             </div>
           </label>
 
@@ -65,11 +65,11 @@ export default function ForgotPasswordPage() {
             <>
               <label className="mt-4 block space-y-2">
                 <span className="text-sm font-bold">Reset code</span>
-                <input value={code} onChange={(event) => setCode(event.target.value)} required autoComplete="one-time-code" className="h-[52px] w-full rounded-full border border-[var(--border)] bg-white px-4 text-base font-semibold outline-none focus:border-[var(--brand)]" />
+                <input value={code} onChange={(event) => setCode(event.target.value)} required autoComplete="one-time-code" className="h-[52px] w-full rounded-control border border-[var(--border)] bg-white px-4 text-base font-semibold outline-none focus:border-[var(--brand)]" />
               </label>
               <label className="mt-4 block space-y-2">
                 <span className="text-sm font-bold">New password</span>
-                <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required minLength={8} autoComplete="new-password" className="h-[52px] w-full rounded-full border border-[var(--border)] bg-white px-4 text-base font-semibold outline-none focus:border-[var(--brand)]" />
+                <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required minLength={8} autoComplete="new-password" className="h-[52px] w-full rounded-control border border-[var(--border)] bg-white px-4 text-base font-semibold outline-none focus:border-[var(--brand)]" />
               </label>
               <p className="mt-3 text-xs font-semibold leading-5 text-[var(--muted-foreground)]">
                 Use 8+ characters with uppercase, lowercase, and a number.
@@ -77,7 +77,7 @@ export default function ForgotPasswordPage() {
             </>
           )}
 
-          <Button type="submit" disabled={loading} className="mt-6 h-13 w-full rounded-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]">
+          <Button type="submit" disabled={loading} className="mt-6 h-13 w-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]">
             {loading && <Loader2 className="animate-spin" size={18} />}
             {codeSent ? "Update password" : "Send reset code"}
           </Button>

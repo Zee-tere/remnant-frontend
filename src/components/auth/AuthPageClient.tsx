@@ -157,11 +157,11 @@ export default function AuthPageClient({ mode }: { mode: AuthMode }) {
             </nav>
           )}
 
-          <form className="bg-white md:rounded-[1.5rem] md:border md:border-[var(--border)]/55 md:p-7" onSubmit={(event) => { event.preventDefault(); void submit(); }}>
+          <form className="bg-white md:rounded-surface md:border md:border-[var(--border)]/55 md:p-7" onSubmit={(event) => { event.preventDefault(); void submit(); }}>
             {needsConfirmation ? (
               <>
                 <label htmlFor="auth-code" className="mb-2 block text-sm font-bold text-[var(--foreground)]">Confirmation code</label>
-                <input id="auth-code" type="text" value={confirmationCode} onChange={(event) => setConfirmationCode(event.target.value)} placeholder="Code from email" autoComplete="one-time-code" required className="mb-4 h-12 w-full rounded-full border border-[var(--border)] bg-white px-5 py-3 text-base font-semibold outline-none focus:border-[var(--brand)] md:h-[52px]" />
+                <input id="auth-code" type="text" value={confirmationCode} onChange={(event) => setConfirmationCode(event.target.value)} placeholder="Code from email" autoComplete="one-time-code" required className="mb-4 h-12 w-full rounded-control border border-[var(--border)] bg-white px-5 py-3 text-base font-semibold outline-none focus:border-[var(--brand)] md:h-[52px]" />
               </>
             ) : (
               <>
@@ -170,7 +170,7 @@ export default function AuthPageClient({ mode }: { mode: AuthMode }) {
                     <label htmlFor="auth-name" className="mb-2 block text-sm font-bold text-[var(--foreground)]">Name</label>
                     <div className="relative mb-4">
                       <UserRound size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" aria-hidden="true" />
-                      <input id="auth-name" type="text" value={name} onChange={(event) => setName(event.target.value)} placeholder="Your name" autoComplete="name" required className="h-12 w-full rounded-full border border-[var(--border)] bg-white px-11 py-3 text-base font-semibold outline-none focus:border-[var(--brand)] md:h-[52px]" />
+                      <input id="auth-name" type="text" value={name} onChange={(event) => setName(event.target.value)} placeholder="Your name" autoComplete="name" required className="h-12 w-full rounded-control border border-[var(--border)] bg-white px-11 py-3 text-base font-semibold outline-none focus:border-[var(--brand)] md:h-[52px]" />
                     </div>
                   </>
                 )}
@@ -178,14 +178,14 @@ export default function AuthPageClient({ mode }: { mode: AuthMode }) {
                 <label htmlFor="auth-email" className="mb-2 block text-sm font-bold text-[var(--foreground)]">Email address</label>
                 <div className="relative mb-4">
                   <Mail size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" aria-hidden="true" />
-                  <input id="auth-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" required className="h-12 w-full rounded-full border border-[var(--border)] bg-white px-11 py-3 text-base font-semibold outline-none focus:border-[var(--brand)] md:h-[52px]" />
+                  <input id="auth-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email" required className="h-12 w-full rounded-control border border-[var(--border)] bg-white px-11 py-3 text-base font-semibold outline-none focus:border-[var(--brand)] md:h-[52px]" />
                 </div>
 
                 <label htmlFor="auth-password" className="mb-2 block text-sm font-bold text-[var(--foreground)]">Password</label>
                 <div className="relative mb-3">
                   <ShieldCheck size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" aria-hidden="true" />
-                  <input id="auth-password" type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={mode === "signup" ? "At least 8 characters" : "Your password"} autoComplete={mode === "signup" ? "new-password" : "current-password"} required minLength={mode === "signup" ? 8 : undefined} className="h-12 w-full rounded-full border border-[var(--border)] bg-white px-11 py-3 pr-12 text-base font-semibold outline-none focus:border-[var(--brand)] md:h-[52px]" />
-                  <button type="button" onClick={() => setShowPassword((value) => !value)} className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-[var(--muted-foreground)] hover:bg-[var(--sand)] hover:text-[var(--brand)]" aria-label={showPassword ? "Hide password" : "Show password"}>
+                  <input id="auth-password" type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={mode === "signup" ? "At least 8 characters" : "Your password"} autoComplete={mode === "signup" ? "new-password" : "current-password"} required minLength={mode === "signup" ? 8 : undefined} className="h-12 w-full rounded-control border border-[var(--border)] bg-white px-11 py-3 pr-12 text-base font-semibold outline-none focus:border-[var(--brand)] md:h-[52px]" />
+                  <button type="button" data-keep-round onClick={() => setShowPassword((value) => !value)} className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-pill text-[var(--muted-foreground)] hover:bg-[var(--sand)] hover:text-[var(--brand)]" aria-label={showPassword ? "Hide password" : "Show password"}>
                     {showPassword ? <EyeOff size={17} aria-hidden="true" /> : <Eye size={17} aria-hidden="true" />}
                   </button>
                 </div>
@@ -199,12 +199,12 @@ export default function AuthPageClient({ mode }: { mode: AuthMode }) {
 
             <div className="space-y-3">
               {!needsConfirmation && (
-                <Button type="button" onClick={() => void beginAuth("Google")} disabled={loading !== null} variant="outline" className="h-12 w-full rounded-full border-[var(--border)] bg-white text-[0.92rem] font-bold md:h-14 md:text-base">
+                <Button type="button" onClick={() => void beginAuth("Google")} disabled={loading !== null} variant="outline" className="h-12 w-full border-[var(--border)] bg-white text-base font-bold md:h-14">
                   {loading === "google" ? <Loader2 className="animate-spin" size={18} /> : <FcGoogle size={20} />}
                   {mode === "login" ? "Continue with Google" : "Join with Google"}
                 </Button>
               )}
-              <Button type="submit" disabled={loading !== null} className="h-12 w-full rounded-full bg-[var(--brand)] text-[0.92rem] font-bold text-white hover:bg-[var(--brand-dark)] md:h-14 md:text-base">
+              <Button type="submit" disabled={loading !== null} className="h-12 w-full bg-[var(--brand)] text-base font-bold text-white hover:bg-[var(--brand-dark)] md:h-14">
                 {loading === "form" ? <Loader2 className="animate-spin" size={18} /> : <ShieldCheck size={18} />}
                 {needsConfirmation ? "Confirm account" : mode === "login" ? "Log in" : "Create account"}
                 <ArrowRight size={17} />

@@ -69,14 +69,14 @@ interface TransactionDetail {
 }
 
 const statusMeta: Record<TransactionStatus, { label: string; className: string }> = {
-  INITIATED: { label: "Awaiting payment", className: "bg-amber-50 text-amber-700 border-amber-200" },
-  FUNDED: { label: "Paid", className: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  SHIPPED: { label: "Shipped", className: "bg-sky-50 text-sky-700 border-sky-200" },
-  RECEIVED: { label: "Received", className: "bg-indigo-50 text-indigo-700 border-indigo-200" },
-  COMPLETE: { label: "Complete", className: "bg-neutral-100 text-neutral-800 border-neutral-200" },
-  DISPUTED: { label: "Disputed", className: "bg-red-50 text-red-700 border-red-200" },
-  REFUNDED: { label: "Refunded", className: "bg-neutral-100 text-neutral-700 border-neutral-200" },
-  CANCELLED: { label: "Cancelled", className: "bg-neutral-100 text-neutral-700 border-neutral-200" },
+  INITIATED: { label: "Awaiting payment", className: "border-state-pending/25 bg-state-pending-container text-state-pending" },
+  FUNDED: { label: "Payment secured", className: "border-state-success/25 bg-state-success-container text-state-success" },
+  SHIPPED: { label: "In transit", className: "border-state-info/25 bg-state-info-container text-state-info" },
+  RECEIVED: { label: "Received", className: "border-state-info/25 bg-state-info-container text-state-info" },
+  COMPLETE: { label: "Complete", className: "border-state-success/25 bg-state-success-container text-state-success" },
+  DISPUTED: { label: "Problem reported", className: "border-state-danger/25 bg-state-danger-container text-state-danger" },
+  REFUNDED: { label: "Refunded", className: "border-state-neutral/25 bg-state-neutral-container text-state-neutral" },
+  CANCELLED: { label: "Cancelled", className: "border-state-neutral/25 bg-state-neutral-container text-state-neutral" },
 };
 
 const steps: Array<{ status: TransactionStatus; label: string; icon: ElementType }> = [
@@ -191,7 +191,7 @@ export default function TransactionDetailPage() {
   const meta = statusMeta[transaction.status] ?? statusMeta.INITIATED;
 
   return (
-    <div className="min-h-screen bg-neutral-100 px-4 py-8 text-foreground dark:bg-neutral-950 md:py-12">
+    <div className="min-h-screen bg-white px-4 py-8 text-foreground md:py-12">
       <div className="mx-auto max-w-6xl">
         <button
           type="button"
@@ -204,14 +204,14 @@ export default function TransactionDetailPage() {
 
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
           <div className="space-y-6">
-            <section className="rounded-xl border border-[var(--border)] bg-card p-5 md:p-6">
+            <section className="rounded-card border border-[var(--border)] bg-card p-5 md:p-6">
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-muted-foreground">Order</p>
                   <h1 className="mt-1 text-2xl font-bold text-foreground md:text-3xl">{transaction.listing.title}</h1>
                   <p className="mt-2 text-sm text-muted-foreground">Created {formatDate(transaction.createdAt)}</p>
                 </div>
-                <span className={cn("inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-bold", meta.className)}>
+                <span className={cn("inline-flex w-fit items-center rounded-pill border px-3 py-1 text-xs font-bold", meta.className)}>
                   {meta.label}
                 </span>
               </div>
@@ -271,6 +271,10 @@ export default function TransactionDetailPage() {
                 <div>
                   <p className="text-sm text-muted-foreground">Amount</p>
                   <p className="text-2xl font-bold text-foreground">{formatCurrency(Number(transaction.amount))}</p>
+                </div>
+                <div className="flex items-start gap-2 rounded-control bg-[var(--brand-soft)] p-3 text-sm leading-5 text-[var(--ink-soft)]">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[var(--brand)]" aria-hidden="true" />
+                  <p>Payment is held securely until receipt is confirmed or the order is resolved.</p>
                 </div>
                 <div className="rounded-lg bg-muted p-3 text-sm">
                   <div className="flex justify-between gap-4">
@@ -332,14 +336,16 @@ export default function TransactionDetailPage() {
                 {["FUNDED", "SHIPPED", "RECEIVED"].includes(transaction.status) && (
                   <Button
                     variant="outline"
-                    onClick={() =>
-                      runAction("dispute", () => transactionsApi.disputeTransaction(transaction.id), "Dispute opened")
-                    }
+                    onClick={() => {
+                      if (window.confirm("Report a problem with this order? This will pause the normal transaction flow for review.")) {
+                        void runAction("dispute", () => transactionsApi.disputeTransaction(transaction.id), "Problem reported");
+                      }
+                    }}
                     disabled={actionLoading === "dispute"}
-                    className="w-full border-[var(--border)]"
+                    className="w-full border-state-danger/30 text-state-danger hover:border-state-danger/45 hover:bg-state-danger-container hover:text-state-danger"
                   >
                     {actionLoading === "dispute" ? <Loader2 className="animate-spin" size={16} /> : <AlertTriangle size={16} />}
-                    Open dispute
+                    Report a problem
                   </Button>
                 )}
               </CardContent>

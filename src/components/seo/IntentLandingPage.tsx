@@ -80,7 +80,7 @@ export default async function IntentLandingPage({ pageKey }: { pageKey: IntentPa
                   <step.icon size={18} aria-hidden="true" />
                 </span>
                 <div>
-                  <p className="mb-1 text-[0.68rem] font-black tabular-nums text-[var(--muted-foreground)]">0{index + 1}</p>
+                  <p className="mb-1 text-xs font-black tabular-nums text-[var(--muted-foreground)]">0{index + 1}</p>
                   <h3 className="font-bold text-[var(--foreground)]">{step.title}</h3>
                   <p className="mt-1 text-sm font-medium leading-6 text-[var(--ink-soft)]">{step.text}</p>
                 </div>

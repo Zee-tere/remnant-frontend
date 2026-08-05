@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -24,38 +24,6 @@ const marketplaceActions: Array<{ label: string; href: string; artwork: ActionAr
   { label: "Recycle", href: "/sell-item?intent=RECYCLE", artwork: "recycle" },
 ];
 
-const mobileHeroSlides: Array<{
-  eyebrow: string;
-  title: string;
-  text: string;
-  image: string;
-}> = [
-  {
-    eyebrow: "Missing one piece?",
-    title: "Find the exact bit that makes it whole.",
-    text: "Search by model, size, side, or the detail only you know.",
-    image: "/images/hero/find-a-pair.webp",
-  },
-  {
-    eyebrow: "Still useful?",
-    title: "Sell it or swap it for what fits now.",
-    text: "A clear next step for the things you have outgrown.",
-    image: "/images/hero/sell-or-trade.webp",
-  },
-  {
-    eyebrow: "Let it travel",
-    title: "Give useful things a useful next place.",
-    text: "Donate locally and let someone else continue the story.",
-    image: "/images/hero/donate-forward.webp",
-  },
-  {
-    eyebrow: "Not finished yet",
-    title: "Repair, recycle, and keep value moving.",
-    text: "Choose the route that wastes less and makes more sense.",
-    image: "/images/hero/repair-recycle.webp",
-  },
-];
-
 const howItWorks = [
   { number: "01", title: "List", text: "Describe the useful piece and what should happen next.", artwork: "sell" as const },
   { number: "02", title: "Match", text: "Search the detail, model, size, or missing half that matters.", artwork: "find" as const },
@@ -71,16 +39,6 @@ export default function HomePageClient({
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [activeSlide, setActiveSlide] = useState(0);
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = window.setInterval(
-      () => setActiveSlide((current) => (current + 1) % mobileHeroSlides.length),
-      4800,
-    );
-    return () => window.clearInterval(timer);
-  }, []);
 
   const handleSearch = (event: React.FormEvent) => {
     event.preventDefault();
@@ -91,13 +49,13 @@ export default function HomePageClient({
   return (
     <div className="min-h-screen overflow-hidden bg-[var(--background)] text-foreground">
       <section className="bg-white pb-1 pt-1 md:hidden" aria-label="Choose what happens next">
-        <p className="px-4 pb-1 text-[0.7rem] font-bold text-[var(--ink-soft)]">Choose what happens next</p>
+        <p className="px-4 pb-1 text-xs font-bold text-[var(--ink-soft)]">Choose what happens next</p>
         <div className="flex snap-x snap-mandatory gap-1.5 overflow-x-auto px-3 pb-1 scrollbar-hide">
           {marketplaceActions.map((action) => (
             <Link
               key={action.href}
               href={action.href}
-              className="flex w-[4.35rem] shrink-0 snap-start flex-col items-center gap-0.5 py-1 text-center text-[0.66rem] font-bold text-[var(--ink-soft)] active:scale-[0.98]"
+            className="flex w-[4.75rem] shrink-0 snap-start flex-col items-center gap-0.5 py-1 text-center text-xs font-bold text-[var(--ink-soft)] active:scale-[0.98]"
             >
               <ActionArtwork name={action.artwork} className="h-[2.65rem] w-[2.65rem]" />
               <span>{action.label}</span>
@@ -106,36 +64,31 @@ export default function HomePageClient({
         </div>
       </section>
 
-      <section className="relative h-[clamp(9.5rem,20dvh,11.5rem)] w-full overflow-hidden border-y border-[var(--line-soft)] bg-white md:hidden" aria-roledescription="carousel" aria-label="What you can do on Remnant">
-        {mobileHeroSlides.map((slide, index) => (
-          <article
-            key={slide.title}
-            className={`absolute inset-0 overflow-hidden px-4 py-3 transition-[opacity,transform] duration-500 ${
-              activeSlide === index ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-3 opacity-0"
-            }`}
-            aria-hidden={activeSlide !== index}
-          >
-            <img
-              src={slide.image}
-              alt=""
-              loading={index === 0 ? "eager" : "lazy"}
-              decoding="async"
-              className="absolute inset-0 h-full w-full object-cover object-center"
+      <section className="border-y border-[var(--line-soft)] bg-white px-4 py-5 md:hidden" aria-labelledby="mobile-home-title">
+        <h1 id="mobile-home-title" className="max-w-[20rem] text-[1.75rem] font-bold leading-[1.04] tracking-[-0.04em] text-[var(--foreground)]">
+          Give lonely pieces a <span className="text-[var(--brand)]">next place.</span>
+        </h1>
+        <p className="mt-2 max-w-[22rem] text-sm font-medium leading-6 text-[var(--ink-soft)]">
+          Find the missing half, or move a useful object forward.
+        </p>
+        <form onSubmit={handleSearch} className="mt-4 flex items-center gap-2" role="search">
+          <div className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-[17px] w-[17px] -translate-y-1/2 text-[var(--aqua)]" aria-hidden="true" />
+            <Input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              aria-label="Find a missing or matching item"
+              placeholder="Try: teapot lid, right earbud"
+              className="h-12 pl-10 pr-3 text-base"
             />
-            <div className="relative z-10 max-w-[68%]">
-              <p className="text-[0.62rem] font-black uppercase tracking-[0.13em] text-[var(--aqua)]">{slide.eyebrow}</p>
-              <h1 className="mt-1 text-[1.22rem] font-bold leading-[1.08] tracking-[-0.035em] text-[var(--foreground)]">{slide.title}</h1>
-              <p className="mt-1.5 max-w-[16rem] text-[0.72rem] font-medium leading-[1.35] text-[var(--ink-soft)]">{slide.text}</p>
-            </div>
-          </article>
-        ))}
-        <div className="absolute bottom-0.5 left-2.5 z-20 flex gap-0" aria-label={`Slide ${activeSlide + 1} of ${mobileHeroSlides.length}`}>
-          {mobileHeroSlides.map((slide, index) => (
-            <button key={slide.title} type="button" onClick={() => setActiveSlide(index)} className="flex h-4 w-4 items-center justify-center" aria-label={`Show slide ${index + 1}`}>
-              <span className={`h-0.5 rounded-full transition-[width,background-color] ${activeSlide === index ? "w-2.5 bg-[var(--aqua)]" : "w-1 bg-[var(--border)]"}`} aria-hidden="true" />
-            </button>
-          ))}
-        </div>
+          </div>
+          <Button type="submit" size="icon" variant="outline" aria-label="Find a pair" className="border-[var(--border)] bg-white text-[var(--aqua)]">
+            <Search size={18} aria-hidden="true" />
+          </Button>
+        </form>
+        <Link href="/marketplace" className="mt-2 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-[var(--brand)]">
+          Browse the market <ArrowRight size={15} aria-hidden="true" />
+        </Link>
       </section>
 
       <section className="mx-auto hidden max-w-7xl px-4 pb-3 pt-7 sm:px-5 md:block md:px-8 md:pb-24 md:pt-14">
@@ -238,7 +191,7 @@ export default function HomePageClient({
                 />
                 <span className="relative z-10 flex h-full flex-col justify-between">
                   <span>
-                    <span className="block max-w-[5rem] text-[0.68rem] font-black leading-tight text-[var(--foreground)] md:max-w-[6.4rem] md:text-xs">{category.label}</span>
+                    <span className="block max-w-[5rem] text-xs font-black leading-tight text-[var(--foreground)] md:max-w-[6.4rem]">{category.label}</span>
                   </span>
                   <span className="hidden h-6 w-6 items-center justify-center text-[var(--brand)] md:flex">
                     <ArrowRight size={15} aria-hidden="true" />
@@ -255,7 +208,7 @@ export default function HomePageClient({
               <Link
                 key={action.href}
                 href={action.href}
-                className="group flex min-h-[5.8rem] shrink-0 flex-col items-center justify-center gap-1 rounded-xl bg-white px-1 py-1.5 text-center text-[0.7rem] font-bold text-[var(--ink-soft)] transition-[color,transform] hover:text-[var(--brand)] active:scale-[0.98] md:min-h-[8rem] md:gap-1.5 md:px-2 md:py-2 md:text-sm"
+                className="group flex min-h-[5.8rem] shrink-0 flex-col items-center justify-center gap-1 rounded-card bg-white px-1 py-1.5 text-center text-xs font-bold text-[var(--ink-soft)] transition-[color,transform] hover:text-[var(--brand)] active:scale-[0.98] md:min-h-[8rem] md:gap-1.5 md:px-2 md:py-2 md:text-sm"
               >
                 <ActionArtwork name={action.artwork} className="h-[3.35rem] w-[3.35rem] md:h-[5.2rem] md:w-[5.2rem]" imageClassName="transition-transform duration-200 motion-safe:group-hover:scale-105" />
                 <span>{action.label}</span>
@@ -272,7 +225,7 @@ export default function HomePageClient({
             <div className="border-t border-[#f1f0ec] px-4 py-8 text-center md:py-10">
               <ActionArtwork name="sell" className="mx-auto mb-5 h-[4.5rem] w-[4.5rem] md:h-24 md:w-24" />
               <h3 className="text-2xl font-bold">No listings yet</h3>
-              <Button asChild className="mt-7 rounded-full bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">
+              <Button asChild className="mt-7 bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">
                 <Link href="/sell-item">List an item</Link>
               </Button>
             </div>
