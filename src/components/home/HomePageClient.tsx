@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -24,6 +24,38 @@ const marketplaceActions: Array<{ label: string; href: string; artwork: ActionAr
   { label: "Recycle", href: "/sell-item?intent=RECYCLE", artwork: "recycle" },
 ];
 
+const mobileHeroSlides: Array<{
+  eyebrow: string;
+  title: string;
+  text: string;
+  image: string;
+}> = [
+  {
+    eyebrow: "Lost one half?",
+    title: "That lone earbud might have a match.",
+    text: "Search the model, side, size, or small detail that needs to fit.",
+    image: "/images/hero/find-a-pair.webp",
+  },
+  {
+    eyebrow: "Clearing some space?",
+    title: "Sell or swap what you no longer use.",
+    text: "Someone nearby may be looking for the exact thing in your cupboard.",
+    image: "/images/hero/sell-or-trade.webp",
+  },
+  {
+    eyebrow: "Too useful to bin?",
+    title: "Pass it on to someone who needs it.",
+    text: "List books, homeware, clothes, and other good things for donation.",
+    image: "/images/hero/donate-forward.webp",
+  },
+  {
+    eyebrow: "Broken, not useless",
+    title: "A small repair could keep it going.",
+    text: "Find help, offer it for parts, or recycle it responsibly.",
+    image: "/images/hero/repair-recycle.webp",
+  },
+];
+
 const howItWorks = [
   { number: "01", title: "List", text: "Describe the useful piece and what should happen next.", artwork: "sell" as const },
   { number: "02", title: "Match", text: "Search the detail, model, size, or missing half that matters.", artwork: "find" as const },
@@ -39,6 +71,18 @@ export default function HomePageClient({
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const timer = window.setInterval(
+      () => setActiveSlide((current) => (current + 1) % mobileHeroSlides.length),
+      5200,
+    );
+
+    return () => window.clearInterval(timer);
+  }, []);
 
   const handleSearch = (event: React.FormEvent) => {
     event.preventDefault();
@@ -64,14 +108,65 @@ export default function HomePageClient({
         </div>
       </section>
 
-      <section className="border-y border-[var(--line-soft)] bg-white px-4 py-5 md:hidden" aria-labelledby="mobile-home-title">
-        <h1 id="mobile-home-title" className="max-w-[20rem] text-[1.75rem] font-bold leading-[1.04] tracking-[-0.04em] text-[var(--foreground)]">
-          Give lonely pieces a <span className="text-[var(--brand)]">next place.</span>
-        </h1>
-        <p className="mt-2 max-w-[22rem] text-sm font-medium leading-6 text-[var(--ink-soft)]">
-          Find the missing half, or move a useful object forward.
-        </p>
-        <form onSubmit={handleSearch} className="mt-4 flex items-center gap-2" role="search">
+      <section
+        className="relative h-[clamp(11rem,23dvh,13rem)] w-full overflow-hidden border-y border-[var(--line-soft)] bg-white md:hidden"
+        aria-roledescription="carousel"
+        aria-label="Ways to use Remnant"
+      >
+        {mobileHeroSlides.map((slide, index) => (
+          <article
+            key={slide.title}
+            className={`absolute inset-0 overflow-hidden px-4 py-4 transition-[opacity,transform] duration-500 ${
+              activeSlide === index ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-3 opacity-0"
+            }`}
+            aria-hidden={activeSlide !== index}
+          >
+            <img
+              src={slide.image}
+              alt=""
+              loading={index === 0 ? "eager" : "lazy"}
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover object-center"
+            />
+            <div className="absolute inset-y-0 left-0 w-[70%] bg-gradient-to-r from-white via-white/90 to-transparent" aria-hidden="true" />
+            <div className="relative z-10 max-w-[62%]">
+              <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--aqua)]">
+                {slide.eyebrow}
+              </p>
+              <h1 className="mt-1 text-[1.28rem] font-bold leading-[1.08] tracking-[-0.035em] text-[var(--foreground)]">
+                {slide.title}
+              </h1>
+              <p className="mt-1.5 max-w-[15rem] text-xs font-medium leading-[1.42] text-[var(--ink-soft)]">
+                {slide.text}
+              </p>
+            </div>
+          </article>
+        ))}
+        <div
+          className="absolute bottom-1.5 left-2.5 z-20 flex gap-0.5"
+          aria-label={`Slide ${activeSlide + 1} of ${mobileHeroSlides.length}`}
+        >
+          {mobileHeroSlides.map((slide, index) => (
+            <button
+              key={slide.title}
+              type="button"
+              onClick={() => setActiveSlide(index)}
+              className="flex h-5 w-5 items-center justify-center"
+              aria-label={`Show slide ${index + 1}: ${slide.eyebrow}`}
+            >
+              <span
+                className={`h-1 rounded-pill transition-[width,background-color] ${
+                  activeSlide === index ? "w-3 bg-[var(--aqua)]" : "w-1 bg-[var(--border)]"
+                }`}
+                aria-hidden="true"
+              />
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-b border-[var(--line-soft)] bg-white px-4 py-3 md:hidden" aria-label="Search Remnant">
+        <form onSubmit={handleSearch} className="flex items-center gap-2" role="search">
           <div className="relative min-w-0 flex-1">
             <Search className="pointer-events-none absolute left-3.5 top-1/2 h-[17px] w-[17px] -translate-y-1/2 text-[var(--aqua)]" aria-hidden="true" />
             <Input
@@ -82,13 +177,10 @@ export default function HomePageClient({
               className="h-12 pl-10 pr-3 text-base"
             />
           </div>
-          <Button type="submit" size="icon" variant="outline" aria-label="Find a pair" className="border-[var(--border)] bg-white text-[var(--aqua)]">
+          <Button type="submit" size="icon" aria-label="Search" className="bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]">
             <Search size={18} aria-hidden="true" />
           </Button>
         </form>
-        <Link href="/marketplace" className="mt-2 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-[var(--brand)]">
-          Browse the market <ArrowRight size={15} aria-hidden="true" />
-        </Link>
       </section>
 
       <section className="mx-auto hidden max-w-7xl px-4 pb-3 pt-7 sm:px-5 md:block md:px-8 md:pb-24 md:pt-14">
