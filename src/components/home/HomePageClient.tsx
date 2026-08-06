@@ -2,10 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
-  PackagePlus,
+  ChevronLeft,
+  ChevronRight,
   Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,35 +26,45 @@ const marketplaceActions: Array<{ label: string; href: string; artwork: ActionAr
   { label: "Recycle", href: "/sell-item?intent=RECYCLE", artwork: "recycle" },
 ];
 
-const mobileHeroSlides: Array<{
+const heroSlides: Array<{
   eyebrow: string;
   title: string;
   text: string;
   image: string;
+  href: string;
+  cta: string;
 }> = [
   {
-    eyebrow: "Lost one half?",
-    title: "That lone earbud might have a match.",
-    text: "Search the model, side, size, or small detail that needs to fit.",
-    image: "/images/hero/find-a-pair.webp",
+    eyebrow: "Find the missing piece",
+    title: "The exact lid, charger or single earbud you need.",
+    text: "Search by model, size and the small details that make it fit.",
+    image: "/images/hero/find-a-pair-photo-v2.webp",
+    href: "/find-a-pair",
+    cta: "Find a match",
   },
   {
     eyebrow: "Clearing some space?",
-    title: "Sell or swap what you no longer use.",
-    text: "Someone nearby may be looking for the exact thing in your cupboard.",
-    image: "/images/hero/sell-or-trade.webp",
+    title: "List the useful things you no longer reach for.",
+    text: "Sell them, swap them, and deal directly with someone nearby.",
+    image: "/images/hero/sell-or-trade-photo-v2.webp",
+    href: "/sell-item",
+    cta: "List an item",
   },
   {
-    eyebrow: "Too useful to bin?",
-    title: "Pass it on to someone who needs it.",
-    text: "List books, homeware, clothes, and other good things for donation.",
-    image: "/images/hero/donate-forward.webp",
+    eyebrow: "Still useful",
+    title: "Pass it on, not into the bin.",
+    text: "Donate good books, clothes and homeware to someone who can use them.",
+    image: "/images/hero/donate-forward-photo-v2.webp",
+    href: "/sell-item?intent=DONATE",
+    cta: "Donate an item",
   },
   {
-    eyebrow: "Broken, not useless",
-    title: "A small repair could keep it going.",
-    text: "Find help, offer it for parts, or recycle it responsibly.",
-    image: "/images/hero/repair-recycle.webp",
+    eyebrow: "Repair before replace",
+    title: "A small fix can keep it working.",
+    text: "Find repair help, useful spare parts, or a responsible recycling route.",
+    image: "/images/hero/repair-recycle-photo-v2.webp",
+    href: "/repair",
+    cta: "Explore repair",
   },
 ];
 
@@ -77,8 +89,8 @@ export default function HomePageClient({
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const timer = window.setInterval(
-      () => setActiveSlide((current) => (current + 1) % mobileHeroSlides.length),
-      5200,
+      () => setActiveSlide((current) => (current + 1) % heroSlides.length),
+      6200,
     );
 
     return () => window.clearInterval(timer);
@@ -108,130 +120,89 @@ export default function HomePageClient({
         </div>
       </section>
 
-      <section
-        className="relative h-[clamp(11rem,23dvh,13rem)] w-full overflow-hidden border-y border-[var(--line-soft)] bg-white md:hidden"
-        aria-roledescription="carousel"
-        aria-label="Ways to use Remnant"
-      >
-        {mobileHeroSlides.map((slide, index) => (
-          <article
-            key={slide.title}
-            className={`absolute inset-0 overflow-hidden px-4 py-4 transition-[opacity,transform] duration-500 ${
-              activeSlide === index ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-3 opacity-0"
-            }`}
-            aria-hidden={activeSlide !== index}
-          >
-            <img
-              src={slide.image}
-              alt=""
-              loading={index === 0 ? "eager" : "lazy"}
-              decoding="async"
-              className="absolute inset-0 h-full w-full object-cover object-center"
-            />
-            <div className="absolute inset-y-0 left-0 w-[70%] bg-gradient-to-r from-white via-white/90 to-transparent" aria-hidden="true" />
-            <div className="relative z-10 max-w-[62%]">
-              <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--aqua)]">
-                {slide.eyebrow}
-              </p>
-              <h1 className="mt-1 text-[1.28rem] font-bold leading-[1.08] tracking-[-0.035em] text-[var(--foreground)]">
-                {slide.title}
-              </h1>
-              <p className="mt-1.5 max-w-[15rem] text-xs font-medium leading-[1.42] text-[var(--ink-soft)]">
-                {slide.text}
-              </p>
-            </div>
-          </article>
-        ))}
+      <section className="bg-white md:px-8 md:pb-5 md:pt-8" aria-label="Featured ways to use Remnant">
         <div
-          className="absolute bottom-1.5 left-2.5 z-20 flex gap-0.5"
-          aria-label={`Slide ${activeSlide + 1} of ${mobileHeroSlides.length}`}
+          className="relative mx-auto h-[clamp(14rem,29dvh,17rem)] w-full max-w-7xl overflow-hidden border-y border-[var(--line-soft)] bg-[var(--sand)] md:h-[min(31rem,52vw)] md:max-h-[31rem] md:rounded-feature md:border"
+          aria-roledescription="carousel"
+          aria-label="Ways to use Remnant"
         >
-          {mobileHeroSlides.map((slide, index) => (
-            <button
+          {heroSlides.map((slide, index) => (
+            <article
               key={slide.title}
-              type="button"
-              onClick={() => setActiveSlide(index)}
-              className="flex h-5 w-5 items-center justify-center"
-              aria-label={`Show slide ${index + 1}: ${slide.eyebrow}`}
+              className={`absolute inset-0 overflow-hidden transition-[opacity,transform] duration-700 ${
+                activeSlide === index ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-2 opacity-0"
+              }`}
+              aria-hidden={activeSlide !== index}
             >
-              <span
-                className={`h-1 rounded-pill transition-[width,background-color] ${
-                  activeSlide === index ? "w-3 bg-[var(--aqua)]" : "w-1 bg-[var(--border)]"
-                }`}
-                aria-hidden="true"
+              <Image
+                src={slide.image}
+                alt=""
+                fill
+                priority={index === 0}
+                sizes="(max-width: 767px) 100vw, 1280px"
+                className="object-cover object-[58%_center] md:object-center"
               />
-            </button>
+              <div className="absolute inset-0 bg-gradient-to-r from-white via-white/94 to-white/5 md:via-white/88 md:to-transparent" aria-hidden="true" />
+              <div className="relative z-10 flex h-full max-w-[68%] flex-col items-start justify-center px-4 pb-7 pt-4 sm:max-w-[62%] sm:px-6 md:max-w-[53%] md:px-12 lg:px-16">
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-[var(--brand)] md:text-sm">
+                  {slide.eyebrow}
+                </p>
+                <h1 className="mt-1.5 text-[1.48rem] font-bold leading-[1.02] tracking-[-0.04em] text-[var(--foreground)] sm:text-3xl md:mt-3 md:text-[clamp(2.6rem,4vw,3.8rem)] md:leading-[0.98]">
+                  {slide.title}
+                </h1>
+                <p className="mt-2 max-w-md text-xs font-medium leading-5 text-[var(--ink-soft)] sm:text-sm md:mt-5 md:text-lg md:leading-8">
+                  {slide.text}
+                </p>
+                <Button asChild size="sm" className="mt-3 h-9 bg-[var(--brand)] px-3 text-xs font-bold text-white hover:bg-[var(--brand-dark)] md:mt-7 md:h-12 md:px-6 md:text-sm">
+                  <Link href={slide.href}>
+                    {slide.cta}
+                    <ArrowRight size={15} aria-hidden="true" />
+                  </Link>
+                </Button>
+              </div>
+            </article>
           ))}
-        </div>
-      </section>
 
-      <section className="border-b border-[var(--line-soft)] bg-white px-4 py-3 md:hidden" aria-label="Search Remnant">
-        <form onSubmit={handleSearch} className="flex items-center gap-2" role="search">
+          <div className="absolute bottom-1.5 left-2.5 z-20 flex gap-0.5 md:bottom-5 md:left-12 lg:left-16" aria-label={`Slide ${activeSlide + 1} of ${heroSlides.length}`}>
+            {heroSlides.map((slide, index) => (
+              <button
+                key={slide.title}
+                type="button"
+                onClick={() => setActiveSlide(index)}
+                className="flex h-6 w-6 items-center justify-center"
+                aria-label={`Show slide ${index + 1}: ${slide.eyebrow}`}
+              >
+                <span className={`h-1 rounded-pill transition-[width,background-color] ${activeSlide === index ? "w-4 bg-[var(--brand)]" : "w-1.5 bg-[var(--border)]"}`} aria-hidden="true" />
+              </button>
+            ))}
+          </div>
+
+          <div className="absolute bottom-4 right-5 z-20 hidden gap-2 md:flex">
+            <button type="button" onClick={() => setActiveSlide((activeSlide - 1 + heroSlides.length) % heroSlides.length)} className="flex h-11 w-11 items-center justify-center rounded-control border border-white/80 bg-white/90 text-[var(--foreground)] backdrop-blur-sm hover:bg-white" aria-label="Previous slide">
+              <ChevronLeft size={19} aria-hidden="true" />
+            </button>
+            <button type="button" onClick={() => setActiveSlide((activeSlide + 1) % heroSlides.length)} className="flex h-11 w-11 items-center justify-center rounded-control border border-white/80 bg-white/90 text-[var(--foreground)] backdrop-blur-sm hover:bg-white" aria-label="Next slide">
+              <ChevronRight size={19} aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+
+        <form onSubmit={handleSearch} className="mx-auto flex max-w-4xl items-center gap-2 border-b border-[var(--line-soft)] bg-white px-4 py-3 md:-mt-7 md:relative md:z-30 md:rounded-card md:border md:p-2" role="search">
           <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-[17px] w-[17px] -translate-y-1/2 text-[var(--aqua)]" aria-hidden="true" />
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-[17px] w-[17px] -translate-y-1/2 text-[var(--aqua)] md:left-4 md:h-5 md:w-5" aria-hidden="true" />
             <Input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               aria-label="Find a missing or matching item"
               placeholder="Try: teapot lid, right earbud"
-              className="h-12 pl-10 pr-3 text-base"
+              className="h-12 border-0 bg-[var(--sand)] pl-10 pr-3 text-base shadow-none focus-visible:ring-0 md:h-14 md:pl-12"
             />
           </div>
-          <Button type="submit" size="icon" aria-label="Search" className="bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]">
+          <Button type="submit" aria-label="Search" className="h-12 bg-[var(--brand)] px-4 text-white hover:bg-[var(--brand-dark)] md:h-14 md:px-7">
+            <span className="hidden sm:inline">Search Remnant</span>
             <Search size={18} aria-hidden="true" />
           </Button>
         </form>
-      </section>
-
-      <section className="mx-auto hidden max-w-7xl px-4 pb-3 pt-7 sm:px-5 md:block md:px-8 md:pb-24 md:pt-14">
-        <div className="grid items-center md:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.72fr)] md:gap-14">
-          <div className="md:order-1">
-            <h1 className="max-w-[24rem] text-balance text-[2.65rem] font-bold leading-[0.98] tracking-[-0.052em] text-[var(--foreground)] sm:max-w-2xl sm:text-6xl md:max-w-3xl md:text-[4.8rem]">
-              Give lonely pieces a{" "}
-              <span className="hero-flourish relative inline-block pb-1 text-[var(--brand)]">
-                next place
-                <svg className="hero-flourish__line" viewBox="0 0 150 12" preserveAspectRatio="none" aria-hidden="true">
-                  <path d="M2 7.5 C36 2.5 92 11 148 4.5" />
-                </svg>
-              </span>
-              .
-            </h1>
-            <p className="mt-5 max-w-[36rem] text-base font-medium leading-7 text-[var(--ink-soft)] md:mt-7 md:text-lg md:leading-8">
-              Find the missing half, or move a useful object forward through selling, trade, donation, repair, or recycling.
-            </p>
-
-            <form onSubmit={handleSearch} className="relative z-10 mt-5 w-full max-w-2xl md:mt-10">
-              <div className="flex items-center gap-1 rounded-xl border border-[var(--border)]/70 bg-white p-1 md:gap-3 md:rounded-2xl md:p-2 md:soft-shadow">
-                <div className="relative flex-1">
-                  <Search className="pointer-events-none absolute left-3.5 top-1/2 h-[17px] w-[17px] -translate-y-1/2 text-[var(--aqua)] md:left-5 md:h-5 md:w-5" aria-hidden="true" />
-                  <Input
-                    value={query}
-                    onChange={(event) => setQuery(event.target.value)}
-                    placeholder="Try: teapot lid, right earbud..."
-                    className="h-10 border-0 bg-transparent pl-10 pr-2 text-[0.92rem] font-semibold shadow-none focus-visible:ring-0 md:h-14 md:pl-14 md:text-base"
-                  />
-                </div>
-                <Button type="submit" aria-label="Find a pair" variant="ghost" className="h-10 w-10 border-0 bg-white px-0 text-[var(--aqua)] hover:bg-white hover:text-[var(--brand)] md:h-14 md:w-auto md:bg-[var(--brand)] md:px-8 md:text-base md:text-white md:hover:bg-[var(--brand-dark)] md:hover:text-white">
-                  <span className="hidden md:inline">Find a pair</span>
-                  <Search size={18} aria-hidden="true" />
-                </Button>
-              </div>
-            </form>
-
-            <div className="relative z-10 mt-4 flex w-full max-w-2xl items-center gap-5 text-sm">
-              <Link href="/marketplace" className="inline-flex min-h-11 items-center gap-2 font-bold text-[var(--brand)] hover:text-[var(--brand-dark)]">
-                Browse the market <ArrowRight size={15} aria-hidden="true" />
-              </Link>
-              <Link href="/sell-item" className="inline-flex min-h-11 items-center gap-2 font-bold text-[var(--ink-soft)] hover:text-[var(--brand)]">
-                List an item <PackagePlus size={15} aria-hidden="true" />
-              </Link>
-            </div>
-          </div>
-
-          <div className="hidden md:order-2 md:mx-auto md:flex md:min-h-[420px] md:w-full md:max-w-[27rem] md:items-center md:justify-center">
-            <ActionArtwork name="marketplace" priority className="h-[150px] w-[150px] md:h-[390px] md:w-[390px]" imageClassName="transition-transform duration-300 motion-safe:hover:scale-[1.025]" />
-          </div>
-        </div>
       </section>
 
       <section className="hidden bg-white px-4 pb-3 pt-3 sm:px-5 md:block md:px-8 md:py-20">
@@ -271,7 +242,7 @@ export default function HomePageClient({
               <Link
                 key={category.label}
                 href={`/marketplace?category=${encodeURIComponent(category.label)}`}
-                className={`group relative flex min-h-[84px] w-[86px] shrink-0 snap-start overflow-hidden p-1 text-left transition-transform active:scale-[0.98] md:min-h-[138px] md:w-[146px] md:rounded-2xl md:border md:border-white/80 md:p-3 md:transition-[border-color,transform] md:hover:border-[var(--brand)]/20 ${categoryTones[index % categoryTones.length]}`}
+                className={`group relative flex min-h-[84px] w-[86px] shrink-0 snap-start overflow-hidden p-1 text-left transition-transform active:scale-[0.98] md:min-h-[138px] md:w-[146px] md:rounded-card md:border md:border-white/80 md:p-3 md:transition-[border-color,transform] md:hover:border-[var(--brand)]/20 ${categoryTones[index % categoryTones.length]}`}
               >
                 <img
                   src={category.image}
