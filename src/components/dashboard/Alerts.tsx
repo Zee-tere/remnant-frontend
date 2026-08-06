@@ -94,41 +94,34 @@ const filterLabels: Record<FilterType, string> = {
   system: 'System',
 };
 
-const alertConfig: Record<FilterType, { icon: React.ElementType; className: string; borderClass: string }> = {
+const alertConfig: Record<FilterType, { icon: React.ElementType; className: string }> = {
   all: {
     icon: Bell,
-    className: 'bg-[var(--brand-soft)] text-[var(--brand)] dark:bg-[var(--brand-muted)]',
-    borderClass: 'border-l-[var(--brand)]',
+    className: 'text-[var(--brand)]',
   },
   match: {
     icon: Heart,
-    className: 'bg-[var(--brand-soft)] text-[var(--brand)] dark:bg-[var(--brand-muted)]',
-    borderClass: 'border-l-[var(--brand)]',
+    className: 'text-[var(--brand)]',
   },
   message: {
     icon: MessageSquare,
-    className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-    borderClass: 'border-l-blue-500',
+    className: 'text-state-info',
   },
   transaction: {
     icon: ShoppingBag,
-    className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
-    borderClass: 'border-l-emerald-500',
+    className: 'text-state-success',
   },
   review: {
     icon: Star,
-    className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-    borderClass: 'border-l-amber-500',
+    className: 'text-state-pending',
   },
   listing: {
     icon: Package,
-    className: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
-    borderClass: 'border-l-neutral-500',
+    className: 'text-[var(--ink-soft)]',
   },
   system: {
     icon: Info,
-    className: 'bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-300',
-    borderClass: 'border-l-slate-500',
+    className: 'text-[var(--ink-soft)]',
   },
 };
 
@@ -316,7 +309,7 @@ export default function AlertsSection() {
           <div className="relative flex h-9 w-9 items-center justify-center text-[var(--brand)] md:h-11 md:w-11">
             <Bell size={19} />
             {unreadCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-semibold text-white">
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-pill border border-white bg-[var(--state-danger)] px-1 text-xs font-bold text-white">
                 {unreadCount}
               </span>
             )}
@@ -355,24 +348,22 @@ export default function AlertsSection() {
         </div>
       </motion.div>
 
-      <div className="hidden grid-cols-2 gap-2 md:grid md:gap-4 xl:grid-cols-4">
+      <div className="hidden overflow-hidden rounded-card border border-[var(--border)] bg-white md:grid md:grid-cols-2 xl:grid-cols-4 xl:divide-x xl:divide-[var(--border)]">
         {stats.map((stat) => (
-          <Card key={stat.label} className="border-[var(--border)] bg-card">
-            <CardContent className="flex items-center justify-between p-3 md:p-5">
+          <div key={stat.label} className="border-b border-[var(--border)] p-4 md:[&:nth-child(3)]:border-b-0 md:[&:nth-child(4)]:border-b-0 xl:border-b-0">
+            <div className="flex items-center gap-3">
+              <stat.icon size={18} className={cn('shrink-0', stat.className)} aria-hidden="true" />
               <div>
-                <p className="text-xs text-muted-foreground md:text-sm">{stat.label}</p>
-                <p className="mt-1 text-lg font-bold text-foreground md:mt-2 md:text-2xl">{stat.value}</p>
+                <p className="text-xs font-semibold text-muted-foreground">{stat.label}</p>
+                <p className="mt-0.5 text-xl font-bold tabular-nums text-foreground">{stat.value}</p>
               </div>
-              <div className={cn('hidden rounded-full p-3 sm:block', stat.className)}>
-                <stat.icon size={20} />
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
 
-      <div className="bg-transparent p-0 md:rounded-xl md:border md:border-[var(--border)]/70 md:bg-card md:p-4">
-        <div className="flex gap-2 overflow-x-auto pb-0.5">
+      <div className="border-y border-[var(--border)] bg-white py-2 md:rounded-card md:border md:px-3">
+        <div className="flex gap-2 overflow-x-auto px-0.5 scrollbar-hide">
           {(Object.keys(filterLabels) as FilterType[]).map((filterType) => {
             const Icon = alertConfig[filterType].icon;
             const active = filter === filterType;
@@ -394,9 +385,9 @@ export default function AlertsSection() {
       </div>
 
       {filteredItems.length === 0 ? (
-        <Card className="border-[var(--border)] bg-card">
+        <Card className="border-[var(--border)] bg-white">
           <CardContent className="flex flex-col items-center px-6 py-14 text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center text-[var(--brand)]">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-card border border-[var(--border)] text-[var(--brand)]">
               <Bell className="text-[var(--brand)]" size={30} />
             </div>
             <h3 className="text-lg font-semibold text-foreground">No alerts here</h3>
@@ -423,21 +414,20 @@ export default function AlertsSection() {
                 >
                   <Card
                     className={cn(
-                      'border-l-4 border-y-[var(--border)] border-r-[var(--border)] bg-card transition-colors hover:border-r-[var(--brand)]/45',
-                      config.borderClass,
-                      item.unread && 'ring-2 ring-[var(--brand)]/15',
+                      'border-[var(--border)] bg-white transition-colors hover:border-[var(--brand)]/35',
+                      item.unread && 'border-[var(--brand)]/55',
                     )}
                   >
                     <CardContent className="p-3 sm:p-5">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                         <div className="flex min-w-0 gap-3">
-                          <div className={cn('mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg sm:mt-1 sm:h-11 sm:w-11 sm:rounded-full', config.className)}>
+                          <div className={cn('mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-control border border-[var(--border)] bg-white sm:mt-1 sm:h-11 sm:w-11', config.className)}>
                             <Icon size={18} className="sm:h-[21px] sm:w-[21px]" />
                           </div>
                           <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-2">
                               <h3 className="font-semibold text-foreground">{item.title}</h3>
-                              {item.unread && <Badge className="bg-[var(--brand)] text-white">New</Badge>}
+                              {item.unread && <Badge variant="outline" className="border-[var(--brand)]/45 text-[var(--brand)]">New</Badge>}
                               {item.source === 'match' && (
                                 <Badge variant="outline" className="border-[var(--border)]">
                                   {item.score}% match

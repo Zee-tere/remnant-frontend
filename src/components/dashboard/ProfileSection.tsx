@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight, Edit, Loader2, LogOut, Mail, MapPin, Save, Settings, Shield, Star, User, X } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Edit, Loader2, LogOut, Mail, MapPin, Save, Settings, Shield, Star, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -63,208 +63,109 @@ export default function ProfileSection() {
   }
 
   const profileFields = [user.name, user.email, user.city, user.bio];
-  const profileStrength = Math.round((profileFields.filter((value) => Boolean(value?.trim())).length / profileFields.length) * 100);
+  const completedProfileFields = profileFields.filter((value) => Boolean(value?.trim())).length;
+  const profileStrength = Math.round((completedProfileFields / profileFields.length) * 100);
+  const profileReady = profileStrength === 100;
 
   return (
-    <div className="space-y-3 md:space-y-8">
-      <section className="overflow-hidden rounded-lg border border-[var(--border)]/70 bg-white md:hidden">
-        <div className="p-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <NameAvatar
-              name={user.name}
-              className="h-14 w-14 shrink-0 border-2 border-white text-base soft-shadow"
-            />
+    <div className="mx-auto max-w-5xl space-y-3 md:space-y-6">
+      <section className="overflow-hidden rounded-card border border-[var(--border)] bg-white md:rounded-surface">
+        <div className="p-4 md:p-7">
+          <div className="flex min-w-0 items-start gap-3 md:gap-5">
+            <NameAvatar name={user.name} className="h-14 w-14 shrink-0 border border-[var(--border)] text-base md:h-24 md:w-24 md:text-2xl" />
             <div className="min-w-0 flex-1">
-              <h1 className="truncate text-lg font-bold text-[var(--foreground)]">{user.name}</h1>
-              <p className="truncate text-xs text-[var(--muted-foreground)]">{user.email}</p>
-              <div className="mt-1 flex items-center gap-1 text-xs font-semibold text-[var(--ink-soft)]">
-                <MapPin size={13} className="shrink-0 text-[var(--brand)]" aria-hidden="true" />
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h1 className="truncate text-xl font-bold tracking-[-0.025em] text-[var(--foreground)] md:text-3xl">{user.name}</h1>
+                  <p className="mt-0.5 truncate text-xs text-[var(--muted-foreground)] md:text-sm">{user.email}</p>
+                </div>
+                <Button type="button" onClick={() => setIsEditing(true)} variant="outline" size="sm" className="shrink-0 border-[var(--border)] bg-white">
+                  <Edit size={16} aria-hidden="true" />
+                  <span className="hidden sm:inline">Edit profile</span>
+                </Button>
+              </div>
+              <div className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-[var(--ink-soft)] md:text-sm">
+                <MapPin size={14} className="shrink-0 text-[var(--brand)]" aria-hidden="true" />
                 <span className="truncate">{user.city || 'Location not set'}</span>
               </div>
+              <p className="mt-3 line-clamp-3 max-w-3xl text-sm leading-6 text-[var(--ink-soft)] md:text-base md:leading-7">
+                {user.bio || 'Add a short bio so buyers and sellers know who they are speaking with.'}
+              </p>
             </div>
-            <button
-              type="button"
-              onClick={() => setIsEditing(true)}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[var(--border)] bg-white text-[var(--brand)]"
-              aria-label="Edit profile"
-            >
-              <Edit size={17} aria-hidden="true" />
-            </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setIsEditing(true)}
-            className="mt-3 block w-full text-left text-xs leading-5 text-[var(--ink-soft)]"
-          >
-            {user.bio || 'Add a short bio so buyers and sellers know who they are speaking with.'}
-          </button>
-        </div>
-
-        <div className="grid grid-cols-3 divide-x divide-[var(--border)]/70 border-y border-[var(--border)]/70 bg-[var(--background)]/45">
-          <div className="min-w-0 px-2 py-2.5 text-center">
-            <p className="truncate text-xs font-bold text-[var(--foreground)]">
-              {trustTierLabels[user.trustTier] ?? user.trustTier}
-            </p>
-            <p className="mt-0.5 text-xs font-semibold text-[var(--muted-foreground)]">Trust</p>
-          </div>
-          <div className="min-w-0 px-2 py-2.5 text-center">
-            <p className="truncate text-xs font-bold text-[var(--foreground)]">{user.points.toLocaleString()}</p>
-            <p className="mt-0.5 text-xs font-semibold text-[var(--muted-foreground)]">Points</p>
-          </div>
-          <div className="min-w-0 px-2 py-2.5 text-center">
-            <p className="truncate text-xs font-bold text-[var(--foreground)]">{profileStrength}%</p>
-            <p className="mt-0.5 text-xs font-semibold text-[var(--muted-foreground)]">Profile</p>
           </div>
         </div>
 
-        <div className="px-4 py-3">
-          <div className="mb-1.5 flex items-center justify-between text-xs font-semibold text-[var(--muted-foreground)]">
-            <span>Profile strength</span>
-            <span>{profileStrength}%</span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-[var(--sand)]">
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: profileStrength / 100 }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-              className="h-full origin-left rounded-full bg-[var(--brand)]"
-            />
-          </div>
+        <div className="grid grid-cols-3 divide-x divide-[var(--border)] border-t border-[var(--border)]">
+          {[
+            { label: 'Trust level', value: trustTierLabels[user.trustTier] ?? user.trustTier, icon: Shield },
+            { label: 'Impact points', value: user.points.toLocaleString(), icon: Star },
+            { label: 'Profile', value: `${profileStrength}%`, icon: CheckCircle2 },
+          ].map((stat) => (
+            <div key={stat.label} className="min-w-0 px-2 py-3 text-center md:flex md:items-center md:gap-3 md:px-6 md:py-4 md:text-left">
+              <stat.icon size={16} className="mx-auto mb-1 text-[var(--brand)] md:m-0 md:h-5 md:w-5 md:shrink-0" aria-hidden="true" />
+              <div className="min-w-0">
+                <p className="truncate text-xs font-bold text-[var(--foreground)] md:text-sm">{stat.value}</p>
+                <p className="mt-0.5 truncate text-xs text-[var(--muted-foreground)]">{stat.label}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      <div className="overflow-hidden rounded-lg border border-[var(--border)]/70 bg-white md:hidden">
-        <Link
-          href="/user/dashboard?section=settings"
-          className="flex min-h-12 items-center gap-3 px-4 text-sm font-semibold text-[var(--foreground)]"
-        >
+      <div className="grid gap-3 md:grid-cols-[0.9fr_1.1fr] md:gap-6">
+        <section className="rounded-card border border-[var(--border)] bg-white p-4 md:p-6">
+          <h2 className="text-base font-bold text-[var(--foreground)] md:text-xl">Profile details</h2>
+          <div className="mt-4 divide-y divide-[var(--line-soft)] border-y border-[var(--line-soft)]">
+            <div className="flex min-w-0 items-center gap-3 py-3 text-sm text-[var(--ink-soft)]">
+              <Mail size={16} className="shrink-0 text-[var(--brand)]" aria-hidden="true" />
+              <span className="min-w-20 text-xs font-bold text-[var(--muted-foreground)]">Email</span>
+              <span className="min-w-0 flex-1 truncate text-right font-semibold">{user.email}</span>
+            </div>
+            <div className="flex min-w-0 items-center gap-3 py-3 text-sm text-[var(--ink-soft)]">
+              <MapPin size={16} className="shrink-0 text-[var(--brand)]" aria-hidden="true" />
+              <span className="min-w-20 text-xs font-bold text-[var(--muted-foreground)]">Location</span>
+              <span className="min-w-0 flex-1 truncate text-right font-semibold">{user.city || 'Not set'}</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-card border border-[var(--border)] bg-white p-4 md:p-6">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.08em] text-[var(--brand)]">Profile status</p>
+              <h2 className="mt-1 text-base font-bold text-[var(--foreground)] md:text-xl">{profileReady ? 'Your profile is ready' : 'A few details will improve your profile'}</h2>
+            </div>
+            <span className="shrink-0 rounded-pill border border-[var(--border)] px-2.5 py-1 text-xs font-bold text-[var(--ink-soft)]">
+              {completedProfileFields} of {profileFields.length}
+            </span>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">
+            {profileReady
+              ? 'Buyers and sellers can see enough context to recognise who they are dealing with.'
+              : 'Add your location and a short bio so people have useful context before they message you.'}
+          </p>
+          <div className="mt-4 h-2 overflow-hidden rounded-pill bg-[var(--sand)]" aria-label={`Profile ${profileStrength}% complete`}>
+            <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: profileStrength / 100 }} transition={{ duration: 0.4, ease: 'easeOut' }} className="h-full origin-left rounded-pill bg-[var(--brand)]" />
+          </div>
+          {!profileReady && (
+            <Button type="button" onClick={() => setIsEditing(true)} variant="outline" size="sm" className="mt-4 border-[var(--border)]">
+              Complete profile
+            </Button>
+          )}
+        </section>
+      </div>
+
+      <div className="overflow-hidden rounded-card border border-[var(--border)] bg-white md:hidden">
+        <Link href="/user/dashboard?section=settings" className="flex min-h-12 items-center gap-3 px-4 text-sm font-semibold text-[var(--foreground)]">
           <Settings size={18} className="text-[var(--brand)]" aria-hidden="true" />
           <span className="flex-1">Settings</span>
           <ChevronRight size={17} className="text-[var(--muted-foreground)]" aria-hidden="true" />
         </Link>
-        <button
-          type="button"
-          onClick={() => {
-            logout();
-            window.location.href = '/';
-          }}
-          className="flex min-h-12 w-full items-center gap-3 border-t border-[var(--border)]/70 px-4 text-left text-sm font-semibold text-red-600"
-        >
+        <button type="button" onClick={() => { logout(); window.location.href = '/'; }} className="flex min-h-12 w-full items-center gap-3 border-t border-[var(--border)] px-4 text-left text-sm font-semibold text-red-600">
           <LogOut size={18} aria-hidden="true" />
           <span className="flex-1">Log out</span>
           <ChevronRight size={17} className="text-red-300" aria-hidden="true" />
         </button>
-      </div>
-
-      <motion.section
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="surface-card relative hidden rounded-card p-4 md:block md:rounded-feature md:p-8"
-      >
-        <div className="flex items-start gap-4 md:flex-col md:gap-8 lg:flex-row lg:items-start">
-          <div className="shrink-0 self-start md:self-center lg:self-start">
-            <NameAvatar name={user.name} className="h-20 w-20 border-2 border-white text-xl soft-shadow md:h-40 md:w-40 md:border-4 md:text-4xl" />
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setIsEditing(true)}
-            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center text-[var(--brand)] md:hidden"
-            aria-label="Edit profile"
-          >
-            <Edit size={15} aria-hidden="true" />
-          </button>
-
-          <div className="min-w-0 flex-1 text-left md:text-center lg:text-left">
-            <div className="flex flex-col gap-2 md:gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div>
-                <h1 className="truncate text-xl font-bold text-[var(--foreground)] md:text-5xl">{user.name}</h1>
-                <p className="mt-1 truncate text-xs font-semibold text-[var(--muted-foreground)] md:mt-2 md:text-lg">{user.email}</p>
-              </div>
-              <Button
-                type="button"
-                onClick={() => setIsEditing(true)}
-                className="hidden rounded-full bg-[var(--brand)] px-6 font-bold text-white hover:bg-[var(--brand-dark)] md:inline-flex"
-              >
-                <Edit size={17} aria-hidden="true" />
-                Edit Profile
-              </Button>
-            </div>
-
-            <p className="mt-3 line-clamp-2 max-w-3xl text-xs font-medium leading-5 text-[var(--ink-soft)] md:mt-5 md:block md:text-base md:leading-8">
-              {user.bio || 'Profile bio has not been added yet. Add a short note to help buyers and sellers understand your collection style.'}
-            </p>
-
-            <div className="mt-3 flex flex-wrap justify-start gap-1.5 md:mt-6 md:justify-center md:gap-3 lg:justify-start">
-              <span className="rounded-md bg-[var(--brand-soft)] px-2 py-1 text-xs font-bold text-[var(--brand)] md:px-4 md:py-2 md:text-sm">
-                {user.points} points
-              </span>
-              <span className="rounded-pill bg-state-pending-container px-2 py-1 text-xs font-bold text-state-pending md:px-4 md:py-2 md:text-sm">
-                {user.city || 'City not set'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </motion.section>
-
-      <div className="hidden grid-cols-3 gap-6 md:grid">
-        {[
-          { label: 'Trust Tier', value: trustTierLabels[user.trustTier] ?? user.trustTier, icon: Shield },
-          { label: 'Impact Points', value: user.points.toLocaleString(), icon: Star },
-          { label: 'Location', value: user.city || 'Not set', icon: MapPin },
-        ].map((stat) => (
-          <div key={stat.label} className="surface-card min-w-0 rounded-card p-2.5 md:rounded-feature md:p-6">
-            <div className="mb-2 flex h-7 w-7 items-center justify-center text-[var(--brand)] md:mb-5 md:h-12 md:w-12">
-              <stat.icon size={15} className="md:h-[23px] md:w-[23px]" aria-hidden="true" />
-            </div>
-            <p className="truncate text-xs font-bold uppercase text-[var(--muted-foreground)] md:text-sm">{stat.label}</p>
-            <p className="mt-1 truncate text-xs font-bold text-[var(--foreground)] md:mt-2 md:text-2xl">{stat.value}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="hidden gap-8 md:grid lg:grid-cols-12">
-        <div className="surface-card rounded-card p-4 md:rounded-feature md:p-6 lg:col-span-5">
-          <div className="mb-3 flex items-center gap-2 md:mb-5 md:gap-3">
-            <div className="flex h-8 w-8 items-center justify-center text-[var(--brand)] md:h-11 md:w-11">
-              <User size={21} aria-hidden="true" />
-            </div>
-            <h2 className="text-base font-bold md:text-2xl">Profile Details</h2>
-          </div>
-          <div className="space-y-3 text-sm font-semibold text-[var(--ink-soft)]">
-            <div className="flex min-w-0 items-center gap-3 rounded-card bg-[var(--sand)] px-4 py-3">
-              <Mail size={16} className="shrink-0 text-[var(--brand)]" aria-hidden="true" />
-              <span className="truncate">{user.email}</span>
-            </div>
-            <div className="flex min-w-0 items-center gap-3 rounded-card bg-[var(--sand)] px-4 py-3">
-              <MapPin size={16} className="shrink-0 text-[var(--brand)]" aria-hidden="true" />
-              <span className="truncate">{user.city || 'City not set'}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="surface-card rounded-card p-4 md:rounded-feature md:p-6 lg:col-span-7">
-          <div className="mb-3 flex items-center gap-2 md:mb-5 md:gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-pill bg-state-info-container text-state-info md:h-11 md:w-11">
-              <Shield size={21} aria-hidden="true" />
-            </div>
-            <h2 className="text-base font-bold md:text-2xl">Curator Standing</h2>
-          </div>
-          <p className="text-xs font-medium leading-5 text-[var(--ink-soft)] md:text-base md:leading-8">
-            Your profile is used across listings and messages. A complete profile helps other members
-            know who they are speaking with.
-          </p>
-          <div className="mt-4 h-2 overflow-hidden rounded-full bg-[var(--sand)] md:mt-6">
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: profileStrength / 100 }}
-              transition={{ duration: 0.55, ease: 'easeOut' }}
-              className="h-full origin-left rounded-full bg-[var(--brand)]"
-            />
-          </div>
-          <p className="mt-2 text-right text-xs font-bold text-[var(--muted-foreground)] md:text-sm">Profile strength: {profileStrength}%</p>
-        </div>
       </div>
 
       {isEditing && (
@@ -273,7 +174,7 @@ export default function ProfileSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             onSubmit={handleSave}
-            className="max-h-[90vh] w-full overflow-y-auto rounded-t-card bg-white p-4 pb-[calc(1rem+var(--safe-area-bottom))] soft-shadow sm:max-w-2xl sm:rounded-feature sm:p-6"
+            className="max-h-[90vh] w-full overflow-y-auto rounded-t-card border border-[var(--border)] bg-white p-4 pb-[calc(1rem+var(--safe-area-bottom))] sm:max-w-2xl sm:rounded-surface sm:p-6"
           >
             <div className="mb-5 flex items-center justify-between sm:mb-6">
               <div>
@@ -283,7 +184,7 @@ export default function ProfileSection() {
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-md bg-[var(--sand)] text-[var(--ink-soft)] sm:h-11 sm:w-11 sm:rounded-full"
+                className="flex h-10 w-10 items-center justify-center rounded-control border border-[var(--border)] bg-white text-[var(--ink-soft)] sm:h-11 sm:w-11"
                 aria-label="Close profile editor"
               >
                 <X size={19} aria-hidden="true" />
@@ -297,7 +198,7 @@ export default function ProfileSection() {
                   value={form.name}
                   onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
                   required
-                  className="rounded-md text-base sm:rounded-full"
+                  className="text-base"
                 />
               </label>
               <label className="space-y-2">
@@ -305,7 +206,7 @@ export default function ProfileSection() {
                 <select
                   value={form.city}
                   onChange={(event) => setForm((current) => ({ ...current, city: event.target.value }))}
-                  className="h-11 w-full rounded-md border border-[var(--border)] bg-white px-4 text-base font-semibold sm:h-10 sm:rounded-full sm:text-sm"
+                  className="h-11 w-full rounded-control border border-[var(--border)] bg-white px-4 text-base font-semibold sm:text-sm"
                 >
                   <option value="">Choose a state</option>
                   {nigerianStates.map((state) => <option key={state} value={state}>{state}</option>)}
@@ -323,13 +224,13 @@ export default function ProfileSection() {
             </div>
 
             <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <Button type="button" variant="outline" onClick={() => setIsEditing(false)} className="rounded-full border-[var(--border)] font-bold">
+              <Button type="button" variant="outline" onClick={() => setIsEditing(false)} className="border-[var(--border)] font-bold">
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={saving}
-                className="rounded-full bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]"
+                className="bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]"
               >
                 {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
                 Save profile

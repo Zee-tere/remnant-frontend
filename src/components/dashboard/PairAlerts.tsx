@@ -244,28 +244,31 @@ export default function PairAlertsSection() {
         </Button>
       </header>
 
-      <div className="flex items-start gap-2.5 border-y border-[#f1f0ec] px-1 py-2.5 text-xs leading-5 text-[var(--ink-soft)] md:py-3 md:text-sm">
+      <div className="flex items-start gap-2.5 rounded-card border border-[var(--border)] bg-white px-3 py-3 text-xs leading-5 text-[var(--ink-soft)] md:px-4 md:text-sm">
         <BellRing size={16} className="mt-0.5 shrink-0 text-[var(--brand)]" />
         Alerts are private saved searches. They never appear as marketplace listings.
       </div>
 
       {alerts.length === 0 ? (
-        <section className="flex min-h-[240px] flex-col items-center justify-center border-y border-[var(--border)] px-5 text-center">
-          <span className="flex h-11 w-11 items-center justify-center text-[var(--brand)]"><ScanSearch size={21} /></span>
+        <section className="flex min-h-[240px] flex-col items-center justify-center rounded-card border border-[var(--border)] bg-white px-5 text-center">
+          <span className="flex h-11 w-11 items-center justify-center rounded-control border border-[var(--border)] text-[var(--brand)]"><ScanSearch size={21} /></span>
           <h2 className="mt-3 text-base font-bold">Nothing on watch yet</h2>
           <p className="mt-1 max-w-sm text-sm text-[var(--muted-foreground)]">Save a missing piece, part, or single item and Remnant will compare it with new listings.</p>
           <Button type="button" onClick={() => setShowForm(true)} variant="outline" className="mt-4 border-[var(--border)] font-bold">Create your first alert</Button>
         </section>
       ) : (
-        <section className="divide-y divide-[#f1f0ec] overflow-hidden bg-white">
+        <section className="space-y-2 md:space-y-3">
           {alerts.map((alert) => (
-            <article key={alert.id} className="p-3 md:p-5">
-              <div className="flex items-start gap-3">
-                <span className={`mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full ${alert.status === 'ACTIVE' ? 'bg-[var(--brand)]' : 'bg-[var(--muted-foreground)]/40'}`} aria-label={alert.status === 'ACTIVE' ? 'Active alert' : 'Paused alert'} />
-                <div className="min-w-0 flex-1">
+            <article key={alert.id} className="rounded-card border border-[var(--border)] bg-white p-3 md:p-5">
+              <div className="min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <h2 className="truncate text-sm font-bold md:text-base">{alert.query}</h2>
+                      <div className="flex min-w-0 items-center gap-2">
+                        <h2 className="truncate text-sm font-bold md:text-base">{alert.query}</h2>
+                        <span className={`shrink-0 rounded-pill border px-2 py-0.5 text-xs font-bold ${alert.status === 'ACTIVE' ? 'border-[var(--brand)]/40 text-[var(--brand)]' : 'border-[var(--border)] text-[var(--muted-foreground)]'}`}>
+                          {alert.status === 'ACTIVE' ? 'Active' : 'Paused'}
+                        </span>
+                      </div>
                       <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs font-medium text-[var(--muted-foreground)]">
                         <span>{alert.category}</span>
                         {alert.city && <span className="inline-flex items-center gap-1"><MapPin size={11} />{alert.city}</span>}
@@ -273,18 +276,18 @@ export default function PairAlertsSection() {
                       </p>
                     </div>
                     <div className="flex shrink-0 gap-1">
-                      <button type="button" onClick={() => void toggleAlert(alert)} disabled={busyId === alert.id} className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--muted-foreground)] hover:bg-[var(--brand-soft)] hover:text-[var(--brand)]" aria-label={alert.status === 'ACTIVE' ? 'Pause alert' : 'Resume alert'}>
+                      <button type="button" onClick={() => void toggleAlert(alert)} disabled={busyId === alert.id} className="flex h-9 w-9 items-center justify-center rounded-control border border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--brand)]/45 hover:text-[var(--brand)]" aria-label={alert.status === 'ACTIVE' ? 'Pause alert' : 'Resume alert'}>
                         {busyId === alert.id ? <Loader2 size={14} className="animate-spin" /> : alert.status === 'ACTIVE' ? <Pause size={14} /> : <Play size={14} />}
                       </button>
-                      <button type="button" onClick={() => void deleteAlert(alert)} disabled={busyId === alert.id} className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--muted-foreground)] hover:bg-red-50 hover:text-red-600" aria-label="Delete alert"><Trash2 size={14} /></button>
+                      <button type="button" onClick={() => void deleteAlert(alert)} disabled={busyId === alert.id} className="flex h-9 w-9 items-center justify-center rounded-control border border-[var(--border)] text-[var(--muted-foreground)] hover:border-red-300 hover:text-red-600" aria-label="Delete alert"><Trash2 size={14} /></button>
                     </div>
                   </div>
 
                   {alert.matches.length > 0 ? (
-                    <div className="mt-3 grid gap-1.5 sm:grid-cols-2">
+                    <div className="mt-4 grid gap-2 sm:grid-cols-2">
                       {alert.matches.slice(0, 4).map((match) => (
-                        <Link key={match.id} href={`/marketplace/${match.listing.slug || match.listing.id}`} className="group flex min-w-0 items-center gap-2 border-b border-[#f1f0ec] p-1.5 transition-colors last:border-b-0 hover:text-[var(--brand)]">
-                          <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-[var(--sand)]">
+                        <Link key={match.id} href={`/marketplace/${match.listing.slug || match.listing.id}`} className="group flex min-w-0 items-center gap-2 rounded-control border border-[var(--line-soft)] p-2 transition-colors hover:border-[var(--brand)]/40 hover:text-[var(--brand)]">
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-control bg-[var(--sand)]">
                             {match.listing.images?.[0] ? <img src={match.listing.images[0]} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" /> : <ScanSearch size={16} className="text-[var(--muted-foreground)]" />}
                           </span>
                           <span className="min-w-0 flex-1">
@@ -296,9 +299,8 @@ export default function PairAlertsSection() {
                       ))}
                     </div>
                   ) : (
-                    <p className="mt-2 text-xs text-[var(--muted-foreground)]">Watching new listings for a close match.</p>
+                    <p className="mt-3 border-t border-[var(--line-soft)] pt-3 text-xs text-[var(--muted-foreground)]">Watching new listings for a close match.</p>
                   )}
-                </div>
               </div>
             </article>
           ))}
