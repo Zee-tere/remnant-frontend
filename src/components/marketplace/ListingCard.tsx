@@ -1,9 +1,13 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import { MapPin, PackageOpen, Puzzle } from 'lucide-react';
 import { IntentBadge, listingIntentMeta, normalizeListingIntent } from '@/components/ui/intent-badge';
 import { conditionLabels } from '@/lib/listing-conditions';
 import { formatCurrency } from '@/lib/utils';
+import { isListingTombstoned, isListingTombstoneStorageEvent } from '@/lib/listing-tombstones';
 
 export interface ListingCardItem {
   id: string;
@@ -43,6 +47,27 @@ export function ListingCard({
   eager?: boolean;
 }) {
   const needsPair = item.compatibilityAttributes?.needsPair === true && Boolean(item.pairingKeyword);
+  const [removed, setRemoved] = useState(false);
+
+  useEffect(() => {
+    const sync = () => setRemoved(isListingTombstoned(item.id));
+    const onDeleted = (event: Event) => {
+      const detail = (event as CustomEvent<{ id?: string }>).detail;
+      if (detail?.id === item.id) setRemoved(true);
+    };
+    const onStorage = (event: StorageEvent) => {
+      if (isListingTombstoneStorageEvent(event)) sync();
+    };
+    sync();
+    window.addEventListener('remnant:listing-deleted', onDeleted);
+    window.addEventListener('storage', onStorage);
+    return () => {
+      window.removeEventListener('remnant:listing-deleted', onDeleted);
+      window.removeEventListener('storage', onStorage);
+    };
+  }, [item.id]);
+
+  if (removed) return null;
 
   return (
     <Link href={`/marketplace/${item.slug || item.id}`} className={`group block min-w-0 touch-manipulation ${className}`}>

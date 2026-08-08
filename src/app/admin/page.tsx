@@ -111,7 +111,7 @@ function MessageDialog({ target, busy, onClose, onSend }: { target: { id: string
           <button type="button" onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-[var(--sand)]" aria-label="Close"><X size={18} /></button>
         </div>
         <Textarea value={message} onChange={(event) => setMessage(event.target.value)} maxLength={1000} rows={5} required placeholder="Write a clear moderation or support message" />
-        <Button type="submit" disabled={busy || !message.trim()} className="h-11 w-full rounded-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]">
+        <Button type="submit" disabled={busy || !message.trim()} className="h-11 w-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]">
           {busy ? <Loader2 size={17} className="animate-spin" /> : <MessageSquare size={17} />} Send alert
         </Button>
       </form>
@@ -248,7 +248,7 @@ export default function AdminPage() {
         <form onSubmit={(event) => { event.preventDefault(); const nextSearch = search.trim(); if (nextSearch === appliedSearch) void loadData(activeTab); else setAppliedSearch(nextSearch); }} className="mt-5 flex gap-2">
           <div className="relative min-w-0 flex-1"><Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" /><Input value={search} onChange={(event) => setSearch(event.target.value)} className="h-11 rounded-full bg-white pl-9" placeholder={activeTab === "users" ? "Search members" : "Search listings or sellers"} /></div>
           {activeTab === "listings" && <select value={listingStatus} onChange={(event) => setListingStatus(event.target.value)} className="h-11 max-w-32 rounded-full border border-[var(--border)] bg-white px-3 text-sm font-bold"><option value="">All</option><option>ACTIVE</option><option>FLAGGED</option><option>PAUSED</option><option>COMPLETED</option></select>}
-          <Button type="submit" variant="outline" className="h-11 rounded-full border-[var(--border)] bg-white px-4 text-[var(--aqua)] hover:bg-white hover:text-[var(--brand)]"><Search size={16} /><span className="hidden sm:inline">Find</span></Button>
+          <Button type="submit" variant="outline" className="h-11 border-[var(--border)] bg-white px-4 text-[var(--aqua)] hover:bg-white hover:text-[var(--brand)]"><Search size={16} /><span className="hidden sm:inline">Find</span></Button>
         </form>
       )}
 

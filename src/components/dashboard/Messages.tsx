@@ -410,6 +410,7 @@ export default function MessagesSection() {
                 }
               : conversation,
           ));
+          window.dispatchEvent(new Event('remnant:summary-refresh'));
         }).catch(() => undefined);
       }, 300);
     };

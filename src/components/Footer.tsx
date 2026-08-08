@@ -13,7 +13,7 @@ const footerLinks = [
   { label: "Repair", href: "/repair" },
   { label: "Recycle", href: "/recycle" },
   { label: "Sustainability", href: "/sustainability" },
-  { label: "Help Center", href: "/help" },
+  { label: "Help Centre", href: "/help" },
   { label: "Privacy", href: "/privacy" },
   { label: "Terms", href: "/terms" },
 ];
@@ -59,7 +59,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col items-center justify-between gap-2 border-t border-[var(--border)]/30 pt-3 text-sm font-semibold text-[var(--secondary-blue)] md:flex-row">
-          <p>&copy; {currentYear} Remnant. Every piece has a story.</p>
+          <p>&copy; {currentYear} Remnant. Useful things deserve a next place.</p>
           <Link
             href="mailto:support@remnantmarket.co"
             className="inline-flex items-center gap-2 transition-colors hover:text-[var(--brand)]"

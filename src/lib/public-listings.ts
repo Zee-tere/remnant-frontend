@@ -77,7 +77,7 @@ export async function getPublicListings(
     Object.entries(params).forEach(([key, value]) => searchParams.set(key, String(value)));
 
     const response = await fetch(`${getApiUrl()}/listings?${searchParams.toString()}`, {
-      next: { revalidate: _revalidate, tags: ["public-listings"] },
+      cache: "no-store",
       signal: AbortSignal.timeout(8_000),
     });
     if (!response.ok) return emptyPage;
@@ -114,7 +114,7 @@ export async function getPublicSearchListings(
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => searchParams.set(key, String(value)));
     const response = await fetch(`${getApiUrl()}/listings/search?${searchParams.toString()}`, {
-      next: { revalidate: _revalidate, tags: ["public-listing-search"] },
+      cache: "no-store",
       signal: AbortSignal.timeout(8_000),
     });
     if (!response.ok) return [];

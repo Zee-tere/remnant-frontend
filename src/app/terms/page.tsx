@@ -11,7 +11,7 @@ const terms = [
   {
     title: "Complete paid exchanges safely",
     body:
-      "Buyers and sellers currently arrange payment and collection directly. Never share passwords, one-time codes, or unnecessary financial information.",
+      "Use the checkout shown on an order when available. Otherwise, buyers and sellers arrange payment and collection directly. Never share passwords, one-time codes, card PINs, or unnecessary financial information.",
   },
   {
     title: "Respect items and people",
@@ -50,11 +50,11 @@ export default function TermsPage() {
           <ShieldCheck className="mx-auto text-[var(--secondary-blue)]" size={30} aria-hidden="true" />
           <h2 className="mt-4 text-3xl font-bold text-[var(--foreground)]">Need help with a transaction?</h2>
           <p className="mx-auto mt-3 max-w-xl font-medium leading-7 text-[var(--ink-soft)]">
-            The Help Center explains support channels and safe exchange basics.
+            The Help Centre explains support channels and safe exchange basics.
           </p>
           <Button asChild className="mt-6 bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">
             <Link href="/help">
-              Visit Help Center
+              Visit Help Centre
               <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </Button>

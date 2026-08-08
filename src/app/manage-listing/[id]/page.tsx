@@ -58,8 +58,8 @@ export default function ManageGuestListingPage() {
     if (!token) return;
     const confirmed = window.confirm(
       status === "COMPLETED"
-        ? "Mark this item as sold? It will disappear from the public market."
-        : "Remove this listing from the public market?",
+        ? "Mark this item as sold? It will leave the public marketplace."
+        : "Remove this listing from the public marketplace?",
     );
     if (!confirmed) return;
     setUpdating(status);
@@ -94,7 +94,7 @@ export default function ManageGuestListingPage() {
         <PackageX size={38} className="text-[var(--brand)]" aria-hidden="true" />
         <h1 className="mt-4 text-2xl font-bold">Management key needed</h1>
         <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">Open the private link you received when this guest listing was published. For safety, Remnant cannot manage the item without that key.</p>
-        <Button asChild variant="outline" className="mt-6 rounded-full"><Link href="/marketplace">Back to the market</Link></Button>
+        <Button asChild variant="outline" className="mt-6"><Link href="/marketplace">Back to marketplace</Link></Button>
       </main>
     );
   }
@@ -109,7 +109,7 @@ export default function ManageGuestListingPage() {
           <div className="min-w-0">
             <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--brand)]">Guest listing</p>
             <h1 className="mt-1 truncate text-2xl font-bold">{listing.title}</h1>
-            <p className="mt-1 text-sm font-semibold text-[var(--ink-soft)]">{isLive ? "Live in the market" : listing.status === "COMPLETED" ? "Marked as sold" : "Removed from the market"}</p>
+            <p className="mt-1 text-sm font-semibold text-[var(--ink-soft)]">{isLive ? "Live in the marketplace" : listing.status === "COMPLETED" ? "Marked as sold" : "Removed from the marketplace"}</p>
           </div>
         </div>
 
@@ -124,7 +124,7 @@ export default function ManageGuestListingPage() {
               </Button>
               <Button type="button" variant="outline" onClick={() => void updateStatus("PAUSED")} disabled={Boolean(updating)} className="h-12 w-full rounded-full font-bold">
                 {updating === "PAUSED" ? <Loader2 size={17} className="animate-spin" /> : <PackageX size={17} />}
-                Remove from market
+                Remove from marketplace
               </Button>
             </div>
           </div>

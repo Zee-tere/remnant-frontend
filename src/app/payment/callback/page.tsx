@@ -67,11 +67,11 @@ function PaymentResult() {
         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[var(--ink-soft)]">{content.body}</p>
         {state !== "loading" && (
           <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Button asChild className="rounded-full bg-[var(--brand)] px-6 font-bold text-white hover:bg-[var(--brand-dark)]">
+            <Button asChild className="bg-[var(--brand)] px-6 font-bold text-white hover:bg-[var(--brand-dark)]">
               <Link href={orderHref}>{transactionId ? "View order" : "Back to marketplace"}</Link>
             </Button>
             {transactionId && (
-              <Button asChild variant="outline" className="rounded-full px-6 font-bold">
+              <Button asChild variant="outline" className="px-6 font-bold">
                 <Link href="/marketplace">Keep browsing</Link>
               </Button>
             )}

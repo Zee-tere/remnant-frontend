@@ -274,7 +274,7 @@ export default function TransactionDetailPage() {
                 </div>
                 <div className="flex items-start gap-2 rounded-control bg-[var(--brand-soft)] p-3 text-sm leading-5 text-[var(--ink-soft)]">
                   <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[var(--brand)]" aria-hidden="true" />
-                  <p>Payment is held securely until receipt is confirmed or the order is resolved.</p>
+                  <p>Follow the payment status shown here. Only hand over the item after the agreed payment is confirmed.</p>
                 </div>
                 <div className="rounded-lg bg-muted p-3 text-sm">
                   <div className="flex justify-between gap-4">

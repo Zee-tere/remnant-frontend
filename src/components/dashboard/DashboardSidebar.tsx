@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Bell,
   LogOut,
@@ -46,35 +46,37 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
   const logout = useAuthStore((state) => state.logout);
   const [stats, setStats] = useState<SidebarStats>(initialStats);
 
-  useEffect(() => {
+  const loadStats = useCallback(async () => {
     if (!isAuthenticated) {
       setStats(initialStats);
       return;
     }
-
-    let cancelled = false;
-
-    async function loadStats() {
-      try {
-        const summary = await userApi.getDashboardSummary();
-        if (cancelled) return;
-        setStats({
-          listings: Number(summary.listings ?? 0),
-          activeListings: Number(summary.activeListings ?? 0),
-          unreadMessages: Number(summary.unreadMessages ?? 0),
-          unreadAlerts: Number(summary.unreadAlerts ?? 0),
-          pendingMatches: Number(summary.pendingMatches ?? 0),
-        });
-      } catch {
-        if (!cancelled) setStats(initialStats);
-      }
+    try {
+      const summary = await userApi.getDashboardSummary();
+      setStats({
+        listings: Number(summary.listings ?? 0),
+        activeListings: Number(summary.activeListings ?? 0),
+        unreadMessages: Number(summary.unreadMessages ?? 0),
+        unreadAlerts: Number(summary.unreadAlerts ?? 0),
+        pendingMatches: Number(summary.pendingMatches ?? 0),
+      });
+    } catch {
+      setStats(initialStats);
     }
-
-    loadStats();
-    return () => {
-      cancelled = true;
-    };
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    void loadStats();
+    const refresh = () => void loadStats();
+    const timer = window.setInterval(refresh, 30_000);
+    window.addEventListener('focus', refresh);
+    window.addEventListener('remnant:summary-refresh', refresh);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener('focus', refresh);
+      window.removeEventListener('remnant:summary-refresh', refresh);
+    };
+  }, [loadStats]);
 
   const menuItems: Array<{
     label: string;
@@ -86,7 +88,7 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
     { label: 'My Listings', icon: Package, section: 'listings', count: stats.listings },
     { label: 'Pair Alerts', icon: ScanSearch, section: 'pair-alerts' },
     { label: 'Messages', icon: Mail, section: 'messages', count: stats.unreadMessages },
-    { label: 'Alerts', icon: Bell, section: 'alerts', count: stats.unreadAlerts + stats.pendingMatches },
+    { label: 'Match alerts', icon: Bell, section: 'alerts', count: stats.unreadAlerts },
     { label: 'Upload Item', icon: UploadCloud, section: 'upload', highlight: true },
     { label: 'Profile', icon: User, section: 'profile' },
     { label: 'Settings', icon: Settings, section: 'settings' },
@@ -199,7 +201,7 @@ export default function DashboardSidebar({ onSelectSection, activeSection }: Das
           <p className="mb-2 text-sm font-medium text-foreground">Quick Stats</p>
           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
             <span>Active: {stats.activeListings}</span>
-            <span>Alerts: {stats.unreadAlerts}</span>
+            <span>New matches: {stats.unreadAlerts}</span>
             <span>Messages: {stats.unreadMessages}</span>
             <span>Matches: {stats.pendingMatches}</span>
           </div>

@@ -1,22 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { BellRing, Filter, Search, X } from "lucide-react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
 import { ListingGridSkeleton } from "@/components/feedback/LoadingState";
-import { listingsApi } from "@/lib/api";
 import { listingCategories } from "@/lib/categories";
 import { nigerianStates } from "@/lib/nigeria-locations";
-import { getApiErrorMessage } from "@/lib/errors";
 import { useAuthStore } from "@/lib/auth";
 
 const intentOptions = [
   { value: "", label: "All intents" },
-  { value: "SELL", label: "Buy" },
+  { value: "SELL", label: "For sale" },
   { value: "TRADE", label: "Trade" },
   { value: "DONATE", label: "Donate" },
   { value: "FIX", label: "Repair" },
@@ -29,6 +27,7 @@ interface FindPageClientProps {
   initialCategory: string;
   initialCity: string;
   initialIntent: string;
+  initialPage: number;
 }
 
 export default function FindPageClient({
@@ -37,10 +36,12 @@ export default function FindPageClient({
   initialCategory,
   initialCity,
   initialIntent,
+  initialPage,
 }: FindPageClientProps) {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState(initialSearch);
-  const [listings, setListings] = useState<ListingCardItem[]>(initialListings);
-  const [loading, setLoading] = useState(false);
+  const [listings] = useState<ListingCardItem[]>(initialListings);
+  const [loading, startTransition] = useTransition();
   const [showFilters, setShowFilters] = useState(false);
   const [category, setCategory] = useState(initialCategory);
   const [city, setCity] = useState(initialCity);
@@ -48,28 +49,19 @@ export default function FindPageClient({
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const alertPath = "/user/dashboard?section=pair-alerts&create=1";
 
-  const loadListings = async (search = searchTerm) => {
-    setLoading(true);
-    const params: Record<string, string> = { limit: "24" };
-    if (search.trim()) params.q = search.trim();
-    if (category) params.category = category;
-    if (city) params.city = city;
-    if (intent) params.intent = intent;
-
-    try {
-      const data = await listingsApi.searchListings(params);
-      setListings(Array.isArray(data) ? data : []);
-    } catch (error) {
-      setListings([]);
-      toast.error(getApiErrorMessage(error, "Search could not be completed"));
-    } finally {
-      setLoading(false);
-    }
+  const navigate = (page = 1) => {
+    const params = new URLSearchParams();
+    if (searchTerm.trim()) params.set('search', searchTerm.trim());
+    if (category) params.set('category', category);
+    if (city) params.set('city', city);
+    if (intent) params.set('intent', intent);
+    if (page > 1) params.set('page', String(page));
+    startTransition(() => router.push(`/find-a-pair${params.size ? `?${params.toString()}` : ''}`));
   };
 
   const handleSearch = (event: React.FormEvent) => {
     event.preventDefault();
-    void loadListings(searchTerm);
+    navigate(1);
   };
 
   const resetFilters = () => {
@@ -95,7 +87,8 @@ export default function FindPageClient({
             type="search"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Search the market"
+            aria-label="Search listings"
+            placeholder="Try: iPhone 13 case, left AirPod"
             className="h-13 border-0 bg-transparent pl-4 pr-14 text-base font-medium shadow-none focus-visible:ring-0"
           />
           <button
@@ -153,7 +146,7 @@ export default function FindPageClient({
           </label>
           <div className="mt-4 flex gap-2 md:mt-0">
             {hasFilters && <Button type="button" variant="outline" onClick={resetFilters}>Reset</Button>}
-            <Button type="button" onClick={() => { void loadListings(); setShowFilters(false); }} className="flex-1 font-bold text-white md:flex-none">Apply filters</Button>
+            <Button type="button" onClick={() => { navigate(1); setShowFilters(false); }} className="flex-1 font-bold text-white md:flex-none">Apply filters</Button>
           </div>
           </section>
         </div>
@@ -173,11 +166,20 @@ export default function FindPageClient({
         <section className="border-y border-[var(--line-soft)] py-16 text-center">
           <Search className="search-glyph mx-auto text-[var(--aqua)]" size={42} aria-hidden="true" />
           <h2 className="mt-4 text-xl font-bold text-[var(--foreground)]">No pieces found yet</h2>
-          <p className="mx-auto mt-2 max-w-sm text-sm font-medium text-[var(--muted-foreground)]">Try another detail, remove a filter, or save a private alert for later.</p>
-          <Button asChild variant="outline" className="mt-5">
-            <Link href={isAuthenticated ? alertPath : `/login?redirect=${encodeURIComponent(alertPath)}`}>Set a pair alert</Link>
-          </Button>
+          <p className="mx-auto mt-2 max-w-sm text-sm font-medium text-[var(--muted-foreground)]">Check the spelling, try a shorter item name, or search without filters.</p>
+          <div className="mt-5 flex flex-wrap justify-center gap-2">
+            {(hasFilters || searchTerm) && <Button type="button" variant="outline" onClick={() => { setSearchTerm(''); setCategory(''); setCity(''); setIntent(''); startTransition(() => router.push('/find-a-pair')); }}>Clear search</Button>}
+            <Button asChild variant="outline"><Link href={isAuthenticated ? alertPath : `/login?redirect=${encodeURIComponent(alertPath)}`}>Set a pair alert</Link></Button>
+          </div>
         </section>
+      )}
+
+      {!loading && listings.length > 0 && (initialPage > 1 || listings.length === 24) && (
+        <nav className="mt-8 flex items-center justify-center gap-3" aria-label="Search result pages">
+          <Button type="button" variant="outline" disabled={initialPage <= 1} onClick={() => navigate(initialPage - 1)}>Previous</Button>
+          <span className="text-sm font-semibold text-[var(--muted-foreground)]">Page {initialPage}</span>
+          <Button type="button" variant="outline" disabled={listings.length < 24} onClick={() => navigate(initialPage + 1)}>Next</Button>
+        </nav>
       )}
     </main>
   );

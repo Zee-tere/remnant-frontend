@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import FindPageClient from "@/components/marketplace/FindPageClient";
 import { getPublicSearchListings } from "@/lib/public-listings";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Search Used Items and Spare Parts in Nigeria",
@@ -25,7 +25,9 @@ export default async function FindAPairPage({ searchParams }: FindPageProps) {
   const city = firstValue(params.city);
   const requestedIntent = firstValue(params.intent).toUpperCase();
   const intent = requestedIntent === "WANTED" ? "" : requestedIntent;
-  const requestParams: Record<string, string | number> = { limit: 24 };
+  const requestedPage = Number(firstValue(params.page));
+  const page = Number.isFinite(requestedPage) && requestedPage > 0 ? Math.floor(requestedPage) : 1;
+  const requestParams: Record<string, string | number> = { limit: 24, page };
   if (search) requestParams.q = search;
   if (category) requestParams.category = category;
   if (city) requestParams.city = city;
@@ -34,12 +36,13 @@ export default async function FindAPairPage({ searchParams }: FindPageProps) {
   const listings = await getPublicSearchListings(requestParams, 60);
   return (
     <FindPageClient
-      key={`${search}|${category}|${city}|${intent}`}
+      key={`${search}|${category}|${city}|${intent}|${page}`}
       initialListings={listings}
       initialSearch={search}
       initialCategory={category}
       initialCity={city}
       initialIntent={intent}
+      initialPage={page}
     />
   );
 }

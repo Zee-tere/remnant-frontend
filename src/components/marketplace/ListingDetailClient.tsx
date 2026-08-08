@@ -312,7 +312,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
   return (
     <main className="mx-auto min-h-screen max-w-7xl bg-white px-3 pb-20 pt-3 md:px-8 md:pt-8">
       <Link href="/marketplace" className="mb-3 inline-flex items-center gap-1.5 text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--brand)] md:mb-6 md:text-sm">
-        <ArrowLeft size={16} /> Back to market
+        <ArrowLeft size={16} /> Back to marketplace
       </Link>
 
       <div className="grid gap-4 lg:grid-cols-12 lg:gap-8">

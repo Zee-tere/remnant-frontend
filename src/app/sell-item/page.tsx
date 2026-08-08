@@ -38,7 +38,7 @@ function SellItemPageContent() {
         <section className="mx-auto max-w-md">
           <div className="surface-card rounded-card bg-white p-4 md:rounded-feature md:p-8">
             <div className="space-y-3">
-              <Button asChild className="h-13 w-full rounded-full bg-[var(--brand)] text-base font-bold text-white hover:bg-[var(--brand-dark)] md:h-14">
+              <Button asChild className="h-13 w-full bg-[var(--brand)] text-base font-bold text-white hover:bg-[var(--brand-dark)] md:h-14">
                 <Link href={`/signup?redirect=${encodeURIComponent(listingPath)}`}>
                   <UserRound size={18} aria-hidden="true" />
                   Join Now
@@ -55,7 +55,7 @@ function SellItemPageContent() {
                 Continue as guest
               </Button>
 
-              <Button asChild variant="ghost" className="h-12 w-full rounded-full text-sm font-bold text-[var(--ink-soft)] hover:bg-[var(--sand)] hover:text-[var(--brand)]">
+              <Button asChild variant="ghost" className="h-12 w-full text-sm font-bold text-[var(--ink-soft)] hover:bg-[var(--sand)] hover:text-[var(--brand)]">
                 <Link href={`/login?redirect=${encodeURIComponent(listingPath)}`}>
                   <LogIn size={16} aria-hidden="true" />
                   Already have an account? Log in

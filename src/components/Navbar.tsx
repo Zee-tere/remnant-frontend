@@ -33,7 +33,7 @@ interface NavigationAction {
 }
 
 const productActions: NavigationAction[] = [
-  { label: "Find a pair", href: "/find-a-pair", icon: Search },
+  { label: "Find an item", href: "/find-a-pair", icon: Search },
   { label: "Marketplace", href: "/marketplace", icon: Store },
   { label: "Sell", href: "/sell", icon: Tag },
   { label: "Trade", href: "/trade", icon: RefreshCw },
@@ -44,7 +44,7 @@ const accountActions = [
   { label: "Listings", href: "/user/dashboard", icon: Box },
   { label: "Pair alerts", href: "/user/dashboard?section=pair-alerts", icon: ScanSearch },
   { label: "Messages", href: "/user/dashboard?section=messages", icon: MessageCircle },
-  { label: "Alerts", href: "/user/dashboard?section=alerts", icon: Bell },
+  { label: "Match alerts", href: "/user/dashboard?section=alerts", icon: Bell },
   { label: "Upload", href: "/user/dashboard?section=upload", icon: PackagePlus },
   { label: "Profile", href: "/user/dashboard?section=profile", icon: UserRound },
   { label: "Settings", href: "/user/dashboard?section=settings", icon: Settings },
@@ -235,8 +235,8 @@ export default function Navbar() {
               type="search"
               value={mobileSearch}
               onChange={(event) => setMobileSearch(event.target.value)}
-              placeholder="Find a pair"
-              aria-label="Find a pair"
+              placeholder="Search listings"
+              aria-label="Search listings"
               className="h-full min-w-0 flex-1 border-0 bg-transparent px-1 text-xs font-semibold text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]"
             />
             <button type="submit" className="flex h-9 w-9 shrink-0 items-center justify-center text-[var(--aqua)]" aria-label="Search">

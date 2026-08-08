@@ -165,7 +165,7 @@ export default function GuestMessagesPage() {
       <AlertTriangle className="mx-auto text-amber-600" size={42} />
       <h1 className="mt-4 text-2xl font-bold">This conversation is unavailable</h1>
       <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">Open it on the browser where you first contacted the seller, or create an account for conversations that follow you across devices.</p>
-      <Button asChild className="mt-6 rounded-full bg-[var(--brand)] text-white"><Link href="/marketplace">Back to marketplace</Link></Button>
+      <Button asChild className="mt-6 bg-[var(--brand)] text-white"><Link href="/marketplace">Back to marketplace</Link></Button>
     </main>
   );
 

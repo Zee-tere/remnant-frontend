@@ -209,7 +209,7 @@ export default function MarketplaceClient({
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <main className="mx-auto max-w-7xl px-4 pb-20 pt-4 sm:px-5 md:px-8 md:pt-7">
-        <section className="-mx-1 mb-3 border-b border-[var(--line-soft)] pb-2 md:mb-6" aria-label="Browse market categories">
+        <section className="-mx-1 mb-3 border-b border-[var(--line-soft)] pb-2 md:mb-6" aria-label="Browse marketplace categories">
           <div className="flex items-center justify-end px-1">
             {category && (
               <button type="button" onClick={() => { setCategory(""); resetPagination(); }} className="min-h-11 px-1 text-xs font-bold text-[var(--brand)]">
@@ -320,7 +320,7 @@ export default function MarketplaceClient({
                 <span className="icon-frame mx-auto h-12 w-12" data-preserve-icon-frame>
                   <Package size={22} aria-hidden="true" />
                 </span>
-                <h2 className="mt-4 text-xl font-bold text-[var(--foreground)]">The market did not load</h2>
+                <h2 className="mt-4 text-xl font-bold text-[var(--foreground)]">The marketplace did not load</h2>
                 <p className="mx-auto mt-2 max-w-sm text-sm font-medium text-[var(--ink-soft)]">Check your connection and try again.</p>
                 <Button type="button" variant="outline" onClick={() => void fetchListings()} className="mt-5">Try again</Button>
               </div>
@@ -370,7 +370,7 @@ export default function MarketplaceClient({
                 <Package className="mx-auto mb-5 text-[var(--lavender)]" size={42} aria-hidden="true" />
                 <h3 className="text-2xl font-bold text-[var(--foreground)]">No items found</h3>
                 <p className="mx-auto mt-3 max-w-md font-medium text-[var(--ink-soft)]">No items match these filters.</p>
-                <Button asChild className="mt-7 rounded-full bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">
+                <Button asChild className="mt-7 bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">
                   <Link href="/sell-item">List the first item</Link>
                 </Button>
               </div>
@@ -392,7 +392,7 @@ export default function MarketplaceClient({
               <div>
                 <span className="mb-2 block h-1 w-10 rounded-full bg-[var(--border)] lg:hidden" aria-hidden="true" />
                 <h2 id="marketplace-filter-title" className="text-xl font-bold text-[var(--foreground)]">Filters</h2>
-                <p className="text-xs text-[var(--muted-foreground)]">Narrow the market</p>
+                <p className="text-xs text-[var(--muted-foreground)]">Narrow the marketplace</p>
               </div>
               <button
                 type="button"
@@ -408,7 +408,7 @@ export default function MarketplaceClient({
             </div>
             <div className="shrink-0 border-t border-[var(--border)]/55 bg-white px-4 pb-[calc(0.75rem+var(--safe-area-bottom))] pt-3">
               <Button
-                className="h-12 w-full rounded-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]"
+                className="h-12 w-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]"
                 onClick={() => setShowFilters(false)}
               >
                 Apply Filters

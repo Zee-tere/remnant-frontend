@@ -10,13 +10,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { listingCategories } from "@/lib/categories";
 import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
 import { ActionArtwork, type ActionArtworkName } from "@/components/brand/ActionArtwork";
 
 const marketplaceActions: Array<{ label: string; href: string; artwork: ActionArtworkName }> = [
-  { label: "Find a pair", href: "/find-a-pair", artwork: "find" },
-  { label: "Buy", href: "/marketplace", artwork: "marketplace" },
+  { label: "Find an item", href: "/find-a-pair", artwork: "find" },
+  { label: "For sale", href: "/marketplace", artwork: "marketplace" },
   { label: "Sell", href: "/sell-item?intent=SELL", artwork: "sell" },
   { label: "Trade", href: "/sell-item?intent=TRADE", artwork: "trade" },
   { label: "Donate", href: "/sell-item?intent=DONATE", artwork: "donate" },
@@ -61,8 +60,6 @@ const howItWorks = [
   { number: "02", title: "Match", text: "Search the detail, model, size, or missing half that matters.", artwork: "find" as const },
   { number: "03", title: "Alert", text: "Save the search and hear when a likely match appears.", artwork: "alert" as const },
 ];
-
-const categoryTones = ["md:bg-white", "md:bg-[var(--mint-soft)]", "md:bg-[var(--lavender-soft)]", "md:bg-[var(--sky-soft)]", "md:bg-[var(--amber-soft)]"];
 
 export default function HomePageClient({
   initialFeaturedListings,
@@ -113,6 +110,7 @@ export default function HomePageClient({
         aria-roledescription="carousel"
         aria-label="Ways to use Remnant"
       >
+        <span className="home-motion-dot home-motion-dot--mobile" aria-hidden="true" />
         {mobileHeroSlides.map((slide, index) => (
           <article
             key={slide.title}
@@ -183,7 +181,13 @@ export default function HomePageClient({
         </form>
       </section>
 
-      <section className="mx-auto hidden max-w-7xl px-4 pb-3 pt-7 sm:px-5 md:block md:px-8 md:pb-24 md:pt-14">
+      <section className="relative mx-auto hidden max-w-7xl overflow-hidden px-4 pb-3 pt-7 sm:px-5 md:block md:px-8 md:pb-24 md:pt-14">
+        <div className="home-motion-field" aria-hidden="true">
+          <span className="home-motion-dot home-motion-dot--one" />
+          <span className="home-motion-dot home-motion-dot--two" />
+          <span className="home-motion-dot home-motion-dot--three" />
+          <span className="home-motion-orbit" />
+        </div>
         <div className="grid items-center md:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.72fr)] md:gap-14">
           <div className="md:order-1">
             <h1 className="max-w-[24rem] text-balance text-[2.65rem] font-bold leading-[0.98] tracking-[-0.052em] text-[var(--foreground)] sm:max-w-2xl sm:text-6xl md:max-w-3xl md:text-[4.8rem]">
@@ -197,7 +201,7 @@ export default function HomePageClient({
               .
             </h1>
             <p className="mt-5 max-w-[36rem] text-base font-medium leading-7 text-[var(--ink-soft)] md:mt-7 md:text-lg md:leading-8">
-              Find the missing half, or move a useful object forward through selling, trade, donation, repair, or recycling.
+              Find a missing half, or help a useful item move on through selling, swapping, donating, repairing, or recycling.
             </p>
 
             <form onSubmit={handleSearch} className="relative z-10 mt-5 w-full max-w-2xl md:mt-10">
@@ -207,12 +211,13 @@ export default function HomePageClient({
                   <Input
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
-                    placeholder="Try: teapot lid, right earbud..."
+                    aria-label="Search listings"
+                    placeholder="Try: teapot lid, right earbud"
                     className="h-10 border-0 bg-transparent pl-10 pr-2 text-[0.92rem] font-semibold shadow-none focus-visible:ring-0 md:h-14 md:pl-14 md:text-base"
                   />
                 </div>
-                <Button type="submit" aria-label="Find a pair" variant="ghost" className="h-10 w-10 border-0 bg-white px-0 text-[var(--aqua)] hover:bg-white hover:text-[var(--brand)] md:h-14 md:w-auto md:bg-[var(--brand)] md:px-8 md:text-base md:text-white md:hover:bg-[var(--brand-dark)] md:hover:text-white">
-                  <span className="hidden md:inline">Find a pair</span>
+                <Button type="submit" aria-label="Search listings" variant="ghost" className="h-10 w-10 border-0 bg-white px-0 text-[var(--aqua)] hover:bg-white hover:text-[var(--brand)] md:h-14 md:w-auto md:bg-[var(--brand)] md:px-8 md:text-base md:text-white md:hover:bg-[var(--brand-dark)] md:hover:text-white">
+                  <span className="hidden md:inline">Search</span>
                   <Search size={18} aria-hidden="true" />
                 </Button>
               </div>
@@ -220,7 +225,7 @@ export default function HomePageClient({
 
             <div className="relative z-10 mt-4 flex w-full max-w-2xl items-center gap-5 text-sm">
               <Link href="/marketplace" className="inline-flex min-h-11 items-center gap-2 font-bold text-[var(--brand)] hover:text-[var(--brand-dark)]">
-                Browse the market <ArrowRight size={15} aria-hidden="true" />
+                Browse the marketplace <ArrowRight size={15} aria-hidden="true" />
               </Link>
               <Link href="/sell-item" className="inline-flex min-h-11 items-center gap-2 font-bold text-[var(--ink-soft)] hover:text-[var(--brand)]">
                 List an item <PackagePlus size={15} aria-hidden="true" />
@@ -264,33 +269,6 @@ export default function HomePageClient({
                 <ArrowRight size={16} aria-hidden="true" />
               </Link>
             </Button>
-          </div>
-
-          <div className="mb-5 hidden snap-x snap-proximity gap-2 overflow-x-auto py-1 scrollbar-hide md:flex md:mb-10 md:gap-3" aria-label="Browse categories">
-            {listingCategories.map((category, index) => (
-              <Link
-                key={category.label}
-                href={`/marketplace?category=${encodeURIComponent(category.label)}`}
-                className={`group relative flex min-h-[84px] w-[86px] shrink-0 snap-start overflow-hidden p-1 text-left transition-transform active:scale-[0.98] md:min-h-[138px] md:w-[146px] md:rounded-2xl md:border md:border-white/80 md:p-3 md:transition-[border-color,transform] md:hover:border-[var(--brand)]/20 ${categoryTones[index % categoryTones.length]}`}
-              >
-                <img
-                  src={category.image}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  className="absolute bottom-1 right-1 h-11 w-11 object-contain transition-transform duration-200 motion-safe:group-hover:scale-105 md:bottom-2 md:right-2 md:h-16 md:w-16"
-                  draggable={false}
-                />
-                <span className="relative z-10 flex h-full flex-col justify-between">
-                  <span>
-                    <span className="block max-w-[5rem] text-xs font-black leading-tight text-[var(--foreground)] md:max-w-[6.4rem]">{category.label}</span>
-                  </span>
-                  <span className="hidden h-6 w-6 items-center justify-center text-[var(--brand)] md:flex">
-                    <ArrowRight size={15} aria-hidden="true" />
-                  </span>
-                </span>
-              </Link>
-            ))}
           </div>
 
           <div className="mb-5 hidden md:block md:mb-12">

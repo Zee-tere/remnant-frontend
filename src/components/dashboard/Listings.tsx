@@ -36,6 +36,7 @@ import { listingCategories } from '@/lib/categories';
 import { nigerianStates } from '@/lib/nigeria-locations';
 import { conditionLabels, listingConditions } from '@/lib/listing-conditions';
 import { DashboardSectionLoading } from '@/components/feedback/LoadingState';
+import { rememberDeletedListing } from '@/lib/listing-tombstones';
 
 type DashboardSection = 'listings' | 'messages' | 'alerts' | 'upload' | 'profile' | 'settings';
 
@@ -268,6 +269,8 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
       await listingsApi.deleteListing(id);
       setListings((current) => current.filter((listing) => listing.id !== id));
       setSelectedIds((current) => current.filter((selected) => selected !== id));
+      rememberDeletedListing(id);
+      window.dispatchEvent(new Event('remnant:summary-refresh'));
       toast.success('Listing deleted');
     } catch (error) {
       toast.error(getApiErrorMessage(error, 'Could not delete listing'));
@@ -283,6 +286,8 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
     try {
       await Promise.all(selectedIds.map((id) => listingsApi.deleteListing(id)));
       setListings((current) => current.filter((listing) => !selectedIds.includes(listing.id)));
+      selectedIds.forEach(rememberDeletedListing);
+      window.dispatchEvent(new Event('remnant:summary-refresh'));
       setSelectedIds([]);
       toast.success('Selected listings deleted');
     } catch (error) {
@@ -333,7 +338,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
             variant="outline"
             disabled={selectedIds.length === 0 || bulkDeleting}
             onClick={handleBulkDelete}
-            className={`${selectedIds.length === 0 ? 'hidden md:inline-flex' : ''} h-9 rounded-full border-[var(--border)] px-3 text-xs md:h-10 md:text-sm`}
+            className={`${selectedIds.length === 0 ? 'hidden md:inline-flex' : ''} h-9 border-[var(--border)] px-3 text-xs md:h-10 md:text-sm`}
           >
             {bulkDeleting ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
             Delete selected
@@ -479,9 +484,11 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem asChild>
-                          <Link href={`/marketplace/${listing.slug || listing.id}`}>View listing</Link>
-                        </DropdownMenuItem>
+                        {listing.status === 'ACTIVE' && (
+                          <DropdownMenuItem asChild>
+                            <Link href={`/marketplace/${listing.slug || listing.id}`}>View listing</Link>
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem onClick={() => openEditor(listing)}>
                           <Edit className="mr-2" size={14} />
                           Edit
@@ -519,9 +526,13 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                 </CardContent>
 
                 <CardFooter className="mt-auto grid grid-cols-2 gap-1.5 px-2.5 pb-2.5 pt-0 md:gap-2 md:px-6 md:pb-6">
-                  <Button type="button" variant="outline" size="sm" asChild className="h-9 border-[var(--border)] px-2 text-xs md:text-sm">
-                    <Link href={`/marketplace/${listing.slug || listing.id}`}>View</Link>
-                  </Button>
+                  {listing.status === 'ACTIVE' ? (
+                    <Button type="button" variant="outline" size="sm" asChild className="h-9 border-[var(--border)] px-2 text-xs md:text-sm">
+                      <Link href={`/marketplace/${listing.slug || listing.id}`}>View</Link>
+                    </Button>
+                  ) : (
+                    <Button type="button" variant="outline" size="sm" disabled className="h-9 border-[var(--border)] px-2 text-xs md:text-sm">Not public</Button>
+                  )}
                   <Button type="button" size="sm" onClick={() => openEditor(listing)} className="h-9 px-2 text-xs md:text-sm">
                     <Edit size={14} />
                     Edit

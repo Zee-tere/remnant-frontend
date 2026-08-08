@@ -66,7 +66,7 @@ export default function GuestOrderPage() {
       <AlertTriangle className="mx-auto text-amber-600" size={42} />
       <h1 className="mt-4 text-2xl font-bold">This order link is unavailable</h1>
       <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">Open the order on the same browser used for checkout, or sign in to keep future orders in your account.</p>
-      <Button asChild className="mt-6 rounded-full bg-[var(--brand)] text-white"><Link href="/marketplace">Back to marketplace</Link></Button>
+      <Button asChild className="mt-6 bg-[var(--brand)] text-white"><Link href="/marketplace">Back to marketplace</Link></Button>
     </main>
   );
 
@@ -85,9 +85,9 @@ export default function GuestOrderPage() {
           <div><p className="text-xs font-bold uppercase text-[var(--muted-foreground)]">Status</p><p className="mt-1 font-bold">{order.status === "FUNDED" ? "PAID" : order.status.replaceAll("_", " ")}</p></div>
         </div>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          {order.status === "INITIATED" && checkoutDestination && <Button onClick={() => { window.location.assign(checkoutDestination.href); }} className="rounded-full bg-[var(--brand)] text-white"><CreditCard size={17} /> Complete payment</Button>}
-          {order.status === "SHIPPED" && <Button disabled={busy} onClick={() => updateOrder("confirm")} className="rounded-full bg-[var(--brand)] text-white"><CheckCircle2 size={17} /> Confirm receipt</Button>}
-          {["FUNDED", "SHIPPED", "RECEIVED"].includes(order.status) && <Button disabled={busy} variant="outline" onClick={() => updateOrder("dispute")} className="rounded-full"><AlertTriangle size={17} /> Report a problem</Button>}
+          {order.status === "INITIATED" && checkoutDestination && <Button onClick={() => { window.location.assign(checkoutDestination.href); }} className="bg-[var(--brand)] text-white"><CreditCard size={17} /> Complete payment</Button>}
+          {order.status === "SHIPPED" && <Button disabled={busy} onClick={() => updateOrder("confirm")} className="bg-[var(--brand)] text-white"><CheckCircle2 size={17} /> Confirm receipt</Button>}
+          {["FUNDED", "SHIPPED", "RECEIVED"].includes(order.status) && <Button disabled={busy} variant="outline" onClick={() => updateOrder("dispute")}><AlertTriangle size={17} /> Report a problem</Button>}
         </div>
       </div>
     </main>

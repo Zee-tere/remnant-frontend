@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, ArrowRight, Eye, EyeOff, Fingerprint, Loader2, Mail, ShieldCheck, UserRound } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Fingerprint, Loader2, Mail, ShieldCheck, UserRound } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
 import { BrandLogo } from "@/components/brand/BrandLogo";
@@ -111,53 +111,55 @@ export default function AuthPageClient({ mode }: { mode: AuthMode }) {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--warm-white)] px-5 py-3 md:px-8 md:py-10">
-      <section className="mx-auto grid min-h-[calc(100dvh-1.5rem)] max-w-6xl grid-cols-[minmax(0,1fr)] items-start gap-8 lg:min-h-[74vh] lg:grid-cols-[0.95fr_1fr] lg:items-center">
-        <div className="auth-story-panel relative hidden overflow-hidden rounded-2xl border border-[var(--line-soft)] bg-white p-10 text-[var(--foreground)] lg:block">
-          <Link href="/" className="inline-flex text-[var(--brand)]" aria-label="Remnant home">
-            <BrandLogo size="auth" />
-          </Link>
-          <div className="relative mt-12 flex h-36 w-36 items-center justify-center text-[var(--lavender)]" aria-hidden="true">
-            <Fingerprint size={118} strokeWidth={1.15} />
-            <span className="absolute bottom-4 right-2 h-4 w-4 rounded-full bg-[var(--amber)]" />
-          </div>
-          <h1 className="mt-6 max-w-md text-5xl font-bold leading-tight">Your useful pieces, in one place.</h1>
-          <p className="mt-5 max-w-sm text-base font-medium leading-7 text-[var(--ink-soft)]">
-            Manage listings, messages, matches, and every useful next step from one account.
-          </p>
+    <main className="auth-canvas min-h-screen bg-[var(--warm-white)] p-3 md:p-6 lg:p-8">
+      <section className="relative mx-auto min-h-[calc(100dvh-1.5rem)] max-w-7xl overflow-hidden rounded-surface border border-[var(--line-soft)] bg-white md:min-h-[calc(100dvh-3rem)]">
+        <header className="relative z-20 flex items-center justify-between px-5 py-5 md:px-8 md:py-7">
+          <Link href="/" className="inline-flex text-[var(--brand)]" aria-label="Remnant home"><BrandLogo size="default" /></Link>
+          <Link href="/marketplace" className="text-sm font-bold text-[var(--ink-soft)] transition-colors hover:text-[var(--brand)]">Browse marketplace</Link>
+        </header>
+
+        <div className="auth-orbit hidden lg:block" aria-hidden="true">
+          <span className="auth-orbit__line" />
+          <span className="auth-dot auth-dot--one" />
+          <span className="auth-dot auth-dot--two" />
+          <span className="auth-dot auth-dot--three" />
+          <span className="auth-dot auth-dot--four" />
         </div>
 
-        <div className="mx-auto w-full min-w-0 max-w-[22rem] md:max-w-md">
-          <Link href="/" className="mb-2 flex w-fit text-[var(--brand)] lg:hidden" aria-label="Remnant home">
-            <BrandLogo size="default" />
-          </Link>
-          <Link href="/marketplace" className="mb-3 inline-flex items-center gap-2 text-sm font-bold text-[var(--brand)] hover:text-[var(--brand-dark)] md:mb-5">
-            <ArrowLeft size={16} aria-hidden="true" />
-            Back to market
-          </Link>
+        <div className="relative z-10 grid min-h-[calc(100dvh-7.5rem)] items-center gap-6 px-5 pb-10 pt-1 md:px-10 lg:grid-cols-[0.82fr_1.18fr] lg:gap-12 lg:px-16 lg:pb-14">
+          <aside className="relative hidden h-full min-h-[34rem] lg:flex lg:flex-col lg:justify-end lg:pb-12">
+            <div className="auth-fingerprint absolute left-[28%] top-[12%] flex h-36 w-36 items-center justify-center text-[var(--lavender)]" aria-hidden="true">
+              <Fingerprint size={118} strokeWidth={1.1} />
+              <span className="absolute bottom-5 right-2 h-3 w-3 rounded-full bg-[var(--amber)]" />
+            </div>
+            <h2 className="max-w-sm text-2xl font-bold tracking-tight text-foreground">Useful things deserve a next place.</h2>
+            <p className="mt-3 max-w-sm text-sm leading-6 text-[var(--ink-soft)]">Keep your listings, conversations, and likely matches together—without the clutter.</p>
+          </aside>
 
-          <div className="relative mx-auto mb-1 flex h-12 w-12 items-center justify-center text-[var(--lavender)] lg:hidden" aria-hidden="true">
-            <Fingerprint size={36} strokeWidth={1.7} />
-            <span className="absolute bottom-1 right-0 h-2 w-2 rounded-full bg-[var(--amber)]" />
-          </div>
+          <div className="mx-auto w-full max-w-[27rem] lg:border-l lg:border-[var(--line-soft)] lg:pl-14 xl:pl-20">
+            <div className="relative mx-auto mb-3 flex h-14 w-14 items-center justify-center text-[var(--lavender)] lg:hidden" aria-hidden="true">
+              <Fingerprint size={42} strokeWidth={1.45} />
+              <span className="auth-dot auth-dot--mobile-one" />
+              <span className="auth-dot auth-dot--mobile-two" />
+            </div>
 
-          <div className="mb-4 text-center lg:mb-6 lg:text-left">
+            <div className="mb-6 text-center">
             <h1 className="text-[1.75rem] font-bold text-[var(--foreground)] md:text-4xl">
               {needsConfirmation ? "Confirm account" : mode === "login" ? "Welcome back" : "Join Remnant"}
             </h1>
-            <p className="mt-2 text-sm font-semibold text-[var(--muted-foreground)]">
-              {needsConfirmation ? `Enter the code sent to ${email}.` : mode === "login" ? "Pick up where you left off." : "Create your account in a minute."}
+            <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+              {needsConfirmation ? `Enter the code we sent to ${email}.` : mode === "login" ? "Log in to manage your listings and messages." : "Create an account to list, search, and message."}
             </p>
           </div>
 
           {!needsConfirmation && (
-            <nav className="mb-4 grid grid-cols-2 rounded-full border border-[var(--border)] bg-white p-1" aria-label="Account access">
-              <Link href={loginPath} replace scroll={false} aria-current={mode === "login" ? "page" : undefined} className={`flex h-10 items-center justify-center rounded-full text-sm font-bold transition-colors ${mode === "login" ? "bg-[var(--brand)] text-white" : "text-[var(--ink-soft)] hover:text-[var(--brand)]"}`}>Log in</Link>
-              <Link href={signupPath} replace scroll={false} aria-current={mode === "signup" ? "page" : undefined} className={`flex h-10 items-center justify-center rounded-full text-sm font-bold transition-colors ${mode === "signup" ? "bg-[var(--brand)] text-white" : "text-[var(--ink-soft)] hover:text-[var(--brand)]"}`}>Create account</Link>
+            <nav className="mb-5 flex justify-center gap-7 border-b border-[var(--line-soft)]" aria-label="Account access">
+              <Link href={loginPath} replace scroll={false} aria-current={mode === "login" ? "page" : undefined} className={`border-b-2 px-1 pb-3 text-sm font-bold transition-colors ${mode === "login" ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--brand)]"}`}>Log in</Link>
+              <Link href={signupPath} replace scroll={false} aria-current={mode === "signup" ? "page" : undefined} className={`border-b-2 px-1 pb-3 text-sm font-bold transition-colors ${mode === "signup" ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--brand)]"}`}>Create account</Link>
             </nav>
           )}
 
-          <form className="bg-white md:rounded-surface md:border md:border-[var(--border)]/55 md:p-7" onSubmit={(event) => { event.preventDefault(); void submit(); }}>
+          <form onSubmit={(event) => { event.preventDefault(); void submit(); }}>
             {needsConfirmation ? (
               <>
                 <label htmlFor="auth-code" className="mb-2 block text-sm font-bold text-[var(--foreground)]">Confirmation code</label>
@@ -185,7 +187,7 @@ export default function AuthPageClient({ mode }: { mode: AuthMode }) {
                 <div className="relative mb-3">
                   <ShieldCheck size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" aria-hidden="true" />
                   <input id="auth-password" type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={mode === "signup" ? "At least 8 characters" : "Your password"} autoComplete={mode === "signup" ? "new-password" : "current-password"} required minLength={mode === "signup" ? 8 : undefined} className="h-12 w-full rounded-control border border-[var(--border)] bg-white px-11 py-3 pr-12 text-base font-semibold outline-none focus:border-[var(--brand)] md:h-[52px]" />
-                  <button type="button" data-keep-round onClick={() => setShowPassword((value) => !value)} className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-pill text-[var(--muted-foreground)] hover:bg-[var(--sand)] hover:text-[var(--brand)]" aria-label={showPassword ? "Hide password" : "Show password"}>
+                  <button type="button" onClick={() => setShowPassword((value) => !value)} className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-control text-[var(--muted-foreground)] hover:bg-[var(--sand)] hover:text-[var(--brand)]" aria-label={showPassword ? "Hide password" : "Show password"}>
                     {showPassword ? <EyeOff size={17} aria-hidden="true" /> : <Eye size={17} aria-hidden="true" />}
                   </button>
                 </div>
@@ -199,12 +201,12 @@ export default function AuthPageClient({ mode }: { mode: AuthMode }) {
 
             <div className="space-y-3">
               {!needsConfirmation && (
-                <Button type="button" onClick={() => void beginAuth("Google")} disabled={loading !== null} variant="outline" className="h-12 w-full border-[var(--border)] bg-white text-base font-bold md:h-14">
+                <Button type="button" onClick={() => void beginAuth("Google")} disabled={loading !== null} variant="outline" className="h-12 w-full border-[var(--border)] bg-white text-sm font-bold md:h-[52px]">
                   {loading === "google" ? <Loader2 className="animate-spin" size={18} /> : <FcGoogle size={20} />}
                   {mode === "login" ? "Continue with Google" : "Join with Google"}
                 </Button>
               )}
-              <Button type="submit" disabled={loading !== null} className="h-12 w-full bg-[var(--brand)] text-base font-bold text-white hover:bg-[var(--brand-dark)] md:h-14">
+              <Button type="submit" disabled={loading !== null} className="h-12 w-full bg-[var(--brand)] text-sm font-bold text-white hover:bg-[var(--brand-dark)] md:h-[52px]">
                 {loading === "form" ? <Loader2 className="animate-spin" size={18} /> : <ShieldCheck size={18} />}
                 {needsConfirmation ? "Confirm account" : mode === "login" ? "Log in" : "Create account"}
                 <ArrowRight size={17} />
@@ -215,6 +217,16 @@ export default function AuthPageClient({ mode }: { mode: AuthMode }) {
               <p className="mt-5 text-center text-xs font-semibold leading-5 text-[var(--muted-foreground)]">By continuing, you agree to Remnant&apos;s Terms and Privacy Policy.</p>
             )}
           </form>
+
+          {!needsConfirmation && (
+            <p className="mt-6 text-center text-sm text-[var(--muted-foreground)]">
+              {mode === "login" ? "New to Remnant? " : "Already have an account? "}
+              <Link href={mode === "login" ? signupPath : loginPath} className="font-bold text-[var(--brand)] hover:underline">
+                {mode === "login" ? "Create an account" : "Log in"}
+              </Link>
+            </p>
+          )}
+        </div>
         </div>
       </section>
     </main>

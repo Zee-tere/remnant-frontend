@@ -19,8 +19,8 @@ export default function SellerGuidePage() {
   const steps = [
     {
       step: 1,
-      title: 'Take Great Photos',
-      description: 'Clear, well-lit photos from multiple angles',
+      title: 'Take clear photos',
+      description: 'Show the real item in good light from more than one angle',
       icon: Camera,
       tips: [
         'Use natural lighting',
@@ -31,11 +31,11 @@ export default function SellerGuidePage() {
     },
     {
       step: 2,
-      title: 'Write Detailed Descriptions',
-      description: 'Be honest and thorough in your listing',
+      title: 'Describe it plainly',
+      description: 'Include the details a buyer needs and be honest about faults',
       icon: Tag,
       tips: [
-        'Include brand, size, color',
+        'Include brand, size, colour',
         'Mention any defects or flaws',
         'State why you\'re selling',
         'Add keywords for search',
@@ -43,8 +43,8 @@ export default function SellerGuidePage() {
     },
     {
       step: 3,
-      title: 'Price Competitively',
-      description: 'Research similar items for fair pricing',
+      title: 'Set a fair price',
+      description: 'Check similar items and account for condition',
       icon: NairaIcon,
       tips: [
         'Check similar listings',
@@ -55,8 +55,8 @@ export default function SellerGuidePage() {
     },
     {
       step: 4,
-      title: 'Respond Promptly',
-      description: 'Quick responses increase sales chances',
+      title: 'Reply clearly',
+      description: 'Answer useful questions and confirm the next step',
       icon: MessageSquare,
       tips: [
         'Enable notifications',
@@ -79,14 +79,14 @@ export default function SellerGuidePage() {
     },
     {
       step: 6,
-      title: 'Build Your Reputation',
-      description: 'Good reviews lead to more sales',
+      title: 'Close the loop',
+      description: 'Package carefully and mark the listing complete',
       icon: Star,
       tips: [
         'Package items well',
         'Ship/deliver on time',
         'Follow up after sale',
-        'Ask for reviews',
+        'Mark the item sold once exchanged',
       ],
     },
   ];
@@ -546,9 +546,9 @@ export default function SellerGuidePage() {
                       { step: '1', title: 'Receive Offer', description: 'Buyer makes offer through platform' },
                       { step: '2', title: 'Negotiate', description: 'Use messaging to agree on price' },
                       { step: '3', title: 'Arrange Meeting', description: 'Choose safe public location' },
-                      { step: '4', title: 'Complete Payment', description: 'Buyer pays through Remnant' },
+                      { step: '4', title: 'Confirm Payment', description: 'Use the checkout shown on the order, or agree payment directly in messages' },
                       { step: '5', title: 'Hand Over Item', description: 'Exchange the item after confirming the agreed payment' },
-                      { step: '6', title: 'Leave Review', description: 'Rate your experience' },
+                      { step: '6', title: 'Close the Listing', description: 'Mark the item complete so it leaves the marketplace' },
                     ].map((item) => (
                       <div key={item.step} className="flex items-center gap-4">
                         <div className="flex h-10 w-10 items-center justify-center text-[var(--brand)]">
@@ -587,7 +587,7 @@ export default function SellerGuidePage() {
                         <span className="font-medium">Shipping Costs</span>
                       </div>
                       <p className="text-sm text-neutral-500">
-                        Small items: ₦500-₦1,500 • Medium items: ₦1,500-₦3,000 • Large items: ₦3,000+
+                        Ask the courier for a current quote, then agree who will pay before dispatch. Delivery prices vary by distance, size, and service.
                       </p>
                     </div>
                   </div>
@@ -603,9 +603,9 @@ export default function SellerGuidePage() {
             <div>
               <Card>
                 <CardHeader>
-                  <CardTitle>Power Seller Strategies</CardTitle>
+                  <CardTitle>Practical seller habits</CardTitle>
                   <CardDescription>
-                    Tips from our top sellers
+                    Simple ways to make a listing easier to trust
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -617,9 +617,9 @@ export default function SellerGuidePage() {
                         example: 'Bundle all single earrings together',
                       },
                       {
-                        title: 'Seasonal Listing',
-                        description: 'List seasonal items ahead of time',
-                        example: 'List winter clothes in October',
+                        title: 'List at the right time',
+                        description: 'Post seasonal items while people are searching for them',
+                        example: 'List school supplies before a new term',
                       },
                       {
                         title: 'Cross-Promote',
@@ -627,9 +627,9 @@ export default function SellerGuidePage() {
                         example: 'See my other listings for more items',
                       },
                       {
-                        title: 'Regular Updates',
-                        description: 'Refresh listings every 2-3 days',
-                        example: 'Update photos or description periodically',
+                        title: 'Keep details current',
+                        description: 'Update the listing if its condition, price, or availability changes',
+                        example: 'Replace a blurry photo or correct the model number',
                       },
                       {
                         title: 'Offer Discounts',
@@ -655,35 +655,35 @@ export default function SellerGuidePage() {
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Success Metrics</CardTitle>
+                  <CardTitle>A healthy listing</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                       <div>
                         <h4 className="font-semibold">Response Time</h4>
-                        <p className="text-sm text-neutral-500">Target: Under 1 hour</p>
+                        <p className="text-sm text-neutral-500">Reply when you can, and keep answers clear</p>
                       </div>
                       <Badge className="bg-[var(--brand-soft)] text-[var(--brand)]">Ready</Badge>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                       <div>
                         <h4 className="font-semibold">Listing Quality</h4>
-                        <p className="text-sm text-neutral-500">5+ photos, detailed description</p>
+                        <p className="text-sm text-neutral-500">Clear photos and the exact identifying details</p>
                       </div>
                       <Badge className="bg-[var(--brand-soft)] text-[var(--brand)]">Ready</Badge>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                       <div>
-                        <h4 className="font-semibold">Customer Rating</h4>
-                        <p className="text-sm text-neutral-500">Target: 4.8+ stars</p>
+                        <h4 className="font-semibold">Accurate condition</h4>
+                        <p className="text-sm text-neutral-500">State faults before the buyer has to ask</p>
                       </div>
                       <Badge className="bg-[var(--brand-soft)] text-[var(--brand)]">Ready</Badge>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
                       <div>
-                        <h4 className="font-semibold">Sales Conversion</h4>
-                        <p className="text-sm text-neutral-500">Target: 25%+ of listings sold</p>
+                        <h4 className="font-semibold">Up-to-date availability</h4>
+                        <p className="text-sm text-neutral-500">Remove or complete an item once it is gone</p>
                       </div>
                       <Badge className="bg-[var(--brand-soft)] text-[var(--brand)]">Ready</Badge>
                     </div>
@@ -695,31 +695,31 @@ export default function SellerGuidePage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <TrendingUp size={20} />
-                    Pro Seller Tools
+                    Tools available now
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="p-3 border rounded-lg">
-                      <h4 className="font-semibold mb-1">Analytics Dashboard</h4>
+                      <h4 className="font-semibold mb-1">Listing views</h4>
                       <p className="text-sm text-neutral-500">
-                        Track views, offers, and sales performance
+                        See how many times people have opened each listing
                       </p>
                     </div>
                     <div className="p-3 border rounded-lg">
-                      <h4 className="font-semibold mb-1">Bulk Listing</h4>
+                      <h4 className="font-semibold mb-1">Pair alerts</h4>
                       <p className="text-sm text-neutral-500">
-                        Upload multiple items at once with CSV import
+                        Save a search and hear when a likely matching item appears
                       </p>
                     </div>
                     <div className="p-3 border rounded-lg">
-                      <h4 className="font-semibold mb-1">Automated Messages</h4>
+                      <h4 className="font-semibold mb-1">Remnant messages</h4>
                       <p className="text-sm text-neutral-500">
-                        Set up auto-responses for common questions
+                        Keep item questions and exchange details in one conversation
                       </p>
                     </div>
                     <Button asChild className="w-full">
-                      <Link href="/settings?plan=pro">Upgrade to Pro Seller</Link>
+                      <Link href="/user/dashboard">Open your dashboard</Link>
                     </Button>
                   </div>
                 </CardContent>
@@ -739,15 +739,15 @@ export default function SellerGuidePage() {
             {[
               {
                 q: 'How much does it cost to sell on Remnant?',
-                a: 'Listing is free. Buyers and sellers currently arrange payment and collection directly.',
+                a: 'Listing is free. Use Remnant checkout when it is shown on the order; otherwise agree payment and collection directly in messages.',
               },
               {
                 q: 'How do I get paid?',
-                a: 'Agree on the amount and collection method in your conversation. Never share passwords or verification codes.',
+                a: 'Use the payment option shown on the order, or agree the amount and collection method in your conversation. Never share passwords, one-time codes, or card PINs.',
               },
               {
                 q: 'What if a buyer doesn\'t show up?',
-                a: 'Report no-shows through the app. Repeat offenders get warnings or account suspension.',
+                a: 'Confirm the time before you travel. If plans change, keep the update in Remnant messages; report the account if the behaviour seems unsafe or deceptive.',
               },
               {
                 q: 'Can I sell items from outside Nigeria?',
@@ -755,11 +755,11 @@ export default function SellerGuidePage() {
               },
               {
                 q: 'How long do listings stay active?',
-                a: 'Listings are active for 30 days. You can renew them for free anytime.',
+                a: 'A listing stays visible while it is active. Remove or complete it as soon as the item is no longer available.',
               },
               {
                 q: 'What items are prohibited?',
-                a: 'We prohibit illegal items, weapons, drugs, and dangerous goods. See our full prohibited items list.',
+                a: 'Illegal items, weapons, drugs, and dangerous goods are not allowed. Contact support before listing anything you are unsure about.',
               },
             ].map((faq, idx) => (
               <div key={idx} className="p-4 border rounded-lg">
