@@ -820,8 +820,8 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             <Phone size={17} aria-hidden="true" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-sm font-bold md:text-base">How can buyers reach you?</h3>
-            <p className="mt-0.5 text-xs leading-5 text-[var(--ink-soft)] md:text-sm">Add at least one. It is shown only when a buyer asks.</p>
+            <h3 className="text-sm font-bold md:text-base">How can someone reach you?</h3>
+            <p className="mt-0.5 text-xs leading-5 text-[var(--ink-soft)] md:text-sm">Add at least one. It is only shown when someone asks about the item.</p>
           </div>
         </div>
         <div className="grid gap-3 border-t border-[var(--border)]/50 pt-3 md:grid-cols-3 md:gap-4 md:pt-4">
@@ -1084,7 +1084,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
     <div className="mx-auto max-w-5xl">
       <div className="mb-5 text-center md:mb-10">
         <h1 className="text-2xl font-bold text-[var(--foreground)] md:text-5xl">
-          Give it a next stop
+          List what you have. Find who needs it.
         </h1>
         {(selectedPurpose || isGuest) && (
           <div className="mx-auto mt-2 flex max-w-2xl flex-wrap items-center justify-center gap-2 md:mt-5 md:gap-3">

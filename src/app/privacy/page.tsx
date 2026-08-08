@@ -6,7 +6,7 @@ const sections = [
   {
     title: "What we collect",
     body:
-      "We collect account or guest contact details, listing content, messages, transaction status, and support information needed to run Remnant safely.",
+      "We collect account or guest contact details, listing content, messages, reports, and support information needed to run Remnant safely.",
   },
   {
     title: "How we use it",
@@ -29,7 +29,7 @@ export default function PrivacyPage() {
         </div>
         <h1 className="text-3xl font-bold text-[var(--foreground)] md:text-6xl">Privacy Policy</h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg font-medium leading-8 text-[var(--ink-soft)]">
-          A clear summary of how Remnant handles personal information, listing data, and transaction records.
+          A clear summary of how Remnant handles personal information, listings, messages, and support records.
         </p>
       </section>
 

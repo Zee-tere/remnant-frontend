@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, MessageSquare, Phone, Mail, Book, Shield, CreditCard, Package } from 'lucide-react';
+import { Search, MessageSquare, Phone, Mail, Book, Shield, Handshake, Package } from 'lucide-react';
 import { ActionArtwork } from '@/components/brand/ActionArtwork';
 
 export default function HelpPage() {
@@ -17,17 +17,17 @@ export default function HelpPage() {
       category: 'Getting Started',
       questions: [
         { question: 'How do I create an account?', answer: 'Choose Sign Up and continue through the secure Remnant sign-up page.' },
-        { question: 'Is Remnant free to use?', answer: 'Yes. Creating an account and listing an item are free today.' },
+        { question: 'Is Remnant free to use?', answer: 'Yes. Remnant does not charge you to list an item and does not collect payment for an exchange.' },
         { question: 'What kind of items can I list?', answer: 'List a useful item, a single piece, or part of an incomplete set. Common examples include electronics, clothing, shoes, accessories, and household items.' },
       ],
     },
     {
-      category: 'Buying & Selling',
+      category: 'Finding & Exchanging',
       questions: [
         { question: 'How does the matching system work?', answer: 'Remnant compares listing details for complementary items. If you list a "Left AirPod", we\'ll match you with users looking for or selling a "Right AirPod".' },
-        { question: 'How do I buy an item?', answer: 'Open an item and message the seller to agree on the next step.' },
-        { question: 'How do I pay a seller?', answer: 'If Remnant checkout is available for the item, use the payment link shown on the order. Otherwise, agree on payment and collection with the seller in messages.' },
-        { question: 'How do I know if a seller is trustworthy?', answer: 'Check profile details and keep the conversation inside Remnant.' },
+        { question: 'How do I get an item?', answer: 'Open the listing, message the person, and agree on collection, delivery, and any payment directly.' },
+        { question: 'Does Remnant take payment or hold money?', answer: 'No. Remnant helps people find and message each other; it does not process payment or provide escrow. Never send money because someone claims Remnant is holding or protecting it.' },
+        { question: 'How do I know if another person is trustworthy?', answer: 'Check their profile, ask clear questions, inspect the item, and keep the conversation inside Remnant.' },
       ],
     },
     {
@@ -35,7 +35,7 @@ export default function HelpPage() {
       questions: [
         { question: 'Is it safe to meet sellers/buyers in person?', answer: 'We recommend meeting in public places during daylight hours. Always bring a friend and let someone know where you\'re going.' },
         { question: 'What should I do if I encounter a scam?', answer: 'Stop the conversation, report the account, and contact support. Never share your password, one-time code, or card PIN. Confirm the item and recipient before making any direct payment.' },
-        { question: 'How is my personal information protected?', answer: 'Account access is protected with authenticated API sessions, and sensitive transaction updates stay inside the platform workflow.' },
+        { question: 'How is my personal information protected?', answer: 'Account access uses authenticated sessions. Contact details are only shared through the flows designed for an exchange.' },
       ],
     },
     {
@@ -51,8 +51,8 @@ export default function HelpPage() {
   const helpTopics = [
     { icon: Book, title: 'Seller guide', description: 'Practical help for a clear, trustworthy listing', link: '/seller-guide' },
     { icon: Shield, title: 'Safety Tips', description: 'Stay safe while trading', link: '/seller-guide?tab=safety' },
-    { icon: CreditCard, title: 'Exchanges', description: 'Payment and collection safety', link: '/help?topic=payments' },
-    { icon: Package, title: 'Shipping', description: 'Shipping and delivery options', link: '/help?topic=shipping' },
+    { icon: Handshake, title: 'Direct exchanges', description: 'Agree clearly and avoid common scams', link: '/help?topic=exchanges' },
+    { icon: Package, title: 'Collection & delivery', description: 'Plan a practical handoff', link: '/help?topic=delivery' },
   ];
 
   const contactOptions = [

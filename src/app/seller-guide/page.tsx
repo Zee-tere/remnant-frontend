@@ -68,7 +68,7 @@ export default function SellerGuidePage() {
     {
       step: 5,
       title: 'Meet Safely',
-      description: 'Prioritize safety in all transactions',
+      description: 'Prioritize safety in every exchange',
       icon: Shield,
       tips: [
         'Meet in public places',
@@ -489,7 +489,7 @@ export default function SellerGuidePage() {
                 <CardHeader>
                   <CardTitle>Safety First</CardTitle>
                   <CardDescription>
-                    Protect yourself and your transactions
+                    Protect yourself during a direct exchange
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -514,11 +514,11 @@ export default function SellerGuidePage() {
                     </div>
 
                     <div>
-                      <h4 className="font-semibold mb-2">Payment Safety</h4>
+                      <h4 className="font-semibold mb-2">Direct Exchange Safety</h4>
                       <ul className="space-y-2">
                         <li className="flex items-start">
                           <Shield className="h-4 w-4 text-green-500 mr-2 mt-1" />
-                          <span>Confirm the agreed amount before handing over an item</span>
+                          <span>Agree on the item, amount, and handoff before meeting</span>
                         </li>
                         <li className="flex items-start">
                           <Shield className="h-4 w-4 text-green-500 mr-2 mt-1" />
@@ -526,7 +526,7 @@ export default function SellerGuidePage() {
                         </li>
                         <li className="flex items-start">
                           <Shield className="h-4 w-4 text-green-500 mr-2 mt-1" />
-                          <span>Verify payment before handing over item</span>
+                          <span>Remnant does not take payment or provide escrow</span>
                         </li>
                       </ul>
                     </div>
@@ -538,16 +538,16 @@ export default function SellerGuidePage() {
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Transaction Process</CardTitle>
+                  <CardTitle>Exchange Process</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {[
-                      { step: '1', title: 'Receive Offer', description: 'Buyer makes offer through platform' },
-                      { step: '2', title: 'Negotiate', description: 'Use messaging to agree on price' },
+                      { step: '1', title: 'Receive a Message', description: 'Someone asks about your listing' },
+                      { step: '2', title: 'Agree Clearly', description: 'Use messages to agree on the details' },
                       { step: '3', title: 'Arrange Meeting', description: 'Choose safe public location' },
-                      { step: '4', title: 'Confirm Payment', description: 'Use the checkout shown on the order, or agree payment directly in messages' },
-                      { step: '5', title: 'Hand Over Item', description: 'Exchange the item after confirming the agreed payment' },
+                      { step: '4', title: 'Check the Item', description: 'Confirm the condition matches the listing' },
+                      { step: '5', title: 'Make the Exchange', description: 'Complete the handoff only when both people are satisfied' },
                       { step: '6', title: 'Close the Listing', description: 'Mark the item complete so it leaves the marketplace' },
                     ].map((item) => (
                       <div key={item.step} className="flex items-center gap-4">
@@ -739,7 +739,7 @@ export default function SellerGuidePage() {
             {[
               {
                 q: 'How much does it cost to sell on Remnant?',
-                a: 'Listing is free. Use Remnant checkout when it is shown on the order; otherwise agree payment and collection directly in messages.',
+                a: 'Listing is free. Remnant does not collect payment; both people agree on payment, collection, or delivery directly.',
               },
               {
                 q: 'How do I get paid?',
@@ -751,7 +751,7 @@ export default function SellerGuidePage() {
               },
               {
                 q: 'Can I sell items from outside Nigeria?',
-                a: 'Currently, we only support transactions within Nigeria. Both buyers and sellers must be in Nigeria.',
+                a: 'Remnant currently connects people within Nigeria. Both people should be able to arrange a practical local exchange.',
               },
               {
                 q: 'How long do listings stay active?',

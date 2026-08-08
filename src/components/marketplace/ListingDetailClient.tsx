@@ -69,7 +69,7 @@ function GuestMessageDialog({
 }) {
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
-  const [offer, setOffer] = useState(`Hi, I am interested in ${listingTitle}.`);
+  const [offer, setOffer] = useState(`Hi, is ${listingTitle} still available? I’d like to arrange the next step.`);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/45 sm:items-center sm:p-5" role="presentation">
@@ -86,7 +86,7 @@ function GuestMessageDialog({
         {submitted ? (
           <div className="py-4 text-center">
             <CheckCircle2 size={42} className="mx-auto text-[var(--brand)]" aria-hidden="true" />
-            <h2 id="guest-message-title" className="mt-4 text-xl font-bold">Your offer is with the seller</h2>
+            <h2 id="guest-message-title" className="mt-4 text-xl font-bold">Your message is with the seller</h2>
             <p className="mx-auto mt-2 max-w-sm text-sm font-medium leading-6 text-[var(--ink-soft)]">
               They will contact you directly using the phone, WhatsApp, email, or Telegram detail you provided. This guest enquiry will not continue in Remnant chat.
             </p>
@@ -97,7 +97,7 @@ function GuestMessageDialog({
         ) : <>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 id="guest-message-title" className="text-lg font-bold sm:text-xl">Send an offer</h2>
+            <h2 id="guest-message-title" className="text-lg font-bold sm:text-xl">Message the seller</h2>
             <p className="mt-0.5 text-xs text-[var(--muted-foreground)] sm:mt-1 sm:text-sm">No account needed. The seller will contact you directly.</p>
           </div>
           <button type="button" data-keep-round onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-pill hover:bg-[var(--sand)]" aria-label="Close">
@@ -114,12 +114,12 @@ function GuestMessageDialog({
           <span className="block text-xs leading-5 text-[var(--muted-foreground)]">Include the platform you want the seller to use, for example “WhatsApp: +234…”</span>
         </label>
         <label className="block space-y-1.5">
-          <Label htmlFor="guest-offer" className="text-xs font-bold leading-5 sm:text-sm">Offer</Label>
+          <Label htmlFor="guest-offer" className="text-xs font-bold leading-5 sm:text-sm">Message</Label>
           <Textarea id="guest-offer" value={offer} onChange={(event) => setOffer(event.target.value)} maxLength={2000} required rows={3} className="min-h-[92px] px-3 py-2.5 text-base sm:min-h-[110px] sm:px-4 sm:py-3" />
         </label>
         <Button type="submit" disabled={busy} className="h-12 w-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]">
           {busy ? <Loader2 size={18} className="animate-spin" /> : <MessageSquare size={18} />}
-          {busy ? "Sending..." : "Send offer"}
+          {busy ? "Sending..." : "Send message"}
         </Button>
         <p className="text-center text-xs text-[var(--muted-foreground)]">
           <Link href={`/login?redirect=${encodeURIComponent(`/marketplace/${listingId}`)}`} className="font-bold text-[var(--brand)]">Log in instead</Link>
@@ -409,7 +409,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
       {similarListings.length > 0 && (
         <section className="mt-8 border-t border-[var(--border)] pt-5 md:mt-12 md:pt-8">
           <h2 className="mb-3 text-lg font-bold md:text-2xl">Similar items</h2>
-          <div className="grid auto-cols-[31%] grid-flow-col gap-1.5 overflow-x-auto pb-2 scrollbar-hide lg:auto-cols-[23%] md:gap-4">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-3 md:grid-cols-4 md:gap-4">
             {similarListings.map((item) => <ListingCard key={item.id} item={item} />)}
           </div>
         </section>

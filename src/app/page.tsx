@@ -7,27 +7,27 @@ export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Remnant Market Nigeria | Sell, Trade, Donate & Find Used Items",
+    absolute: "Remnant Nigeria | Find the Missing Piece. Pass Useful Things On",
   },
   description:
-    "Buy and sell single items, trade by barter, donate useful goods, find spare parts, repair pieces, and recycle locally across Nigeria.",
+    "Find an exact missing piece or list something useful for sale, trade, donation, repair, or recycling. Connect directly with people across Nigeria.",
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     url: "/",
-    title: "Remnant Market Nigeria",
+    title: "Find the missing piece with Remnant",
     description:
-      "A Nigerian marketplace for single items, used goods, spare parts, donations, barter trades, repairs, and recycling.",
+      "Search for the exact piece you need, or pass on what still works. List, match, and arrange the exchange directly.",
   },
   twitter: {
     card: "summary_large_image",
     title: "Remnant Market Nigeria",
-    description: "Sell, trade, donate, repair, recycle, or find the exact item you need.",
+    description: "Find the missing piece, or pass on what still works.",
   },
 };
 
 export default async function HomePage() {
-  const listingPage = await getPublicListings({ page: 1, limit: 4 }, 60);
+  const listingPage = await getPublicListings({ page: 1, limit: 6 }, 60);
   const itemList = {
     "@context": "https://schema.org",
     "@type": "ItemList",

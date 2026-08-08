@@ -14,8 +14,8 @@ const values = [
   },
   {
     icon: Shield,
-    title: 'Trust makes reuse possible',
-    description: 'Profiles and direct messages help buyers and sellers agree on an exchange.',
+    title: 'Clear details build trust',
+    description: 'Profiles, honest photos, and direct messages help both people agree with confidence.',
   },
   {
     icon: Users,
@@ -30,10 +30,10 @@ export default function AboutPage() {
       <section className="mx-auto max-w-7xl px-5 py-14 text-center md:px-8 md:py-28">
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
           <h1 className="mx-auto max-w-4xl text-[1.85rem] font-bold leading-tight text-[var(--foreground)] md:text-7xl">
-            Every piece still has a purpose.
+            Find the missing piece. Pass on what still works.
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-6 text-[var(--ink-soft)] md:mt-7 md:text-lg md:leading-8">
-            Remnant helps incomplete, broken, or singular things find someone who can use them.
+            Remnant connects the useful things people have with the exact things other people need.
           </p>
           <ActionArtwork name="marketplace" priority className="mx-auto mt-8 h-24 w-24 md:mt-10 md:h-52 md:w-52" />
         </motion.div>
@@ -42,15 +42,15 @@ export default function AboutPage() {
       <section className="bg-[var(--cream)] px-5 py-20 md:px-8">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2 lg:items-center">
           <div>
-            <h2 className="text-2xl font-bold text-[var(--foreground)] md:text-4xl">A clearer route for the pieces in the drawer.</h2>
+            <h2 className="text-2xl font-bold text-[var(--foreground)] md:text-4xl">The odd piece in your drawer may be exactly what someone needs.</h2>
             <div className="mt-6 space-y-4 text-base font-medium leading-8 text-[var(--ink-soft)]">
               <p>
                 Look in any drawer, closet, or garage. There is usually one earring, a lone shoe,
                 a remote without its device, or a gadget with one working part left.
               </p>
               <p>
-                Remnant connects people who have those items with people who need them. Members can sell,
-                trade, donate, repair, or recycle with intent made clear from the start.
+                List it clearly, find the right person, and arrange the exchange directly. Sell, trade,
+                donate, repair, or recycle—the intent is clear from the start.
               </p>
             </div>
           </div>
@@ -58,8 +58,8 @@ export default function AboutPage() {
             {[
               { value: '5', label: 'Intent tags', sub: 'Sell, trade, donate, repair, recycle' },
               { value: 'Pair', label: 'Matching', sub: 'Connects complementary needs' },
-              { value: '0', label: 'Listing fee', sub: 'Free to post' },
-              { value: 'Safe', label: 'Trust', sub: 'Profiles and clear records' },
+              { value: 'Direct', label: 'Exchange', sub: 'You agree together' },
+              { value: 'Clear', label: 'Trust', sub: 'Profiles, photos, messages' },
             ].map((stat) => (
               <div key={stat.label} className="border-t border-[var(--border)]/70 py-5">
                 <p className="text-3xl font-bold text-[var(--brand)]">{stat.value}</p>
@@ -100,8 +100,8 @@ export default function AboutPage() {
               'List the item',
               'Choose intent',
               'Remnant checks matches',
-              'Connect safely',
-              'Complete the exchange',
+              'Message the person',
+              'Agree and exchange',
             ].map((title, index) => (
               <div key={title} className="text-center">
                 <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-[var(--brand)] text-sm font-bold text-white soft-shadow">
@@ -119,9 +119,9 @@ export default function AboutPage() {
           <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-white/15">
             <Heart size={28} aria-hidden="true" />
           </div>
-          <h2 className="text-2xl font-bold md:text-4xl">Give your items a second life.</h2>
+          <h2 className="text-2xl font-bold md:text-4xl">Someone may be looking for what you have.</h2>
           <p className="mx-auto mt-4 max-w-xl text-white/85">
-            Join the community that turns forgotten things into found ones.
+            List it clearly and help the right person find it.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild className="bg-white px-7 font-bold text-[var(--brand)] hover:bg-[var(--brand-container)]">

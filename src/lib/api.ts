@@ -272,45 +272,6 @@ export const conversationsApi = {
     ).then((r) => r.data),
 };
 
-export const transactionsApi = {
-  getConfig: () =>
-    api.get('/transactions/config').then((r) => r.data as {
-      paymentsEnabled: boolean;
-      provider: 'paystack' | 'escrow' | null;
-      guestCheckoutEnabled: boolean;
-      currency: 'NGN';
-    }),
-  initiateTransaction: (listingId: string) =>
-    api.post('/transactions', { listingId }).then((r) => r.data),
-  initiateGuestTransaction: (data: { listingId: string; name: string; email: string }) =>
-    api.post('/transactions/guest', data).then((r) => r.data),
-  verifyPaystackTransaction: (reference: string) =>
-    api.get(`/transactions/paystack/verify/${encodeURIComponent(reference)}`).then((r) => r.data),
-  getGuestTransaction: (id: string, token: string) =>
-    api.get(`/transactions/guest/${id}`, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
-  confirmGuestReceipt: (id: string, token: string) =>
-    api.patch(`/transactions/guest/${id}/confirm`, undefined, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
-  disputeGuestTransaction: (id: string, token: string) =>
-    api.post(`/transactions/guest/${id}/dispute`, undefined, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
-  getTransactions: () =>
-    api.get('/transactions').then((r) => r.data),
-  getTransaction: (id: string) =>
-    api.get(`/transactions/${id}`).then((r) => r.data),
-  markShipped: (id: string, trackingInfo?: string) =>
-    api.patch(`/transactions/${id}/ship`, { trackingInfo }).then((r) => r.data),
-  fundStubTransaction: (id: string) =>
-    api.post(`/transactions/${id}/stub-fund`).then((r) => r.data),
-  confirmReceipt: (id: string) =>
-    api.patch(`/transactions/${id}/confirm`).then((r) => r.data),
-  disputeTransaction: (id: string) =>
-    api.post(`/transactions/${id}/dispute`).then((r) => r.data),
-};
-
-export const reviewsApi = {
-  submitReview: (transactionId: string, rating: number, comment?: string) =>
-    api.post('/reviews', { transactionId, rating, comment }).then((r) => r.data),
-};
-
 export const notificationsApi = {
   getNotifications: (page = 1) =>
     api.get('/notifications', { params: { page } }).then((r) => r.data),

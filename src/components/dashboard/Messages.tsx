@@ -924,11 +924,11 @@ export default function MessagesSection() {
           </div>
           <h2 className="relative text-xl font-bold tracking-[-0.025em] text-foreground">Pick up where you left off</h2>
           <p className="relative mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
-            Choose a conversation to discuss the item, arrange collection, or agree on the next step.
+            Choose a conversation to ask about the item and arrange the exchange directly.
           </p>
           <div className="relative mt-6 flex items-center gap-2 text-xs font-semibold text-[var(--ink-soft)]">
             <ShieldCheck size={16} aria-hidden="true" />
-            Keep payment and verification codes private
+            Remnant does not hold payments. Keep verification codes private.
           </div>
         </div>
       );

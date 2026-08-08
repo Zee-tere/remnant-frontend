@@ -8,9 +8,9 @@ import { getListingPath, getPublicListings } from "@/lib/public-listings";
 import { ActionArtwork, type ActionArtworkName } from "@/components/brand/ActionArtwork";
 
 const steps = [
-  { title: "List it", text: "Add clear photos, condition, and location.", icon: PackagePlus },
-  { title: "Get found", text: "People browse by need, intent, category, and state.", icon: MapPin },
-  { title: "Agree directly", text: "Use Remnant messages to arrange the exchange.", icon: MessageSquare },
+  { title: "List it clearly", text: "Add honest photos, condition, and location.", icon: PackagePlus },
+  { title: "Find the right person", text: "People search by item, need, intent, and state.", icon: MapPin },
+  { title: "Agree directly", text: "Message each other and arrange the exchange yourselves.", icon: MessageSquare },
 ];
 
 const intentArtwork: Record<IntentPageKey, ActionArtworkName> = {

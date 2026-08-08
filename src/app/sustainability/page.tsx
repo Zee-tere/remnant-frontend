@@ -7,17 +7,17 @@ const impactAreas = [
   {
     title: "Reuse first",
     body:
-      "Remnant helps members find buyers, trades, donations, and repairs before useful objects become waste.",
+      "Pass on what still works before it becomes waste. A clear listing helps the right person find it.",
   },
   {
     title: "Match the odd pieces",
     body:
-      "Detail-aware pairing gives single, mismatched, or incomplete items a real route to the people who can use them.",
+      "A model, size, side, or small detail can connect an odd piece with the person missing it.",
   },
   {
     title: "Recycle with intent",
     body:
-      "When an item cannot be reused, listing intent keeps recyclable parts visible instead of hidden in drawers.",
+      "When the whole item cannot be reused, its parts and materials can still reach a repairer, maker, or recycler.",
   },
 ];
 
@@ -26,9 +26,9 @@ export default function SustainabilityPage() {
     <div className="min-h-screen bg-white">
       <section className="mx-auto max-w-5xl px-5 py-16 text-center md:px-8 md:py-24">
         <ActionArtwork name="recycle" priority className="mx-auto mb-6 h-[5.5rem] w-[5.5rem] md:mb-7 md:h-44 md:w-44" />
-        <h1 className="text-3xl font-bold text-[var(--foreground)] md:text-6xl">Sustainability</h1>
+        <h1 className="text-3xl font-bold text-[var(--foreground)] md:text-6xl">Use what already exists.</h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg font-medium leading-8 text-[var(--ink-soft)]">
-          Remnant is built for the useful things that usually fall through the cracks of ordinary marketplaces.
+          Find the missing piece, or pass on what still works. Small exchanges keep useful things in use for longer.
         </p>
       </section>
 

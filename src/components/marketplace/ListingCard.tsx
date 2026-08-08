@@ -99,14 +99,14 @@ export function ListingCard({
           )}
         </div>
 
-        <div className="p-2 md:p-4">
+        <div className="p-1.5 md:p-4">
           <h3 className="line-clamp-2 min-h-8 text-xs font-bold leading-4 text-[var(--foreground)] md:min-h-0 md:text-base md:leading-snug">
             {item.title}
           </h3>
-          <p className="mt-0.5 truncate text-[0.8125rem] font-bold leading-4 text-[var(--brand)] md:mt-1 md:text-lg md:leading-6">
+          <p className="mt-0.5 truncate text-xs font-bold leading-4 text-[var(--brand)] md:mt-1 md:text-lg md:leading-6">
             {getListingValue(item)}
           </p>
-          <div className="mt-1 flex min-w-0 items-center gap-1 text-xs font-semibold leading-4 text-[var(--muted-foreground)] md:mt-2">
+          <div className="mt-1 hidden min-w-0 items-center gap-1 text-xs font-semibold leading-4 text-[var(--muted-foreground)] md:mt-2 md:flex">
             <MapPin size={12} className="shrink-0" aria-hidden="true" />
             <span className="truncate">{item.city || 'Location not set'}</span>
             <span className="hidden md:inline" aria-hidden="true">·</span>

@@ -6,8 +6,13 @@ const privatePathPattern =
   /^\/(?:admin|api|auth|blog|guest|login|signup|forgot-password|reset-password|payment|profile|register|settings|transactions|user)(?:\/|$)/;
 const publicPagePattern =
   /^\/(?:$|about(?:\/|$)|donate(?:\/|$)|find-a-pair(?:\/|$)|help(?:\/|$)|marketplace(?:\/|$)|privacy(?:\/|$)|recycle(?:\/|$)|repair(?:\/|$)|sell(?:\/|$)|sell-item(?:\/|$)|seller-guide(?:\/|$)|sustainability(?:\/|$)|terms(?:\/|$)|trade(?:\/|$))/;
+const retiredCommercePathPattern = /^\/(?:payment(?:\/|$)|transactions(?:\/|$)|guest\/orders(?:\/|$))/;
 
 export function middleware(request: NextRequest) {
+  if (retiredCommercePathPattern.test(request.nextUrl.pathname)) {
+    return NextResponse.redirect(new URL("/marketplace", request.url), 308);
+  }
+
   const response = NextResponse.next();
 
   if (publicPagePattern.test(request.nextUrl.pathname)) {

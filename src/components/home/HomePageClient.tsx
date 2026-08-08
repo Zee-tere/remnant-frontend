@@ -28,37 +28,35 @@ const mobileHeroSlides: Array<{
   title: string;
   text: string;
   image: string;
+  tone: "pair" | "list" | "connect";
 }> = [
   {
-    eyebrow: "Lost one half?",
-    title: "That lone earbud might have a match.",
-    text: "Search the model, side, size, or small detail that needs to fit.",
+    eyebrow: "Find the missing piece",
+    title: "Search for the exact part you need.",
+    text: "Try the model, side, size or one useful detail.",
     image: "/images/hero/find-a-pair.webp",
+    tone: "pair",
   },
   {
-    eyebrow: "Clearing some space?",
-    title: "Sell or swap what you no longer use.",
-    text: "Someone nearby may be looking for the exact thing in your cupboard.",
+    eyebrow: "Pass on what still works",
+    title: "List it for someone already looking.",
+    text: "Sell, swap or give it away—your choice is clear from the start.",
     image: "/images/hero/sell-or-trade.webp",
+    tone: "list",
   },
   {
-    eyebrow: "Too useful to bin?",
-    title: "Pass it on to someone who needs it.",
-    text: "List books, homeware, clothes, and other good things for donation.",
+    eyebrow: "Connect directly",
+    title: "Talk, agree and make the exchange.",
+    text: "Remnant helps you find each other. You decide the next step together.",
     image: "/images/hero/donate-forward.webp",
-  },
-  {
-    eyebrow: "Broken, not useless",
-    title: "A small repair could keep it going.",
-    text: "Find help, offer it for parts, or recycle it responsibly.",
-    image: "/images/hero/repair-recycle.webp",
+    tone: "connect",
   },
 ];
 
 const howItWorks = [
-  { number: "01", title: "List", text: "Describe the useful piece and what should happen next.", artwork: "sell" as const },
-  { number: "02", title: "Match", text: "Search the detail, model, size, or missing half that matters.", artwork: "find" as const },
-  { number: "03", title: "Alert", text: "Save the search and hear when a likely match appears.", artwork: "alert" as const },
+  { number: "01", title: "List it", text: "Show what you have and choose sell, trade, donate, repair or recycle.", artwork: "sell" as const },
+  { number: "02", title: "Find a match", text: "Search by item, model, size, side or the small detail that matters.", artwork: "find" as const },
+  { number: "03", title: "Agree directly", text: "Message the other person and arrange the exchange yourselves.", artwork: "alert" as const },
 ];
 
 export default function HomePageClient({
@@ -88,7 +86,14 @@ export default function HomePageClient({
   };
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[var(--background)] text-foreground">
+    <div className="relative min-h-screen overflow-hidden bg-[var(--background)] text-foreground">
+      <div className="home-ambient-field" aria-hidden="true">
+        <span className="ambient-dot ambient-dot--page-one" />
+        <span className="ambient-dot ambient-dot--page-two" />
+        <span className="ambient-dot ambient-dot--page-three" />
+        <span className="ambient-dot ambient-dot--page-four" />
+        <span className="ambient-dot ambient-dot--page-five" />
+      </div>
       <section className="bg-white pb-1 pt-1 md:hidden" aria-label="Choose what happens next">
         <p className="px-4 pb-1 text-xs font-bold text-[var(--ink-soft)]">Choose what happens next</p>
         <div className="flex snap-x snap-mandatory gap-1.5 overflow-x-auto px-3 pb-1 scrollbar-hide">
@@ -106,42 +111,44 @@ export default function HomePageClient({
       </section>
 
       <section
-        className="relative h-[clamp(11rem,23dvh,13rem)] w-full overflow-hidden border-y border-[var(--line-soft)] bg-white md:hidden"
+        className="relative mx-3 h-[14.5rem] overflow-hidden rounded-card border border-[var(--line-soft)] bg-white md:hidden"
         aria-roledescription="carousel"
         aria-label="Ways to use Remnant"
       >
-        <span className="home-motion-dot home-motion-dot--mobile" aria-hidden="true" />
         {mobileHeroSlides.map((slide, index) => (
           <article
             key={slide.title}
-            className={`absolute inset-0 overflow-hidden px-4 py-4 transition-[opacity,transform] duration-500 ${
-              activeSlide === index ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-3 opacity-0"
+            className={`mobile-home-hero mobile-home-hero--${slide.tone} absolute inset-0 overflow-hidden px-4 py-5 transition-[opacity,transform] duration-500 ${
+              activeSlide === index ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-4 opacity-0"
             }`}
             aria-hidden={activeSlide !== index}
           >
-            <img
-              src={slide.image}
-              alt=""
-              loading={index === 0 ? "eager" : "lazy"}
-              decoding="async"
-              className="absolute inset-0 h-full w-full object-cover object-center"
-            />
-            <div className="absolute inset-y-0 left-0 w-[70%] bg-gradient-to-r from-white via-white/90 to-transparent" aria-hidden="true" />
-            <div className="relative z-10 max-w-[62%]">
-              <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--aqua)]">
+            <span className="ambient-dot ambient-dot--hero-one" aria-hidden="true" />
+            <span className="ambient-dot ambient-dot--hero-two" aria-hidden="true" />
+            <div className="mobile-home-hero__image" aria-hidden="true">
+              <img
+                src={slide.image}
+                alt=""
+                loading={index === 0 ? "eager" : "lazy"}
+                decoding="async"
+                className="h-full w-full object-contain object-center mix-blend-multiply"
+              />
+            </div>
+            <div className="relative z-10 max-w-[58%]">
+              <p className="text-xs font-black uppercase tracking-[0.1em] text-[var(--aqua)]">
                 {slide.eyebrow}
               </p>
-              <h1 className="mt-1 text-[1.28rem] font-bold leading-[1.08] tracking-[-0.035em] text-[var(--foreground)]">
+              <h1 className="mt-2 text-[1.36rem] font-bold leading-[1.04] tracking-[-0.04em] text-[var(--foreground)]">
                 {slide.title}
               </h1>
-              <p className="mt-1.5 max-w-[15rem] text-xs font-medium leading-[1.42] text-[var(--ink-soft)]">
+              <p className="mt-2 max-w-[14rem] text-xs font-semibold leading-[1.4] text-[var(--ink-soft)]">
                 {slide.text}
               </p>
             </div>
           </article>
         ))}
         <div
-          className="absolute bottom-1.5 left-2.5 z-20 flex gap-0.5"
+          className="absolute bottom-2.5 left-3 z-20 flex gap-0.5"
           aria-label={`Slide ${activeSlide + 1} of ${mobileHeroSlides.length}`}
         >
           {mobileHeroSlides.map((slide, index) => (
@@ -154,7 +161,7 @@ export default function HomePageClient({
             >
               <span
                 className={`h-1 rounded-pill transition-[width,background-color] ${
-                  activeSlide === index ? "w-3 bg-[var(--aqua)]" : "w-1 bg-[var(--border)]"
+                  activeSlide === index ? "w-4 bg-[var(--aqua)]" : "w-1 bg-[var(--border)]"
                 }`}
                 aria-hidden="true"
               />
@@ -175,7 +182,7 @@ export default function HomePageClient({
               className="h-12 pl-10 pr-3 text-base"
             />
           </div>
-          <Button type="submit" size="icon" aria-label="Search" className="bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]">
+          <Button type="submit" size="icon" variant="ghost" aria-label="Search" className="bg-white text-[var(--aqua)] hover:bg-white hover:text-[var(--brand)]">
             <Search size={18} aria-hidden="true" />
           </Button>
         </form>
@@ -191,9 +198,9 @@ export default function HomePageClient({
         <div className="grid items-center md:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.72fr)] md:gap-14">
           <div className="md:order-1">
             <h1 className="max-w-[24rem] text-balance text-[2.65rem] font-bold leading-[0.98] tracking-[-0.052em] text-[var(--foreground)] sm:max-w-2xl sm:text-6xl md:max-w-3xl md:text-[4.8rem]">
-              Give lonely pieces a{" "}
+              Find the missing piece. Pass on{" "}
               <span className="hero-flourish relative inline-block pb-1 text-[var(--brand)]">
-                next place
+                what still works
                 <svg className="hero-flourish__line" viewBox="0 0 150 12" preserveAspectRatio="none" aria-hidden="true">
                   <path d="M2 7.5 C36 2.5 92 11 148 4.5" />
                 </svg>
@@ -201,7 +208,7 @@ export default function HomePageClient({
               .
             </h1>
             <p className="mt-5 max-w-[36rem] text-base font-medium leading-7 text-[var(--ink-soft)] md:mt-7 md:text-lg md:leading-8">
-              Find a missing half, or help a useful item move on through selling, swapping, donating, repairing, or recycling.
+              Remnant connects useful things with people looking for them. List, search and arrange the exchange directly.
             </p>
 
             <form onSubmit={handleSearch} className="relative z-10 mt-5 w-full max-w-2xl md:mt-10">
@@ -261,7 +268,7 @@ export default function HomePageClient({
         <div className="mx-auto max-w-7xl">
           <div className="mb-2 flex flex-row items-center justify-end gap-3 md:mb-8 md:justify-between md:items-end">
             <div className="hidden md:block">
-              <h2 className="text-3xl font-bold text-[var(--foreground)] md:text-5xl">Marketplace</h2>
+              <h2 className="text-3xl font-bold text-[var(--foreground)] md:text-5xl">Useful things, ready for someone else</h2>
             </div>
             <Button asChild variant="ghost" className="h-9 rounded-lg px-1 text-xs font-bold text-[var(--brand)] hover:bg-white hover:text-[var(--brand-dark)] md:h-11 md:border md:border-[var(--border)] md:px-6 md:text-sm">
               <Link href="/marketplace">
@@ -288,7 +295,7 @@ export default function HomePageClient({
           </div>
 
           {initialFeaturedListings.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-3 md:gap-4 lg:grid-cols-4">
               {initialFeaturedListings.map((item) => <ListingCard key={item.id} item={item} />)}
             </div>
           ) : (

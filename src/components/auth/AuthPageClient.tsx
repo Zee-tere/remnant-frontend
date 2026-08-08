@@ -132,8 +132,8 @@ export default function AuthPageClient({ mode }: { mode: AuthMode }) {
               <Fingerprint size={118} strokeWidth={1.1} />
               <span className="absolute bottom-5 right-2 h-3 w-3 rounded-full bg-[var(--amber)]" />
             </div>
-            <h2 className="max-w-sm text-2xl font-bold tracking-tight text-foreground">Useful things deserve a next place.</h2>
-            <p className="mt-3 max-w-sm text-sm leading-6 text-[var(--ink-soft)]">Keep your listings, conversations, and likely matches together—without the clutter.</p>
+            <h2 className="max-w-sm text-2xl font-bold tracking-tight text-foreground">Find the missing piece. Pass on what still works.</h2>
+            <p className="mt-3 max-w-sm text-sm leading-6 text-[var(--ink-soft)]">Keep your listings, messages, and likely matches in one place.</p>
           </aside>
 
           <div className="mx-auto w-full max-w-[27rem] lg:border-l lg:border-[var(--line-soft)] lg:pl-14 xl:pl-20">

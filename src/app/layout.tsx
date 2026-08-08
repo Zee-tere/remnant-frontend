@@ -10,11 +10,11 @@ import { JsonLd } from "@/components/seo/JsonLd";
 export const metadata: Metadata = {
   applicationName: "Remnant Market",
   title: {
-    default: "Remnant Market Nigeria | Sell, Trade, Donate & Find Used Items",
+    default: "Remnant Nigeria | Find the Missing Piece",
     template: "%s | Remnant Market Nigeria",
   },
   description:
-    "Nigeria's marketplace for single items, second-hand goods, spare parts, donations, barter trades, repairs, and recycling.",
+    "Find an exact missing piece or pass a useful item on through sale, trade, donation, repair, or recycling. Connect directly across Nigeria.",
   authors: [{ name: "Remnant Team" }],
   creator: "Remnant",
   publisher: "Remnant Market",
@@ -35,14 +35,14 @@ export const metadata: Metadata = {
     url: "https://remnantmarket.co",
     title: "Remnant Market Nigeria",
     description:
-      "Buy and sell used items, trade by barter, donate useful goods, find spare parts, repair pieces, and recycle locally.",
+      "Find the missing piece, or pass on what still works. List, match, and arrange the exchange directly.",
     siteName: "Remnant Market",
   },
   twitter: {
     card: "summary_large_image",
     title: "Remnant Market Nigeria",
     description:
-      "Sell, trade, donate, repair, recycle, or find the exact item you need.",
+      "Find the missing piece, or pass on what still works.",
     creator: "@remnant_africa",
     site: "@remnant_africa",
   },
@@ -107,7 +107,7 @@ export default function RootLayout({
         url: "https://remnantmarket.co",
         inLanguage: "en-NG",
         description:
-          "Nigerian C2C marketplace for single items, used goods, donations, barter trades, repairs, recycling, and useful parts.",
+          "A Nigerian marketplace for finding exact missing pieces and passing useful items directly to people who need them.",
         publisher: { "@id": "https://remnantmarket.co/#organization" },
         potentialAction: {
           "@type": "SearchAction",

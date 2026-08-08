@@ -76,7 +76,7 @@ export default function FindPageClient({
     <main className="mx-auto min-h-screen max-w-7xl bg-white px-4 pb-10 pt-4 sm:px-5 md:px-8 md:pb-20 md:pt-7">
       <section className="mb-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--line-soft)] px-0.5 pb-3 md:mb-5 md:pb-4" aria-label="Pair alerts">
         <span className="flex h-9 w-9 items-center justify-center text-[var(--amber)]"><BellRing size={17} aria-hidden="true" /></span>
-        <p className="min-w-0 truncate text-sm font-bold text-[var(--foreground)]">Missing a piece?</p>
+        <p className="min-w-0 truncate text-sm font-bold text-[var(--foreground)]">Can’t find the exact piece?</p>
         <Link href={isAuthenticated ? alertPath : `/login?redirect=${encodeURIComponent(alertPath)}`} className="inline-flex h-8 items-center border-b border-transparent px-1 text-xs font-bold text-[var(--brand)] hover:border-[var(--brand)] md:text-sm">
           Set alert
         </Link>
@@ -159,7 +159,7 @@ export default function FindPageClient({
       {loading ? (
         <ListingGridSkeleton />
       ) : listings.length > 0 ? (
-        <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 xl:grid-cols-4">
+        <section className="grid grid-cols-3 gap-1.5 sm:gap-3 md:gap-4 xl:grid-cols-4">
           {listings.map((item, index) => <ListingCard key={item.id} item={item} eager={index === 0} />)}
         </section>
       ) : (

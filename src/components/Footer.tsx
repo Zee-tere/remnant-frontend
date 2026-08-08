@@ -59,7 +59,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col items-center justify-between gap-2 border-t border-[var(--border)]/30 pt-3 text-sm font-semibold text-[var(--secondary-blue)] md:flex-row">
-          <p>&copy; {currentYear} Remnant. Useful things deserve a next place.</p>
+          <p>&copy; {currentYear} Remnant. Find the missing piece. Pass on what still works.</p>
           <Link
             href="mailto:support@remnantmarket.co"
             className="inline-flex items-center gap-2 transition-colors hover:text-[var(--brand)]"

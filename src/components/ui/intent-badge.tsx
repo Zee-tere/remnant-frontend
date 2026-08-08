@@ -67,11 +67,11 @@ export function IntentBadge({
       className={cn(
         "inline-flex items-center rounded-pill font-bold leading-none",
         meta.className,
-        compact ? "gap-1 px-2 py-1 text-xs" : "gap-1.5 px-2.5 py-1.5 text-xs",
+        compact ? "gap-0.5 px-1.5 py-1 text-xs sm:gap-1 sm:px-2" : "gap-1.5 px-2.5 py-1.5 text-xs",
         className,
       )}
     >
-      <Icon size={compact ? 12 : 14} aria-hidden="true" />
+      <Icon size={compact ? 10 : 14} className={compact ? "sm:h-3 sm:w-3" : undefined} aria-hidden="true" />
       {meta.label}
     </span>
   );

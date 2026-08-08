@@ -6,12 +6,12 @@ const terms = [
   {
     title: "Use the platform honestly",
     body:
-      "Listings, messages, and transaction updates should be accurate, lawful, and respectful of other members.",
+      "Listings and messages should be accurate, lawful, and respectful of other members.",
   },
   {
-    title: "Complete paid exchanges safely",
+    title: "Arrange exchanges directly",
     body:
-      "Use the checkout shown on an order when available. Otherwise, buyers and sellers arrange payment and collection directly. Never share passwords, one-time codes, card PINs, or unnecessary financial information.",
+      "Remnant does not process payment or provide escrow. Both people arrange payment, collection, or delivery themselves. Never share passwords, one-time codes, card PINs, or unnecessary financial information.",
   },
   {
     title: "Respect items and people",
@@ -48,7 +48,7 @@ export default function TermsPage() {
 
         <div className="mt-10 rounded-2xl border border-[var(--line-soft)] bg-[var(--cream)] p-7 text-center md:p-10">
           <ShieldCheck className="mx-auto text-[var(--secondary-blue)]" size={30} aria-hidden="true" />
-          <h2 className="mt-4 text-3xl font-bold text-[var(--foreground)]">Need help with a transaction?</h2>
+          <h2 className="mt-4 text-3xl font-bold text-[var(--foreground)]">Need help with an exchange?</h2>
           <p className="mx-auto mt-3 max-w-xl font-medium leading-7 text-[var(--ink-soft)]">
             The Help Centre explains support channels and safe exchange basics.
           </p>
