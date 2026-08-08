@@ -3,10 +3,9 @@ import { cn } from '@/lib/utils';
 export function LoadingMark({ compact = false }: { compact?: boolean }) {
   return (
     <span className={cn('remnant-loader', compact && 'remnant-loader--compact')} aria-hidden="true">
-      <span className="remnant-loader__piece remnant-loader__piece--aqua" />
-      <span className="remnant-loader__piece remnant-loader__piece--lavender" />
-      <span className="remnant-loader__piece remnant-loader__piece--amber" />
-      <span className="remnant-loader__lens" />
+      <span className="remnant-loader__dot remnant-loader__dot--one" />
+      <span className="remnant-loader__dot remnant-loader__dot--two" />
+      <span className="remnant-loader__dot remnant-loader__dot--three" />
     </span>
   );
 }
@@ -84,17 +83,11 @@ export function DashboardSectionLoading({ label = 'Loading your dashboard' }: { 
 
 export function PageLoadingShell() {
   return (
-    <div className="min-h-[70dvh] bg-[var(--background)] px-4 py-5 md:px-8 md:py-10" role="status" aria-label="Loading page" aria-busy="true">
+    <div className="page-loading-shell" role="status" aria-label="Loading page" aria-busy="true">
       <span className="sr-only">Loading page</span>
-      <div className="mx-auto max-w-7xl">
-        <div className="loading-panel relative overflow-hidden rounded-xl border border-[var(--border)] px-5 py-10 md:px-10 md:py-14">
-          <LoadingMark />
-          <div className="skeleton mt-5 h-11 max-w-lg rounded-md md:h-16" />
-          <div className="skeleton mt-4 h-4 max-w-sm rounded-sm" />
-        </div>
-        <div className="mt-8">
-          <ListingGridSkeleton count={4} />
-        </div>
+      <div className="page-loading-shell__content">
+        <LoadingMark />
+        <p>Getting things ready</p>
       </div>
     </div>
   );

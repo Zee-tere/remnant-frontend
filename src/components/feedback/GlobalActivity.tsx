@@ -39,7 +39,8 @@ export function GlobalActivity() {
       if (!anchor || anchor.target === "_blank" || anchor.hasAttribute("download")) return;
 
       const destination = new URL(anchor.href, window.location.href);
-      if (destination.origin !== window.location.origin || destination.href === window.location.href) return;
+      const isCurrentRoute = destination.pathname === window.location.pathname && destination.search === window.location.search;
+      if (destination.origin !== window.location.origin || isCurrentRoute) return;
 
       window.clearTimeout(navigationTimeout.current);
       endActivity(navigationActivity.current);
