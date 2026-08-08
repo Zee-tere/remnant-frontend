@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowRight,
   Filter,
   HandHeart,
   Package,
@@ -209,51 +208,6 @@ export default function MarketplaceClient({
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <main className="mx-auto max-w-7xl px-4 pb-20 pt-4 sm:px-5 md:px-8 md:pt-7">
-        <section className="-mx-1 mb-3 border-b border-[var(--line-soft)] pb-2 md:mb-6" aria-label="Browse marketplace categories">
-          <div className="flex items-center justify-end px-1">
-            {category && (
-              <button type="button" onClick={() => { setCategory(""); resetPagination(); }} className="min-h-11 px-1 text-xs font-bold text-[var(--brand)]">
-                Show all
-              </button>
-            )}
-          </div>
-          <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1 scrollbar-hide md:gap-5">
-            {listingCategories.map((item) => {
-              const active = category === item.label;
-              return (
-                <button
-                  key={item.label}
-                  type="button"
-                  onClick={() => { setCategory(active ? "" : item.label); resetPagination(); }}
-                  className={`relative flex min-h-[4.65rem] w-[4.7rem] shrink-0 snap-start flex-col items-start justify-between overflow-hidden border-b-2 px-1 py-1 text-left transition-[border-color,color,transform] active:scale-[0.98] md:min-h-[5.2rem] md:w-[5.6rem] ${active ? "border-[var(--aqua)] text-[var(--foreground)]" : "border-transparent text-[var(--ink-soft)] hover:text-[var(--foreground)]"}`}
-                  aria-pressed={active}
-                >
-                  <span className="relative z-10 max-w-[4.4rem] text-xs font-black leading-[1.15]">{item.label}</span>
-                  <img src={item.image} alt="" loading="lazy" decoding="async" className="absolute bottom-0 right-0 h-9 w-9 object-contain md:h-11 md:w-11" />
-                  {active && <ArrowRight size={11} className="relative z-10 text-[var(--aqua)]" aria-hidden="true" />}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        <div className="mb-4 flex gap-1 overflow-x-auto border-b border-[var(--line-soft)] scrollbar-hide lg:hidden" aria-label="Filter by intent">
-          {[{ key: '', label: 'All' }, ...Object.entries(intentionMeta).map(([key, meta]) => ({ key, label: key === 'SELL' ? 'Buy' : meta.label }))].map((item) => (
-            <button
-              key={item.key || 'all'}
-              type="button"
-              onClick={() => { setIntentionTag(item.key); resetPagination(); }}
-              className={`relative min-h-10 shrink-0 border-b-2 px-3 text-xs font-bold transition-colors ${
-                intentionTag === item.key
-                  ? 'border-[var(--aqua)] bg-white text-[var(--foreground)]'
-                  : 'border-transparent bg-white text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
           <aside className="hidden w-72 shrink-0 lg:block lg:sticky lg:top-28">
             <FilterPanel />
@@ -268,7 +222,7 @@ export default function MarketplaceClient({
                 variant="outline"
                 size="sm"
                 onClick={() => setShowFilters(true)}
-                className="border-0 bg-transparent px-1 font-bold shadow-none hover:bg-transparent hover:text-[var(--brand)]"
+                className="ink-underline border-0 bg-transparent px-1 font-bold shadow-none hover:bg-transparent hover:text-[var(--brand)]"
               >
                 <Filter size={15} aria-hidden="true" />
                 Filters
@@ -326,7 +280,7 @@ export default function MarketplaceClient({
               </div>
             ) : listings.length > 0 ? (
               <>
-                <div className="grid auto-rows-fr grid-cols-3 gap-2 md:gap-4 xl:grid-cols-4">
+                <div className="grid auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 xl:grid-cols-4">
                   {listings.map((item, index) => <ListingCard key={item.id} item={item} eager={index === 0} />)}
                 </div>
 
@@ -342,7 +296,7 @@ export default function MarketplaceClient({
                         setCursor(previous);
                         setPage((current) => Math.max(1, current - 1));
                       }}
-                      className="rounded-full border-[var(--border)] bg-white font-bold"
+                      className="border-[var(--border)] bg-white font-bold"
                     >
                       Previous
                     </Button>
@@ -358,7 +312,7 @@ export default function MarketplaceClient({
                         setCursor(nextCursor);
                         setPage((current) => current + 1);
                       }}
-                      className="rounded-full border-[var(--border)] bg-white font-bold"
+                      className="border-[var(--border)] bg-white font-bold"
                     >
                       Next
                     </Button>
@@ -370,7 +324,7 @@ export default function MarketplaceClient({
                 <Package className="mx-auto mb-5 text-[var(--lavender)]" size={42} aria-hidden="true" />
                 <h3 className="text-2xl font-bold text-[var(--foreground)]">No items found</h3>
                 <p className="mx-auto mt-3 max-w-md font-medium text-[var(--ink-soft)]">No items match these filters.</p>
-                <Button asChild className="mt-7 bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">
+                <Button asChild variant="ghost" className="ink-underline mt-7 bg-transparent px-2 font-bold text-[var(--brand)] hover:bg-transparent">
                   <Link href="/sell-item">List the first item</Link>
                 </Button>
               </div>
@@ -408,7 +362,8 @@ export default function MarketplaceClient({
             </div>
             <div className="shrink-0 border-t border-[var(--border)]/55 bg-white px-4 pb-[calc(0.75rem+var(--safe-area-bottom))] pt-3">
               <Button
-                className="h-12 w-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]"
+                variant="ghost"
+                className="ink-underline h-12 w-full bg-transparent font-bold text-[var(--brand)] hover:bg-transparent"
                 onClick={() => setShowFilters(false)}
               >
                 Apply Filters

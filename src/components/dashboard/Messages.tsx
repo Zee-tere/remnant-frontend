@@ -88,6 +88,8 @@ interface MessagePage {
   nextCursor: number | null;
 }
 
+const quickReplies = ['I’m interested', 'What time works?', 'I’m on my way'];
+
 function asConversationRows(data: ConversationPage | ConversationSummary[]) {
   return Array.isArray(data) ? data : data.conversations;
 }
@@ -788,7 +790,7 @@ export default function MessagesSection() {
             <div className="flex items-center gap-2">
               <h1 className="text-[1.35rem] font-bold tracking-[-0.025em] text-foreground md:text-2xl">Inbox</h1>
               {unreadConversationCount > 0 && (
-                <span className="rounded-pill bg-[var(--brand)] px-2 py-0.5 text-xs font-black text-white">
+                <span className="border-b border-[var(--brand)] px-0.5 py-0.5 text-xs font-black text-[var(--brand)]">
                   {unreadConversationCount} new
                 </span>
               )}
@@ -819,10 +821,10 @@ export default function MessagesSection() {
               onClick={() => setFilter(filterType)}
               aria-pressed={filter === filterType}
               className={cn(
-                'min-h-9 rounded-pill border px-3 text-xs font-bold transition-colors',
+                'min-h-9 border-b-2 px-2 text-xs font-bold transition-colors',
                 filter === filterType
-                  ? 'border-[var(--brand)] bg-[var(--brand)] text-white'
-                  : 'border-[var(--line-soft)] bg-white text-[var(--ink-soft)] hover:border-[var(--brand)]/40',
+                  ? 'border-[var(--brand)] text-[var(--foreground)]'
+                  : 'border-transparent text-[var(--ink-soft)] hover:border-[var(--line-soft)]',
               )}
             >
               {filterType === 'all' ? 'All conversations' : `Unread${unreadConversationCount ? ` (${unreadConversationCount})` : ''}`}
@@ -834,7 +836,7 @@ export default function MessagesSection() {
       <div className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain">
         {filteredConversations.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center px-7 py-12 text-center">
-            <div className="icon-frame mb-4 h-14 w-14 bg-[var(--brand-soft)] text-[var(--brand)]" data-preserve-icon-frame>
+            <div className="icon-frame mb-4 h-14 w-14 bg-white text-[var(--brand)]" data-preserve-icon-frame>
               <Inbox size={25} aria-hidden="true" />
             </div>
             <h3 className="font-bold text-foreground">
@@ -867,7 +869,7 @@ export default function MessagesSection() {
                   onClick={() => handleSelectConversation(conversation.id)}
                   className={cn(
                     'relative mx-1.5 flex w-[calc(100%-0.75rem)] items-start gap-3 rounded-card px-2.5 py-3 text-left transition-colors md:mx-2 md:w-[calc(100%-1rem)] md:px-3',
-                    selected ? 'bg-[var(--brand-soft)]' : 'hover:bg-[var(--sand)]',
+                    selected ? 'bg-[#f5f5f4]' : 'hover:bg-[var(--sand)]',
                   )}
                 >
                   {selected && <span className="absolute inset-y-3 left-0 w-1 rounded-pill bg-[var(--brand)]" aria-hidden="true" />}
@@ -916,17 +918,15 @@ export default function MessagesSection() {
   const ChatWindow = () => {
     if (!activeConversation) {
       return (
-        <div className="relative flex h-full min-h-[420px] flex-col items-center justify-center overflow-hidden bg-[var(--brand-soft)] px-6 text-center">
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/70" aria-hidden="true" />
-          <div className="absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-[var(--aqua-soft)]/70" aria-hidden="true" />
-          <div className="relative icon-frame mb-5 h-16 w-16 bg-white text-[var(--brand)] soft-shadow" data-preserve-icon-frame>
+        <div className="relative flex h-full min-h-[420px] flex-col items-center justify-center overflow-hidden bg-white px-6 text-center">
+          <div className="relative icon-frame mb-5 h-16 w-16 bg-white text-[var(--brand)]" data-preserve-icon-frame>
             <MessageSquare size={29} aria-hidden="true" />
           </div>
           <h2 className="relative text-xl font-bold tracking-[-0.025em] text-foreground">Pick up where you left off</h2>
           <p className="relative mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
             Choose a conversation to discuss the item, arrange collection, or agree on the next step.
           </p>
-          <div className="relative mt-6 flex items-center gap-2 text-xs font-semibold text-[var(--brand)]">
+          <div className="relative mt-6 flex items-center gap-2 text-xs font-semibold text-[var(--ink-soft)]">
             <ShieldCheck size={16} aria-hidden="true" />
             Keep payment and verification codes private
           </div>
@@ -990,15 +990,15 @@ export default function MessagesSection() {
 
           <Link
             href={`/marketplace/${activeConversation.listing.slug || activeConversation.listing.id}`}
-            className="group flex items-center gap-3 border-t border-[var(--line-soft)] bg-[var(--sand)]/70 px-4 py-2.5 transition-colors hover:bg-[var(--brand-soft)] md:px-5"
+            className="group flex items-center gap-3 border-t border-[var(--line-soft)] bg-white px-4 py-2.5 transition-colors hover:bg-[var(--sand)] md:px-5"
           >
             <ListingThumbnail conversation={activeConversation} size="small" />
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-black uppercase tracking-[0.08em] text-[var(--brand)]">About this listing</p>
+              <p className="text-xs font-bold text-[var(--muted-foreground)]">About this listing</p>
               <p className="truncate text-sm font-bold text-foreground">{activeConversation.listing.title}</p>
             </div>
-            <span className="hidden text-xs font-bold text-[var(--brand)] sm:inline">View listing</span>
-            <ChevronRight size={16} className="shrink-0 text-[var(--brand)] transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+            <span className="ink-underline hidden pb-2 text-xs font-bold text-[var(--brand)] sm:inline">View listing</span>
+            <ChevronRight size={16} className="shrink-0 text-[var(--ink-soft)] transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
           </Link>
         </div>
 
@@ -1010,7 +1010,7 @@ export default function MessagesSection() {
               viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
             shouldStickToBottomRef.current = distanceFromBottom < 96;
           }}
-          className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain bg-[#f7f8f6] px-3 py-4 [overflow-anchor:none] [scrollbar-gutter:stable] md:px-6 md:py-5"
+          className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain bg-white px-3 py-4 [overflow-anchor:none] [scrollbar-gutter:stable] md:px-8 md:py-6"
         >
           {loadingMessages ? (
             <LoadingState label="Loading messages" compact className="h-full" />
@@ -1056,10 +1056,8 @@ export default function MessagesSection() {
                 return (
                   <div key={message.id}>
                     {showDay && (
-                      <div className="flex items-center gap-3 py-4" aria-label={formatMessageDay(message.createdAt)}>
-                        <span className="h-px flex-1 bg-[var(--line-soft)]" />
-                        <span className="text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">{formatMessageDay(message.createdAt)}</span>
-                        <span className="h-px flex-1 bg-[var(--line-soft)]" />
+                      <div className="flex justify-center py-4" aria-label={formatMessageDay(message.createdAt)}>
+                        <span className="text-[11px] font-medium text-muted-foreground">{formatMessageDay(message.createdAt)}</span>
                       </div>
                     )}
                     <div className={cn('flex items-end gap-2', endsGroup ? 'mb-3' : 'mb-1', mine ? 'justify-end' : 'justify-start')}>
@@ -1070,14 +1068,14 @@ export default function MessagesSection() {
                       )}
                       <div
                         className={cn(
-                          'max-w-[82%] px-3.5 py-2.5 text-sm leading-5 shadow-[0_1px_1px_rgba(20,33,28,0.04)] md:max-w-[70%]',
+                          'max-w-[82%] px-3.5 py-2.5 text-sm leading-5 md:max-w-[68%]',
                           mine
-                            ? 'rounded-card rounded-br-[5px] bg-[var(--brand)] text-white'
-                            : 'rounded-card rounded-bl-[5px] border border-[var(--line-soft)] bg-white text-foreground',
+                            ? 'rounded-card rounded-br-[5px] border border-[#dce7f5] bg-[#edf4ff] text-[#174d88]'
+                            : 'rounded-card rounded-bl-[5px] bg-[#f1f1f0] text-foreground',
                         )}
                       >
                         <p className="whitespace-pre-wrap break-words">{message.content}</p>
-                        <p className={cn('mt-1.5 text-xs tabular-nums', mine ? 'text-white/70' : 'text-muted-foreground')}>
+                        <p className={cn('mt-1.5 text-[11px] tabular-nums', mine ? 'text-[#55789d]' : 'text-muted-foreground')}>
                           {message.clientState === 'sending'
                             ? 'Sending…'
                             : `${formatTime(message.createdAt)}${mine && message.readAt ? ' · Read' : ''}`}
@@ -1098,7 +1096,16 @@ export default function MessagesSection() {
           </div>
         ) : <div className="shrink-0 border-t border-[var(--line-soft)] bg-white px-3 pb-[calc(0.6rem+var(--safe-area-bottom))] pt-2.5 md:px-5 md:pb-4 md:pt-3">
           <div className="mx-auto max-w-3xl">
-          <div className="flex items-end gap-2 rounded-card border border-[var(--input)] bg-white p-1.5 shadow-[0_2px_10px_rgba(20,33,28,0.06)] transition-[border-color,box-shadow] focus-within:border-[var(--brand)] focus-within:shadow-[0_0_0_3px_var(--brand-muted)]">
+          {!newMessage && (
+            <div className="mb-2 flex gap-2 overflow-x-auto pb-1 scrollbar-hide" aria-label="Suggested replies">
+              {quickReplies.map((reply) => (
+                <button key={reply} type="button" onClick={() => { setNewMessage(reply); composerRef.current?.focus(); }} className="shrink-0 rounded-control bg-[#f3f3f2] px-3 py-2 text-xs font-bold text-[var(--ink-soft)] transition-colors hover:text-foreground">
+                  {reply}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="flex items-end gap-2 rounded-card border border-[var(--input)] bg-white p-1.5 transition-colors focus-within:border-[var(--foreground)]">
             <textarea
               ref={composerRef}
               aria-label="Message"
@@ -1125,12 +1132,12 @@ export default function MessagesSection() {
               disabled={!newMessage.trim() || sending}
               size="icon"
               aria-label={sending ? 'Sending message' : 'Send message'}
-              className="h-11 w-11 shrink-0 bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)] md:h-10 md:w-10"
+              className="h-11 w-11 shrink-0 bg-[var(--foreground)] text-white hover:bg-[var(--ink-soft)] md:h-10 md:w-10"
             >
               {sending ? <Loader2 className="animate-spin" size={17} /> : <Send size={17} />}
             </Button>
           </div>
-          <p className="mt-2 flex items-center justify-center gap-1.5 text-xs font-medium text-muted-foreground">
+          <p className="mt-2 hidden items-center justify-center gap-1.5 text-xs font-medium text-muted-foreground md:flex">
             <ShieldCheck size={13} className="text-[var(--brand)]" aria-hidden="true" />
             Never share verification codes or pay before you are comfortable.
           </p>
@@ -1144,7 +1151,7 @@ export default function MessagesSection() {
     <div className="md:h-full">
       <div
         style={mobileViewportStyle}
-        className="fixed inset-0 z-[80] grid h-dvh min-h-[280px] grid-cols-1 overflow-hidden bg-white md:static md:z-auto md:h-[calc(100dvh-4rem)] md:max-h-[860px] md:min-h-[640px] md:grid-cols-[minmax(18rem,21.5rem)_minmax(0,1fr)] md:transform-none md:rounded-surface md:border md:border-[var(--border)]/80 md:soft-shadow lg:h-[calc(100dvh-5rem)]"
+        className="fixed inset-0 z-[80] grid h-dvh min-h-[280px] grid-cols-1 overflow-hidden bg-white md:static md:z-auto md:h-[calc(100dvh-4rem)] md:max-h-[860px] md:min-h-[640px] md:grid-cols-[minmax(18rem,21.5rem)_minmax(0,1fr)] md:transform-none md:rounded-surface md:border md:border-[var(--border)]/80 lg:h-[calc(100dvh-5rem)]"
       >
         <div className={cn('min-h-0 border-b border-[var(--border)]/70 md:block md:border-b-0 md:border-r', activeConversationId ? 'hidden' : 'block')}>
           {ConversationList()}

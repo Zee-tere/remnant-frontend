@@ -206,7 +206,7 @@ export default function AuthPageClient({ mode }: { mode: AuthMode }) {
                   {mode === "login" ? "Continue with Google" : "Join with Google"}
                 </Button>
               )}
-              <Button type="submit" disabled={loading !== null} className="h-12 w-full bg-[var(--brand)] text-sm font-bold text-white hover:bg-[var(--brand-dark)] md:h-[52px]">
+              <Button type="submit" disabled={loading !== null} className="h-12 w-full bg-[var(--foreground)] text-sm font-bold text-white hover:bg-[var(--ink-soft)] md:h-[52px]">
                 {loading === "form" ? <Loader2 className="animate-spin" size={18} /> : <ShieldCheck size={18} />}
                 {needsConfirmation ? "Confirm account" : mode === "login" ? "Log in" : "Create account"}
                 <ArrowRight size={17} />

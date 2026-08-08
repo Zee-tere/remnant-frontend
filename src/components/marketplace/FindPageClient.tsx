@@ -146,7 +146,7 @@ export default function FindPageClient({
           </label>
           <div className="mt-4 flex gap-2 md:mt-0">
             {hasFilters && <Button type="button" variant="outline" onClick={resetFilters}>Reset</Button>}
-            <Button type="button" onClick={() => { navigate(1); setShowFilters(false); }} className="flex-1 font-bold text-white md:flex-none">Apply filters</Button>
+            <Button type="button" variant="ghost" onClick={() => { navigate(1); setShowFilters(false); }} className="ink-underline flex-1 bg-transparent font-bold text-[var(--brand)] hover:bg-transparent md:flex-none">Apply filters</Button>
           </div>
           </section>
         </div>

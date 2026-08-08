@@ -35,9 +35,9 @@ interface NavigationAction {
 const productActions: NavigationAction[] = [
   { label: "Find an item", href: "/find-a-pair", icon: Search },
   { label: "Marketplace", href: "/marketplace", icon: Store },
-  { label: "Sell", href: "/sell", icon: Tag },
-  { label: "Trade", href: "/trade", icon: RefreshCw },
-  { label: "Donate", href: "/donate", icon: HandHeart },
+  { label: "Sell", href: "/sell-item?intent=SELL", icon: Tag },
+  { label: "Trade", href: "/sell-item?intent=TRADE", icon: RefreshCw },
+  { label: "Donate", href: "/sell-item?intent=DONATE", icon: HandHeart },
 ];
 
 const accountActions = [
@@ -65,6 +65,10 @@ export default function Navbar() {
   const isAuthRoute = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth/callback"].some(
     (route) => pathname.startsWith(route),
   );
+  const pageOwnsSearch = pathname === "/" || pathname.startsWith("/find-a-pair");
+  const visibleProductActions = pathname.startsWith('/find-a-pair')
+    ? productActions.filter((item) => item.href !== '/find-a-pair')
+    : productActions;
 
   useEffect(() => {
     setMenuOpen(false);
@@ -103,15 +107,17 @@ export default function Navbar() {
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
+  if (isAuthRoute) return null;
+
   return (
-    <header className={`sticky top-0 z-[var(--layer-sticky)] w-full border-b border-[var(--line-soft)] bg-white px-3 py-1.5 md:px-6 md:py-2 ${isAuthRoute ? "hidden md:block" : ""}`}>
+    <header className="sticky top-0 z-[var(--layer-sticky)] w-full border-b border-[var(--line-soft)] bg-white px-3 py-1.5 md:px-6 md:py-2">
       <div className="relative mx-auto flex min-h-12 max-w-7xl items-center gap-2 bg-white px-0 text-[var(--foreground)] md:min-h-14 md:justify-between md:gap-0 md:px-2">
         <Link href="/" className="flex shrink-0 items-center text-[var(--brand)]" aria-label="Remnant home">
           <BrandLogo size="nav" />
         </Link>
 
         <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 px-4 md:flex" aria-label="Primary navigation">
-          {productActions.map((item) => {
+          {visibleProductActions.map((item) => {
             const active = isActive(item.href);
             return (
               <Link
@@ -140,7 +146,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setProfileOpen(!profileOpen)}
-                className="profile-button flex min-h-11 items-center gap-2 rounded-xl px-2 py-1.5 transition-colors hover:bg-[var(--brand-soft)] hover:text-[var(--brand)]"
+                className="profile-button flex min-h-11 items-center gap-2 rounded-control px-2 py-1.5 transition-colors hover:text-[var(--brand)]"
                 aria-label="User menu"
                 aria-expanded={profileOpen}
               >
@@ -212,21 +218,21 @@ export default function Navbar() {
             <div className="hidden items-center gap-1 md:flex">
               <Link
                 href="/login"
-                className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-bold text-[var(--ink-soft)] transition-colors hover:bg-[var(--brand-soft)] hover:text-[var(--brand)]"
+                className="inline-flex min-h-11 items-center gap-2 px-3 text-sm font-bold text-[var(--ink-soft)] transition-colors hover:text-[var(--brand)]"
               >
                 <LogIn size={16} aria-hidden="true" />
                 Log in
               </Link>
               <Link
                 href="/signup"
-                className="inline-flex min-h-11 items-center rounded-xl bg-[var(--brand)] px-5 py-2 text-sm font-bold text-white transition-[background-color,transform] duration-150 hover:bg-[var(--brand-dark)] active:scale-[0.98]"
+                className="ink-underline inline-flex min-h-11 items-center px-3 py-2 text-sm font-bold text-[var(--brand)]"
               >
                 Join free
               </Link>
             </div>
           )}
 
-          <form
+          {!pageOwnsSearch && <form
             onSubmit={handleMobileSearch}
             className="flex h-9 min-w-0 max-w-[10.5rem] flex-1 items-center rounded-xl border border-[var(--line-soft)] bg-white pl-2 focus-within:border-[var(--aqua)] md:hidden"
             role="search"
@@ -242,7 +248,7 @@ export default function Navbar() {
             <button type="submit" className="flex h-9 w-9 shrink-0 items-center justify-center text-[var(--aqua)]" aria-label="Search">
               <Search className="search-glyph" size={15} strokeWidth={2.1} aria-hidden="true" />
             </button>
-          </form>
+          </form>}
 
           <button
             type="button"
@@ -269,7 +275,7 @@ export default function Navbar() {
                   />
                   <div className="navbar-menu mobile-menu-entry relative h-full w-[min(82vw,20rem)] overflow-y-auto border-r border-[var(--line-soft)] bg-white px-3 py-3 text-left">
                   <nav className="flex flex-col" aria-label="Mobile navigation">
-                    {(isAuthenticated ? mobileAccountActions : productActions).map((item) => {
+                    {(isAuthenticated ? mobileAccountActions : visibleProductActions).map((item) => {
                       const Icon = item.icon;
                       return (
                       <Link

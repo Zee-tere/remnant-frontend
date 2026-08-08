@@ -1142,3 +1142,26 @@
   from { transform: translateY(0); opacity: 0.72; }
   to { transform: translateY(-0.45rem); opacity: 1; }
 }
+
+.ink-underline {
+  position: relative;
+  background: transparent;
+}
+
+.ink-underline::after {
+  content: '';
+  position: absolute;
+  right: 0.15rem;
+  bottom: 0.4rem;
+  left: 0.15rem;
+  height: 2px;
+  background: var(--brand);
+  transform: rotate(-0.8deg) scaleX(0.82);
+  transform-origin: left center;
+  transition: transform var(--motion-base) var(--ease-out);
+}
+
+.ink-underline:hover::after,
+.ink-underline:focus-visible::after {
+  transform: rotate(0.4deg) scaleX(1);
+}

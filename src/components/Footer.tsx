@@ -7,11 +7,11 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const footerLinks = [
   { label: "Marketplace", href: "/marketplace" },
-  { label: "Sell", href: "/sell" },
-  { label: "Trade", href: "/trade" },
-  { label: "Donate", href: "/donate" },
-  { label: "Repair", href: "/repair" },
-  { label: "Recycle", href: "/recycle" },
+  { label: "Sell", href: "/sell-item?intent=SELL" },
+  { label: "Trade", href: "/sell-item?intent=TRADE" },
+  { label: "Donate", href: "/sell-item?intent=DONATE" },
+  { label: "Repair", href: "/sell-item?intent=FIX" },
+  { label: "Recycle", href: "/sell-item?intent=RECYCLE" },
   { label: "Sustainability", href: "/sustainability" },
   { label: "Help Centre", href: "/help" },
   { label: "Privacy", href: "/privacy" },

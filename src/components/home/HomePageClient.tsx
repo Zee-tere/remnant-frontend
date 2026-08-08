@@ -216,7 +216,7 @@ export default function HomePageClient({
                     className="h-10 border-0 bg-transparent pl-10 pr-2 text-[0.92rem] font-semibold shadow-none focus-visible:ring-0 md:h-14 md:pl-14 md:text-base"
                   />
                 </div>
-                <Button type="submit" aria-label="Search listings" variant="ghost" className="h-10 w-10 border-0 bg-white px-0 text-[var(--aqua)] hover:bg-white hover:text-[var(--brand)] md:h-14 md:w-auto md:bg-[var(--brand)] md:px-8 md:text-base md:text-white md:hover:bg-[var(--brand-dark)] md:hover:text-white">
+                <Button type="submit" aria-label="Search listings" variant="ghost" className="ink-underline h-10 w-10 border-0 bg-white px-0 text-[var(--aqua)] hover:bg-white hover:text-[var(--brand)] md:h-14 md:w-auto md:px-5 md:text-base">
                   <span className="hidden md:inline">Search</span>
                   <Search size={18} aria-hidden="true" />
                 </Button>
@@ -288,14 +288,14 @@ export default function HomePageClient({
           </div>
 
           {initialFeaturedListings.length > 0 ? (
-            <div className="grid grid-cols-3 gap-2 md:gap-4 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
               {initialFeaturedListings.map((item) => <ListingCard key={item.id} item={item} />)}
             </div>
           ) : (
             <div className="border-t border-[#f1f0ec] px-4 py-8 text-center md:py-10">
               <ActionArtwork name="sell" className="mx-auto mb-5 h-[4.5rem] w-[4.5rem] md:h-24 md:w-24" />
               <h3 className="text-2xl font-bold">No listings yet</h3>
-              <Button asChild className="mt-7 bg-[var(--brand)] px-7 font-bold text-white hover:bg-[var(--brand-dark)]">
+              <Button asChild variant="ghost" className="ink-underline mt-7 bg-transparent px-2 font-bold text-[var(--brand)] hover:bg-transparent">
                 <Link href="/sell-item">List an item</Link>
               </Button>
             </div>

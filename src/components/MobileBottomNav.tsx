@@ -50,7 +50,7 @@ export default function MobileBottomNav() {
       ]
     : [
         { label: "Home", href: "/", icon: House, tone: "text-[var(--brand)]" },
-        { label: "Marketplace", href: "/marketplace", icon: Store, tone: "text-[var(--lavender)]" },
+        { label: "Market", href: "/marketplace", icon: Store, tone: "text-[var(--lavender)]" },
         { label: "List", href: "/sell-item", icon: CirclePlus, primary: true },
         { label: "Find", href: "/find-a-pair", icon: ScanSearch, tone: "text-[var(--aqua)]" },
         { label: "Account", href: "/login", icon: UserRound, profile: true, tone: "text-[var(--amber)]" },
