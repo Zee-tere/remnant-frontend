@@ -5,21 +5,18 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Box, CirclePlus, House, MessageCircle, ScanSearch, Store, UserRound, type LucideIcon } from "lucide-react";
 import { useAuthStore } from "@/lib/auth";
-import { NameAvatar } from "@/components/ui/name-avatar";
 
 interface NavAction {
   label: string;
   href: string;
   icon: LucideIcon;
-  profile?: boolean;
   primary?: boolean;
-  tone?: string;
 }
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const hiddenRoutes = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth/callback"];
   const isMessageView =
     (isAuthenticated &&
@@ -41,18 +38,18 @@ export default function MobileBottomNav() {
 
   const actions: NavAction[] = isAuthenticated
     ? [
-        { label: "Listings", href: "/user/dashboard", icon: Box, tone: "text-[var(--brand)]" },
-        { label: "Messages", href: "/user/dashboard?section=messages", icon: MessageCircle, tone: "text-[var(--lavender)]" },
+        { label: "Listings", href: "/user/dashboard", icon: Box },
+        { label: "Messages", href: "/user/dashboard?section=messages", icon: MessageCircle },
         { label: "List", href: "/sell-item", icon: CirclePlus, primary: true },
-        { label: "Pairs", href: "/user/dashboard?section=pair-alerts", icon: ScanSearch, tone: "text-[var(--aqua)]" },
-        { label: "Profile", href: "/user/dashboard?section=profile", icon: UserRound, profile: true, tone: "text-[var(--amber)]" },
+        { label: "Pairs", href: "/user/dashboard?section=pair-alerts", icon: ScanSearch },
+        { label: "Profile", href: "/user/dashboard?section=profile", icon: UserRound },
       ]
     : [
-        { label: "Home", href: "/", icon: House, tone: "text-[var(--brand)]" },
-        { label: "Market", href: "/marketplace", icon: Store, tone: "text-[var(--lavender)]" },
+        { label: "Home", href: "/", icon: House },
+        { label: "Market", href: "/marketplace", icon: Store },
         { label: "List", href: "/sell-item", icon: CirclePlus, primary: true },
-        { label: "Find", href: "/find-a-pair", icon: ScanSearch, tone: "text-[var(--aqua)]" },
-        { label: "Account", href: "/login", icon: UserRound, profile: true, tone: "text-[var(--amber)]" },
+        { label: "Find", href: "/find-a-pair", icon: ScanSearch },
+        { label: "Account", href: "/login", icon: UserRound },
       ];
 
   const isActive = (item: NavAction) => {
@@ -72,7 +69,7 @@ export default function MobileBottomNav() {
       data-mobile-bottom-dock
       className="mobile-bottom-dock md:hidden"
     >
-      <div className="mobile-bottom-dock__bar mx-auto grid h-[4.6rem] max-w-lg grid-cols-5 border-t border-[var(--border)]/75 bg-white px-1.5">
+      <div className="mobile-bottom-dock__bar mx-auto grid h-[4.6rem] max-w-lg grid-cols-5 border-t border-black/10 bg-white px-1.5">
         {actions.map((item) => {
           const Icon = item.icon;
           const active = isActive(item);
@@ -82,29 +79,25 @@ export default function MobileBottomNav() {
               href={item.href}
               className={`relative flex min-w-0 touch-manipulation flex-col items-center justify-center gap-1 text-xs font-bold tracking-[0.01em] transition-[color,transform] duration-150 active:scale-[0.97] ${
                 item.primary
-                  ? "text-[var(--brand)]"
+                  ? "text-black"
                   : active
-                    ? "text-[var(--brand)]"
-                    : "text-[var(--muted-foreground)] hover:text-[var(--brand)]"
+                    ? "text-black"
+                    : "text-black/45 hover:text-black"
               }`}
               aria-label={item.label}
               aria-current={active ? "page" : undefined}
             >
               <span
                 data-preserve-icon-frame
-                className={`relative flex items-center justify-center transition-[color,transform] duration-150 ${item.primary ? "-mt-3 h-10 w-10 rounded-control bg-[var(--brand)] text-white" : `h-7 w-8 ${item.tone || ""} ${active ? "scale-105" : "opacity-80"}`}`}
+                className={`relative flex items-center justify-center transition-[color,transform] duration-150 ${item.primary ? "-mt-3 h-10 w-10 rounded-full bg-black text-white" : `h-7 w-8 ${active ? "scale-105 text-black" : "opacity-80"}`}`}
               >
-                {item.profile && isAuthenticated ? (
-                  <NameAvatar name={user?.name || "Remnant"} className="h-7 w-7 text-xs" />
-                ) : (
-                  <Icon className={item.primary ? "h-[18px] w-[18px]" : "h-[17px] w-[17px]"} aria-hidden="true" />
-                )}
+                <Icon className={item.primary ? "h-[18px] w-[18px]" : "h-[17px] w-[17px]"} aria-hidden="true" />
               </span>
-              <span className={`${item.primary ? "-mt-1 text-[var(--brand)]" : ""} leading-none`}>{item.label}</span>
+              <span className={`${item.primary ? "-mt-1 text-black" : ""} leading-none`}>{item.label}</span>
               {active && !item.primary && (
                 <span className="absolute bottom-1 flex items-center gap-0.5" aria-hidden="true">
-                  <span className="h-0.5 w-3 bg-[var(--brand)]" />
-                  <span className="h-0.5 w-1 bg-[var(--brand)]" />
+                  <span className="h-0.5 w-3 bg-black" />
+                  <span className="h-0.5 w-1 bg-black" />
                 </span>
               )}
             </Link>

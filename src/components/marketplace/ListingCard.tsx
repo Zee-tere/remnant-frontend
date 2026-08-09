@@ -71,42 +71,42 @@ export function ListingCard({
 
   return (
     <Link href={`/marketplace/${item.slug || item.id}`} className={`group block min-w-0 touch-manipulation ${className}`}>
-      <article className="surface-card h-full overflow-hidden rounded-card transition-[border-color,transform] duration-200">
-        <div className="relative aspect-[4/3] overflow-hidden bg-[var(--sand)] md:aspect-[5/4]">
+      <article className="h-full">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-card bg-[#f3f3f3] md:aspect-[5/4]">
           {item.images?.[0] ? (
             <Image
               src={item.images[0]}
               alt={`${item.title} listing`}
               fill
               priority={eager}
-              sizes="(max-width: 767px) 33vw, (max-width: 1279px) 30vw, 22vw"
+              sizes="(max-width: 767px) 50vw, (max-width: 1279px) 33vw, 25vw"
               quality={68}
               className="h-full w-full object-cover transition-transform duration-200 motion-safe:group-hover:scale-[1.025]"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-[var(--muted-foreground)]">
-              <span className="icon-frame h-11 w-11" data-preserve-icon-frame>
+            <div className="flex h-full w-full items-center justify-center text-black/30">
+              <span className="flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white" data-preserve-icon-frame>
                 <PackageOpen size={21} aria-hidden="true" />
               </span>
             </div>
           )}
           <IntentBadge intent={item.intentionTag} compact className="absolute left-1.5 top-1.5 md:left-3 md:top-3" />
           {needsPair && (
-            <span className="absolute right-1.5 top-1.5 inline-flex h-6 w-6 items-center justify-center rounded-pill border border-[var(--border)]/80 bg-white text-[var(--brand)] md:right-3 md:top-3 md:h-auto md:w-auto md:max-w-[54%] md:gap-1 md:px-2.5 md:py-1.5 md:text-xs" aria-label={`Needs ${item.pairingKeyword}`}>
+            <span className="absolute right-1.5 top-1.5 inline-flex h-6 w-6 items-center justify-center rounded-full border border-black/10 bg-white text-black md:right-3 md:top-3 md:h-auto md:w-auto md:max-w-[54%] md:gap-1 md:px-2.5 md:py-1.5 md:text-xs" aria-label={`Needs ${item.pairingKeyword}`}>
               <Puzzle size={12} className="shrink-0" aria-hidden="true" />
               <span className="hidden truncate md:inline">Needs {item.pairingKeyword}</span>
             </span>
           )}
         </div>
 
-        <div className="p-1.5 md:p-4">
-          <h3 className="line-clamp-2 min-h-8 text-xs font-bold leading-4 text-[var(--foreground)] md:min-h-0 md:text-base md:leading-snug">
+        <div className="pt-3 md:pt-4">
+          <h3 className="line-clamp-2 min-h-10 text-sm font-bold leading-5 text-[#111] md:min-h-0 md:text-base md:leading-snug">
             {item.title}
           </h3>
-          <p className="mt-0.5 truncate text-xs font-bold leading-4 text-[var(--brand)] md:mt-1 md:text-lg md:leading-6">
+          <p className="mt-1 truncate text-sm font-bold leading-5 text-[#111] md:text-lg md:leading-6">
             {getListingValue(item)}
           </p>
-          <div className="mt-1 hidden min-w-0 items-center gap-1 text-xs font-semibold leading-4 text-[var(--muted-foreground)] md:mt-2 md:flex">
+          <div className="mt-1.5 flex min-w-0 items-center gap-1 text-xs font-semibold leading-4 text-black/45 md:mt-2">
             <MapPin size={12} className="shrink-0" aria-hidden="true" />
             <span className="truncate">{item.city || 'Location not set'}</span>
             <span className="hidden md:inline" aria-hidden="true">·</span>

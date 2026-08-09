@@ -7,22 +7,20 @@ import {
   Bell,
   Box,
   ChevronDown,
-  HandHeart,
   LogIn,
   LogOut,
   MessageCircle,
   PackagePlus,
-  RefreshCw,
   ScanSearch,
   Search,
   Settings,
   ShieldCheck,
   Store,
-  Tag,
   UserRound,
   type LucideIcon,
 } from "lucide-react";
 import { useAuthStore } from "@/lib/auth";
+import { listingCategories } from "@/lib/categories";
 import { NameAvatar } from "@/components/ui/name-avatar";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 
@@ -32,20 +30,17 @@ interface NavigationAction {
   icon: LucideIcon;
 }
 
-const productActions: NavigationAction[] = [
-  { label: "Find an item", href: "/find-a-pair", icon: Search },
+const exploreActions: NavigationAction[] = [
   { label: "Marketplace", href: "/marketplace", icon: Store },
-  { label: "Sell", href: "/sell-item?intent=SELL", icon: Tag },
-  { label: "Trade", href: "/sell-item?intent=TRADE", icon: RefreshCw },
-  { label: "Donate", href: "/sell-item?intent=DONATE", icon: HandHeart },
+  { label: "Find a missing piece", href: "/find-a-pair", icon: ScanSearch },
+  { label: "List an item", href: "/sell-item", icon: PackagePlus },
 ];
 
-const accountActions = [
-  { label: "Listings", href: "/user/dashboard", icon: Box },
+const accountActions: NavigationAction[] = [
+  { label: "My listings", href: "/user/dashboard", icon: Box },
   { label: "Pair alerts", href: "/user/dashboard?section=pair-alerts", icon: ScanSearch },
   { label: "Messages", href: "/user/dashboard?section=messages", icon: MessageCircle },
   { label: "Match alerts", href: "/user/dashboard?section=alerts", icon: Bell },
-  { label: "Upload", href: "/user/dashboard?section=upload", icon: PackagePlus },
   { label: "Profile", href: "/user/dashboard?section=profile", icon: UserRound },
   { label: "Settings", href: "/user/dashboard?section=settings", icon: Settings },
 ];
@@ -53,22 +48,16 @@ const accountActions = [
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [mobileSearch, setMobileSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const pathname = usePathname();
   const router = useRouter();
-
   const { user, isAuthenticated, logout } = useAuthStore();
   const displayName = user?.name || "Account";
-  const mobileAccountActions = user?.role === "ADMIN"
-    ? [{ label: "Admin", href: "/admin", icon: ShieldCheck }, ...accountActions]
-    : accountActions;
+
   const isAuthRoute = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth/callback"].some(
     (route) => pathname.startsWith(route),
   );
-  const pageOwnsSearch = pathname === "/" || pathname.startsWith("/find-a-pair");
-  const visibleProductActions = pathname.startsWith('/find-a-pair')
-    ? productActions.filter((item) => item.href !== '/find-a-pair')
-    : productActions;
+  const pageOwnsMobileSearch = pathname === "/" || pathname.startsWith("/marketplace");
 
   useEffect(() => {
     setMenuOpen(false);
@@ -76,14 +65,10 @@ export default function Navbar() {
   }, [pathname]);
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest(".navbar-menu") && !target.closest(".mobile-menu-button")) {
-        setMenuOpen(false);
-      }
-      if (!target.closest(".profile-menu") && !target.closest(".profile-button")) {
-        setProfileOpen(false);
-      }
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest(".navbar-menu") && !target.closest(".mobile-menu-button")) setMenuOpen(false);
+      if (!target.closest(".profile-menu") && !target.closest(".profile-button")) setProfileOpen(false);
     };
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
@@ -91,170 +76,127 @@ export default function Navbar() {
 
   const handleLogout = () => {
     logout();
+    setMenuOpen(false);
     setProfileOpen(false);
     router.push("/");
   };
 
-  const handleMobileSearch = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const search = mobileSearch.trim();
-    router.push(`/find-a-pair${search ? `?search=${encodeURIComponent(search)}` : ""}`);
+    const search = searchQuery.trim();
+    router.push(`/marketplace${search ? `?search=${encodeURIComponent(search)}` : ""}`);
   };
 
   const isActive = (href: string) => {
-    if (href.includes("#")) return pathname === "/";
-    if (href === "/") return pathname === "/";
-    return pathname === href || pathname.startsWith(`${href}/`);
+    const cleanHref = href.split("?")[0];
+    if (cleanHref === "/") return pathname === "/";
+    return pathname === cleanHref || pathname.startsWith(`${cleanHref}/`);
   };
 
   if (isAuthRoute) return null;
 
   return (
-    <header className="sticky top-0 z-[var(--layer-sticky)] w-full border-b border-[var(--line-soft)] bg-white px-3 py-1.5 md:px-6 md:py-2">
-      <div className="relative mx-auto flex min-h-12 max-w-7xl items-center gap-2 bg-white px-0 text-[var(--foreground)] md:min-h-14 md:justify-between md:gap-0 md:px-2">
+    <header className="sticky top-0 z-[var(--layer-sticky)] w-full border-b border-black/10 bg-white">
+      <div className="mx-auto flex min-h-[4rem] max-w-7xl items-center gap-3 px-4 sm:px-6 md:min-h-[4.75rem] lg:px-8">
         <Link href="/" className="flex shrink-0 items-center text-[var(--brand)]" aria-label="Remnant home">
           <BrandLogo size="nav" />
         </Link>
 
-        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 px-4 md:flex" aria-label="Primary navigation">
-          {visibleProductActions.map((item) => {
-            const active = isActive(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`relative z-10 min-h-11 px-3 py-3 text-[0.8rem] font-bold transition-colors duration-150 ${
-                  active ? "text-[var(--brand)]" : "text-[var(--ink-soft)] hover:text-[var(--brand)]"
-                }`}
-                aria-current={active ? "page" : undefined}
-              >
-                {item.label}
-                {active && (
-                  <span className="absolute inset-x-3 bottom-1 flex h-1 items-center gap-1" aria-hidden="true">
-                    <span className="h-0.5 flex-1 bg-[var(--brand)]" />
-                    <span className="h-0.5 w-1.5 bg-[var(--brand)]" />
-                  </span>
-                )}
-              </Link>
-            );
-          })}
-        </nav>
+        <form onSubmit={handleSearch} className="mx-4 hidden min-w-0 max-w-[38rem] flex-1 md:flex" role="search">
+          <div className="flex h-12 w-full items-center rounded-full border border-black bg-white p-1">
+            <Search className="ml-3 shrink-0 text-black/45" size={17} aria-hidden="true" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search the marketplace"
+              aria-label="Search marketplace listings"
+              className="h-full min-w-0 flex-1 border-0 bg-transparent px-3 text-sm font-medium text-black outline-none placeholder:text-black/40"
+            />
+            <button type="submit" className="flex h-10 shrink-0 items-center rounded-full bg-black px-5 text-sm font-bold text-white transition-colors hover:bg-black/80">
+              Search
+            </button>
+          </div>
+        </form>
 
-        <div className="relative z-20 flex min-w-0 flex-1 items-center justify-end gap-2 md:flex-initial md:shrink-0">
+        <nav className="ml-auto hidden shrink-0 items-center gap-1 md:flex" aria-label="Primary navigation">
+          <Link href="/marketplace" className={`min-h-11 px-2.5 py-3 text-sm font-bold transition-colors ${isActive("/marketplace") ? "text-black" : "text-black/55 hover:text-black"}`}>
+            Marketplace
+          </Link>
+          <Link href="/sell-item" className={`min-h-11 px-2.5 py-3 text-sm font-bold transition-colors ${isActive("/sell-item") ? "text-black" : "text-black/55 hover:text-black"}`}>
+            List
+          </Link>
+
           {isAuthenticated ? (
-            <div className="profile-menu relative hidden md:block">
+            <div className="profile-menu relative ml-1">
               <button
                 type="button"
-                onClick={() => setProfileOpen(!profileOpen)}
-                className="profile-button flex min-h-11 items-center gap-2 rounded-control px-2 py-1.5 transition-colors hover:text-[var(--brand)]"
+                onClick={() => setProfileOpen((current) => !current)}
+                className="profile-button flex min-h-11 items-center gap-2 rounded-full px-2 py-1.5 transition-colors hover:bg-black/5"
                 aria-label="User menu"
                 aria-expanded={profileOpen}
               >
                 <NameAvatar name={displayName} className="h-8 w-8 text-sm" />
-                <span className="hidden max-w-28 truncate text-sm font-bold text-[var(--foreground)] sm:inline">
-                  {displayName.split(" ")[0]}
-                </span>
-                <ChevronDown
-                  size={14}
-                  className={`text-[var(--muted-foreground)] transition-transform ${profileOpen ? "rotate-180" : ""}`}
-                  aria-hidden="true"
-                />
+                <span className="hidden max-w-24 truncate text-sm font-bold text-black xl:inline">{displayName.split(" ")[0]}</span>
+                <ChevronDown size={14} className={`text-black/45 transition-transform ${profileOpen ? "rotate-180" : ""}`} aria-hidden="true" />
               </button>
 
               {profileOpen && (
-                  <div className="absolute right-0 mt-2 w-64 overflow-hidden rounded-xl border border-[var(--border)]/70 bg-white py-2 soft-shadow">
-                    <div className="border-b border-[var(--border)]/45 px-5 py-4">
-                      <p className="text-sm font-bold text-foreground">{displayName}</p>
-                      <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
-                    </div>
-                    <Link
-                      href="/user/dashboard"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--brand-soft)]"
-                    >
-                      <Box size={16} className="text-[var(--brand)]" aria-hidden="true" />
-                      My listings
-                    </Link>
-                    <Link
-                      href="/user/dashboard?section=profile"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--brand-soft)]"
-                    >
-                      <UserRound size={16} className="text-[var(--brand)]" aria-hidden="true" />
-                      Edit profile
-                    </Link>
-                    <Link
-                      href="/user/dashboard?section=settings"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--brand-soft)]"
-                    >
-                      <Settings size={16} className="text-[var(--brand)]" aria-hidden="true" />
-                      Settings
-                    </Link>
-                    {user?.role === "ADMIN" && (
-                      <Link
-                        href="/admin"
-                        onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-3 px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--brand-soft)]"
-                      >
-                        <ShieldCheck size={16} className="text-[var(--brand)]" aria-hidden="true" />
-                        Administration
-                      </Link>
-                    )}
-                    <div className="mt-1 border-t border-[var(--border)]/45 pt-1">
-                      <button
-                        type="button"
-                        onClick={handleLogout}
-                        className="flex w-full items-center gap-3 px-5 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50"
-                      >
-                        <LogOut size={16} aria-hidden="true" />
-                        Log out
-                      </button>
-                    </div>
+                <div className="absolute right-0 mt-2 w-64 overflow-hidden rounded-card border border-black/10 bg-white py-2 shadow-[0_16px_45px_rgba(0,0,0,0.12)]">
+                  <div className="border-b border-black/10 px-5 py-4">
+                    <p className="text-sm font-bold text-black">{displayName}</p>
+                    <p className="mt-0.5 truncate text-xs text-black/45">{user?.email}</p>
                   </div>
-                )}
+                  {accountActions.slice(0, 3).map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link key={item.href} href={item.href} onClick={() => setProfileOpen(false)} className="flex min-h-11 items-center gap-3 px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-black/5">
+                        <Icon size={16} className="text-black/55" aria-hidden="true" />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                  {user?.role === "ADMIN" && (
+                    <Link href="/admin" onClick={() => setProfileOpen(false)} className="flex min-h-11 items-center gap-3 px-5 py-2.5 text-sm font-semibold text-black hover:bg-black/5">
+                      <ShieldCheck size={16} className="text-black/55" aria-hidden="true" /> Administration
+                    </Link>
+                  )}
+                  <div className="mt-1 border-t border-black/10 pt-1">
+                    <button type="button" onClick={handleLogout} className="flex min-h-11 w-full items-center gap-3 px-5 py-2.5 text-sm font-semibold text-black hover:bg-black/5">
+                      <LogOut size={16} className="text-black/55" aria-hidden="true" /> Log out
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
-            <div className="hidden items-center gap-1 md:flex">
-              <Link
-                href="/login"
-                className="inline-flex min-h-11 items-center gap-2 px-3 text-sm font-bold text-[var(--ink-soft)] transition-colors hover:text-[var(--brand)]"
-              >
-                <LogIn size={16} aria-hidden="true" />
-                Log in
-              </Link>
-              <Link
-                href="/signup"
-                className="ink-underline inline-flex min-h-11 items-center px-3 py-2 text-sm font-bold text-[var(--brand)]"
-              >
-                Join free
-              </Link>
+            <div className="ml-1 flex items-center gap-1">
+              <Link href="/login" className="inline-flex min-h-11 items-center px-2 text-sm font-bold text-black/55 hover:text-black">Log in</Link>
+              <Link href="/signup" className="inline-flex min-h-10 items-center rounded-full border border-black px-4 text-sm font-bold text-black hover:bg-black hover:text-white">Join</Link>
             </div>
           )}
+        </nav>
 
-          {!pageOwnsSearch && <form
-            onSubmit={handleMobileSearch}
-            className="flex h-9 min-w-0 max-w-[10.5rem] flex-1 items-center rounded-xl border border-[var(--line-soft)] bg-white pl-2 focus-within:border-[var(--aqua)] md:hidden"
-            role="search"
-          >
-            <input
-              type="search"
-              value={mobileSearch}
-              onChange={(event) => setMobileSearch(event.target.value)}
-              placeholder="Search listings"
-              aria-label="Search listings"
-              className="h-full min-w-0 flex-1 border-0 bg-transparent px-1 text-xs font-semibold text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]"
-            />
-            <button type="submit" className="flex h-9 w-9 shrink-0 items-center justify-center text-[var(--aqua)]" aria-label="Search">
-              <Search className="search-glyph" size={15} strokeWidth={2.1} aria-hidden="true" />
-            </button>
-          </form>}
+        <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-1 md:hidden">
+          {!pageOwnsMobileSearch && (
+            <form onSubmit={handleSearch} className="flex h-10 min-w-0 max-w-[11rem] flex-1 items-center rounded-full border border-black/15 bg-white pl-3 focus-within:border-black" role="search">
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search items"
+                aria-label="Search marketplace listings"
+                className="h-full min-w-0 flex-1 border-0 bg-transparent text-xs font-semibold text-black outline-none placeholder:text-black/40"
+              />
+              <button type="submit" className="flex h-10 w-10 shrink-0 items-center justify-center text-black" aria-label="Search"><Search size={15} aria-hidden="true" /></button>
+            </form>
+          )}
 
           <button
             type="button"
-            className="mobile-menu-button inline-flex h-12 w-12 shrink-0 items-center justify-center bg-transparent text-[var(--brand)] transition-colors hover:text-[var(--brand-dark)] md:hidden"
+            className="mobile-menu-button inline-flex h-12 w-12 shrink-0 items-center justify-center text-black"
             onPointerDown={(event) => event.stopPropagation()}
-            onClick={() => setMenuOpen(!menuOpen)}
+            onClick={() => setMenuOpen((current) => !current)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
           >
@@ -264,55 +206,62 @@ export default function Navbar() {
               <span className={`absolute left-0 top-[13px] h-0.5 w-5 rounded-full bg-current transition-transform duration-200 ${menuOpen ? "-translate-y-[6px] -rotate-45" : ""}`} />
             </span>
           </button>
-
-              {menuOpen && (
-                <div className="fixed inset-x-0 bottom-0 top-[3.75rem] z-[var(--layer-overlay)] md:hidden">
-                  <button
-                    type="button"
-                    className="absolute inset-0 h-full w-full bg-black/20"
-                    onClick={() => setMenuOpen(false)}
-                    aria-label="Close menu"
-                  />
-                  <div className="navbar-menu mobile-menu-entry absolute right-0 h-full w-[min(82vw,20rem)] overflow-y-auto border-l border-[var(--line-soft)] bg-white px-3 py-3 text-left">
-                  <nav className="flex flex-col" aria-label="Mobile navigation">
-                    {(isAuthenticated ? mobileAccountActions : visibleProductActions).map((item) => {
-                      const Icon = item.icon;
-                      return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setMenuOpen(false)}
-                        className={`flex min-h-12 w-full items-center gap-3 border-b border-[var(--line-soft)] px-2 py-2.5 text-left text-sm font-bold transition-colors ${
-                          isActive(item.href) ? "text-[var(--brand)]" : "text-[var(--ink-soft)] hover:text-[var(--brand)]"
-                        }`}
-                        aria-current={isActive(item.href) ? "page" : undefined}
-                      >
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center text-[var(--aqua)]">
-                          <Icon size={15} aria-hidden="true" />
-                        </span>
-                        <span>{item.label}</span>
-                      </Link>
-                      );
-                    })}
-                    {isAuthenticated && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMenuOpen(false);
-                          handleLogout();
-                        }}
-                        className="flex min-h-12 w-full items-center gap-3 border-b border-[var(--line-soft)] px-2 py-2.5 text-left text-sm font-bold text-red-700 transition-colors"
-                      >
-                        <LogOut size={16} aria-hidden="true" />
-                        <span>Log out</span>
-                      </button>
-                    )}
-                  </nav>
-                  </div>
-                </div>
-              )}
         </div>
       </div>
+
+      {menuOpen && (
+        <div className="fixed inset-x-0 bottom-0 top-[4rem] z-[var(--layer-overlay)] md:hidden">
+          <button type="button" className="absolute inset-0 h-full w-full bg-black/25" onClick={() => setMenuOpen(false)} aria-label="Close menu" />
+          <aside className="navbar-menu mobile-menu-entry absolute right-0 h-full w-[min(86vw,22rem)] overflow-y-auto border-l border-black/10 bg-white px-5 pb-28 pt-6 text-left" aria-label="Mobile navigation">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-black/40">Explore</p>
+            <nav className="mt-3" aria-label="Explore Remnant">
+              <Link href="/" onClick={() => setMenuOpen(false)} className={`flex min-h-12 items-center border-b border-black/10 text-sm font-bold ${isActive("/") ? "text-black" : "text-black/60"}`}>Home</Link>
+              {exploreActions.map((item) => (
+                <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className={`flex min-h-12 items-center border-b border-black/10 text-sm font-bold ${isActive(item.href) ? "text-black" : "text-black/60"}`}>
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+
+            <p className="mt-8 text-xs font-bold uppercase tracking-[0.14em] text-black/40">Browse categories</p>
+            <nav className="mt-3" aria-label="Browse categories">
+              {listingCategories.map((category) => (
+                <Link
+                  key={category.label}
+                  href={`/marketplace?category=${encodeURIComponent(category.label)}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex min-h-11 items-center justify-between border-b border-black/10 text-sm font-semibold text-black/60 hover:text-black"
+                >
+                  {category.label}<span className="text-black/25" aria-hidden="true">›</span>
+                </Link>
+              ))}
+            </nav>
+
+            <p className="mt-8 text-xs font-bold uppercase tracking-[0.14em] text-black/40">Account</p>
+            {isAuthenticated ? (
+              <nav className="mt-3" aria-label="Account">
+                {user?.role === "ADMIN" && (
+                  <Link href="/admin" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center gap-3 border-b border-black/10 text-sm font-bold text-black/60"><ShieldCheck size={16} aria-hidden="true" />Admin</Link>
+                )}
+                {accountActions.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center gap-3 border-b border-black/10 text-sm font-bold text-black/60">
+                      <Icon size={16} aria-hidden="true" />{item.label}
+                    </Link>
+                  );
+                })}
+                <button type="button" onClick={handleLogout} className="flex min-h-12 w-full items-center gap-3 border-b border-black/10 text-left text-sm font-bold text-black/60"><LogOut size={16} aria-hidden="true" />Log out</button>
+              </nav>
+            ) : (
+              <div className="mt-4 flex gap-3">
+                <Link href="/login" onClick={() => setMenuOpen(false)} className="flex h-12 flex-1 items-center justify-center rounded-full border border-black/20 text-sm font-bold text-black"><LogIn size={16} className="mr-2" aria-hidden="true" />Log in</Link>
+                <Link href="/signup" onClick={() => setMenuOpen(false)} className="flex h-12 flex-1 items-center justify-center rounded-full bg-black text-sm font-bold text-white">Join free</Link>
+              </div>
+            )}
+          </aside>
+        </div>
+      )}
     </header>
   );
 }

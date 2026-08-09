@@ -65,9 +65,10 @@ export function IntentBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-pill font-bold leading-none",
-        meta.className,
-        compact ? "gap-0.5 px-1.5 py-1 text-xs sm:gap-1 sm:px-2" : "gap-1.5 px-2.5 py-1.5 text-xs",
+        "inline-flex items-center rounded-full border font-bold leading-none",
+        compact
+          ? "gap-0.5 border-white/70 bg-white/95 px-1.5 py-1 text-xs text-black sm:gap-1 sm:px-2"
+          : "gap-1.5 border-black/10 bg-[#f3f3f3] px-2.5 py-1.5 text-xs text-black",
         className,
       )}
     >
