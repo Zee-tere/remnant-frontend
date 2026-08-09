@@ -5,6 +5,7 @@ import { beginActivity, endActivity } from './activity';
 
 const api = axios.create({
   baseURL: getApiUrl(),
+  withCredentials: true,
 });
 
 type RemnantRequestConfig = AxiosRequestConfig & {
@@ -111,8 +112,6 @@ export const listingsApi = {
     api.get(`/listings/${id}`).then((r) => r.data),
   getSimilarListings: (id: string, limit = 12) =>
     api.get(`/listings/${id}/similar`, { params: { limit } }).then((r) => r.data),
-  getGuestContact: (id: string) =>
-    api.get(`/listings/${id}/contact`).then((r) => r.data as { phone?: string; email?: string; telegram?: string }),
   searchListings: (params?: Record<string, string>) =>
     api.get('/listings/search', { params }).then((r) => r.data),
   getListingBySlug: (slug: string) =>
@@ -121,12 +120,12 @@ export const listingsApi = {
     api.post(`/listings/${id}/view`).then((r) => r.data),
   createListing: (data: Record<string, unknown>) =>
     api.post('/listings', data).then((r) => r.data),
-  createGuestListing: (data: Record<string, unknown>) =>
-    api.post('/listings/guest', data).then((r) => r.data),
+  createGuestListing: (data: Record<string, unknown>, token: string) =>
+    api.post('/listings/guest', data, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
   getGuestManagement: (id: string, token: string) =>
     api.get(`/listings/${id}/guest-manage`, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
-  updateGuestStatus: (id: string, token: string, status: 'PAUSED' | 'COMPLETED') =>
-    api.patch(`/listings/${id}/guest-status`, { status }, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
+  updateGuestStatus: (id: string, token: string, status: 'ACTIVE' | 'PAUSED' | 'COMPLETED', version: number) =>
+    api.patch(`/listings/${id}/guest-status`, { status, version }, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
   updateListing: (id: string, data: Record<string, unknown>) =>
     api.patch(`/listings/${id}`, data).then((r) => r.data),
   deleteListing: (id: string) =>
@@ -165,6 +164,8 @@ export const authApi = {
     api.post('/auth/forgot-password', { email }).then((r) => r.data),
   resetPassword: (data: { email: string; code: string; password: string }) =>
     api.post('/auth/reset-password', data).then((r) => r.data),
+  createGuestSession: (name?: string) =>
+    api.post('/auth/guest-session', name ? { name } : {}).then((r) => r.data as { token: string; expiresInDays: number }),
 };
 
 export const userApi = {
@@ -180,6 +181,15 @@ export const userApi = {
     api.get('/users/me/achievements').then((r) => r.data),
   getUserReviews: (id: string) =>
     api.get(`/users/${id}/reviews`).then((r) => r.data),
+  exportMyData: () => api.get('/users/me/export').then((r) => r.data),
+  requestDeletion: () => api.delete('/users/me').then((r) => r.data),
+  requestGuestDeletion: (token: string) =>
+    api.delete('/users/guest/me', { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
+};
+
+export const supportApi = {
+  createRequest: (data: { name: string; email: string; topic: string; message: string }) =>
+    api.post('/support', data).then((r) => r.data as { id: string; message: string }),
 };
 
 export const matchesApi = {
@@ -245,8 +255,15 @@ export const conversationsApi = {
       lastReadSequence === undefined ? {} : { lastReadSequence },
       backgroundRequestConfig(),
     ).then((r) => r.data),
-  startGuestConversation: (data: { listingId: string; name: string; contact: string; offer: string }) =>
-    api.post('/conversations/guest', data).then((r) => r.data),
+  startGuestConversation: (data: { listingId: string; name: string; offer: string; clientRequestId: string }, token: string) =>
+    api.post('/conversations/guest', data, { headers: { 'X-Guest-Token': token } }).then((r) => r.data as {
+      delivered: true;
+      conversationId: string;
+      messageId: string;
+      accessToken: string;
+      expiresInDays: number;
+      deepLink: string;
+    }),
   getGuestConversation: (conversationId: string, token: string, background = false) =>
     api.get(
       `/conversations/guest/${conversationId}`,
@@ -255,10 +272,12 @@ export const conversationsApi = {
         ...(background ? backgroundRequestConfig() : {}),
       },
     ).then((r) => r.data),
-  createGuestMessage: (conversationId: string, token: string, content: string, type = 'TEXT') =>
+  getGuestConversations: (token: string) =>
+    api.get('/conversations/guest', { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
+  createGuestMessage: (conversationId: string, token: string, content: string, type = 'TEXT', clientMessageId?: string) =>
     api.post(
       `/conversations/guest/${conversationId}/messages`,
-      { content, type },
+      { content, type, clientMessageId },
       { headers: { 'X-Guest-Token': token } },
     ).then((r) => r.data),
   markGuestAsRead: (conversationId: string, token: string) =>
@@ -286,31 +305,33 @@ export const uploadApi = {
     const formData = new FormData();
     formData.append('file', file);
     const res = await api.post('/upload', formData);
-    return res.data.url as string;
+    return res.data as { url: string; uploadId: string };
   },
-  uploadGuestFile: async (file: File) => {
+  uploadGuestFile: async (file: File, token: string) => {
     const formData = new FormData();
     formData.append('file', file);
-    const res = await api.post('/upload/guest', formData);
-    return res.data.url as string;
+    const res = await api.post('/upload/guest', formData, { headers: { 'X-Guest-Token': token } });
+    return res.data as { url: string; uploadId: string };
   },
   uploadMultiple: async (files: File[]) => {
     const formData = new FormData();
     files.forEach((file) => formData.append('files', file));
     const res = await api.post('/upload/multiple', formData);
-    return res.data.urls as string[];
+    return res.data as { urls: string[]; uploadIds: string[] };
   },
-  uploadGuestMultiple: async (files: File[]) => {
+  uploadGuestMultiple: async (files: File[], token: string) => {
     const formData = new FormData();
     files.forEach((file) => formData.append('files', file));
-    const res = await api.post('/upload/guest/multiple', formData);
-    return res.data.urls as string[];
+    const res = await api.post('/upload/guest/multiple', formData, { headers: { 'X-Guest-Token': token } });
+    return res.data as { urls: string[]; uploadIds: string[] };
   },
 };
 
 export const reportsApi = {
   createReport: (targetType: string, targetId: string, reason: string) =>
     api.post('/reports', { targetType, targetId, reason }).then((r) => r.data),
+  createGuestReport: (token: string, targetType: string, targetId: string, reason: string) =>
+    api.post('/reports/guest', { targetType, targetId, reason }, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
 };
 
 export const adminApi = {
@@ -331,6 +352,10 @@ export const adminApi = {
     api.get('/admin/reports', { params }).then((r) => r.data),
   actOnReport: (id: string, action: string, resolution?: string) =>
     api.post(`/admin/reports/${id}/action`, { action, resolution }).then((r) => r.data),
+  getSupportRequests: (params?: Record<string, string | number>) =>
+    api.get('/admin/support', { params }).then((r) => r.data),
+  updateSupportRequest: (id: string, status: 'IN_PROGRESS' | 'RESOLVED', resolution?: string) =>
+    api.patch(`/admin/support/${id}`, { status, resolution }).then((r) => r.data),
 };
 
 export default api;

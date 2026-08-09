@@ -33,7 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-type Tab = "overview" | "listings" | "reports" | "users";
+type Tab = "overview" | "listings" | "reports" | "support" | "users";
 type Metrics = {
   totalUsers: number;
   activeListings: number;
@@ -57,7 +57,7 @@ type AdminListing = {
 };
 type AdminReport = {
   id: string;
-  targetType: "LISTING" | "USER";
+  targetType: "LISTING" | "USER" | "CONVERSATION" | "MESSAGE";
   targetId: string;
   reason: string;
   status: string;
@@ -76,11 +76,22 @@ type AdminUser = {
   createdAt: string;
   _count: { listings: number };
 };
+type SupportRequest = {
+  id: string;
+  name: string;
+  email: string;
+  topic: string;
+  message: string;
+  status: "OPEN" | "IN_PROGRESS" | "RESOLVED";
+  resolution?: string | null;
+  createdAt: string;
+};
 
 const tabs = [
   { id: "overview" as const, label: "Overview", icon: LayoutDashboard },
   { id: "listings" as const, label: "Listings", icon: Package },
   { id: "reports" as const, label: "Reports", icon: AlertTriangle },
+  { id: "support" as const, label: "Support", icon: MessageSquare },
   { id: "users" as const, label: "Users", icon: Users },
 ];
 
@@ -144,6 +155,7 @@ export default function AdminPage() {
   const [listings, setListings] = useState<AdminListing[]>([]);
   const [reports, setReports] = useState<AdminReport[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
+  const [supportRequests, setSupportRequests] = useState<SupportRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionId, setActionId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -177,6 +189,10 @@ export default function AdminPage() {
       if (tab === "users") {
         const result = await adminApi.getUsers({ ...(appliedSearch ? { search: appliedSearch } : {}), limit: 50 });
         setUsers(Array.isArray(result.users) ? result.users : []);
+      }
+      if (tab === "support") {
+        const result = await adminApi.getSupportRequests({ limit: 50 });
+        setSupportRequests(Array.isArray(result.requests) ? result.requests : []);
       }
     } catch (error) {
       toast.error(getApiErrorMessage(error, "Could not load administration data"));
@@ -220,7 +236,7 @@ export default function AdminPage() {
         <Button type="button" variant="outline" onClick={() => void loadData(activeTab)} disabled={loading} className="h-10 self-start rounded-full border-[var(--border)] bg-white px-4 font-bold md:self-auto"><RefreshCw size={16} className={loading ? "animate-spin" : ""} /> Refresh</Button>
       </header>
 
-      <nav className="mt-4 grid grid-cols-4 gap-1 border-b border-[var(--border)]" aria-label="Administration sections">
+      <nav className="mt-4 grid grid-cols-5 gap-1 border-b border-[var(--border)]" aria-label="Administration sections">
         {tabs.map((tab) => { const Icon = tab.icon; const selected = activeTab === tab.id; return (
           <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} className={`flex min-h-12 items-center justify-center gap-1.5 border-b-2 px-1 text-xs font-bold transition-colors md:gap-2 md:text-sm ${selected ? "border-[var(--brand)] text-[var(--brand)]" : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"}`} aria-current={selected ? "page" : undefined}><Icon size={16} /><span className="truncate">{tab.label}</span></button>
         ); })}
@@ -267,6 +283,13 @@ export default function AdminPage() {
 
       {!loading && activeTab === "reports" && <section className="mt-4 grid gap-3">{reports.length === 0 ? <p className="border-y border-[var(--border)] py-16 text-center text-sm text-[var(--muted-foreground)]">No reports match this view.</p> : reports.map((report) => (
         <article key={report.id} className="surface-card rounded-lg p-4 md:p-5"><div className="flex flex-wrap items-start justify-between gap-3"><div><div className="flex items-center gap-2"><StatusBadge value={report.status} /><span className="text-xs font-bold text-[var(--muted-foreground)]">{report.targetType}</span></div><h2 className="mt-3 font-bold">{report.target?.title || report.target?.name || "Unavailable target"}</h2><p className="mt-1 text-sm leading-6 text-[var(--ink-soft)]">{report.reason}</p><p className="mt-2 text-xs text-[var(--muted-foreground)]">Reported by {report.reporter.name} · {formatDate(report.createdAt)}</p></div>{report.target?.slug && <Link href={`/marketplace/${report.target.slug}`} target="_blank" rel="noopener noreferrer" className="flex h-10 items-center gap-2 rounded-full border border-[var(--border)] px-3 text-xs font-bold"><ExternalLink size={14} /> View</Link>}</div>{report.status === "OPEN" && <div className="mt-4 flex flex-wrap gap-2 border-t border-[var(--border)] pt-4">{report.targetType === "LISTING" ? <><Button type="button" variant="outline" disabled={actionId === report.id} onClick={() => void runAction(report.id, () => adminApi.actOnReport(report.id, "FLAG_LISTING"), "Report resolved and listing flagged")} className="h-9 rounded-full text-xs"><Flag size={14} /> Flag listing</Button><Button type="button" variant="outline" disabled={actionId === report.id} onClick={() => void runAction(report.id, () => adminApi.actOnReport(report.id, "REMOVE_LISTING"), "Report resolved and listing removed")} className="h-9 rounded-full border-red-200 text-xs text-red-700"><Trash2 size={14} /> Remove listing</Button></> : <Button type="button" variant="outline" disabled={actionId === report.id} onClick={() => void runAction(report.id, () => adminApi.actOnReport(report.id, "BAN_USER"), "Report resolved and user suspended")} className="h-9 rounded-full border-red-200 text-xs text-red-700"><Ban size={14} /> Suspend user</Button>}<Button type="button" variant="outline" disabled={actionId === report.id} onClick={() => void runAction(report.id, () => adminApi.actOnReport(report.id, "DISMISS"), "Report dismissed")} className="h-9 rounded-full text-xs"><CheckCircle2 size={14} /> Dismiss</Button></div>}</article>
+      ))}</section>}
+
+      {!loading && activeTab === "support" && <section className="mt-4 grid gap-3">{supportRequests.length === 0 ? <p className="border-y border-[var(--border)] py-16 text-center text-sm text-[var(--muted-foreground)]">No support requests.</p> : supportRequests.map((request) => (
+        <article key={request.id} className="surface-card rounded-lg p-4 md:p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3"><div><StatusBadge value={request.status} /><h2 className="mt-3 font-bold">{request.topic}</h2><p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-[var(--ink-soft)]">{request.message}</p><p className="mt-2 text-xs text-[var(--muted-foreground)]">{request.name} · {request.email} · {formatDate(request.createdAt)}</p></div><a href={`mailto:${request.email}?subject=${encodeURIComponent(`Remnant support: ${request.topic} [${request.id}]`)}`} className="flex h-10 items-center gap-2 rounded-full border border-[var(--border)] px-3 text-xs font-bold"><Mail size={14} /> Reply</a></div>
+          {request.status !== "RESOLVED" && <div className="mt-4 flex gap-2 border-t border-[var(--border)] pt-4"><Button type="button" variant="outline" disabled={actionId === request.id} onClick={() => void runAction(request.id, () => adminApi.updateSupportRequest(request.id, "IN_PROGRESS"), "Support request assigned")} className="h-9 rounded-full text-xs">In progress</Button><Button type="button" variant="outline" disabled={actionId === request.id} onClick={() => void runAction(request.id, () => adminApi.updateSupportRequest(request.id, "RESOLVED", "Reply sent and request resolved"), "Support request resolved")} className="h-9 rounded-full text-xs"><CheckCircle2 size={14} /> Resolve</Button></div>}
+        </article>
       ))}</section>}
 
       {!loading && activeTab === "users" && <section className="mt-4 divide-y divide-[var(--border)] border-y border-[var(--border)]">{users.length === 0 ? <p className="py-16 text-center text-sm text-[var(--muted-foreground)]">No members match this search.</p> : users.map((member) => (

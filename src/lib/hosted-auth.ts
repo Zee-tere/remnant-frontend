@@ -2,6 +2,7 @@ import { getApiUrl } from "./api-url";
 
 const AUTH_STATE_KEY = "remnant-auth-state";
 const AUTH_VERIFIER_KEY = "remnant-auth-code-verifier";
+const AUTH_NONCE_KEY = "remnant-auth-nonce";
 const AUTH_ATTEMPT_TTL_MS = 10 * 60 * 1000;
 
 interface AuthConfig {
@@ -109,10 +110,15 @@ export function readExpectedAuthState() {
 export function clearExpectedAuthState() {
   clearAuthAttemptValue(AUTH_STATE_KEY);
   clearAuthAttemptValue(AUTH_VERIFIER_KEY);
+  clearAuthAttemptValue(AUTH_NONCE_KEY);
 }
 
 export function readCodeVerifier() {
   return readAuthAttemptValue(AUTH_VERIFIER_KEY);
+}
+
+export function readExpectedAuthNonce() {
+  return readAuthAttemptValue(AUTH_NONCE_KEY);
 }
 
 export function decodeAuthState(value: string | null) {
@@ -159,8 +165,10 @@ export async function startHostedAuth(options: {
   }
 
   const verifier = randomBase64Url(64);
+  const nonce = randomBase64Url(32);
   const challenge = await createCodeChallenge(verifier);
   storeAuthAttemptValue(AUTH_VERIFIER_KEY, verifier);
+  storeAuthAttemptValue(AUTH_NONCE_KEY, nonce);
 
   const authorizeUrl = new URL("/oauth2/authorize", normalizeHostedUiDomain(config.hostedUiDomain));
   authorizeUrl.searchParams.set("client_id", config.clientId);
@@ -170,6 +178,7 @@ export async function startHostedAuth(options: {
   authorizeUrl.searchParams.set("state", createState(safeInternalPath(options.returnTo)));
   authorizeUrl.searchParams.set("code_challenge_method", "S256");
   authorizeUrl.searchParams.set("code_challenge", challenge);
+  authorizeUrl.searchParams.set("nonce", nonce);
 
   if (options.provider) {
     authorizeUrl.searchParams.set("identity_provider", options.provider);
@@ -186,6 +195,7 @@ export async function exchangeHostedAuthCode(code: string, verifier: string): Pr
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ code, codeVerifier: verifier, redirectUri: callbackUrl() }),
+    credentials: "include",
   });
 
   if (!tokenRes.ok) {

@@ -1,23 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
-  CheckCircle2,
   ChevronDown,
-  ExternalLink,
   Heart,
   Loader2,
-  Mail,
   MapPin,
   MessageSquare,
   Package,
-  Phone,
   Share2,
-  Send,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -28,15 +23,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { NameAvatar } from "@/components/ui/name-avatar";
 import { IntentBadge, listingIntentMeta, normalizeListingIntent } from "@/components/ui/intent-badge";
 import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
-import { listingsApi, conversationsApi } from "@/lib/api";
+import { authApi, listingsApi, conversationsApi } from "@/lib/api";
 import { useAuthStore } from "@/lib/auth";
 import { conditionLabels } from "@/lib/listing-conditions";
 import { getApiErrorMessage } from "@/lib/errors";
 import { formatCurrency } from "@/lib/utils";
+import { writeSessionValue } from "@/lib/browser-storage";
 import type { PublicListing } from "@/lib/public-listings";
 
 type ListingDetail = PublicListing;
-type SellerContact = { phone?: string; email?: string; telegram?: string };
 
 function formatListedDate(value?: string) {
   if (!value) return "Recently";
@@ -56,19 +51,16 @@ function GuestMessageDialog({
   listingId,
   listingTitle,
   busy,
-  submitted,
   onClose,
   onSubmit,
 }: {
   listingId: string;
   listingTitle: string;
   busy: boolean;
-  submitted: boolean;
   onClose: () => void;
-  onSubmit: (details: { name: string; contact: string; offer: string }) => Promise<void>;
+  onSubmit: (details: { name: string; offer: string }) => Promise<void>;
 }) {
   const [name, setName] = useState("");
-  const [contact, setContact] = useState("");
   const [offer, setOffer] = useState(`Hi, is ${listingTitle} still available? I’d like to arrange the next step.`);
 
   return (
@@ -76,29 +68,18 @@ function GuestMessageDialog({
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          void onSubmit({ name, contact, offer });
+          void onSubmit({ name, offer });
         }}
         className="max-h-[calc(100dvh-0.75rem)] w-full space-y-3 overflow-y-auto rounded-t-lg border border-[var(--border)]/55 bg-white px-4 pb-[calc(var(--safe-area-bottom)+1rem)] pt-4 sm:max-w-md sm:rounded-lg sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby="guest-message-title"
       >
-        {submitted ? (
-          <div className="py-4 text-center">
-            <CheckCircle2 size={42} className="mx-auto text-[var(--brand)]" aria-hidden="true" />
-            <h2 id="guest-message-title" className="mt-4 text-xl font-bold">Your message is with the seller</h2>
-            <p className="mx-auto mt-2 max-w-sm text-sm font-medium leading-6 text-[var(--ink-soft)]">
-              They will contact you directly using the phone, WhatsApp, email, or Telegram detail you provided. This guest enquiry will not continue in Remnant chat.
-            </p>
-            <Button type="button" onClick={onClose} className="mt-6 h-12 w-full bg-[var(--brand)] font-bold text-white hover:bg-[var(--brand-dark)]">
-              Done
-            </Button>
-          </div>
-        ) : <>
+        <>
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 id="guest-message-title" className="text-lg font-bold sm:text-xl">Message the seller</h2>
-            <p className="mt-0.5 text-xs text-[var(--muted-foreground)] sm:mt-1 sm:text-sm">No account needed. The seller will contact you directly.</p>
+            <p className="mt-0.5 text-xs text-[var(--muted-foreground)] sm:mt-1 sm:text-sm">No account needed. A private browser link keeps the conversation available to you.</p>
           </div>
           <button type="button" data-keep-round onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-pill hover:bg-[var(--sand)]" aria-label="Close">
             <X size={18} />
@@ -107,11 +88,6 @@ function GuestMessageDialog({
         <label className="block space-y-1.5">
           <Label htmlFor="guest-name" className="text-xs font-bold leading-5 sm:text-sm">Name</Label>
           <Input id="guest-name" value={name} onChange={(event) => setName(event.target.value)} minLength={2} maxLength={80} required autoComplete="name" className="h-11 px-3 text-base sm:h-12 sm:px-4" />
-        </label>
-        <label className="block space-y-1.5">
-          <Label htmlFor="guest-contact" className="text-xs font-bold leading-5 sm:text-sm">Contact</Label>
-          <Input id="guest-contact" value={contact} onChange={(event) => setContact(event.target.value)} minLength={5} maxLength={180} required placeholder="Phone, WhatsApp, email, or Telegram" autoComplete="email" className="h-11 px-3 text-base sm:h-12 sm:px-4" />
-          <span className="block text-xs leading-5 text-[var(--muted-foreground)]">Include the platform you want the seller to use, for example “WhatsApp: +234…”</span>
         </label>
         <label className="block space-y-1.5">
           <Label htmlFor="guest-offer" className="text-xs font-bold leading-5 sm:text-sm">Message</Label>
@@ -124,62 +100,8 @@ function GuestMessageDialog({
         <p className="text-center text-xs text-[var(--muted-foreground)]">
           <Link href={`/login?redirect=${encodeURIComponent(`/marketplace/${listingId}`)}`} className="font-bold text-[var(--brand)]">Log in instead</Link>
         </p>
-        </>}
+        </>
       </form>
-    </div>
-  );
-}
-
-function SellerContactDialog({
-  contact,
-  listingTitle,
-  onClose,
-}: {
-  contact: SellerContact;
-  listingTitle: string;
-  onClose: () => void;
-}) {
-  const options = [
-    contact.phone
-      ? { label: contact.phone, hint: "Call or send a text", href: `tel:${contact.phone.replace(/[^+\d]/g, "")}`, icon: Phone }
-      : null,
-    contact.email
-      ? { label: contact.email, hint: "Send an email", href: `mailto:${contact.email}?subject=${encodeURIComponent(`Interested in ${listingTitle}`)}`, icon: Mail }
-      : null,
-    contact.telegram
-      ? { label: "Open Telegram", hint: contact.telegram.replace(/^https?:\/\//, ""), href: contact.telegram, icon: Send }
-      : null,
-  ].filter((option): option is NonNullable<typeof option> => Boolean(option));
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/45 sm:items-center sm:p-5" role="presentation">
-      <section className="max-h-[calc(100dvh-0.75rem)] w-full overflow-y-auto rounded-t-lg border border-[var(--border)]/55 bg-white px-5 pb-[calc(var(--safe-area-bottom)+1.25rem)] pt-5 sm:max-w-md sm:rounded-lg sm:p-6" role="dialog" aria-modal="true" aria-labelledby="seller-contact-title">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 id="seller-contact-title" className="text-xl font-bold">Contact the seller</h2>
-            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Choose the option that works for you.</p>
-          </div>
-          <button type="button" data-keep-round onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-pill hover:bg-[var(--sand)]" aria-label="Close">
-            <X size={18} />
-          </button>
-        </div>
-        <div className="mt-5 divide-y divide-[var(--border)] overflow-hidden rounded-lg border border-[var(--border)]">
-          {options.map((option) => {
-            const Icon = option.icon;
-            return (
-              <a key={option.href} href={option.href} target={option.href.startsWith("https://") ? "_blank" : undefined} rel={option.href.startsWith("https://") ? "noreferrer" : undefined} className="flex min-h-16 items-center gap-3 bg-white px-4 py-3 transition-colors hover:bg-[var(--brand-soft)]">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center text-[var(--brand)]"><Icon size={18} aria-hidden="true" /></span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-bold">{option.label}</span>
-                  <span className="block truncate text-xs text-[var(--muted-foreground)]">{option.hint}</span>
-                </span>
-                <ExternalLink size={16} className="shrink-0 text-[var(--muted-foreground)]" aria-hidden="true" />
-              </a>
-            );
-          })}
-        </div>
-        <p className="mt-4 text-xs leading-5 text-[var(--muted-foreground)]">Remnant does not verify conversations outside the platform. Avoid sharing passwords or verification codes.</p>
-      </section>
     </div>
   );
 }
@@ -195,25 +117,22 @@ export default function ListingDetailClient({ initialListing }: { initialListing
   const [isMessaging, setIsMessaging] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showGuestMessage, setShowGuestMessage] = useState(false);
-  const [guestHandoffComplete, setGuestHandoffComplete] = useState(false);
-  const [sellerContact, setSellerContact] = useState<SellerContact | null>(null);
+  const guestMessageRequestRef = useRef<string | null>(null);
 
   useEffect(() => {
-    const dialogOpen = showGuestMessage || Boolean(sellerContact);
-    if (!dialogOpen) return;
+    if (!showGuestMessage) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       setShowGuestMessage(false);
-      setSellerContact(null);
     };
     document.addEventListener("keydown", handleEscape);
     return () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [sellerContact, showGuestMessage]);
+  }, [showGuestMessage]);
 
   useEffect(() => {
     listingsApi
@@ -230,20 +149,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
 
   const handleMessageSeller = async () => {
     if (!listing) return;
-    const guestSeller = listing.isGuestListing || listing.user?.name === "Guest";
-    if (guestSeller) {
-      setIsMessaging(true);
-      try {
-        setSellerContact(await listingsApi.getGuestContact(listing.id));
-      } catch (error) {
-        toast.error(getApiErrorMessage(error, "This seller has not added a contact method."));
-      } finally {
-        setIsMessaging(false);
-      }
-      return;
-    }
     if (!isAuthenticated) {
-      setGuestHandoffComplete(false);
       setShowGuestMessage(true);
       return;
     }
@@ -259,12 +165,24 @@ export default function ListingDetailClient({ initialListing }: { initialListing
     }
   };
 
-  const handleGuestMessage = async (details: { name: string; contact: string; offer: string }) => {
+  const handleGuestMessage = async (details: { name: string; offer: string }) => {
     if (!listing) return;
     setIsMessaging(true);
     try {
-      await conversationsApi.startGuestConversation({ listingId: listing.id, ...details });
-      setGuestHandoffComplete(true);
+      let guestToken = window.localStorage.getItem('remnant-guest-identity') || '';
+      if (!guestToken) {
+        const session = await authApi.createGuestSession(details.name);
+        guestToken = session.token;
+        window.localStorage.setItem('remnant-guest-identity', guestToken);
+      }
+      guestMessageRequestRef.current ??= crypto.randomUUID();
+      const result = await conversationsApi.startGuestConversation({
+        listingId: listing.id,
+        ...details,
+        clientRequestId: guestMessageRequestRef.current,
+      }, guestToken);
+      writeSessionValue(`remnant-guest-conversation:${result.conversationId}`, result.accessToken);
+      router.push(result.deepLink || `/guest/messages/${result.conversationId}`);
     } catch (error) {
       toast.error(getApiErrorMessage(error, "Could not send message"));
     } finally {
@@ -416,10 +334,7 @@ export default function ListingDetailClient({ initialListing }: { initialListing
       )}
 
       {showGuestMessage && (
-        <GuestMessageDialog listingId={listing.id} listingTitle={listing.title} busy={isMessaging} submitted={guestHandoffComplete} onClose={() => setShowGuestMessage(false)} onSubmit={handleGuestMessage} />
-      )}
-      {sellerContact && (
-        <SellerContactDialog contact={sellerContact} listingTitle={listing.title} onClose={() => setSellerContact(null)} />
+        <GuestMessageDialog listingId={listing.id} listingTitle={listing.title} busy={isMessaging} onClose={() => setShowGuestMessage(false)} onSubmit={handleGuestMessage} />
       )}
     </main>
   );

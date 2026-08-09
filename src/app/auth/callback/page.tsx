@@ -14,6 +14,7 @@ import {
   type HostedTokens,
   readCodeVerifier,
   readExpectedAuthState,
+  readExpectedAuthNonce,
 } from "@/lib/hosted-auth";
 
 export default function AuthCallbackPage() {
@@ -82,8 +83,10 @@ function AuthCallbackContent() {
               body: JSON.stringify({
                 accessToken: hostedTokens.accessToken,
                 idToken: hostedTokens.idToken,
-                refreshToken: hostedTokens.refreshToken,
+            refreshToken: hostedTokens.refreshToken,
+                nonce: readExpectedAuthNonce(),
               }),
+              credentials: "include",
             })
           : await fetch(`${getApiUrl()}/auth/me`, {
               headers: { Authorization: `Bearer ${hostedTokens.accessToken}` },

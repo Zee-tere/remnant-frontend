@@ -1,6 +1,6 @@
 # Remnant Frontend Launch Runbook
 
-This project deploys the Next.js frontend with SST's AWS Nextjs component. The backend is already on AWS, so the frontend only needs the public API/socket URLs and the launch feature flags.
+This project deploys the Next.js frontend with SST's AWS Nextjs component. The backend is deployed separately, so the frontend only needs the public API/realtime URLs and release identifier.
 
 ## 1. Local Checks
 
@@ -14,11 +14,7 @@ npm run build
 
 Use Node 20 or newer for SST/OpenNext deployment.
 
-This repo has `images.unoptimized = true` in `next.config.ts`. The app uses public/static image tags, not `next/image`, and disabling the optimizer avoids OpenNext's Windows image-optimization bundling failure:
-
-```text
-ENOENT: no such file or directory, mkdtemp ... open-next-install-...\image-optimization-function
-```
+`next.config.ts` enables the Next image optimizer with AVIF/WebP output and explicit remote-source patterns. The production build therefore includes the OpenNext image-optimization function; monitor its cache hit rate, duration, and cost after launch.
 
 ## 2. Required Environment Values
 
@@ -27,7 +23,6 @@ Create a local `.env` for SST deploys, or export these in the shell before deplo
 ```bash
 NEXT_PUBLIC_API_URL=https://36yevvooae.execute-api.us-east-1.amazonaws.com
 NEXT_PUBLIC_SOCKET_URL=https://36yevvooae.execute-api.us-east-1.amazonaws.com
-NEXT_PUBLIC_ESCROW_ENABLED=false
 ```
 
 The frontend auth flow does not need public Cognito env vars. It reads Hosted UI config from the backend `/auth/config` endpoint.
@@ -69,7 +64,7 @@ Production uses:
 
 - `remnantmarket.co`
 - `www.remnantmarket.co` redirected to apex
-- `NEXT_PUBLIC_ESCROW_ENABLED=false`
+- connection-only listing and messaging routes; there is no payment or escrow feature flag
 
 ## 5. Cognito Updates
 
@@ -108,7 +103,7 @@ NEXT_PUBLIC_API_URL=https://36yevvooae.execute-api.us-east-1.amazonaws.com
 NEXT_PUBLIC_SOCKET_URL=https://36yevvooae.execute-api.us-east-1.amazonaws.com
 ```
 
-The workflow deploys on pushes to `main` and can also be run manually with `workflow_dispatch`.
+Pull requests and pushes run audit, lint, type-check, and build gates. A main-branch release deploys only after those gates and approval of the protected GitHub `production` environment. Action dependencies are pinned to reviewed commits.
 
 ## 7. Production Smoke Test
 
@@ -118,12 +113,12 @@ Check these before announcing launch:
 - Header search submits correctly.
 - Category carousel opens marketplace with the right category filter.
 - Marketplace filters match newly listed item categories.
-- Guest listing upload works and stays capped at 4 images.
+- Guest listing upload works without signup or contact capture and stays capped at 8 images.
 - Authenticated listing upload allows up to 8 images.
 - Login/signup round trip through Cognito Hosted UI works.
 - Google sign-in opens Cognito Hosted UI with the Google provider and returns through `/auth/callback`.
 - `/auth/callback` restores the user into the app.
-- Escrow/payment UI is hidden.
+- Payment, order, checkout, and escrow routes are absent or redirect to the marketplace.
 - HTTPS padlock is valid.
 - `www.remnantmarket.co` redirects to `remnantmarket.co`.
 - CloudWatch logs exist for the deployed frontend Lambdas.
@@ -134,4 +129,6 @@ Check these before announcing launch:
 - If ACM validation is stuck, check Route 53 validation records and stale records.
 - If API requests fail in production, check API Gateway CORS for `https://remnantmarket.co`.
 - If auth redirects fail, check Cognito callback URL spelling exactly.
-- If deploy fails on IAM, expand the GitHub deploy role temporarily, deploy once, then tighten permissions after the stack stabilizes.
+- If deploy fails on IAM, add only the denied action/resource to the deployment role after review; never grant broad administrator access as a workaround.
+
+For backup, incident, account-deletion, guest-capability, and backend rollback procedures, use `../remnant-backend/PRODUCTION_RUNBOOK.md`.

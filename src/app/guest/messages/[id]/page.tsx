@@ -3,12 +3,12 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { AlertTriangle, ArrowLeft, Loader2, Send } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Flag, Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { NameAvatar } from "@/components/ui/name-avatar";
 import { LoadingState } from "@/components/feedback/LoadingState";
-import { conversationsApi } from "@/lib/api";
+import { conversationsApi, reportsApi } from "@/lib/api";
 import { getApiErrorMessage } from "@/lib/errors";
 import { readSessionValue } from "@/lib/browser-storage";
 import { useMobileVisualViewport } from "@/hooks/use-mobile-visual-viewport";
@@ -132,7 +132,7 @@ export default function GuestMessagesPage() {
       messages: [...current.messages, optimisticMessage],
     } : current);
     try {
-      const created = await conversationsApi.createGuestMessage(id, accessToken, content);
+      const created = await conversationsApi.createGuestMessage(id, accessToken, content, 'TEXT', temporaryId.replace('pending-', ''));
       setData((current) => current ? {
         ...current,
         messages: [
@@ -164,7 +164,7 @@ export default function GuestMessagesPage() {
     <main className="mx-auto max-w-lg px-5 py-20 text-center">
       <AlertTriangle className="mx-auto text-amber-600" size={42} />
       <h1 className="mt-4 text-2xl font-bold">This conversation is unavailable</h1>
-      <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">Open it on the browser where you first contacted the seller, or create an account for conversations that follow you across devices.</p>
+      <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">Open it in the browser where you first contacted the seller. Guest conversations are protected by a private browser link.</p>
       <Button asChild className="mt-6 bg-[var(--brand)] text-white"><Link href="/marketplace">Back to marketplace</Link></Button>
     </main>
   );
@@ -178,10 +178,17 @@ export default function GuestMessagesPage() {
         <header className="flex items-center gap-2 border-b border-[var(--line-soft)] px-2 py-1.5 sm:px-5 sm:py-3">
           <Link href={`/marketplace/${data.conversation.listing.id}`} className="flex h-11 w-11 shrink-0 items-center justify-center text-[var(--foreground)] hover:text-[var(--brand)]" aria-label="Back to item"><ArrowLeft size={18} /></Link>
           <NameAvatar name={data.conversation.seller.name} className="h-9 w-9 shrink-0 text-xs" />
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h1 className="truncate text-sm font-bold sm:text-base">{data.conversation.seller.name}</h1>
             <p className="truncate text-xs text-[var(--ink-soft)] sm:text-sm">{data.conversation.listing.title}</p>
           </div>
+          <Button type="button" variant="ghost" size="icon" aria-label="Report conversation" onClick={() => {
+            const reason = window.prompt('Tell us what happened. Do not include passwords or verification codes.');
+            if (!reason?.trim()) return;
+            void reportsApi.createGuestReport(accessToken, 'CONVERSATION', id, reason.trim())
+              .then(() => toast.success('Conversation reported'))
+              .catch((error) => toast.error(getApiErrorMessage(error, 'Could not submit report')));
+          }}><Flag size={17} /></Button>
         </header>
         <div
           ref={messagesViewportRef}

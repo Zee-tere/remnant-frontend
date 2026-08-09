@@ -4,7 +4,8 @@ import { getApiUrl } from './api-url';
 import { readSessionValue, removeSessionValue, writeSessionValue } from './browser-storage';
 
 export const AUTH_STORAGE_KEY = 'remnant-auth';
-const AUTH_STORAGE_VERSION = 3;
+export const AUTH_LOGOUT_EVENT_KEY = 'remnant-auth-logout';
+const AUTH_STORAGE_VERSION = 4;
 const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 
 export interface User {
@@ -18,6 +19,10 @@ export interface User {
   trustTier: 'NEW' | 'VERIFIED' | 'TRUSTED' | 'POWER';
   points: number;
   emailVerified: boolean;
+  isPublicProfile: boolean;
+  showStateOnProfile: boolean;
+  deactivatedAt: string | null;
+  deletionRequestedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -59,12 +64,11 @@ export const useAuthStore = create<AuthState>()(
       hasHydrated: false,
       sessionExpiresAt: null,
 
-      setAuth: (user, accessToken, refreshToken) => {
-        set((state) => ({
+      setAuth: (user, accessToken) => {
+        set(() => ({
           user,
           accessToken,
-          refreshToken:
-            refreshToken ?? (state.user?.id === user.id ? state.refreshToken : null),
+          refreshToken: null,
           isAuthenticated: true,
           isLoading: false,
           sessionExpiresAt: Date.now() + SESSION_DURATION_MS,
@@ -84,6 +88,14 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
+        const { accessToken } = get();
+        void fetch(`${getApiUrl()}/auth/logout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(accessToken ? { accessToken } : {}),
+          keepalive: true,
+          credentials: 'include',
+        }).catch(() => undefined);
         set({
           user: null,
           accessToken: null,
@@ -92,13 +104,19 @@ export const useAuthStore = create<AuthState>()(
           isLoading: false,
           sessionExpiresAt: null,
         });
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(AUTH_LOGOUT_EVENT_KEY, String(Date.now()));
+          const channel = typeof BroadcastChannel === 'undefined' ? null : new BroadcastChannel('remnant-auth');
+          channel?.postMessage({ type: 'logout' });
+          channel?.close();
+        }
       },
 
       refreshSession: async () => {
         if (sessionRefreshPromise) return sessionRefreshPromise;
 
-        const { accessToken, refreshToken } = get();
-        if (!accessToken && !refreshToken) return false;
+        const { accessToken, isAuthenticated } = get();
+        if (!accessToken && !isAuthenticated) return false;
 
         sessionRefreshPromise = (async () => {
           set({ isLoading: true });
@@ -116,12 +134,13 @@ export const useAuthStore = create<AuthState>()(
             else throw new Error('Session validation is temporarily unavailable.');
           }
 
-          if (!user && refreshToken && (accessTokenRejected || !currentAccessToken)) {
+          if (!user && (accessTokenRejected || !currentAccessToken)) {
             const refreshRes = await fetch(`${getApiUrl()}/auth/refresh`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ refreshToken }),
+              body: '{}',
               cache: 'no-store',
+              credentials: 'include',
             });
             if (refreshRes.ok) {
               const refreshed = await refreshRes.json();
@@ -144,7 +163,7 @@ export const useAuthStore = create<AuthState>()(
           set({
             user,
             accessToken: currentAccessToken,
-            refreshToken,
+            refreshToken: null,
             isAuthenticated: true,
             isLoading: false,
             sessionExpiresAt: Date.now() + SESSION_DURATION_MS,
@@ -167,10 +186,10 @@ export const useAuthStore = create<AuthState>()(
       version: AUTH_STORAGE_VERSION,
       storage: createJSONStorage(() => sessionStorageAdapter),
       partialize: (state) => {
-        const canRestore = Boolean(state.user && state.refreshToken && state.isAuthenticated);
+        const canRestore = Boolean(state.user && state.isAuthenticated);
         return {
           user: canRestore ? state.user : null,
-          refreshToken: canRestore ? state.refreshToken : null,
+          refreshToken: null,
           isAuthenticated: canRestore,
           sessionExpiresAt: canRestore ? state.sessionExpiresAt : null,
         };
@@ -187,7 +206,6 @@ export const useAuthStore = create<AuthState>()(
         const persisted = persistedState as Partial<AuthState>;
         const canRestore = Boolean(
           persisted.user &&
-          persisted.refreshToken &&
           persisted.isAuthenticated &&
           persisted.sessionExpiresAt &&
           persisted.sessionExpiresAt > Date.now(),
@@ -196,7 +214,7 @@ export const useAuthStore = create<AuthState>()(
           ...currentState,
           user: canRestore ? persisted.user ?? null : null,
           accessToken: null,
-          refreshToken: canRestore ? persisted.refreshToken ?? null : null,
+          refreshToken: null,
           isAuthenticated: canRestore,
           sessionExpiresAt: canRestore ? persisted.sessionExpiresAt ?? null : null,
         };

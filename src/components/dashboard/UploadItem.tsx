@@ -11,13 +11,10 @@ import {
   Heart,
   Image as ImageIcon,
   Loader2,
-  Mail,
   Package,
-  Phone,
   Recycle,
   RefreshCw,
   ScanSearch,
-  Send,
   Wrench,
   X,
 } from 'lucide-react';
@@ -29,7 +26,7 @@ import { Select } from '@/components/ui/select';
 import { listingCategories } from '@/lib/categories';
 import { getApiErrorMessage } from '@/lib/errors';
 import { cn, formatCurrency } from '@/lib/utils';
-import { listingsApi, uploadApi } from '@/lib/api';
+import { authApi, listingsApi, uploadApi } from '@/lib/api';
 import { nigerianStates } from '@/lib/nigeria-locations';
 import { NairaIcon } from '@/components/ui/naira-icon';
 import { optimizeImageFile } from '@/lib/image-optimization';
@@ -74,9 +71,13 @@ function createInitialFormData(initialPurpose?: string) {
     purpose: normalizePurpose(initialPurpose),
     needsPair: false,
     pairNeeded: '',
+    pairType: '',
     pairSide: '',
     pairBrand: '',
     pairModel: '',
+    pairGeneration: '',
+    pairSize: '',
+    pairSizeSystem: '',
     tradeLookingFor: '',
     tradeTerms: '',
     donationMode: 'GIVEAWAY',
@@ -91,9 +92,7 @@ function createInitialFormData(initialPurpose?: string) {
     recyclePreference: '',
     recycleQuantity: '',
     recycleNotes: '',
-    guestPhone: '',
-    guestEmail: '',
-    guestTelegram: '',
+    guestName: '',
   };
 }
 
@@ -115,6 +114,9 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   const [validationError, setValidationError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const validationErrorRef = useRef<HTMLDivElement>(null);
+  const submittingRef = useRef(false);
+  const clientRequestIdRef = useRef<string | null>(null);
+  const guestTokenRef = useRef<string | null>(null);
   const selectedPurpose = purposes.find((purpose) => purpose.value === formData.purpose);
   const maxImages = isGuest ? 4 : 8;
 
@@ -163,6 +165,18 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       if (formData.needsPair && !formData.pairNeeded.trim()) {
         return showValidationError('Describe the missing piece this item needs.');
       }
+      if (formData.needsPair && !formData.pairType) {
+        return showValidationError('Choose the kind of pair you are trying to complete.');
+      }
+      if (formData.needsPair && ['SHOE', 'GLOVE', 'EARBUD'].includes(formData.pairType) && !formData.pairSide) {
+        return showValidationError('Choose the side of the piece you already have.');
+      }
+      if (formData.needsPair && ['SHOE', 'GLOVE'].includes(formData.pairType) && (!formData.pairSize || !formData.pairSizeSystem)) {
+        return showValidationError('Add the size and size system for this pair.');
+      }
+      if (formData.needsPair && formData.pairType === 'EARBUD' && (!formData.pairBrand || !formData.pairModel)) {
+        return showValidationError('Add the earbud brand and model so incompatible parts are excluded.');
+      }
 
       if (formData.purpose === 'TRADE' && !formData.tradeLookingFor) {
         return showValidationError('Tell people what you would like to receive in the trade.');
@@ -176,8 +190,8 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         return showValidationError('Add the material type and a recycle handoff preference.');
       }
 
-      if (isGuest && !formData.guestPhone.trim() && !formData.guestEmail.trim() && !formData.guestTelegram.trim()) {
-        return showValidationError('Add a phone number, Telegram link, or email so buyers can reach you.');
+      if (isGuest && formData.guestName.trim().length < 2) {
+        return showValidationError('Add the name buyers should see.');
       }
     }
 
@@ -264,10 +278,14 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       flow: formData.purpose,
       guestListing: isGuest,
       needsPair: formData.needsPair || undefined,
+      pairingType: formData.needsPair ? formData.pairType || undefined : undefined,
       neededPiece: formData.needsPair ? formData.pairNeeded : undefined,
       side: formData.needsPair ? formData.pairSide || undefined : undefined,
       brand: formData.needsPair ? formData.pairBrand || undefined : undefined,
       model: formData.needsPair ? formData.pairModel || undefined : undefined,
+      generation: formData.needsPair ? formData.pairGeneration || undefined : undefined,
+      size: formData.needsPair ? formData.pairSize || undefined : undefined,
+      sizeSystem: formData.needsPair ? formData.pairSizeSystem || undefined : undefined,
     };
 
     if (formData.purpose === 'TRADE') {
@@ -323,6 +341,8 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
+    if (submittingRef.current) return;
+
     if (!validateStep()) return;
 
     if (images.length === 0) {
@@ -330,15 +350,19 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       return;
     }
 
+    submittingRef.current = true;
     setIsUploading(true);
     setUploadProgress(10);
 
     try {
-      const uploadedImageUrls = images.length === 0
-        ? []
-        : isGuest
-          ? await uploadApi.uploadGuestMultiple(images)
-          : await uploadApi.uploadMultiple(images);
+      if (!clientRequestIdRef.current) clientRequestIdRef.current = crypto.randomUUID();
+      if (isGuest && !guestTokenRef.current) {
+        const session = await authApi.createGuestSession(formData.guestName.trim());
+        guestTokenRef.current = session.token;
+      }
+      const uploaded = isGuest
+        ? await uploadApi.uploadGuestMultiple(images, guestTokenRef.current!)
+        : await uploadApi.uploadMultiple(images);
 
       setUploadProgress(80);
 
@@ -352,19 +376,14 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         compatibilityAttributes: buildCompatibilityAttributes(),
         price: formData.purpose === 'SELL' ? formData.price || undefined : undefined,
         city: formData.location || undefined,
-        images: uploadedImageUrls,
-        ...(isGuest
-          ? {
-              guestContact: {
-                phone: formData.guestPhone.trim() || undefined,
-                email: formData.guestEmail.trim() || undefined,
-                telegram: formData.guestTelegram.trim() || undefined,
-              },
-            }
-          : {}),
+        images: uploaded.urls,
+        uploadIds: uploaded.uploadIds,
+        clientRequestId: clientRequestIdRef.current,
       };
 
-      const listing = await (isGuest ? listingsApi.createGuestListing(payload) : listingsApi.createListing(payload));
+      const listing = await (isGuest
+        ? listingsApi.createGuestListing(payload, guestTokenRef.current!)
+        : listingsApi.createListing(payload));
 
       setUploadProgress(100);
       toast.success(isGuest ? 'Guest listing published' : 'Listing published', {
@@ -376,6 +395,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       if (isGuest && typeof listing.managementToken === 'string') {
         try {
           window.localStorage.setItem(`remnant-guest-listing:${listing.id}`, listing.managementToken);
+          window.localStorage.setItem('remnant-guest-identity', listing.managementToken);
         } catch {
           // The URL still carries the one-time management key when storage is unavailable.
         }
@@ -387,6 +407,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       console.error('Upload failed:', error);
       toast.error(getApiErrorMessage(error, 'Failed to publish item. Please try again.'));
     } finally {
+      submittingRef.current = false;
       setIsUploading(false);
       setTimeout(() => setUploadProgress(0), 1500);
     }
@@ -540,6 +561,23 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             />
           </label>
           <label className="space-y-1.5">
+            <span className="text-sm font-bold">Pair type</span>
+            <Select
+              value={formData.pairType}
+              onChange={(event) => handleInputChange('pairType', event.target.value)}
+              className="h-12 w-full rounded-control border border-[var(--border)] bg-white px-3 text-base font-medium outline-none focus:border-[var(--brand)]"
+              required
+            >
+              <option value="">Choose a type</option>
+              <option value="SHOE">Shoe</option>
+              <option value="GLOVE">Glove</option>
+              <option value="EARBUD">Earbud</option>
+              <option value="EARRING">Earring</option>
+              <option value="LID_OR_COVER">Lid or cover</option>
+              <option value="OTHER_PAIR">Other paired item</option>
+            </Select>
+          </label>
+          <label className="space-y-1.5">
             <span className="text-sm font-bold">Side or position</span>
             <Select
               value={formData.pairSide}
@@ -559,6 +597,28 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
           <label className="space-y-1.5">
             <span className="text-sm font-bold">Model <span className="font-medium text-[var(--muted-foreground)]">(optional)</span></span>
             <Input value={formData.pairModel} onChange={(event) => handleInputChange('pairModel', event.target.value)} className="bg-white" />
+          </label>
+          <label className="space-y-1.5">
+            <span className="text-sm font-bold">Generation <span className="font-medium text-[var(--muted-foreground)]">(optional)</span></span>
+            <Input value={formData.pairGeneration} onChange={(event) => handleInputChange('pairGeneration', event.target.value)} className="bg-white" placeholder="For example: 2nd generation" />
+          </label>
+          <label className="space-y-1.5">
+            <span className="text-sm font-bold">Size <span className="font-medium text-[var(--muted-foreground)]">(when applicable)</span></span>
+            <Input value={formData.pairSize} onChange={(event) => handleInputChange('pairSize', event.target.value)} className="bg-white" inputMode="decimal" placeholder="10 or 10.5" />
+          </label>
+          <label className="space-y-1.5">
+            <span className="text-sm font-bold">Size system</span>
+            <Select
+              value={formData.pairSizeSystem}
+              onChange={(event) => handleInputChange('pairSizeSystem', event.target.value)}
+              className="h-12 w-full rounded-control border border-[var(--border)] bg-white px-3 text-base font-medium outline-none focus:border-[var(--brand)]"
+            >
+              <option value="">Not applicable</option>
+              <option value="UK">UK</option>
+              <option value="US">US</option>
+              <option value="EU">EU</option>
+              <option value="CM">Centimetres</option>
+            </Select>
           </label>
         </div>
       );
@@ -814,51 +874,28 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
     return (
       <fieldset className="rounded-lg bg-white p-3.5 md:col-span-2 md:rounded-none md:bg-transparent md:p-0">
-        <legend className="sr-only">Your contact options</legend>
+        <legend className="sr-only">Guest seller identity</legend>
         <div className="mb-3 flex items-start gap-2.5">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center text-[var(--brand)] md:h-9 md:w-9">
-            <Phone size={17} aria-hidden="true" />
+            <Package size={17} aria-hidden="true" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-sm font-bold md:text-base">How can someone reach you?</h3>
-            <p className="mt-0.5 text-xs leading-5 text-[var(--ink-soft)] md:text-sm">Add at least one. It is only shown when someone asks about the item.</p>
+            <h3 className="text-sm font-bold md:text-base">How should buyers know you?</h3>
+            <p className="mt-0.5 text-xs leading-5 text-[var(--ink-soft)] md:text-sm">No account or contact detail is required. Buyers message you privately through your saved browser link.</p>
           </div>
         </div>
         <div className="grid gap-3 border-t border-[var(--border)]/50 pt-3 md:grid-cols-3 md:gap-4 md:pt-4">
-          <label className="block space-y-1.5">
-            <span className="flex items-center gap-1.5 text-xs font-bold leading-5 md:text-sm"><Phone size={13} aria-hidden="true" /> Phone number</span>
+          <label className="block space-y-1.5 md:col-span-3">
+            <span className="text-xs font-bold leading-5 md:text-sm">Display name</span>
             <Input
-              type="tel"
-              value={formData.guestPhone}
-              onChange={(event) => handleInputChange('guestPhone', event.target.value)}
+              value={formData.guestName}
+              onChange={(event) => handleInputChange('guestName', event.target.value)}
               className="h-11 bg-white px-3 text-base md:h-12 md:px-4"
-              placeholder="+234 800 000 0000"
-              autoComplete="tel"
-              maxLength={24}
-            />
-          </label>
-          <label className="block space-y-1.5">
-            <span className="flex items-center gap-1.5 text-xs font-bold leading-5 md:text-sm"><Mail size={13} aria-hidden="true" /> Email address</span>
-            <Input
-              type="email"
-              value={formData.guestEmail}
-              onChange={(event) => handleInputChange('guestEmail', event.target.value)}
-              className="h-11 bg-white px-3 text-base md:h-12 md:px-4"
-              placeholder="you@example.com"
-              autoComplete="email"
-              maxLength={254}
-            />
-          </label>
-          <label className="block space-y-1.5">
-            <span className="flex items-center gap-1.5 text-xs font-bold leading-5 md:text-sm"><Send size={13} aria-hidden="true" /> Telegram link</span>
-            <Input
-              type="url"
-              value={formData.guestTelegram}
-              onChange={(event) => handleInputChange('guestTelegram', event.target.value)}
-              className="h-11 bg-white px-3 text-base md:h-12 md:px-4"
-              placeholder="https://t.me/username"
-              inputMode="url"
-              maxLength={120}
+              placeholder="The name buyers should see"
+              autoComplete="name"
+              minLength={2}
+              maxLength={80}
+              required
             />
           </label>
         </div>

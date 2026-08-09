@@ -577,7 +577,7 @@ export default function SellerGuidePage() {
                     <ul className="space-y-2 text-sm">
                       <li>• Use bubble wrap for fragile items</li>
                       <li>• Seal boxes with strong tape</li>
-                      <li>• Include packing slip with order details</li>
+                      <li>• Put the recipient name and agreed delivery details inside the parcel</li>
                       <li>• Take photo of packaged item</li>
                     </ul>
                     
@@ -743,7 +743,7 @@ export default function SellerGuidePage() {
               },
               {
                 q: 'How do I get paid?',
-                a: 'Use the payment option shown on the order, or agree the amount and collection method in your conversation. Never share passwords, one-time codes, or card PINs.',
+                a: 'Agree the amount and payment method directly in your conversation. Remnant does not collect or hold money. Never share passwords, one-time codes, or card PINs.',
               },
               {
                 q: 'What if a buyer doesn\'t show up?',
@@ -755,7 +755,7 @@ export default function SellerGuidePage() {
               },
               {
                 q: 'How long do listings stay active?',
-                a: 'A listing stays visible while it is active. Remove or complete it as soon as the item is no longer available.',
+                a: 'Listings expire after 90 days by default. You can renew an expired listing from its private management page or dashboard; remove or complete it as soon as the item is no longer available.',
               },
               {
                 q: 'What items are prohibited?',

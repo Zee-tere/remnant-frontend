@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { CheckCircle2, Copy, Eye, Loader2, PackageX } from "lucide-react";
+import { CheckCircle2, Copy, Eye, Loader2, MessageSquare, PackageX, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { ActionArtwork } from "@/components/brand/ActionArtwork";
 import { Button } from "@/components/ui/button";
-import { listingsApi } from "@/lib/api";
+import { listingsApi, userApi } from "@/lib/api";
 import { getApiErrorMessage } from "@/lib/errors";
 
 interface GuestListingManagement {
@@ -15,6 +15,7 @@ interface GuestListingManagement {
   title: string;
   slug: string;
   status: "ACTIVE" | "PAUSED" | "COMPLETED" | "EXPIRED" | "FLAGGED";
+  version: number;
   image: string | null;
 }
 
@@ -24,7 +25,8 @@ export default function ManageGuestListingPage() {
   const [token, setToken] = useState("");
   const [listing, setListing] = useState<GuestListingManagement | null>(null);
   const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState<"PAUSED" | "COMPLETED" | null>(null);
+  const [updating, setUpdating] = useState<"ACTIVE" | "PAUSED" | "COMPLETED" | null>(null);
+  const [deletingData, setDeletingData] = useState(false);
 
   useEffect(() => {
     const fragment = new URLSearchParams(window.location.hash.replace(/^#/, ""));
@@ -36,9 +38,17 @@ export default function ManageGuestListingPage() {
       // A hash token still works when local storage is blocked.
     }
     const managementToken = hashToken || storedToken;
+    if (managementToken) {
+      try {
+        window.localStorage.setItem("remnant-guest-identity", managementToken);
+      } catch {
+        // The listing-specific token still works when local storage is blocked.
+      }
+    }
     if (hashToken) {
       try {
         window.localStorage.setItem(`remnant-guest-listing:${id}`, hashToken);
+        window.localStorage.setItem("remnant-guest-identity", hashToken);
       } catch {
         // Keep the key in the URL if it cannot be saved locally.
       }
@@ -54,18 +64,18 @@ export default function ManageGuestListingPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const updateStatus = async (status: "PAUSED" | "COMPLETED") => {
-    if (!token) return;
+  const updateStatus = async (status: "ACTIVE" | "PAUSED" | "COMPLETED") => {
+    if (!token || !listing) return;
     const confirmed = window.confirm(
       status === "COMPLETED"
         ? "Mark this item as sold? It will leave the public marketplace."
-        : "Remove this listing from the public marketplace?",
+        : status === "ACTIVE" ? "Publish this listing in the marketplace again?" : "Remove this listing from the public marketplace?",
     );
     if (!confirmed) return;
     setUpdating(status);
     try {
-      const result = await listingsApi.updateGuestStatus(id, token, status);
-      setListing((current) => current ? { ...current, status: result.status } : current);
+      const result = await listingsApi.updateGuestStatus(id, token, status, listing.version);
+      setListing((current) => current ? { ...current, status: result.status, version: result.version } : current);
       toast.success(result.message);
     } catch (error) {
       toast.error(getApiErrorMessage(error, "Could not update this listing."));
@@ -81,6 +91,20 @@ export default function ManageGuestListingPage() {
       toast.success("Private management link copied");
     } catch {
       toast.error("Could not copy the link. Save this page in your bookmarks instead.");
+    }
+  };
+
+  const deleteGuestData = async () => {
+    if (!window.confirm('Delete every listing and conversation attached to this guest key and schedule the guest identity for anonymization? This cannot be undone.')) return;
+    setDeletingData(true);
+    try {
+      await userApi.requestGuestDeletion(token);
+      window.localStorage.removeItem('remnant-guest-identity');
+      window.localStorage.removeItem(`remnant-guest-listing:${id}`);
+      window.location.assign('/marketplace');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Could not delete guest data.'));
+      setDeletingData(false);
     }
   };
 
@@ -133,14 +157,25 @@ export default function ManageGuestListingPage() {
             <CheckCircle2 size={38} className="mx-auto text-[var(--brand)]" />
             <h2 className="mt-3 text-xl font-bold">This listing is no longer public</h2>
             <p className="mt-2 text-sm text-[var(--ink-soft)]">Buyers will no longer see it in the marketplace.</p>
+            {(listing.status === "PAUSED" || listing.status === "EXPIRED") && (
+              <Button type="button" onClick={() => void updateStatus("ACTIVE")} disabled={Boolean(updating)} className="mt-5 bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]">
+                {updating === "ACTIVE" && <Loader2 size={16} className="animate-spin" />}
+                Publish again
+              </Button>
+            )}
           </div>
         )}
 
         <div className="flex flex-col gap-2 border-t border-[var(--line-soft)] pt-5 sm:flex-row">
+          <Button asChild variant="ghost" className="justify-start px-2 font-bold text-[var(--brand)]"><Link href="/guest/messages"><MessageSquare size={16} /> Messages</Link></Button>
           {isLive && <Button asChild variant="ghost" className="justify-start px-2 font-bold text-[var(--brand)]"><Link href={`/marketplace/${listing.slug || listing.id}`}><Eye size={16} /> View listing</Link></Button>}
           <Button type="button" variant="ghost" onClick={() => void copyManagementLink()} className="justify-start px-2 font-bold text-[var(--ink-soft)]"><Copy size={16} /> Copy private management link</Button>
         </div>
         <p className="mt-5 text-xs leading-5 text-[var(--muted-foreground)]">Keep this private link. Anyone with it can remove this guest listing.</p>
+        <Button type="button" variant="ghost" disabled={deletingData} onClick={() => void deleteGuestData()} className="mt-4 justify-start px-2 font-bold text-red-700">
+          {deletingData ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+          Delete my guest data
+        </Button>
       </section>
     </main>
   );

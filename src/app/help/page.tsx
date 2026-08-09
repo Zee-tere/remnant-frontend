@@ -3,14 +3,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, MessageSquare, Phone, Mail, Book, Shield, Handshake, Package } from 'lucide-react';
+import { Search, MessageSquare, Mail, Book, Shield, Handshake, Package, Loader2 } from 'lucide-react';
 import { ActionArtwork } from '@/components/brand/ActionArtwork';
+import { supportApi } from '@/lib/api';
+import { getApiErrorMessage } from '@/lib/errors';
+import { toast } from 'sonner';
 
 export default function HelpPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [supportForm, setSupportForm] = useState({ name: '', email: '', topic: '', message: '' });
+  const [submittingSupport, setSubmittingSupport] = useState(false);
+  const [supportReference, setSupportReference] = useState<string | null>(null);
 
   const faqs = [
     {
@@ -42,7 +49,7 @@ export default function HelpPage() {
       category: 'Account & Settings',
       questions: [
         { question: 'How do I reset my password?', answer: 'Open the login page, continue to secure sign-in, and choose “Forgot password?” there.' },
-        { question: 'Can I delete my account?', answer: 'Contact support from the help page and the team will handle account removal requests.' },
+        { question: 'Can I delete my account?', answer: 'Yes. Open Dashboard > Settings to download your data or schedule account deletion without contacting support.' },
         { question: 'How do I change my notification preferences?', answer: 'Open Dashboard > Settings and adjust the notification toggles for your dashboard experience.' },
       ],
     },
@@ -56,10 +63,23 @@ export default function HelpPage() {
   ];
 
   const contactOptions = [
-    { icon: MessageSquare, title: 'Support Inbox', description: 'Send the team your question', action: 'Open Help Desk', href: 'mailto:support@remnantmarket.co' },
-    { icon: Phone, title: 'Phone Support', description: 'Call us for account or listing help', action: 'Call Now', href: 'tel:+2341700736268' },
     { icon: Mail, title: 'Email Support', description: 'Send us an email', action: 'Send Email', href: 'mailto:support@remnantmarket.co' },
   ];
+
+  const submitSupport = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSubmittingSupport(true);
+    try {
+      const result = await supportApi.createRequest(supportForm);
+      setSupportReference(result.id);
+      setSupportForm((current) => ({ ...current, topic: '', message: '' }));
+      toast.success('Support request received');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Could not send your request'));
+    } finally {
+      setSubmittingSupport(false);
+    }
+  };
 
   const normalizedSearch = searchQuery.trim().toLowerCase();
   const filteredFaqs = normalizedSearch
@@ -166,7 +186,18 @@ export default function HelpPage() {
           <h2 className="text-2xl font-bold text-foreground">Still need help?</h2>
           <p className="text-sm text-muted-foreground">Reach support through the channels that are active today.</p>
         </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <form onSubmit={submitSupport} className="mb-6 grid gap-4 rounded-xl border border-[var(--border)] bg-card p-5 md:grid-cols-2 md:p-7">
+          <label className="space-y-1.5"><span className="text-sm font-bold">Name</span><Input value={supportForm.name} onChange={(event) => setSupportForm((current) => ({ ...current, name: event.target.value }))} minLength={2} maxLength={80} required /></label>
+          <label className="space-y-1.5"><span className="text-sm font-bold">Email</span><Input type="email" value={supportForm.email} onChange={(event) => setSupportForm((current) => ({ ...current, email: event.target.value }))} maxLength={254} required /></label>
+          <label className="space-y-1.5 md:col-span-2"><span className="text-sm font-bold">Topic</span><Input value={supportForm.topic} onChange={(event) => setSupportForm((current) => ({ ...current, topic: event.target.value }))} maxLength={80} required /></label>
+          <label className="space-y-1.5 md:col-span-2"><span className="text-sm font-bold">How can we help?</span><Textarea value={supportForm.message} onChange={(event) => setSupportForm((current) => ({ ...current, message: event.target.value }))} minLength={10} maxLength={4000} rows={5} required /></label>
+          <div className="flex flex-col gap-2 md:col-span-2 md:flex-row md:items-center md:justify-between">
+            <p className="text-xs text-muted-foreground">We will reply to the email above. Do not include passwords or verification codes.</p>
+            <Button type="submit" disabled={submittingSupport} className="bg-[var(--brand)] text-white hover:bg-[var(--brand-dark)]">{submittingSupport ? <Loader2 className="animate-spin" size={16} /> : <MessageSquare size={16} />}Send request</Button>
+          </div>
+          {supportReference && <p className="md:col-span-2 rounded-lg bg-[var(--brand-soft)] p-3 text-sm font-bold text-[var(--brand)]">Reference: {supportReference}</p>}
+        </form>
+        <div className="grid grid-cols-1 gap-4">
           {contactOptions.map((option) => (
             <div key={option.title} className="rounded-xl border border-[var(--border)] bg-card p-5 text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center text-[var(--brand)]">

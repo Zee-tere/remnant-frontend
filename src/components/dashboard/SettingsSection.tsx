@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Bell, Loader2, Lock, Mail, Save, Shield, User } from 'lucide-react';
+import { Bell, Download, Loader2, Lock, Mail, Save, Shield, Trash2, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,8 +25,8 @@ const defaultSettings: LocalSettings = {
   emailAlerts: true,
   matchAlerts: true,
   messageAlerts: true,
-  profilePublic: true,
-  showCity: true,
+  profilePublic: false,
+  showCity: false,
 };
 
 const storageKey = 'remnant-dashboard-settings';
@@ -37,6 +37,8 @@ export default function SettingsSection() {
   const [settings, setSettings] = useState<LocalSettings>(defaultSettings);
   const [profileForm, setProfileForm] = useState({ name: '', city: '', bio: '' });
   const [saving, setSaving] = useState(false);
+  const [accountAction, setAccountAction] = useState<'export' | 'delete' | null>(null);
+  const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
     if (!user) return;
@@ -45,6 +47,11 @@ export default function SettingsSection() {
       city: user.city ?? '',
       bio: user.bio ?? '',
     });
+    setSettings((current) => ({
+      ...current,
+      profilePublic: user.isPublicProfile,
+      showCity: user.showStateOnProfile,
+    }));
   }, [user]);
 
   useEffect(() => {
@@ -53,7 +60,13 @@ export default function SettingsSection() {
     if (!saved) return;
 
     try {
-      setSettings({ ...defaultSettings, ...JSON.parse(saved) });
+      const parsed = JSON.parse(saved) as Partial<LocalSettings>;
+      setSettings((current) => ({
+        ...current,
+        emailAlerts: parsed.emailAlerts ?? current.emailAlerts,
+        matchAlerts: parsed.matchAlerts ?? current.matchAlerts,
+        messageAlerts: parsed.messageAlerts ?? current.messageAlerts,
+      }));
     } catch {
       setSettings(defaultSettings);
     }
@@ -70,12 +83,18 @@ export default function SettingsSection() {
         name: profileForm.name,
         city: profileForm.city || undefined,
         bio: profileForm.bio || undefined,
+        isPublicProfile: settings.profilePublic,
+        showStateOnProfile: settings.showCity,
       });
       const updatedUser = await userApi.getMe();
       setUser(updatedUser);
 
       if (typeof window !== 'undefined') {
-        window.localStorage.setItem(storageKey, JSON.stringify(settings));
+        window.localStorage.setItem(storageKey, JSON.stringify({
+          emailAlerts: settings.emailAlerts,
+          matchAlerts: settings.matchAlerts,
+          messageAlerts: settings.messageAlerts,
+        }));
       }
 
       toast.success('Settings saved');
@@ -83,6 +102,36 @@ export default function SettingsSection() {
       toast.error(getApiErrorMessage(error, 'Could not save settings'));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleExport = async () => {
+    setAccountAction('export');
+    try {
+      const data = await userApi.exportMyData();
+      const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `remnant-data-${new Date().toISOString().slice(0, 10)}.json`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Could not export your data'));
+    } finally {
+      setAccountAction(null);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Permanently deactivate your account and schedule its personal data for anonymization in 30 days? Download your data first if you need a copy.')) return;
+    setAccountAction('delete');
+    try {
+      await userApi.requestDeletion();
+      logout();
+      window.location.assign('/');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Could not schedule account deletion'));
+      setAccountAction(null);
     }
   };
 
@@ -209,6 +258,20 @@ export default function SettingsSection() {
           </Card>
         </div>
       </div>
+      <Card className="border-red-200 bg-card">
+        <CardHeader><CardTitle className="text-lg">Your data</CardTitle></CardHeader>
+        <CardContent className="flex flex-col gap-3 sm:flex-row">
+          <Button type="button" variant="outline" onClick={() => void handleExport()} disabled={accountAction !== null}>
+            {accountAction === 'export' ? <Loader2 className="animate-spin" size={16} /> : <Download size={16} />}
+            Download my data
+          </Button>
+          <Button type="button" variant="outline" onClick={() => void handleDelete()} disabled={accountAction !== null} className="border-red-200 text-red-700">
+            {accountAction === 'delete' ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
+            Delete my account
+          </Button>
+          <p className="text-xs leading-5 text-muted-foreground sm:ml-auto sm:max-w-md">Deletion deactivates access immediately and permanently anonymizes personal data after a 30-day retention window.</p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

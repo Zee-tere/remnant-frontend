@@ -8,6 +8,9 @@
     "start": "next start",
     "design:check": "node scripts/check-design-tokens.mjs",
     "lint": "npm run design:check && eslint .",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run lint && npm run typecheck && npm run build",
+    "audit:prod": "npm audit --omit=dev --audit-level=high",
     "deploy:dev": "sst deploy --stage dev",
     "deploy:prod": "sst deploy --stage production"
   },
@@ -48,6 +51,7 @@
     "typescript": "^5"
   },
   "overrides": {
+    "nanoid": "3.3.17",
     "postcss": "8.5.23",
     "sharp": "^0.35.3"
   }

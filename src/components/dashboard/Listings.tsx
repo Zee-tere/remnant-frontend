@@ -56,6 +56,7 @@ interface Listing {
   viewCount: number;
   createdAt: string;
   updatedAt: string;
+  version: number;
 }
 
 interface ListingsSectionProps {
@@ -244,6 +245,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
 
     try {
       const updated = await listingsApi.updateListing(editingListing.id, {
+        version: editingListing.version,
         title: editForm.title,
         description: editForm.description,
         category: editForm.category,
@@ -258,6 +260,20 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
       toast.success('Listing updated');
     } catch (error) {
       toast.error(getApiErrorMessage(error, 'Could not update listing'));
+    }
+  };
+
+  const handleStatusChange = async (listing: Listing, status: 'ACTIVE' | 'PAUSED' | 'COMPLETED') => {
+    const confirmed = status !== 'ACTIVE'
+      ? window.confirm(status === 'COMPLETED' ? 'Mark this listing as completed?' : 'Pause this listing?')
+      : true;
+    if (!confirmed) return;
+    try {
+      const updated = await listingsApi.updateListing(listing.id, { version: listing.version, status });
+      setListings((current) => current.map((item) => (item.id === listing.id ? updated : item)));
+      toast.success(status === 'ACTIVE' ? 'Listing resumed' : status === 'PAUSED' ? 'Listing paused' : 'Listing completed');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Could not update listing status'));
     }
   };
 
@@ -489,10 +505,24 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                             <Link href={`/marketplace/${listing.slug || listing.id}`}>View listing</Link>
                           </DropdownMenuItem>
                         )}
-                        <DropdownMenuItem onClick={() => openEditor(listing)}>
-                          <Edit className="mr-2" size={14} />
-                          Edit
-                        </DropdownMenuItem>
+                        {listing.status !== 'COMPLETED' && (
+                          <DropdownMenuItem onClick={() => openEditor(listing)}>
+                            <Edit className="mr-2" size={14} />
+                            Edit
+                          </DropdownMenuItem>
+                        )}
+                        {listing.status === 'ACTIVE' && (
+                          <>
+                            <DropdownMenuItem onClick={() => void handleStatusChange(listing, 'PAUSED')}>Pause listing</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => void handleStatusChange(listing, 'COMPLETED')}>Mark completed</DropdownMenuItem>
+                          </>
+                        )}
+                        {listing.status === 'PAUSED' && (
+                          <>
+                            <DropdownMenuItem onClick={() => void handleStatusChange(listing, 'ACTIVE')}>Resume listing</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => void handleStatusChange(listing, 'COMPLETED')}>Mark completed</DropdownMenuItem>
+                          </>
+                        )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(listing.id)}>
                           <Trash2 className="mr-2" size={14} />
@@ -533,10 +563,14 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                   ) : (
                     <Button type="button" variant="outline" size="sm" disabled className="h-9 border-[var(--border)] px-2 text-xs md:text-sm">Not public</Button>
                   )}
-                  <Button type="button" size="sm" onClick={() => openEditor(listing)} className="h-9 px-2 text-xs md:text-sm">
-                    <Edit size={14} />
-                    Edit
-                  </Button>
+                  {listing.status === 'COMPLETED' ? (
+                    <Button type="button" size="sm" disabled className="h-9 px-2 text-xs md:text-sm">Completed</Button>
+                  ) : (
+                    <Button type="button" size="sm" onClick={() => openEditor(listing)} className="h-9 px-2 text-xs md:text-sm">
+                      <Edit size={14} />
+                      Edit
+                    </Button>
+                  )}
                 </CardFooter>
               </Card>
             </div>

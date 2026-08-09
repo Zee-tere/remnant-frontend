@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { AUTH_STORAGE_KEY, useAuthStore } from '@/lib/auth';
+import { AUTH_LOGOUT_EVENT_KEY, useAuthStore } from '@/lib/auth';
 import { LoadingState } from '@/components/feedback/LoadingState';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -36,34 +36,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [hasHydrated, isAuthenticated, refreshSession]);
 
   useEffect(() => {
-    const syncAuthAcrossTabs = (event: StorageEvent) => {
-      if (event.key !== AUTH_STORAGE_KEY) return;
-      try {
-        const incoming = event.newValue
-          ? (JSON.parse(event.newValue) as { state?: { isAuthenticated?: boolean; refreshToken?: string | null } }).state
-          : null;
-        const current = useAuthStore.getState();
-        if (
-          incoming?.isAuthenticated === current.isAuthenticated &&
-          incoming?.refreshToken === current.refreshToken
-        ) {
-          return;
-        }
-      } catch {
-        // Rehydrate below if a previous app version wrote a different shape.
-      }
-      setCheckingStoredSession(true);
-      Promise.resolve(useAuthStore.persist.rehydrate()).then(() => {
-        const state = useAuthStore.getState();
-        if (!state.isAuthenticated) {
-          setCheckingStoredSession(false);
-          return;
-        }
-        state.refreshSession().catch(() => undefined).finally(() => setCheckingStoredSession(false));
+    const clearThisTab = () => {
+      useAuthStore.setState({
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        isAuthenticated: false,
+        isLoading: false,
+        sessionExpiresAt: null,
       });
     };
-    window.addEventListener('storage', syncAuthAcrossTabs);
-    return () => window.removeEventListener('storage', syncAuthAcrossTabs);
+    const syncLogoutAcrossTabs = (event: StorageEvent) => {
+      if (event.key === AUTH_LOGOUT_EVENT_KEY) clearThisTab();
+    };
+    const channel = typeof BroadcastChannel === 'undefined' ? null : new BroadcastChannel('remnant-auth');
+    const handleBroadcast = (event: MessageEvent<{ type?: string }>) => {
+      if (event.data?.type === 'logout') clearThisTab();
+    };
+    channel?.addEventListener('message', handleBroadcast);
+    window.addEventListener('storage', syncLogoutAcrossTabs);
+    return () => {
+      channel?.removeEventListener('message', handleBroadcast);
+      channel?.close();
+      window.removeEventListener('storage', syncLogoutAcrossTabs);
+    };
   }, []);
 
   if (!hasHydrated || checkingStoredSession) {

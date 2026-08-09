@@ -28,7 +28,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { conversationsApi } from '@/lib/api';
+import { conversationsApi, reportsApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
 import { getApiErrorMessage } from '@/lib/errors';
 import { cn } from '@/lib/utils';
@@ -935,7 +935,6 @@ export default function MessagesSection() {
     }
 
     const otherUser = getOtherUser(activeConversation);
-    const isGuestHandoff = otherUser.isGuest === true;
 
     return (
       <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white">
@@ -974,15 +973,15 @@ export default function MessagesSection() {
                   View listing
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a
-                  href={`mailto:support@remnantmarket.co?subject=${encodeURIComponent(
-                    `Conversation report: ${activeConversation.id}`,
-                  )}`}
-                >
+              <DropdownMenuItem onSelect={() => {
+                const reason = window.prompt('Tell us what happened. Do not include passwords or verification codes.');
+                if (!reason?.trim()) return;
+                void reportsApi.createReport('CONVERSATION', activeConversation.id, reason.trim())
+                  .then(() => toast.success('Conversation reported'))
+                  .catch((error) => toast.error(getApiErrorMessage(error, 'Could not submit report')));
+              }}>
                   <Flag size={16} className="mr-2" />
                   Report conversation
-                </a>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -1089,12 +1088,7 @@ export default function MessagesSection() {
           )}
         </div>
 
-        {isGuestHandoff ? (
-          <div className="shrink-0 border-t border-[var(--line-soft)] bg-white px-4 pb-[calc(0.85rem+var(--safe-area-bottom))] pt-3 md:p-4">
-            <p className="text-sm font-bold text-[var(--foreground)]">Continue outside Remnant</p>
-            <p className="mt-1 text-xs leading-5 text-[var(--ink-soft)]">This buyer sent a guest offer. Use the contact detail in their offer above to reply on the platform they chose.</p>
-          </div>
-        ) : <div className="shrink-0 border-t border-[var(--line-soft)] bg-white px-3 pb-[calc(0.6rem+var(--safe-area-bottom))] pt-2.5 md:px-5 md:pb-4 md:pt-3">
+        <div className="shrink-0 border-t border-[var(--line-soft)] bg-white px-3 pb-[calc(0.6rem+var(--safe-area-bottom))] pt-2.5 md:px-5 md:pb-4 md:pt-3">
           <div className="mx-auto max-w-3xl">
           {!newMessage && (
             <div className="mb-2 flex gap-2 overflow-x-auto pb-1 scrollbar-hide" aria-label="Suggested replies">
@@ -1142,7 +1136,7 @@ export default function MessagesSection() {
             Never share verification codes or pay before you are comfortable.
           </p>
           </div>
-        </div>}
+        </div>
       </div>
     );
   };
