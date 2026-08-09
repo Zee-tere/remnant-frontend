@@ -65,12 +65,25 @@ export default function HomePageClient({
       </div>
 
       <section className="border-b border-black/10 px-4 pb-7 pt-5 md:hidden">
-        <p className="max-w-[19rem] text-sm font-medium leading-6 text-black/60">
-          Search useful items across Nigeria, or list what you have for sale, trade, donation, repair or recycling.
-        </p>
+        <motion.p
+          initial="hidden"
+          animate="visible"
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
+          className="w-full tracking-[-0.025em]"
+        >
+          <motion.span variants={{ hidden: { opacity: 0, x: -14 }, visible: { opacity: 1, x: 0, transition: { duration: 0.42 } } }} className="block text-[1.35rem] font-bold leading-[1.12] text-black">
+            Search for or list parts of a pair
+          </motion.span>
+          <motion.span variants={{ hidden: { opacity: 0, x: 14 }, visible: { opacity: 1, x: 0, transition: { duration: 0.42 } } }} className="mt-2 block text-base font-semibold leading-6 text-black/55">
+            or whole products for sale, trade, donation, repair or recycling.
+          </motion.span>
+          <motion.span initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.3, duration: 0.55 }} className="mt-4 block h-px w-full origin-left bg-black/20" aria-hidden="true" />
+        </motion.p>
         <form onSubmit={handleSearch} className="mt-4" role="search">
           <div className="flex h-10 items-center rounded-full border border-black bg-white px-3 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.07)]">
-            <Search className="search-glyph shrink-0 text-black/55" size={16} strokeWidth={2.1} aria-hidden="true" />
+            <button type="submit" className="flex h-8 w-8 shrink-0 items-center justify-center text-black/55" aria-label="Search">
+              <Search className="search-glyph" size={16} strokeWidth={2.1} aria-hidden="true" />
+            </button>
             <Input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -78,7 +91,6 @@ export default function HomePageClient({
               placeholder="Search items or missing pieces"
               className="h-9 min-w-0 flex-1 border-0 bg-transparent px-2.5 text-sm shadow-none focus-visible:ring-0"
             />
-            <button type="submit" className="sr-only">Search</button>
           </div>
         </form>
       </section>
@@ -134,8 +146,8 @@ export default function HomePageClient({
               </span>
               .
             </h1>
-            <p className="mt-4 max-w-[18rem] text-sm font-medium leading-6 text-black/60 sm:mt-6 sm:max-w-[31rem] sm:text-base sm:leading-7 lg:text-lg lg:leading-8">
-              Search useful items across Nigeria, or list what you have for sale, trade, donation, repair or recycling.
+            <p className="mt-4 max-w-[18rem] text-sm font-medium leading-6 text-black/60 sm:mt-6 sm:max-w-[34rem] sm:text-base sm:leading-7 lg:text-lg lg:leading-8">
+              Search for or list parts of a pair or whole products for sale, trade, donation, repair or recycling.
             </p>
 
             <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 sm:mt-7">
@@ -165,7 +177,7 @@ export default function HomePageClient({
         </div>
 
         {initialFeaturedListings.length > 0 ? (
-          <div className="grid grid-cols-2 gap-x-4 gap-y-7 sm:gap-x-6 md:grid-cols-3 md:gap-y-10 lg:gap-x-8">
+          <div className="grid grid-cols-2 gap-x-2 gap-y-7 sm:gap-x-6 md:grid-cols-3 md:gap-y-10 lg:gap-x-8">
             {initialFeaturedListings.map((item) => <ListingCard key={item.id} item={item} />)}
           </div>
         ) : (

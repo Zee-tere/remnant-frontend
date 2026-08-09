@@ -109,15 +109,16 @@ export default function HelpPage() {
           onSubmit={(event) => event.preventDefault()}
         >
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400" size={20} />
+            <button type="submit" className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-neutral-500" aria-label="Search help articles">
+              <Search className="search-glyph" size={19} strokeWidth={2.1} aria-hidden="true" />
+            </button>
             <Input
               type="text"
               placeholder="Search for help articles..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-4 py-6 text-lg"
+              className="py-6 pl-14 pr-4 text-lg"
             />
-            <Button type="submit" className="absolute right-2 top-2">Search</Button>
           </div>
         </form>
       </div>

@@ -103,7 +103,9 @@ export default function Navbar() {
 
         <form onSubmit={handleSearch} className="hidden w-full min-w-0 justify-self-center md:flex" role="search">
           <div className="flex h-10 w-full items-center rounded-full border border-black bg-white p-1 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.07)]">
-            <Search className="search-glyph ml-2.5 shrink-0 text-black/45" size={17} strokeWidth={2.1} aria-hidden="true" />
+            <button type="submit" className="ml-1 flex h-8 w-8 shrink-0 items-center justify-center text-black/45" aria-label="Search">
+              <Search className="search-glyph" size={17} strokeWidth={2.1} aria-hidden="true" />
+            </button>
             <input
               type="search"
               value={searchQuery}
@@ -112,9 +114,6 @@ export default function Navbar() {
               aria-label="Search marketplace listings"
               className="h-full min-w-0 flex-1 border-0 bg-transparent px-2.5 text-sm font-medium text-black outline-none placeholder:text-black/40"
             />
-            <button type="submit" className="flex h-8 shrink-0 items-center rounded-full bg-black px-3.5 text-xs font-bold text-white transition-[background-color,transform] hover:bg-black/80 active:scale-[0.97]">
-              Search
-            </button>
           </div>
         </form>
 

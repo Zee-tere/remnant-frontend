@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff, Fingerprint, Loader2, Mail, ShieldCheck, UserRound } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
+import { ActionArtwork, type ActionArtworkName } from "@/components/brand/ActionArtwork";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Button } from "@/components/ui/button";
 import { authApi } from "@/lib/api";
@@ -14,6 +16,20 @@ import { getApiErrorMessage } from "@/lib/errors";
 import { safeInternalPath, startHostedAuth } from "@/lib/hosted-auth";
 
 type AuthMode = "login" | "signup";
+
+const floatingItems: Array<{
+  name: ActionArtworkName;
+  className: string;
+  duration: number;
+  delay: number;
+}> = [
+  { name: "sell", className: "left-[4%] top-[5%] h-28 w-28", duration: 8.2, delay: 0 },
+  { name: "find", className: "right-[7%] top-[10%] h-20 w-20", duration: 7.4, delay: 0.8 },
+  { name: "trade", className: "left-[34%] top-[29%] h-24 w-24", duration: 9, delay: 0.3 },
+  { name: "repair", className: "left-[3%] bottom-[28%] h-20 w-20", duration: 7.8, delay: 1.2 },
+  { name: "recycle", className: "right-[9%] bottom-[24%] h-24 w-24", duration: 8.7, delay: 0.55 },
+  { name: "donate", className: "left-[40%] bottom-[9%] h-16 w-16", duration: 7.1, delay: 1.5 },
+];
 
 export default function AuthPageClient({ mode }: { mode: AuthMode }) {
   const router = useRouter();
@@ -128,17 +144,29 @@ export default function AuthPageClient({ mode }: { mode: AuthMode }) {
 
         <div className="relative z-10 grid min-h-[calc(100dvh-7.5rem)] items-center gap-6 px-5 pb-10 pt-1 md:px-10 lg:grid-cols-[0.82fr_1.18fr] lg:gap-12 lg:px-16 lg:pb-14">
           <aside className="relative hidden h-full min-h-[34rem] lg:flex lg:flex-col lg:justify-end lg:pb-12">
-            <div className="auth-fingerprint absolute left-[28%] top-[12%] flex h-36 w-36 items-center justify-center text-[var(--lavender)]" aria-hidden="true">
-              <Fingerprint size={118} strokeWidth={1.1} />
-              <span className="absolute bottom-5 right-2 h-3 w-3 rounded-full bg-[var(--amber)]" />
+            <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+              {floatingItems.map((item, index) => (
+                <motion.div
+                  key={item.name}
+                  className={`absolute ${item.className}`}
+                  animate={{
+                    y: [0, index % 2 === 0 ? -14 : 12, index % 2 === 0 ? 6 : -5, 0],
+                    rotate: [index % 2 === 0 ? -3 : 3, index % 2 === 0 ? 3 : -2, 0],
+                    scale: [1, 0.96, 1.025, 1],
+                  }}
+                  transition={{ duration: item.duration, delay: item.delay, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <ActionArtwork name={item.name} className="h-full w-full" imageClassName="opacity-40 grayscale" />
+                </motion.div>
+              ))}
             </div>
-            <h2 className="max-w-sm text-2xl font-bold tracking-tight text-foreground">Find the missing piece. Pass on what still works.</h2>
-            <p className="mt-3 max-w-sm text-sm leading-6 text-[var(--ink-soft)]">Keep your listings, messages, and likely matches in one place.</p>
+            <h2 className="relative z-10 max-w-sm text-2xl font-bold tracking-tight text-foreground">Find the missing piece. Pass on what still works.</h2>
+            <p className="relative z-10 mt-3 max-w-sm text-sm leading-6 text-[var(--ink-soft)]">Keep your listings, messages, and likely matches in one place.</p>
           </aside>
 
           <div className="mx-auto w-full max-w-[27rem] lg:border-l lg:border-[var(--line-soft)] lg:pl-14 xl:pl-20">
-            <div className="relative mx-auto mb-3 flex h-14 w-14 items-center justify-center text-[var(--lavender)] lg:hidden" aria-hidden="true">
-              <Fingerprint size={42} strokeWidth={1.45} />
+            <div className="relative mx-auto mb-3 flex h-14 w-14 items-center justify-center text-[var(--lavender)] lg:mb-5 lg:h-20 lg:w-20" aria-hidden="true">
+              <Fingerprint className="h-11 w-11 lg:h-16 lg:w-16" strokeWidth={1.35} />
               <span className="auth-dot auth-dot--mobile-one" />
               <span className="auth-dot auth-dot--mobile-two" />
             </div>

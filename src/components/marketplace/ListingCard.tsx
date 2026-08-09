@@ -72,7 +72,7 @@ export function ListingCard({
   return (
     <Link href={`/marketplace/${item.slug || item.id}`} className={`group block min-w-0 touch-manipulation ${className}`}>
       <article className="h-full">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-card bg-[#f3f3f3] md:aspect-[5/4]">
+        <div className="relative h-32 overflow-hidden bg-white sm:h-40 md:h-auto md:aspect-[5/4] md:rounded-card md:bg-[#f3f3f3]">
           {item.images?.[0] ? (
             <Image
               src={item.images[0]}
@@ -81,7 +81,7 @@ export function ListingCard({
               priority={eager}
               sizes="(max-width: 767px) 50vw, (max-width: 1279px) 33vw, 25vw"
               quality={68}
-              className="h-full w-full object-cover transition-transform duration-200 motion-safe:group-hover:scale-[1.025]"
+              className="h-full w-full object-contain p-2.5 transition-transform duration-200 motion-safe:group-hover:scale-[1.025] md:object-cover md:p-0"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-black/30">
@@ -99,14 +99,14 @@ export function ListingCard({
           )}
         </div>
 
-        <div className="pt-3 md:pt-4">
-          <h3 className="line-clamp-2 min-h-10 text-sm font-bold leading-5 text-[#111] md:min-h-0 md:text-base md:leading-snug">
+        <div className="pt-2 md:pt-4">
+          <h3 className="line-clamp-2 min-h-8 text-xs font-semibold leading-4 text-[#111] md:min-h-0 md:text-base md:font-bold md:leading-snug">
             {item.title}
           </h3>
-          <p className="mt-1 truncate text-sm font-bold leading-5 text-[#111] md:text-lg md:leading-6">
+          <p className="mt-0.5 truncate text-sm font-bold leading-5 text-[#111] md:mt-1 md:text-lg md:leading-6">
             {getListingValue(item)}
           </p>
-          <div className="mt-1.5 flex min-w-0 items-center gap-1 text-xs font-semibold leading-4 text-black/45 md:mt-2">
+          <div className="mt-1.5 hidden min-w-0 items-center gap-1 text-xs font-semibold leading-4 text-black/45 md:mt-2 md:flex">
             <MapPin size={12} className="shrink-0" aria-hidden="true" />
             <span className="truncate">{item.city || 'Location not set'}</span>
             <span className="hidden md:inline" aria-hidden="true">·</span>

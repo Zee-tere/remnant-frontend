@@ -169,7 +169,9 @@ export default function MarketplaceClient({
       <main className="mx-auto max-w-7xl px-4 pb-24 pt-6 sm:px-6 md:pt-8 lg:px-8">
         <form onSubmit={submitSearch} className="max-w-3xl" role="search">
           <div className="flex h-11 items-center rounded-full border border-black bg-white p-1 focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.07)]">
-            <Search className="search-glyph ml-3 shrink-0 text-black/50" size={17} strokeWidth={2.1} aria-hidden="true" />
+            <button type="submit" className="ml-1 flex h-8 w-8 shrink-0 items-center justify-center text-black/50" aria-label="Search">
+              <Search className="search-glyph" size={17} strokeWidth={2.1} aria-hidden="true" />
+            </button>
             <Input
               value={draftSearch}
               onChange={(event) => setDraftSearch(event.target.value)}
@@ -177,9 +179,6 @@ export default function MarketplaceClient({
               aria-label="Search marketplace listings"
               className="h-9 min-w-0 flex-1 border-0 bg-transparent px-2.5 text-sm shadow-none focus-visible:ring-0"
             />
-            <Button type="submit" className="h-9 shrink-0 bg-black px-4 text-xs font-bold text-white hover:bg-black/85">
-              Search
-            </Button>
           </div>
         </form>
 
@@ -283,7 +282,7 @@ export default function MarketplaceClient({
               </div>
             ) : listings.length > 0 ? (
               <>
-                <div className="grid auto-rows-fr grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 md:grid-cols-3 md:gap-x-6 md:gap-y-11">
+                <div className="grid auto-rows-fr grid-cols-2 gap-x-2 gap-y-7 sm:gap-x-5 md:grid-cols-3 md:gap-x-6 md:gap-y-11">
                   {listings.map((item, index) => <ListingCard key={item.id} item={item} eager={index === 0} />)}
                 </div>
 
