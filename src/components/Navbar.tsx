@@ -7,7 +7,6 @@ import {
   Bell,
   Box,
   ChevronDown,
-  LogIn,
   LogOut,
   MessageCircle,
   PackagePlus,
@@ -97,14 +96,14 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-[var(--layer-sticky)] w-full border-b border-black/10 bg-white">
-      <div className="mx-auto flex min-h-[4rem] max-w-7xl items-center gap-3 px-4 sm:px-6 md:min-h-[4.75rem] lg:px-8">
+      <div className="mx-auto flex min-h-[4rem] max-w-7xl items-center gap-3 px-4 sm:px-6 md:grid md:min-h-[4.75rem] md:grid-cols-[auto_minmax(18rem,1fr)_auto] md:gap-5 lg:px-8 xl:grid-cols-[1fr_minmax(24rem,38rem)_1fr]">
         <Link href="/" className="flex shrink-0 items-center text-[var(--brand)]" aria-label="Remnant home">
           <BrandLogo size="nav" />
         </Link>
 
-        <form onSubmit={handleSearch} className="mx-4 hidden min-w-0 max-w-[38rem] flex-1 md:flex" role="search">
-          <div className="flex h-12 w-full items-center rounded-full border border-black bg-white p-1">
-            <Search className="ml-3 shrink-0 text-black/45" size={17} aria-hidden="true" />
+        <form onSubmit={handleSearch} className="hidden w-full min-w-0 justify-self-center md:flex" role="search">
+          <div className="flex h-11 w-full items-center rounded-full border border-black bg-white p-1 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.07)] lg:h-12">
+            <Search className="search-glyph ml-3 shrink-0 text-black/45" size={18} strokeWidth={2.1} aria-hidden="true" />
             <input
               type="search"
               value={searchQuery}
@@ -113,13 +112,13 @@ export default function Navbar() {
               aria-label="Search marketplace listings"
               className="h-full min-w-0 flex-1 border-0 bg-transparent px-3 text-sm font-medium text-black outline-none placeholder:text-black/40"
             />
-            <button type="submit" className="flex h-10 shrink-0 items-center rounded-full bg-black px-5 text-sm font-bold text-white transition-colors hover:bg-black/80">
+            <button type="submit" className="flex h-9 shrink-0 items-center rounded-full bg-black px-5 text-sm font-bold text-white transition-[background-color,transform] hover:bg-black/80 active:scale-[0.97] lg:h-10">
               Search
             </button>
           </div>
         </form>
 
-        <nav className="ml-auto hidden shrink-0 items-center gap-1 md:flex" aria-label="Primary navigation">
+        <nav className="hidden shrink-0 items-center justify-self-end gap-1 md:flex" aria-label="Primary navigation">
           <Link href="/marketplace" className={`min-h-11 px-2.5 py-3 text-sm font-bold transition-colors ${isActive("/marketplace") ? "text-black" : "text-black/55 hover:text-black"}`}>
             Marketplace
           </Link>
@@ -188,7 +187,7 @@ export default function Navbar() {
                 aria-label="Search marketplace listings"
                 className="h-full min-w-0 flex-1 border-0 bg-transparent text-xs font-semibold text-black outline-none placeholder:text-black/40"
               />
-              <button type="submit" className="flex h-10 w-10 shrink-0 items-center justify-center text-black" aria-label="Search"><Search size={15} aria-hidden="true" /></button>
+              <button type="submit" className="flex h-10 w-10 shrink-0 items-center justify-center text-black" aria-label="Search"><Search className="search-glyph" size={17} strokeWidth={2.1} aria-hidden="true" /></button>
             </form>
           )}
 
@@ -212,7 +211,7 @@ export default function Navbar() {
       {menuOpen && (
         <div className="fixed inset-x-0 bottom-0 top-[4rem] z-[var(--layer-overlay)] md:hidden">
           <button type="button" className="absolute inset-0 h-full w-full bg-black/25" onClick={() => setMenuOpen(false)} aria-label="Close menu" />
-          <aside className="navbar-menu mobile-menu-entry absolute right-0 h-full w-[min(86vw,22rem)] overflow-y-auto border-l border-black/10 bg-white px-5 pb-28 pt-6 text-left" aria-label="Mobile navigation">
+          <aside className="navbar-menu mobile-menu-entry absolute right-0 h-full w-[min(74vw,18rem)] overflow-y-auto border-l border-black/10 bg-white px-4 pb-28 pt-5 text-left" aria-label="Mobile navigation">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-black/40">Explore</p>
             <nav className="mt-3" aria-label="Explore Remnant">
               <Link href="/" onClick={() => setMenuOpen(false)} className={`flex min-h-12 items-center border-b border-black/10 text-sm font-bold ${isActive("/") ? "text-black" : "text-black/60"}`}>Home</Link>
@@ -223,41 +222,30 @@ export default function Navbar() {
               ))}
             </nav>
 
-            <p className="mt-8 text-xs font-bold uppercase tracking-[0.14em] text-black/40">Browse categories</p>
+            <p className="mt-7 text-xs font-bold uppercase tracking-[0.14em] text-black/40">Browse categories</p>
             <nav className="mt-3" aria-label="Browse categories">
               {listingCategories.map((category) => (
                 <Link
                   key={category.label}
                   href={`/marketplace?category=${encodeURIComponent(category.label)}`}
                   onClick={() => setMenuOpen(false)}
-                  className="flex min-h-11 items-center justify-between border-b border-black/10 text-sm font-semibold text-black/60 hover:text-black"
+                  className="flex min-h-10 items-center justify-between gap-2 border-b border-black/10 text-xs font-semibold text-black/60 hover:text-black"
                 >
                   {category.label}<span className="text-black/25" aria-hidden="true">›</span>
                 </Link>
               ))}
             </nav>
 
-            <p className="mt-8 text-xs font-bold uppercase tracking-[0.14em] text-black/40">Account</p>
-            {isAuthenticated ? (
+            {isAuthenticated && (
+              <>
+              <p className="mt-7 text-xs font-bold uppercase tracking-[0.14em] text-black/40">Account</p>
               <nav className="mt-3" aria-label="Account">
-                {user?.role === "ADMIN" && (
-                  <Link href="/admin" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center gap-3 border-b border-black/10 text-sm font-bold text-black/60"><ShieldCheck size={16} aria-hidden="true" />Admin</Link>
-                )}
-                {accountActions.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center gap-3 border-b border-black/10 text-sm font-bold text-black/60">
-                      <Icon size={16} aria-hidden="true" />{item.label}
-                    </Link>
-                  );
-                })}
+                <Link href="/user/dashboard?section=settings" onClick={() => setMenuOpen(false)} className="flex min-h-11 items-center gap-3 border-b border-black/10 text-sm font-bold text-black/60">
+                  <Settings size={16} aria-hidden="true" />Settings
+                </Link>
                 <button type="button" onClick={handleLogout} className="flex min-h-12 w-full items-center gap-3 border-b border-black/10 text-left text-sm font-bold text-black/60"><LogOut size={16} aria-hidden="true" />Log out</button>
               </nav>
-            ) : (
-              <div className="mt-4 flex gap-3">
-                <Link href="/login" onClick={() => setMenuOpen(false)} className="flex h-12 flex-1 items-center justify-center rounded-full border border-black/20 text-sm font-bold text-black"><LogIn size={16} className="mr-2" aria-hidden="true" />Log in</Link>
-                <Link href="/signup" onClick={() => setMenuOpen(false)} className="flex h-12 flex-1 items-center justify-center rounded-full bg-black text-sm font-bold text-white">Join free</Link>
-              </div>
+              </>
             )}
           </aside>
         </div>

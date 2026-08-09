@@ -19,8 +19,6 @@ const listingActions: Array<{ label: string; copy: string; href: string; artwork
   { label: "Recycle", copy: "Keep useful parts moving", href: "/sell-item?intent=RECYCLE", artwork: "recycle" },
 ];
 
-const popularSearches = ["right earbud", "pot lid", "laptop charger", "single shoe"];
-
 const howItWorks = [
   { number: "01", title: "Search or list", text: "Describe the exact thing you need, or show people what you already have." },
   { number: "02", title: "Find the right person", text: "Browse listings, complementary pieces and people interested in the same item." },
@@ -53,7 +51,7 @@ export default function HomePageClient({
         <span className="ambient-dot ambient-dot--page-three" />
       </div>
 
-      <section className="relative mx-auto max-w-7xl border-b border-black/10 px-4 sm:px-6 lg:grid lg:grid-cols-[14rem_minmax(0,1fr)] lg:px-8">
+      <section className="relative mx-auto max-w-7xl overflow-hidden border-b border-black/10 px-4 sm:px-6 lg:grid lg:grid-cols-[14rem_minmax(0,1fr)] lg:px-8">
         <aside className="hidden border-r border-black/10 py-12 pr-7 lg:block" aria-label="Browse categories">
           <p className="mb-4 text-xs font-bold uppercase tracking-[0.14em] text-black/45">Browse categories</p>
           <nav className="space-y-0.5">
@@ -77,7 +75,7 @@ export default function HomePageClient({
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, ease: [0.2, 0.8, 0.2, 1] }}
-          className="relative flex min-h-[31rem] items-center overflow-hidden py-14 lg:min-h-[36rem] lg:pl-14"
+          className="relative flex min-h-[25rem] items-start overflow-hidden py-7 sm:min-h-[29rem] sm:py-10 lg:min-h-[36rem] lg:items-center lg:py-14 lg:pl-14"
         >
           <div className="home-motion-field" aria-hidden="true">
             <span className="home-motion-dot home-motion-dot--one" />
@@ -88,50 +86,47 @@ export default function HomePageClient({
           <ActionArtwork
             name="marketplace"
             priority
-            className="absolute -right-14 top-8 h-48 w-48 opacity-35 sm:right-0 sm:h-64 sm:w-64 sm:opacity-55 lg:right-4 lg:top-1/2 lg:h-[25rem] lg:w-[25rem] lg:-translate-y-1/2 lg:opacity-100"
+            className="absolute -right-8 top-8 h-36 w-36 opacity-25 sm:-right-2 sm:h-52 sm:w-52 sm:opacity-40 lg:-right-10 lg:top-1/2 lg:h-[25rem] lg:w-[25rem] lg:-translate-y-1/2 lg:opacity-100"
             imageClassName="motion-safe:animate-[quiet-art-float_7s_ease-in-out_infinite_alternate]"
           />
 
           <div className="relative z-10 w-full max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-black/45">A marketplace for what still works</p>
-            <h1 className="mt-5 max-w-[18rem] text-balance text-[2.65rem] font-bold leading-[0.98] tracking-[-0.055em] sm:max-w-xl sm:text-6xl lg:max-w-[42rem] lg:text-[4.6rem]">
-              Find the exact piece. Pass yours on.
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-black/45">A marketplace for what still works</p>
+            <h1 className="mt-3 max-w-[17rem] text-[2.15rem] font-bold leading-[1.01] tracking-[-0.05em] sm:mt-5 sm:max-w-xl sm:text-5xl lg:max-w-[42rem] lg:text-[4.6rem] lg:leading-[0.98]">
+              Find the exact piece.{" "}
+              <span className="hero-flourish relative inline-block pb-1">
+                Pass yours on
+                <svg className="hero-flourish__line" viewBox="0 0 150 12" preserveAspectRatio="none" aria-hidden="true">
+                  <path d="M2 7.5 C36 2.5 92 11 148 4.5" />
+                </svg>
+              </span>
+              .
             </h1>
-            <p className="mt-6 max-w-[31rem] text-base font-medium leading-7 text-black/60 sm:text-lg sm:leading-8">
+            <p className="mt-4 max-w-[18rem] text-sm font-medium leading-6 text-black/60 sm:mt-6 sm:max-w-[31rem] sm:text-base sm:leading-7 lg:text-lg lg:leading-8">
               Search useful items across Nigeria, or list what you have for sale, trade, donation, repair or recycling.
             </p>
 
-            <form onSubmit={handleSearch} className="mt-8 max-w-[43rem]" role="search">
-              <div className="flex min-h-14 items-center rounded-full border border-black bg-white p-1.5 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] sm:min-h-16">
-                <Search className="ml-3 shrink-0 text-black/55 sm:ml-4" size={20} aria-hidden="true" />
+            <form onSubmit={handleSearch} className="mt-5 max-w-[43rem] md:hidden" role="search">
+              <div className="flex min-h-12 items-center rounded-full border border-black bg-white p-1 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.08)]">
+                <Search className="search-glyph ml-3 shrink-0 text-black/55" size={17} strokeWidth={2.1} aria-hidden="true" />
                 <Input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   aria-label="Search the marketplace"
                   placeholder="Search an item, model, size or missing piece"
-                  className="h-11 min-w-0 flex-1 border-0 bg-transparent px-3 text-base shadow-none focus-visible:ring-0 sm:h-12 sm:px-4"
+                  className="h-10 min-w-0 flex-1 border-0 bg-transparent px-2.5 text-sm shadow-none focus-visible:ring-0"
                 />
-                <Button type="submit" className="h-11 shrink-0 bg-[#111] px-5 font-bold text-white hover:bg-black sm:h-12 sm:px-7">
-                  <span className="hidden sm:inline">Search</span>
-                  <Search className="sm:hidden" size={18} aria-hidden="true" />
+                <Button type="submit" size="icon" className="h-10 w-10 shrink-0 bg-[#111] text-white hover:bg-black" aria-label="Search">
+                  <Search className="search-glyph" size={16} strokeWidth={2.1} aria-hidden="true" />
                 </Button>
               </div>
             </form>
 
-            <div className="mt-4 flex max-w-2xl flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm">
-              <span className="font-semibold text-black/45">Popular:</span>
-              {popularSearches.map((item) => (
-                <button key={item} type="button" onClick={() => search(item)} className="font-semibold text-black/65 underline decoration-black/20 underline-offset-4 hover:text-black hover:decoration-black">
-                  {item}
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-7 flex flex-wrap items-center gap-5">
-              <Link href="/marketplace" className="inline-flex min-h-11 items-center gap-2 font-bold text-[#111] underline decoration-black/25 underline-offset-4 hover:decoration-black">
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 sm:mt-7">
+              <Link href="/marketplace" className="inline-flex min-h-10 items-center gap-2 text-sm font-bold text-[#111] underline decoration-black/25 underline-offset-4 hover:decoration-black sm:min-h-11 sm:text-base">
                 Browse marketplace <ArrowRight size={16} aria-hidden="true" />
               </Link>
-              <Link href="/sell-item" className="inline-flex min-h-11 items-center gap-2 font-bold text-black/55 hover:text-black">
+              <Link href="/sell-item" className="inline-flex min-h-10 items-center gap-2 text-sm font-bold text-black/55 hover:text-black sm:min-h-11 sm:text-base">
                 List an item free <PackagePlus size={16} aria-hidden="true" />
               </Link>
             </div>
@@ -144,12 +139,12 @@ export default function HomePageClient({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.18 }}
         transition={{ duration: 0.55 }}
-        className="mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-24 lg:px-8"
+        className="mx-auto max-w-7xl px-4 pb-12 pt-10 sm:px-6 md:pb-20 md:pt-20 lg:px-8"
       >
-        <div className="mb-9 flex items-end justify-between gap-6 md:mb-12">
+        <div className="mb-6 flex items-end justify-between gap-6 md:mb-9">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-black/40">Fresh on Remnant</p>
-            <h2 className="mt-2 text-3xl font-bold tracking-[-0.04em] sm:text-4xl">Useful things, ready for someone else</h2>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-black/40">Recent listings</p>
+            <h2 className="mt-1.5 text-2xl font-bold tracking-[-0.035em] sm:text-3xl md:text-4xl">Useful things, ready for someone else</h2>
           </div>
           <Link href="/marketplace" className="hidden min-h-11 items-center gap-2 text-sm font-bold text-black sm:inline-flex">
             View all <ArrowRight size={15} aria-hidden="true" />
@@ -157,7 +152,7 @@ export default function HomePageClient({
         </div>
 
         {initialFeaturedListings.length > 0 ? (
-          <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-6 md:grid-cols-3 lg:gap-x-8">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-7 sm:gap-x-6 md:grid-cols-3 md:gap-y-10 lg:gap-x-8">
             {initialFeaturedListings.map((item) => <ListingCard key={item.id} item={item} />)}
           </div>
         ) : (
@@ -167,25 +162,21 @@ export default function HomePageClient({
             <Button asChild className="mt-6 bg-[#111] text-white hover:bg-black"><Link href="/sell-item">List an item</Link></Button>
           </div>
         )}
-        <Link href="/marketplace" className="mt-10 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-black sm:hidden">
+        <Link href="/marketplace" className="mt-5 inline-flex min-h-10 items-center gap-2 text-sm font-bold text-black sm:hidden">
           View the marketplace <ArrowRight size={15} aria-hidden="true" />
         </Link>
       </motion.section>
 
-      <section className="border-y border-black/10 bg-[#fafafa] px-4 py-16 sm:px-6 md:py-24 lg:px-8">
+      <section className="border-y border-black/10 bg-[#fafafa] py-12 md:px-6 md:py-20 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-black/40">Your item, your terms</p>
-            <h2 className="mt-3 text-3xl font-bold tracking-[-0.04em] sm:text-4xl">Choose what happens next</h2>
-            <p className="mt-4 text-base leading-7 text-black/55">Every listing makes its purpose clear, without forcing every useful object into the same kind of sale.</p>
-          </div>
-          <div className="mt-12 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-5 lg:gap-8">
+          <h2 className="px-4 text-2xl font-bold tracking-[-0.035em] sm:px-6 sm:text-3xl md:px-0 md:text-4xl">Choose what happens next</h2>
+          <div className="mt-6 grid auto-cols-[4.75rem] grid-flow-col gap-2 overflow-x-auto px-4 pb-2 scrollbar-hide sm:px-6 md:mt-10 md:grid-flow-row md:grid-cols-5 md:gap-8 md:overflow-visible md:px-0">
             {listingActions.map((action, index) => (
               <motion.div key={action.href} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.06 }}>
-                <Link href={action.href} className="group block">
-                  <ActionArtwork name={action.artwork} className="h-24 w-24 sm:h-28 sm:w-28" imageClassName="transition-transform duration-300 motion-safe:group-hover:-translate-y-1 motion-safe:group-hover:scale-105" />
-                  <h3 className="mt-4 text-xl font-bold tracking-[-0.025em]">{action.label}</h3>
-                  <p className="mt-1 text-sm leading-6 text-black/50">{action.copy}</p>
+                <Link href={action.href} className="group flex snap-start flex-col items-center text-center">
+                  <ActionArtwork name={action.artwork} className="h-[2.65rem] w-[2.65rem] md:h-24 md:w-24" imageClassName="transition-transform duration-300 motion-safe:group-hover:-translate-y-1 motion-safe:group-hover:scale-105" />
+                  <h3 className="mt-1.5 text-xs font-bold md:mt-4 md:text-lg">{action.label}</h3>
+                  <p className="mt-1 hidden text-sm leading-6 text-black/50 md:block">{action.copy}</p>
                 </Link>
               </motion.div>
             ))}
@@ -193,28 +184,16 @@ export default function HomePageClient({
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-20 sm:px-6 md:grid-cols-[0.8fr_1.2fr] md:py-28 lg:px-8">
-        <motion.div initial={{ opacity: 0, x: -18 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="flex justify-center md:justify-start">
-          <ActionArtwork name="find" className="h-52 w-52 sm:h-72 sm:w-72" imageClassName="motion-safe:animate-[quiet-art-float_8s_ease-in-out_infinite_alternate]" />
-        </motion.div>
-        <div className="max-w-2xl">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-black/45">Built for the difficult search</p>
-          <h2 className="mt-4 text-4xl font-bold leading-[1.02] tracking-[-0.045em] sm:text-5xl">Not everything you need is a whole new product.</h2>
-          <p className="mt-6 text-lg leading-8 text-black/55">Find the right side, size, model, lid, charger or complementary part. Remnant’s matching tools are designed for the detail that ordinary marketplaces overlook.</p>
-          <Button asChild className="mt-8 h-12 bg-[#111] px-6 font-bold text-white hover:bg-black"><Link href="/find-a-pair">Find a missing piece <ArrowRight size={16} /></Link></Button>
-        </div>
-      </section>
-
-      <section className="border-t border-black/10 px-4 py-20 sm:px-6 md:py-28 lg:px-8">
+      <section className="border-t border-black/10 px-4 py-14 sm:px-6 md:py-20 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-black/40">Simple by design</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-[-0.04em] sm:text-4xl">How Remnant works</h2>
-          <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-14">
-            {howItWorks.map((step) => (
-              <article key={step.number} className="border-t border-black pt-5">
+          <h2 className="mt-2 text-2xl font-bold tracking-[-0.035em] sm:text-3xl md:text-4xl">How Remnant works</h2>
+          <div className="mt-6 grid grid-cols-3 md:mt-10">
+            {howItWorks.map((step, index) => (
+              <article key={step.number} className={`${index > 0 ? "border-l border-black/20" : ""} min-w-0 px-2 py-1 sm:px-5 md:px-8`}>
                 <span className="text-xs font-bold tabular-nums text-black/35">{step.number}</span>
-                <h3 className="mt-7 text-2xl font-bold tracking-[-0.03em]">{step.title}</h3>
-                <p className="mt-3 max-w-sm text-base leading-7 text-black/55">{step.text}</p>
+                <h3 className="mt-3 text-xs font-bold leading-4 sm:text-base md:text-xl">{step.title}</h3>
+                <p className="mt-2 text-xs leading-5 text-black/55 md:max-w-sm md:text-sm md:leading-6">{step.text}</p>
               </article>
             ))}
           </div>
