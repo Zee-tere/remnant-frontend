@@ -5,13 +5,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronRight, PackagePlus, Search } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
 import { ActionArtwork, type ActionArtworkName } from "@/components/brand/ActionArtwork";
 import { listingCategories } from "@/lib/categories";
+import { useAuthStore } from "@/lib/auth";
 
-const listingActions: Array<{ label: string; copy: string; href: string; artwork: ActionArtworkName }> = [
+const listingActions: Array<{ label: string; copy: string; href: string; artwork: ActionArtworkName; requiresAccount?: boolean }> = [
+  { label: "Set a pair alert", copy: "Get notified about a match", href: "/user/dashboard?section=pair-alerts&create=1", artwork: "alert", requiresAccount: true },
   { label: "Sell", copy: "Name your price", href: "/sell-item?intent=SELL", artwork: "sell" },
   { label: "Trade", copy: "Swap what you have", href: "/sell-item?intent=TRADE", artwork: "trade" },
   { label: "Donate", copy: "Give it forward", href: "/sell-item?intent=DONATE", artwork: "donate" },
@@ -32,6 +35,7 @@ export default function HomePageClient({
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const search = (value: string) => {
     const next = value.trim();
@@ -43,6 +47,15 @@ export default function HomePageClient({
     search(query);
   };
 
+  const handleActionClick = (event: React.MouseEvent<HTMLAnchorElement>, action: (typeof listingActions)[number]) => {
+    if (!action.requiresAccount || isAuthenticated) return;
+    event.preventDefault();
+    toast.message("Sign in to set a pair alert", {
+      description: "Pair alerts are saved to your account so we can notify you when a likely match appears.",
+    });
+    router.push(`/login?redirect=${encodeURIComponent(action.href)}`);
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-white text-[#111]">
       <div className="home-ambient-field" aria-hidden="true">
@@ -51,8 +64,27 @@ export default function HomePageClient({
         <span className="ambient-dot ambient-dot--page-three" />
       </div>
 
-      <section className="relative mx-auto max-w-7xl overflow-hidden border-b border-black/10 px-4 sm:px-6 lg:grid lg:grid-cols-[14rem_minmax(0,1fr)] lg:px-8">
-        <aside className="hidden border-r border-black/10 py-12 pr-7 lg:block" aria-label="Browse categories">
+      <section className="border-b border-black/10 px-4 pb-7 pt-5 md:hidden">
+        <p className="max-w-[19rem] text-sm font-medium leading-6 text-black/60">
+          Search useful items across Nigeria, or list what you have for sale, trade, donation, repair or recycling.
+        </p>
+        <form onSubmit={handleSearch} className="mt-4" role="search">
+          <div className="flex h-10 items-center rounded-full border border-black bg-white px-3 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.07)]">
+            <Search className="search-glyph shrink-0 text-black/55" size={16} strokeWidth={2.1} aria-hidden="true" />
+            <Input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              aria-label="Search the marketplace"
+              placeholder="Search items or missing pieces"
+              className="h-9 min-w-0 flex-1 border-0 bg-transparent px-2.5 text-sm shadow-none focus-visible:ring-0"
+            />
+            <button type="submit" className="sr-only">Search</button>
+          </div>
+        </form>
+      </section>
+
+      <section className="relative mx-auto hidden max-w-7xl overflow-hidden border-b border-black/10 px-4 md:block md:px-6 lg:grid lg:grid-cols-[14rem_minmax(0,1fr)] lg:px-8">
+        <aside className="hidden border-r border-black/10 py-10 pr-7 lg:block" aria-label="Browse categories">
           <p className="mb-4 text-xs font-bold uppercase tracking-[0.14em] text-black/45">Browse categories</p>
           <nav className="space-y-0.5">
             {listingCategories.slice(0, 10).map((category) => (
@@ -75,7 +107,7 @@ export default function HomePageClient({
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, ease: [0.2, 0.8, 0.2, 1] }}
-          className="relative flex min-h-[25rem] items-start overflow-hidden py-7 sm:min-h-[29rem] sm:py-10 lg:min-h-[36rem] lg:items-center lg:py-14 lg:pl-14"
+          className="relative flex min-h-[27rem] items-center overflow-hidden py-8 lg:min-h-[32rem] lg:py-10 lg:pl-14"
         >
           <div className="home-motion-field" aria-hidden="true">
             <span className="home-motion-dot home-motion-dot--one" />
@@ -86,7 +118,7 @@ export default function HomePageClient({
           <ActionArtwork
             name="marketplace"
             priority
-            className="absolute -right-8 top-8 h-36 w-36 opacity-25 sm:-right-2 sm:h-52 sm:w-52 sm:opacity-40 lg:-right-10 lg:top-1/2 lg:h-[25rem] lg:w-[25rem] lg:-translate-y-1/2 lg:opacity-100"
+            className="absolute -right-2 top-8 h-52 w-52 opacity-40 lg:-right-10 lg:top-1/2 lg:h-[23rem] lg:w-[23rem] lg:-translate-y-1/2 lg:opacity-100"
             imageClassName="motion-safe:animate-[quiet-art-float_7s_ease-in-out_infinite_alternate]"
           />
 
@@ -106,22 +138,6 @@ export default function HomePageClient({
               Search useful items across Nigeria, or list what you have for sale, trade, donation, repair or recycling.
             </p>
 
-            <form onSubmit={handleSearch} className="mt-5 max-w-[43rem] md:hidden" role="search">
-              <div className="flex min-h-12 items-center rounded-full border border-black bg-white p-1 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.08)]">
-                <Search className="search-glyph ml-3 shrink-0 text-black/55" size={17} strokeWidth={2.1} aria-hidden="true" />
-                <Input
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  aria-label="Search the marketplace"
-                  placeholder="Search an item, model, size or missing piece"
-                  className="h-10 min-w-0 flex-1 border-0 bg-transparent px-2.5 text-sm shadow-none focus-visible:ring-0"
-                />
-                <Button type="submit" size="icon" className="h-10 w-10 shrink-0 bg-[#111] text-white hover:bg-black" aria-label="Search">
-                  <Search className="search-glyph" size={16} strokeWidth={2.1} aria-hidden="true" />
-                </Button>
-              </div>
-            </form>
-
             <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 sm:mt-7">
               <Link href="/marketplace" className="inline-flex min-h-10 items-center gap-2 text-sm font-bold text-[#111] underline decoration-black/25 underline-offset-4 hover:decoration-black sm:min-h-11 sm:text-base">
                 Browse marketplace <ArrowRight size={16} aria-hidden="true" />
@@ -139,13 +155,10 @@ export default function HomePageClient({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.18 }}
         transition={{ duration: 0.55 }}
-        className="mx-auto max-w-7xl px-4 pb-12 pt-10 sm:px-6 md:pb-20 md:pt-20 lg:px-8"
+        className="mx-auto max-w-7xl px-4 pb-12 pt-8 sm:px-6 md:pb-20 md:pt-14 lg:px-8"
       >
-        <div className="mb-6 flex items-end justify-between gap-6 md:mb-9">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-black/40">Recent listings</p>
-            <h2 className="mt-1.5 text-2xl font-bold tracking-[-0.035em] sm:text-3xl md:text-4xl">Useful things, ready for someone else</h2>
-          </div>
+        <div className="mb-6 flex items-end justify-between gap-6 md:mb-8">
+          <h2 className="text-2xl font-bold tracking-[-0.035em] sm:text-3xl">Recent listings</h2>
           <Link href="/marketplace" className="hidden min-h-11 items-center gap-2 text-sm font-bold text-black sm:inline-flex">
             View all <ArrowRight size={15} aria-hidden="true" />
           </Link>
@@ -170,10 +183,10 @@ export default function HomePageClient({
       <section className="border-y border-black/10 bg-[#fafafa] py-12 md:px-6 md:py-20 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <h2 className="px-4 text-2xl font-bold tracking-[-0.035em] sm:px-6 sm:text-3xl md:px-0 md:text-4xl">Choose what happens next</h2>
-          <div className="mt-6 grid auto-cols-[4.75rem] grid-flow-col gap-2 overflow-x-auto px-4 pb-2 scrollbar-hide sm:px-6 md:mt-10 md:grid-flow-row md:grid-cols-5 md:gap-8 md:overflow-visible md:px-0">
+          <div className="mt-6 grid auto-cols-[4.75rem] grid-flow-col gap-2 overflow-x-auto px-4 pb-2 scrollbar-hide sm:px-6 md:mt-10 md:grid-flow-row md:grid-cols-6 md:gap-6 md:overflow-visible md:px-0">
             {listingActions.map((action, index) => (
               <motion.div key={action.href} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.06 }}>
-                <Link href={action.href} className="group flex snap-start flex-col items-center text-center">
+                <Link href={action.href} onClick={(event) => handleActionClick(event, action)} className="group flex snap-start flex-col items-center text-center">
                   <ActionArtwork name={action.artwork} className="h-[2.65rem] w-[2.65rem] md:h-24 md:w-24" imageClassName="transition-transform duration-300 motion-safe:group-hover:-translate-y-1 motion-safe:group-hover:scale-105" />
                   <h3 className="mt-1.5 text-xs font-bold md:mt-4 md:text-lg">{action.label}</h3>
                   <p className="mt-1 hidden text-sm leading-6 text-black/50 md:block">{action.copy}</p>

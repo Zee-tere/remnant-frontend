@@ -166,33 +166,24 @@ export default function MarketplaceClient({
 
   return (
     <div className="min-h-screen bg-white text-[#111]">
-      <main className="mx-auto max-w-7xl px-4 pb-24 pt-10 sm:px-6 md:pt-14 lg:px-8">
-        <header className="max-w-3xl">
-          <p className="text-xs font-bold uppercase tracking-[0.15em] text-black/40">Marketplace</p>
-          <h1 className="mt-3 text-4xl font-bold tracking-[-0.045em] sm:text-5xl">Find something useful</h1>
-          <p className="mt-4 max-w-2xl text-base font-medium leading-7 text-black/55 sm:text-lg">
-            Search for the exact item, model or missing piece. Deal directly with the person who listed it.
-          </p>
-        </header>
-
-        <form onSubmit={submitSearch} className="mt-8 max-w-4xl" role="search">
-          <div className="flex min-h-14 items-center rounded-full border border-black bg-white p-1.5 focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.08)] sm:min-h-16">
-            <Search className="ml-3 shrink-0 text-black/50 sm:ml-4" size={20} aria-hidden="true" />
+      <main className="mx-auto max-w-7xl px-4 pb-24 pt-6 sm:px-6 md:pt-8 lg:px-8">
+        <form onSubmit={submitSearch} className="max-w-3xl" role="search">
+          <div className="flex h-11 items-center rounded-full border border-black bg-white p-1 focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.07)]">
+            <Search className="search-glyph ml-3 shrink-0 text-black/50" size={17} strokeWidth={2.1} aria-hidden="true" />
             <Input
               value={draftSearch}
               onChange={(event) => setDraftSearch(event.target.value)}
               placeholder="Search an item, model, size or missing piece"
               aria-label="Search marketplace listings"
-              className="h-11 min-w-0 flex-1 border-0 bg-transparent px-3 text-base shadow-none focus-visible:ring-0 sm:h-12 sm:px-4"
+              className="h-9 min-w-0 flex-1 border-0 bg-transparent px-2.5 text-sm shadow-none focus-visible:ring-0"
             />
-            <Button type="submit" className="h-11 shrink-0 bg-black px-5 font-bold text-white hover:bg-black/85 sm:h-12 sm:px-8">
-              <span className="hidden sm:inline">Search</span>
-              <Search className="sm:hidden" size={18} aria-hidden="true" />
+            <Button type="submit" className="h-9 shrink-0 bg-black px-4 text-xs font-bold text-white hover:bg-black/85">
+              Search
             </Button>
           </div>
         </form>
 
-        <div className="mt-8 flex gap-2 overflow-x-auto border-b border-black/10 pb-5 scrollbar-hide" aria-label="Filter by listing type">
+        <div className="mt-5 flex gap-2 overflow-x-auto border-b border-black/10 pb-5 scrollbar-hide" aria-label="Filter by listing type">
           {intentions.map((intent) => (
             <button
               key={intent.value || "all"}
@@ -210,7 +201,7 @@ export default function MarketplaceClient({
           ))}
         </div>
 
-        <div className="mt-9 grid items-start gap-10 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-12">
+        <div className="mt-8 grid items-start gap-10 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-12">
           <aside className="sticky top-28 hidden border-r border-black/10 pr-7 lg:block">
             <div className="flex items-center justify-between">
               <h2 className="text-xs font-bold uppercase tracking-[0.14em] text-black/40">Browse categories</h2>

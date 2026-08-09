@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BellRing, Filter, Search, X } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ListingCard, type ListingCardItem } from "@/components/marketplace/ListingCard";
@@ -72,12 +73,19 @@ export default function FindPageClient({
 
   const hasFilters = Boolean(category || city || intent);
 
+  const explainAlertAccount = () => {
+    if (isAuthenticated) return;
+    toast.message("Sign in to set a pair alert", {
+      description: "Pair alerts are linked to your account so we can notify you when a likely match appears.",
+    });
+  };
+
   return (
     <main className="mx-auto min-h-screen max-w-7xl bg-white px-4 pb-10 pt-4 sm:px-5 md:px-8 md:pb-20 md:pt-7">
       <section className="mb-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--line-soft)] px-0.5 pb-3 md:mb-5 md:pb-4" aria-label="Pair alerts">
         <span className="flex h-9 w-9 items-center justify-center text-[var(--amber)]"><BellRing size={17} aria-hidden="true" /></span>
         <p className="min-w-0 truncate text-sm font-bold text-[var(--foreground)]">Can’t find the exact piece?</p>
-        <Link href={isAuthenticated ? alertPath : `/login?redirect=${encodeURIComponent(alertPath)}`} className="inline-flex h-8 items-center border-b border-transparent px-1 text-xs font-bold text-[var(--brand)] hover:border-[var(--brand)] md:text-sm">
+        <Link onClick={explainAlertAccount} href={isAuthenticated ? alertPath : `/login?redirect=${encodeURIComponent(alertPath)}`} className="inline-flex h-8 items-center border-b border-transparent px-1 text-xs font-bold text-[var(--brand)] hover:border-[var(--brand)] md:text-sm">
           Set alert
         </Link>
       </section>
@@ -169,7 +177,7 @@ export default function FindPageClient({
           <p className="mx-auto mt-2 max-w-sm text-sm font-medium text-[var(--muted-foreground)]">Check the spelling, try a shorter item name, or search without filters.</p>
           <div className="mt-5 flex flex-wrap justify-center gap-2">
             {(hasFilters || searchTerm) && <Button type="button" variant="outline" onClick={() => { setSearchTerm(''); setCategory(''); setCity(''); setIntent(''); startTransition(() => router.push('/find-a-pair')); }}>Clear search</Button>}
-            <Button asChild variant="outline"><Link href={isAuthenticated ? alertPath : `/login?redirect=${encodeURIComponent(alertPath)}`}>Set a pair alert</Link></Button>
+            <Button asChild variant="outline"><Link onClick={explainAlertAccount} href={isAuthenticated ? alertPath : `/login?redirect=${encodeURIComponent(alertPath)}`}>Set a pair alert</Link></Button>
           </div>
         </section>
       )}

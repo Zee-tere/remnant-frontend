@@ -220,6 +220,9 @@ export default function ListingDetailClient({ initialListing }: { initialListing
 
   const handleSaveListing = async () => {
     if (!isAuthenticated) {
+      toast.message("Sign in to save this listing", {
+        description: "Saved listings stay in your account so you can find them again later.",
+      });
       router.push(`/login?redirect=${encodeURIComponent(`/marketplace/${id}`)}`);
       return;
     }

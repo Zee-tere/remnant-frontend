@@ -96,33 +96,33 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-[var(--layer-sticky)] w-full border-b border-black/10 bg-white">
-      <div className="mx-auto flex min-h-[4rem] max-w-7xl items-center gap-3 px-4 sm:px-6 md:grid md:min-h-[4.75rem] md:grid-cols-[auto_minmax(18rem,1fr)_auto] md:gap-5 lg:px-8 xl:grid-cols-[1fr_minmax(24rem,38rem)_1fr]">
+      <div className="mx-auto flex min-h-[4rem] max-w-7xl items-center gap-3 px-4 sm:px-6 md:grid md:min-h-[4.5rem] md:grid-cols-[auto_minmax(17rem,1fr)_auto] md:gap-4 lg:px-8 xl:grid-cols-[1fr_minmax(22rem,30rem)_1fr]">
         <Link href="/" className="flex shrink-0 items-center text-[var(--brand)]" aria-label="Remnant home">
           <BrandLogo size="nav" />
         </Link>
 
         <form onSubmit={handleSearch} className="hidden w-full min-w-0 justify-self-center md:flex" role="search">
-          <div className="flex h-11 w-full items-center rounded-full border border-black bg-white p-1 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.07)] lg:h-12">
-            <Search className="search-glyph ml-3 shrink-0 text-black/45" size={18} strokeWidth={2.1} aria-hidden="true" />
+          <div className="flex h-10 w-full items-center rounded-full border border-black bg-white p-1 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.07)]">
+            <Search className="search-glyph ml-2.5 shrink-0 text-black/45" size={17} strokeWidth={2.1} aria-hidden="true" />
             <input
               type="search"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search the marketplace"
               aria-label="Search marketplace listings"
-              className="h-full min-w-0 flex-1 border-0 bg-transparent px-3 text-sm font-medium text-black outline-none placeholder:text-black/40"
+              className="h-full min-w-0 flex-1 border-0 bg-transparent px-2.5 text-sm font-medium text-black outline-none placeholder:text-black/40"
             />
-            <button type="submit" className="flex h-9 shrink-0 items-center rounded-full bg-black px-5 text-sm font-bold text-white transition-[background-color,transform] hover:bg-black/80 active:scale-[0.97] lg:h-10">
+            <button type="submit" className="flex h-8 shrink-0 items-center rounded-full bg-black px-3.5 text-xs font-bold text-white transition-[background-color,transform] hover:bg-black/80 active:scale-[0.97]">
               Search
             </button>
           </div>
         </form>
 
         <nav className="hidden shrink-0 items-center justify-self-end gap-1 md:flex" aria-label="Primary navigation">
-          <Link href="/marketplace" className={`min-h-11 px-2.5 py-3 text-sm font-bold transition-colors ${isActive("/marketplace") ? "text-black" : "text-black/55 hover:text-black"}`}>
+          <Link href="/marketplace" className={`min-h-11 px-2 py-3 text-sm font-bold transition-colors ${isActive("/marketplace") ? "text-black" : "text-black/55 hover:text-black"}`}>
             Marketplace
           </Link>
-          <Link href="/sell-item" className={`min-h-11 px-2.5 py-3 text-sm font-bold transition-colors ${isActive("/sell-item") ? "text-black" : "text-black/55 hover:text-black"}`}>
+          <Link href="/sell-item" className={`min-h-11 px-2 py-3 text-sm font-bold transition-colors ${isActive("/sell-item") ? "text-black" : "text-black/55 hover:text-black"}`}>
             List
           </Link>
 
@@ -170,8 +170,8 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="ml-1 flex items-center gap-1">
-              <Link href="/login" className="inline-flex min-h-11 items-center px-2 text-sm font-bold text-black/55 hover:text-black">Log in</Link>
-              <Link href="/signup" className="inline-flex min-h-10 items-center rounded-full border border-black px-4 text-sm font-bold text-black hover:bg-black hover:text-white">Join</Link>
+              <Link href="/login" className="inline-flex min-h-11 items-center px-1.5 text-sm font-bold text-black/55 hover:text-black">Log in</Link>
+              <Link href="/signup" className="inline-flex min-h-9 items-center rounded-full border border-black px-3 text-sm font-bold text-black hover:bg-black hover:text-white">Join</Link>
             </div>
           )}
         </nav>
