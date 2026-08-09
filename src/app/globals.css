@@ -135,7 +135,7 @@
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-left: env(safe-area-inset-left, 0px);
   --safe-area-right: env(safe-area-inset-right, 0px);
-  --mobile-dock-clearance: calc(6.75rem + var(--safe-area-bottom));
+  --mobile-dock-clearance: calc(5.6rem + var(--safe-area-bottom));
 }
 
 .dark {
@@ -736,13 +736,16 @@
 
   .mobile-bottom-dock {
     position: fixed;
-    right: max(0.625rem, var(--safe-area-right));
-    bottom: calc(0.45rem + var(--safe-area-bottom));
-    left: max(0.625rem, var(--safe-area-left));
+    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: var(--layer-dock);
     pointer-events: none;
-    transform: translate3d(0, 0, 0);
     isolation: isolate;
+    padding-right: var(--safe-area-right);
+    padding-bottom: var(--safe-area-bottom);
+    padding-left: var(--safe-area-left);
+    background: white;
   }
 
   .mobile-bottom-dock__bar {

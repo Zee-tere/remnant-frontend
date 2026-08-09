@@ -6,7 +6,7 @@ const sections = [
   {
     title: "What we collect",
     body:
-      "We collect account details when you register; a display name and private capability token when you use guest listing or messaging; listings, images, messages, reports, support requests, device and security logs, and coarse location you choose to provide.",
+      "We collect account details when you register; a display name, selected public contact method, and private management token when you list as a guest; listings, images, messages, reports, support requests, device and security logs, and coarse location you choose to provide.",
   },
   {
     title: "How we use it",
@@ -21,7 +21,7 @@ const sections = [
   {
     title: "Sharing and service providers",
     body:
-      "We share only what is needed with infrastructure, identity, storage, database, email, monitoring, and matching providers that operate Remnant. Listings and the public profile fields you enable are public. Private messages and guest contact capabilities are limited to their participants and authorized moderation staff.",
+      "We share only what is needed with infrastructure, identity, storage, database, email, monitoring, and matching providers that operate Remnant. Listings, enabled public profile fields, and the WhatsApp, email, or Telegram contact chosen by a guest seller are public. A guest buyer's contact is shown only to the registered seller they message and authorized moderation staff.",
   },
   {
     title: "Retention and security",
@@ -31,7 +31,7 @@ const sections = [
   {
     title: "Cookies and browser storage",
     body:
-      "Remnant uses necessary browser storage for authenticated sessions, guest management and conversation links, preferences, and fraud prevention. Guest access belongs to the browser holding the private link or token; clearing browser data can make it unavailable. We do not use advertising cookies in this release.",
+      "Remnant uses necessary browser storage for authenticated sessions, guest listing management links, preferences, and fraud prevention. Guest listing management belongs to the browser holding the private link or token; clearing browser data can make it unavailable. We do not use advertising cookies in this release.",
   },
 ];
 

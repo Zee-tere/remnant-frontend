@@ -66,7 +66,7 @@ function SellItemPageContent() {
             <div className="mt-4 rounded-card bg-[var(--brand-soft)] p-3.5 md:mt-6 md:rounded-surface md:p-5">
               <p className="flex gap-2 text-sm font-medium leading-5 text-[var(--ink-soft)] md:font-semibold md:leading-6">
                 <ShieldCheck className="mt-0.5 shrink-0 text-[var(--secondary-blue)]" size={18} aria-hidden="true" />
-                A profile saves your listings, keeps messages together, and helps people trust you.
+                A profile keeps Remnant messages together. Guest listings stay account-free and show the contact method you choose.
               </p>
             </div>
           </div>

@@ -24,8 +24,7 @@ export default function MobileBottomNav() {
   const isMessageView =
     (isAuthenticated &&
       pathname === "/user/dashboard" &&
-      searchParams.get("section") === "messages") ||
-    pathname.startsWith("/guest/messages/");
+      searchParams.get("section") === "messages");
   const isHiddenRoute = hiddenRoutes.some((route) => pathname.startsWith(route));
   const suppressMobileDock = isHiddenRoute || isMessageView || pathname.startsWith("/admin");
 
@@ -73,7 +72,7 @@ export default function MobileBottomNav() {
       data-mobile-bottom-dock
       className="mobile-bottom-dock md:hidden"
     >
-      <div className="mobile-bottom-dock__bar soft-shadow mx-auto grid h-[4.35rem] max-w-lg grid-cols-5 rounded-card border border-[var(--border)]/75 bg-white px-1.5">
+      <div className="mobile-bottom-dock__bar mx-auto grid h-[4.6rem] max-w-lg grid-cols-5 border-t border-[var(--border)]/75 bg-white px-1.5">
         {actions.map((item) => {
           const Icon = item.icon;
           const active = isActive(item);

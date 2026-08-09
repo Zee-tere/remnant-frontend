@@ -24,9 +24,9 @@ const terms = [
       "Remnant helps people discover listings and communicate. Remnant is not the buyer, seller, repairer, recycler, carrier, payment provider, or guarantor, and does not inspect or take possession of listed items.",
   },
   {
-    title: "Guest access is a private key",
+    title: "Guest listings use direct contact",
     body:
-      "You may list and message without an account. Your guest management or conversation link controls access, so keep it private and retain it. Activity performed with a valid guest link is treated as authorized until it is deleted or expires.",
+      "You may list without an account by providing a WhatsApp number, email address, or Telegram username that will be public on the listing. Your private management link controls listing changes, so keep it private. Guests contacting registered sellers send a one-time message and contact detail; the seller replies outside Remnant.",
   },
   {
     title: "Moderation and reports",

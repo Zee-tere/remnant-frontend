@@ -1,4 +1,5 @@
 import { getApiUrl } from "@/lib/api-url";
+import type { DirectContact } from "@/lib/direct-contact";
 
 export interface PublicListingCard {
   id: string;
@@ -20,6 +21,7 @@ export interface PublicListing extends PublicListingCard {
   category: string;
   condition: string;
   isGuestListing?: boolean;
+  guestContact?: DirectContact;
   user?: {
     id: string;
     name: string;

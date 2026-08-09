@@ -2,6 +2,7 @@ import axios, { type AxiosRequestConfig } from 'axios';
 import { useAuthStore } from './auth';
 import { getApiUrl } from './api-url';
 import { beginActivity, endActivity } from './activity';
+import type { DirectContactMethod } from './direct-contact';
 
 const api = axios.create({
   baseURL: getApiUrl(),
@@ -126,6 +127,8 @@ export const listingsApi = {
     api.get(`/listings/${id}/guest-manage`, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
   updateGuestStatus: (id: string, token: string, status: 'ACTIVE' | 'PAUSED' | 'COMPLETED', version: number) =>
     api.patch(`/listings/${id}/guest-status`, { status, version }, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
+  updateGuestContact: (id: string, token: string, contactMethod: DirectContactMethod, contactValue: string, version: number) =>
+    api.patch(`/listings/${id}/guest-contact`, { contactMethod, contactValue, version }, { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
   updateListing: (id: string, data: Record<string, unknown>) =>
     api.patch(`/listings/${id}`, data).then((r) => r.data),
   deleteListing: (id: string) =>
@@ -255,40 +258,12 @@ export const conversationsApi = {
       lastReadSequence === undefined ? {} : { lastReadSequence },
       backgroundRequestConfig(),
     ).then((r) => r.data),
-  startGuestConversation: (data: { listingId: string; name: string; offer: string; clientRequestId: string }, token: string) =>
-    api.post('/conversations/guest', data, { headers: { 'X-Guest-Token': token } }).then((r) => r.data as {
+  startGuestConversation: (data: { listingId: string; name: string; offer: string; contactMethod: DirectContactMethod; contactValue: string; clientRequestId: string }) =>
+    api.post('/conversations/guest', data).then((r) => r.data as {
       delivered: true;
       conversationId: string;
       messageId: string;
-      accessToken: string;
-      expiresInDays: number;
-      deepLink: string;
     }),
-  getGuestConversation: (conversationId: string, token: string, background = false) =>
-    api.get(
-      `/conversations/guest/${conversationId}`,
-      {
-        headers: { 'X-Guest-Token': token },
-        ...(background ? backgroundRequestConfig() : {}),
-      },
-    ).then((r) => r.data),
-  getGuestConversations: (token: string) =>
-    api.get('/conversations/guest', { headers: { 'X-Guest-Token': token } }).then((r) => r.data),
-  createGuestMessage: (conversationId: string, token: string, content: string, type = 'TEXT', clientMessageId?: string) =>
-    api.post(
-      `/conversations/guest/${conversationId}/messages`,
-      { content, type, clientMessageId },
-      { headers: { 'X-Guest-Token': token } },
-    ).then((r) => r.data),
-  markGuestAsRead: (conversationId: string, token: string) =>
-    api.patch(
-      `/conversations/guest/${conversationId}/read`,
-      undefined,
-      {
-        headers: { 'X-Guest-Token': token },
-        ...backgroundRequestConfig(),
-      },
-    ).then((r) => r.data),
 };
 
 export const notificationsApi = {

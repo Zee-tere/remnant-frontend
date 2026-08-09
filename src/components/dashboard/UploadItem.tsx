@@ -11,10 +11,13 @@ import {
   Heart,
   Image as ImageIcon,
   Loader2,
+  Mail,
+  MessageCircle,
   Package,
   Recycle,
   RefreshCw,
   ScanSearch,
+  Send,
   Wrench,
   X,
 } from 'lucide-react';
@@ -33,6 +36,13 @@ import { optimizeImageFile } from '@/lib/image-optimization';
 import { listingConditions } from '@/lib/listing-conditions';
 import { ActionArtwork, type ActionArtworkName } from '@/components/brand/ActionArtwork';
 import { IntentBadge } from '@/components/ui/intent-badge';
+import {
+  directContactLabels,
+  directContactMethods,
+  directContactPlaceholders,
+  isPlausibleDirectContact,
+  type DirectContactMethod,
+} from '@/lib/direct-contact';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -93,6 +103,8 @@ function createInitialFormData(initialPurpose?: string) {
     recycleQuantity: '',
     recycleNotes: '',
     guestName: '',
+    guestContactMethod: 'WHATSAPP' as DirectContactMethod,
+    guestContactValue: '',
   };
 }
 
@@ -192,6 +204,9 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
 
       if (isGuest && formData.guestName.trim().length < 2) {
         return showValidationError('Add the name buyers should see.');
+      }
+      if (isGuest && !isPlausibleDirectContact(formData.guestContactMethod, formData.guestContactValue)) {
+        return showValidationError(`Add a valid ${directContactLabels[formData.guestContactMethod]} contact.`);
       }
     }
 
@@ -379,6 +394,10 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         images: uploaded.urls,
         uploadIds: uploaded.uploadIds,
         clientRequestId: clientRequestIdRef.current,
+        ...(isGuest ? {
+          contactMethod: formData.guestContactMethod,
+          contactValue: formData.guestContactValue.trim(),
+        } : {}),
       };
 
       const listing = await (isGuest
@@ -873,30 +892,63 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
     if (!isGuest) return null;
 
     return (
-      <fieldset className="rounded-lg bg-white p-3.5 md:col-span-2 md:rounded-none md:bg-transparent md:p-0">
-        <legend className="sr-only">Guest seller identity</legend>
-        <div className="mb-3 flex items-start gap-2.5">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center text-[var(--brand)] md:h-9 md:w-9">
-            <Package size={17} aria-hidden="true" />
-          </div>
-          <div className="min-w-0">
-            <h3 className="text-sm font-bold md:text-base">How should buyers know you?</h3>
-            <p className="mt-0.5 text-xs leading-5 text-[var(--ink-soft)] md:text-sm">No account or contact detail is required. Buyers message you privately through your saved browser link.</p>
-          </div>
+      <fieldset className="rounded-2xl border border-black/10 bg-white p-4 md:col-span-2 md:p-6">
+        <legend className="sr-only">Guest seller and contact</legend>
+        <div className="mb-5">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--muted-foreground)]">Buyer contact</p>
+          <h3 className="mt-1 text-xl font-bold tracking-[-0.025em] text-[#111]">How should buyers reach you?</h3>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--ink-soft)]">Your selected contact will appear on this listing. Buyers will contact you there; no Remnant inbox or account is needed.</p>
         </div>
-        <div className="grid gap-3 border-t border-[var(--border)]/50 pt-3 md:grid-cols-3 md:gap-4 md:pt-4">
-          <label className="block space-y-1.5 md:col-span-3">
-            <span className="text-xs font-bold leading-5 md:text-sm">Display name</span>
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="block space-y-1.5">
+            <span className="text-sm font-bold">Display name</span>
             <Input
               value={formData.guestName}
               onChange={(event) => handleInputChange('guestName', event.target.value)}
-              className="h-11 bg-white px-3 text-base md:h-12 md:px-4"
+              className="h-12 rounded-xl border-black/15 bg-white px-4 text-base focus-visible:ring-black/15"
               placeholder="The name buyers should see"
               autoComplete="name"
               minLength={2}
               maxLength={80}
               required
             />
+          </label>
+          <div className="space-y-1.5">
+            <span className="text-sm font-bold">Contact with</span>
+            <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Contact method">
+              {directContactMethods.map((method) => {
+                const Icon = method === 'EMAIL' ? Mail : method === 'TELEGRAM' ? Send : MessageCircle;
+                const selected = formData.guestContactMethod === method;
+                return (
+                  <button
+                    key={method}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => handleInputChange('guestContactMethod', method)}
+                    className={`flex min-h-12 items-center justify-center gap-1.5 rounded-xl border px-2 text-xs font-bold transition-colors ${selected ? 'border-[#111] bg-[#111] text-white' : 'border-black/15 bg-white text-[#333] hover:border-black/35'}`}
+                  >
+                    <Icon size={15} aria-hidden="true" />
+                    <span className="hidden sm:inline">{directContactLabels[method]}</span>
+                    <span className="sm:hidden">{method === 'WHATSAPP' ? 'WhatsApp' : directContactLabels[method]}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <label className="block space-y-1.5 md:col-span-2">
+            <span className="text-sm font-bold">{directContactLabels[formData.guestContactMethod]} details</span>
+            <Input
+              value={formData.guestContactValue}
+              onChange={(event) => handleInputChange('guestContactValue', event.target.value)}
+              className="h-12 rounded-xl border-black/15 bg-white px-4 text-base focus-visible:ring-black/15"
+              placeholder={directContactPlaceholders[formData.guestContactMethod]}
+              inputMode={formData.guestContactMethod === 'WHATSAPP' ? 'tel' : formData.guestContactMethod === 'EMAIL' ? 'email' : 'text'}
+              autoComplete={formData.guestContactMethod === 'WHATSAPP' ? 'tel' : formData.guestContactMethod === 'EMAIL' ? 'email' : 'off'}
+              maxLength={254}
+              required
+            />
+            <p className="text-xs leading-5 text-[var(--muted-foreground)]">Only share a contact you are comfortable displaying publicly.</p>
           </label>
         </div>
       </fieldset>

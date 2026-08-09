@@ -273,7 +273,7 @@ export default function Navbar() {
                     onClick={() => setMenuOpen(false)}
                     aria-label="Close menu"
                   />
-                  <div className="navbar-menu mobile-menu-entry relative h-full w-[min(82vw,20rem)] overflow-y-auto border-r border-[var(--line-soft)] bg-white px-3 py-3 text-left">
+                  <div className="navbar-menu mobile-menu-entry absolute right-0 h-full w-[min(82vw,20rem)] overflow-y-auto border-l border-[var(--line-soft)] bg-white px-3 py-3 text-left">
                   <nav className="flex flex-col" aria-label="Mobile navigation">
                     {(isAuthenticated ? mobileAccountActions : visibleProductActions).map((item) => {
                       const Icon = item.icon;

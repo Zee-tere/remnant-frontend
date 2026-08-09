@@ -35,6 +35,7 @@ import { cn } from '@/lib/utils';
 import { DashboardSectionLoading, LoadingState } from '@/components/feedback/LoadingState';
 import { useMobileVisualViewport } from '@/hooks/use-mobile-visual-viewport';
 import { getMessagingRealtime } from '@/lib/messaging-realtime';
+import { directContactLabels, getDirectContactHref, type DirectContact } from '@/lib/direct-contact';
 
 interface ConversationUser {
   id: string;
@@ -53,6 +54,7 @@ interface ConversationSummary {
   };
   buyer: ConversationUser;
   seller: ConversationUser;
+  guestContact?: DirectContact | null;
   messages: Message[];
   readState: {
     lastReadSequence: number;
@@ -999,6 +1001,22 @@ export default function MessagesSection() {
             <span className="ink-underline hidden pb-2 text-xs font-bold text-[var(--brand)] sm:inline">View listing</span>
             <ChevronRight size={16} className="shrink-0 text-[var(--ink-soft)] transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
           </Link>
+          {activeConversation.guestContact && (
+            <div className="border-t border-[var(--line-soft)] bg-[#f7f7f7] px-4 py-3 md:px-5">
+              <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--muted-foreground)]">Guest inquiry</p>
+                  <p className="mt-0.5 truncate text-sm font-bold text-[#111]">Reply on {directContactLabels[activeConversation.guestContact.method]} · {activeConversation.guestContact.value}</p>
+                </div>
+                <Button asChild className="h-11 shrink-0 rounded-xl bg-[#111] px-4 font-bold text-white hover:bg-black">
+                  <a href={getDirectContactHref(activeConversation.guestContact, `Hi ${activeConversation.buyer.name}, I’m replying about ${activeConversation.listing.title} on Remnant.`)} target={activeConversation.guestContact.method === 'EMAIL' ? undefined : '_blank'} rel="noreferrer">
+                    Reply
+                    <ExternalLink size={15} />
+                  </a>
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div
@@ -1088,7 +1106,11 @@ export default function MessagesSection() {
           )}
         </div>
 
-        <div className="shrink-0 border-t border-[var(--line-soft)] bg-white px-3 pb-[calc(0.6rem+var(--safe-area-bottom))] pt-2.5 md:px-5 md:pb-4 md:pt-3">
+        {activeConversation.guestContact ? (
+          <div className="shrink-0 border-t border-[var(--line-soft)] bg-white px-4 pb-[calc(0.75rem+var(--safe-area-bottom))] pt-3 text-center md:px-5 md:pb-4">
+            <p className="text-xs font-semibold leading-5 text-[var(--muted-foreground)]">This guest will not see replies in Remnant. Use their contact button above.</p>
+          </div>
+        ) : <div className="shrink-0 border-t border-[var(--line-soft)] bg-white px-3 pb-[calc(0.6rem+var(--safe-area-bottom))] pt-2.5 md:px-5 md:pb-4 md:pt-3">
           <div className="mx-auto max-w-3xl">
           {!newMessage && (
             <div className="mb-2 flex gap-2 overflow-x-auto pb-1 scrollbar-hide" aria-label="Suggested replies">
@@ -1136,7 +1158,7 @@ export default function MessagesSection() {
             Never share verification codes or pay before you are comfortable.
           </p>
           </div>
-        </div>
+        </div>}
       </div>
     );
   };

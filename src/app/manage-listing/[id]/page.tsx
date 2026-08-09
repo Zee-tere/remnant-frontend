@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { CheckCircle2, Copy, Eye, Loader2, MessageSquare, PackageX, Trash2 } from "lucide-react";
+import { CheckCircle2, Copy, Eye, Loader2, PackageX, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { ActionArtwork } from "@/components/brand/ActionArtwork";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { listingsApi, userApi } from "@/lib/api";
 import { getApiErrorMessage } from "@/lib/errors";
+import { directContactLabels, directContactMethods, directContactPlaceholders, isPlausibleDirectContact, type DirectContact } from "@/lib/direct-contact";
 
 interface GuestListingManagement {
   id: string;
@@ -17,6 +19,7 @@ interface GuestListingManagement {
   status: "ACTIVE" | "PAUSED" | "COMPLETED" | "EXPIRED" | "FLAGGED";
   version: number;
   image: string | null;
+  contact?: DirectContact;
 }
 
 export default function ManageGuestListingPage() {
@@ -27,6 +30,9 @@ export default function ManageGuestListingPage() {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<"ACTIVE" | "PAUSED" | "COMPLETED" | null>(null);
   const [deletingData, setDeletingData] = useState(false);
+  const [contactMethod, setContactMethod] = useState<DirectContact['method']>('WHATSAPP');
+  const [contactValue, setContactValue] = useState('');
+  const [updatingContact, setUpdatingContact] = useState(false);
 
   useEffect(() => {
     const fragment = new URLSearchParams(window.location.hash.replace(/^#/, ""));
@@ -59,7 +65,13 @@ export default function ManageGuestListingPage() {
       return;
     }
     listingsApi.getGuestManagement(id, managementToken)
-      .then((data: GuestListingManagement) => setListing(data))
+      .then((data: GuestListingManagement) => {
+        setListing(data);
+        if (data.contact) {
+          setContactMethod(data.contact.method);
+          setContactValue(data.contact.value);
+        }
+      })
       .catch((error) => toast.error(getApiErrorMessage(error, "This management link is invalid or expired.")))
       .finally(() => setLoading(false));
   }, [id]);
@@ -81,6 +93,25 @@ export default function ManageGuestListingPage() {
       toast.error(getApiErrorMessage(error, "Could not update this listing."));
     } finally {
       setUpdating(null);
+    }
+  };
+
+  const updateContact = async () => {
+    if (!token || !listing) return;
+    if (!isPlausibleDirectContact(contactMethod, contactValue)) {
+      toast.error(`Enter a valid ${directContactLabels[contactMethod]} contact.`);
+      return;
+    }
+    setUpdatingContact(true);
+    try {
+      const result = await listingsApi.updateGuestContact(id, token, contactMethod, contactValue, listing.version);
+      setListing((current) => current ? { ...current, contact: result.contact, version: result.version } : current);
+      setContactValue(result.contact.value);
+      toast.success(result.message);
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Could not update contact details.'));
+    } finally {
+      setUpdatingContact(false);
     }
   };
 
@@ -166,8 +197,21 @@ export default function ManageGuestListingPage() {
           </div>
         )}
 
+        <div className="border-t border-[var(--line-soft)] py-6">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--muted-foreground)]">Public contact</p>
+          <h2 className="mt-1 text-xl font-bold tracking-[-0.025em]">How buyers reach you</h2>
+          <p className="mt-1 text-sm leading-6 text-[var(--ink-soft)]">This appears on your listing. Remnant does not create an inbox for guest sellers.</p>
+          <div className="mt-4 grid grid-cols-3 gap-2" role="radiogroup" aria-label="Contact method">
+            {directContactMethods.map((method) => <button key={method} type="button" role="radio" aria-checked={contactMethod === method} onClick={() => setContactMethod(method)} className={`h-11 rounded-xl border text-xs font-bold ${contactMethod === method ? 'border-[#111] bg-[#111] text-white' : 'border-black/15 bg-white text-[#333]'}`}>{directContactLabels[method]}</button>)}
+          </div>
+          <Input value={contactValue} onChange={(event) => setContactValue(event.target.value)} placeholder={directContactPlaceholders[contactMethod]} className="mt-3 h-12 rounded-xl border-black/15 bg-white px-4 text-base" />
+          <Button type="button" onClick={() => void updateContact()} disabled={updatingContact} className="mt-3 h-12 w-full rounded-xl bg-[#111] font-bold text-white hover:bg-black">
+            {updatingContact ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+            Save contact
+          </Button>
+        </div>
+
         <div className="flex flex-col gap-2 border-t border-[var(--line-soft)] pt-5 sm:flex-row">
-          <Button asChild variant="ghost" className="justify-start px-2 font-bold text-[var(--brand)]"><Link href="/guest/messages"><MessageSquare size={16} /> Messages</Link></Button>
           {isLive && <Button asChild variant="ghost" className="justify-start px-2 font-bold text-[var(--brand)]"><Link href={`/marketplace/${listing.slug || listing.id}`}><Eye size={16} /> View listing</Link></Button>}
           <Button type="button" variant="ghost" onClick={() => void copyManagementLink()} className="justify-start px-2 font-bold text-[var(--ink-soft)]"><Copy size={16} /> Copy private management link</Button>
         </div>
