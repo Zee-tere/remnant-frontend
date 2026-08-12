@@ -54,6 +54,9 @@ function SellItemPageContent() {
                 <ArrowRight size={18} aria-hidden="true" />
                 Continue as guest
               </Button>
+              <p className="px-3 text-center text-xs font-medium leading-5 text-[var(--muted-foreground)]">
+                Guest listings stay live for 7 days, then are removed automatically.
+              </p>
 
               <Button asChild variant="ghost" className="h-12 w-full text-sm font-bold text-[var(--ink-soft)] hover:bg-[var(--sand)] hover:text-[var(--brand)]">
                 <Link href={`/login?redirect=${encodeURIComponent(listingPath)}`}>

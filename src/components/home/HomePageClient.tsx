@@ -64,21 +64,19 @@ export default function HomePageClient({
         <span className="ambient-dot ambient-dot--page-three" />
       </div>
 
-      <section className="border-b border-black/10 px-4 pb-7 pt-5 md:hidden">
-        <motion.p
-          initial="hidden"
-          animate="visible"
-          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
-          className="w-full tracking-[-0.025em]"
-        >
-          <motion.span variants={{ hidden: { opacity: 0, x: -14 }, visible: { opacity: 1, x: 0, transition: { duration: 0.42 } } }} className="block text-[1.35rem] font-bold leading-[1.12] text-black">
+      <section className="relative border-b border-black/10 px-4 pb-7 pt-5 md:hidden">
+        <div className="pointer-events-none absolute right-3 top-3 h-16 w-16 opacity-[0.14]" aria-hidden="true">
+          <ActionArtwork name="marketplace" className="h-full w-full" />
+        </div>
+        <p className="relative z-10 w-full tracking-[-0.025em]">
+          <span className="block max-w-[19rem] text-[1.35rem] font-bold leading-[1.12] text-black">
             Search for or list parts of a pair
-          </motion.span>
-          <motion.span variants={{ hidden: { opacity: 0, x: 14 }, visible: { opacity: 1, x: 0, transition: { duration: 0.42 } } }} className="mt-2 block text-base font-semibold leading-6 text-black/55">
+          </span>
+          <span className="mt-2 block text-base font-semibold leading-6 text-black/55">
             or whole products for sale, trade, donation, repair or recycling.
-          </motion.span>
-          <motion.span initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.3, duration: 0.55 }} className="mt-4 block h-px w-full origin-left bg-black/20" aria-hidden="true" />
-        </motion.p>
+          </span>
+          <span className="mt-4 block h-px w-full bg-black/20" aria-hidden="true" />
+        </p>
         <form onSubmit={handleSearch} className="mt-4" role="search">
           <div className="flex h-10 items-center rounded-full border border-black bg-white px-3 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.07)]">
             <button type="submit" className="flex h-8 w-8 shrink-0 items-center justify-center text-black/55" aria-label="Search">
@@ -115,12 +113,7 @@ export default function HomePageClient({
           </Link>
         </aside>
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, ease: [0.2, 0.8, 0.2, 1] }}
-          className="relative flex min-h-[27rem] items-center overflow-hidden py-8 lg:min-h-[32rem] lg:py-10 lg:pl-14"
-        >
+        <div className="relative flex min-h-[27rem] items-center overflow-hidden py-8 lg:min-h-[32rem] lg:py-10 lg:pl-14">
           <div className="home-motion-field" aria-hidden="true">
             <span className="home-motion-dot home-motion-dot--one" />
             <span className="home-motion-dot home-motion-dot--two" />
@@ -159,16 +152,10 @@ export default function HomePageClient({
               </Link>
             </div>
           </div>
-        </motion.div>
+        </div>
       </section>
 
-      <motion.section
-        initial={{ opacity: 0, y: 18 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.18 }}
-        transition={{ duration: 0.55 }}
-        className="mx-auto max-w-7xl px-4 pb-12 pt-8 sm:px-6 md:pb-20 md:pt-14 lg:px-8"
-      >
+      <section className="mx-auto max-w-7xl px-4 pb-12 pt-8 sm:px-6 md:pb-20 md:pt-14 lg:px-8">
         <div className="mb-6 flex items-end justify-between gap-6 md:mb-8">
           <h2 className="text-2xl font-bold tracking-[-0.035em] sm:text-3xl">Recent listings</h2>
           <Link href="/marketplace" className="hidden min-h-11 items-center gap-2 text-sm font-bold text-black sm:inline-flex">
@@ -190,7 +177,7 @@ export default function HomePageClient({
         <Link href="/marketplace" className="mt-5 inline-flex min-h-10 items-center gap-2 text-sm font-bold text-black sm:hidden">
           View the marketplace <ArrowRight size={15} aria-hidden="true" />
         </Link>
-      </motion.section>
+      </section>
 
       <section className="border-y border-black/10 bg-[#fafafa] py-12 md:px-6 md:py-20 lg:px-8">
         <div className="mx-auto max-w-7xl">

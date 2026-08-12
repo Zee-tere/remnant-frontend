@@ -407,7 +407,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       setUploadProgress(100);
       toast.success(isGuest ? 'Guest listing published' : 'Listing published', {
         description: isGuest
-          ? 'Your private listing-management link is ready.'
+          ? 'It will stay live for 7 days. Your private management link is ready.'
           : 'Your item is live on the marketplace.',
       });
 
@@ -898,6 +898,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
           <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--muted-foreground)]">Buyer contact</p>
           <h3 className="mt-1 text-xl font-bold tracking-[-0.025em] text-[#111]">How should buyers reach you?</h3>
           <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--ink-soft)]">Your selected contact will appear on this listing. Buyers will contact you there; no Remnant inbox or account is needed.</p>
+          <p className="mt-2 text-xs font-medium leading-5 text-[var(--muted-foreground)]">This guest listing will be removed automatically 7 days after publishing.</p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="block space-y-1.5">

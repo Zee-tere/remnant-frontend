@@ -16,8 +16,9 @@ interface GuestListingManagement {
   id: string;
   title: string;
   slug: string;
-  status: "ACTIVE" | "PAUSED" | "COMPLETED" | "EXPIRED" | "FLAGGED";
+  status: "ACTIVE" | "PAUSED" | "COMPLETED" | "EXPIRED" | "FLAGGED" | "DELETED";
   version: number;
+  expiresAt: string | null;
   image: string | null;
   contact?: DirectContact;
 }
@@ -165,6 +166,7 @@ export default function ManageGuestListingPage() {
             <p className="text-xs font-black uppercase tracking-[0.12em] text-[var(--brand)]">Guest listing</p>
             <h1 className="mt-1 truncate text-2xl font-bold">{listing.title}</h1>
             <p className="mt-1 text-sm font-semibold text-[var(--ink-soft)]">{isLive ? "Live in the marketplace" : listing.status === "COMPLETED" ? "Marked as sold" : "Removed from the marketplace"}</p>
+            {isLive && listing.expiresAt && <p className="mt-1 text-xs text-[var(--muted-foreground)]">Guest listing ends {new Date(listing.expiresAt).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}</p>}
           </div>
         </div>
 

@@ -77,7 +77,7 @@ export default function MobileBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`relative flex min-w-0 touch-manipulation flex-col items-center justify-center gap-1 text-xs font-bold tracking-[0.01em] transition-[color,transform] duration-150 active:scale-[0.97] ${
+              className={`relative flex min-w-0 touch-manipulation flex-col items-center justify-center gap-1 text-xs font-bold tracking-[0.01em] transition-colors duration-150 ${
                 item.primary
                   ? "text-black"
                   : active
@@ -89,7 +89,7 @@ export default function MobileBottomNav() {
             >
               <span
                 data-preserve-icon-frame
-                className={`relative flex items-center justify-center transition-[color,transform] duration-150 ${item.primary ? "-mt-3 h-10 w-10 rounded-full bg-black text-white" : `h-7 w-8 ${active ? "scale-105 text-black" : "opacity-80"}`}`}
+                className={`relative flex items-center justify-center transition-colors duration-150 ${item.primary ? "-mt-3 h-10 w-10 rounded-full bg-black text-white" : `h-7 w-8 ${active ? "text-black" : "opacity-80"}`}`}
               >
                 <Icon className={item.primary ? "h-[18px] w-[18px]" : "h-[17px] w-[17px]"} aria-hidden="true" />
               </span>
