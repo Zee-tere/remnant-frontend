@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
   ArrowLeft,
-  ChevronRight,
+  ArrowUp,
   ExternalLink,
   Flag,
   Inbox,
@@ -15,7 +15,6 @@ import {
   MoreVertical,
   PackageOpen,
   Search,
-  Send,
   ShieldCheck,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -90,7 +89,7 @@ interface MessagePage {
   nextCursor: number | null;
 }
 
-const quickReplies = ['I’m interested', 'What time works?', 'I’m on my way'];
+const quickReplies = ['I’m here', 'Be right there', 'I’m looking for you'];
 
 function asConversationRows(data: ConversationPage | ConversationSummary[]) {
   return Array.isArray(data) ? data : data.conversations;
@@ -214,6 +213,18 @@ function formatMessageDay(value: string) {
   if (date.toDateString() === today.toDateString()) return 'Today';
   if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
   return date.toLocaleDateString('en-NG', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function formatMessageStamp(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Recently';
+  return date.toLocaleString('en-NG', {
+    weekday: 'short',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 }
 
 function ListingThumbnail({ conversation, size = 'regular' }: { conversation: ConversationSummary; size?: 'small' | 'regular' }) {
@@ -786,18 +797,18 @@ export default function MessagesSection() {
 
   const ConversationList = () => (
     <div className="flex h-full min-h-0 flex-col bg-white">
-      <div className="border-b border-[var(--line-soft)] px-4 pb-4 pt-[calc(1rem+var(--safe-area-top))] md:px-5 md:pb-5 md:pt-5">
+      <div className="border-b border-black/10 px-4 pb-4 pt-[calc(1rem+var(--safe-area-top))] md:px-5 md:pb-5 md:pt-5">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-[1.35rem] font-bold tracking-[-0.025em] text-foreground md:text-2xl">Inbox</h1>
+              <h1 className="text-[1.35rem] font-bold tracking-[-0.025em] text-foreground md:text-2xl">Messages</h1>
               {unreadConversationCount > 0 && (
                 <span className="border-b border-[var(--brand)] px-0.5 py-0.5 text-xs font-black text-[var(--brand)]">
                   {unreadConversationCount} new
                 </span>
               )}
             </div>
-            <p className="mt-0.5 text-xs font-medium text-muted-foreground">Your buying, selling and trade conversations</p>
+            <p className="mt-0.5 text-xs font-medium text-muted-foreground">Your conversations about listings</p>
           </div>
           <span className="pt-1 text-xs font-semibold tabular-nums text-muted-foreground">
             {conversations.length}
@@ -807,11 +818,12 @@ export default function MessagesSection() {
         <div className="relative mt-4">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} aria-hidden="true" />
           <Input
+            data-keep-round
             aria-label="Search conversations"
             placeholder="Search a person, item or message"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            className="h-11 bg-[var(--sand)] pl-10 pr-3 text-base shadow-none md:text-sm"
+            className="h-12 border-transparent bg-[#f3f3f3] pl-10 pr-4 text-base shadow-none focus-visible:border-black/15 focus-visible:ring-black/5 md:text-sm"
           />
         </div>
 
@@ -820,13 +832,14 @@ export default function MessagesSection() {
             <button
               key={filterType}
               type="button"
+              data-keep-round
               onClick={() => setFilter(filterType)}
               aria-pressed={filter === filterType}
               className={cn(
-                'min-h-9 border-b-2 px-2 text-xs font-bold transition-colors',
+                'min-h-9 rounded-full px-3.5 text-xs font-bold transition-colors',
                 filter === filterType
-                  ? 'border-[var(--brand)] text-[var(--foreground)]'
-                  : 'border-transparent text-[var(--ink-soft)] hover:border-[var(--line-soft)]',
+                  ? 'bg-black text-white'
+                  : 'bg-[#f3f3f3] text-[var(--ink-soft)] hover:bg-[#e9e9e9] hover:text-black',
               )}
             >
               {filterType === 'all' ? 'All conversations' : `Unread${unreadConversationCount ? ` (${unreadConversationCount})` : ''}`}
@@ -868,13 +881,13 @@ export default function MessagesSection() {
                 <button
                   key={conversation.id}
                   type="button"
+                  data-keep-round
                   onClick={() => handleSelectConversation(conversation.id)}
                   className={cn(
-                    'relative mx-1.5 flex w-[calc(100%-0.75rem)] items-start gap-3 rounded-card px-2.5 py-3 text-left transition-colors md:mx-2 md:w-[calc(100%-1rem)] md:px-3',
-                    selected ? 'bg-[#f5f5f4]' : 'hover:bg-[var(--sand)]',
+                    'relative mx-2 flex w-[calc(100%-1rem)] items-start gap-3 rounded-surface px-3 py-3.5 text-left transition-colors md:mx-2.5 md:w-[calc(100%-1.25rem)] md:px-3.5',
+                    selected ? 'bg-[#f1f1f1]' : 'hover:bg-[#f6f6f6]',
                   )}
                 >
-                  {selected && <span className="absolute inset-y-3 left-0 w-1 rounded-pill bg-[var(--brand)]" aria-hidden="true" />}
                   <div className="relative shrink-0">
                     <ListingThumbnail conversation={conversation} />
                     <NameAvatar name={otherUser.name} className="absolute -bottom-1 -right-1 h-6 w-6 border-2 border-white text-xs" />
@@ -940,21 +953,22 @@ export default function MessagesSection() {
 
     return (
       <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white">
-        <div className="shrink-0 border-b border-[var(--line-soft)] bg-white pt-[var(--safe-area-top)] md:pt-0">
-          <div className="flex min-h-16 items-center justify-between gap-3 px-2 py-2 md:px-5">
-          <div className="flex min-w-0 items-center gap-3">
-            <button type="button" onClick={() => setActiveConversationId(null)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-control text-[var(--foreground)] hover:bg-[var(--sand)] hover:text-[var(--brand)] md:hidden" aria-label="Back to inbox">
-              <ArrowLeft size={19} />
+        <div className="shrink-0 border-b border-black/10 bg-white pt-[var(--safe-area-top)] shadow-[0_2px_8px_rgba(0,0,0,0.05)] md:pt-0">
+          <div className="flex min-h-[4.65rem] items-center justify-between gap-3 px-2.5 py-2 md:px-5">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <button type="button" onClick={() => setActiveConversationId(null)} className="flex h-11 w-11 shrink-0 items-center justify-center text-[var(--foreground)] transition-colors hover:text-[var(--brand)] md:hidden" aria-label="Back to messages">
+              <ArrowLeft size={22} />
             </button>
-            <NameAvatar name={otherUser.name} className="h-10 w-10 text-sm" />
             <div className="min-w-0">
-              <h2 className="truncate text-sm font-bold text-foreground md:text-base">{otherUser.name}</h2>
+              <h2 className="truncate text-base font-bold tracking-[-0.015em] text-foreground md:text-lg">{otherUser.name}</h2>
               <p className={cn(
-                'mt-0.5 flex items-center gap-1.5 truncate text-xs',
-                otherUserTyping ? 'font-medium text-[var(--brand)]' : 'text-muted-foreground',
+                'mt-0.5 flex min-w-0 items-center gap-1.5 truncate text-xs',
+                otherUserTyping ? 'font-semibold text-[var(--brand)]' : 'text-[#5d5d5d]',
               )}>
-                {!otherUserTyping && <span className={cn('h-1.5 w-1.5 rounded-pill', realtimeState === 'live' ? 'bg-[var(--state-success)]' : 'bg-[var(--state-pending)]')} aria-hidden="true" />}
-                {otherUserTyping ? 'Typing…' : realtimeState === 'live' ? 'Messages update live' : realtimeState === 'recovering' ? 'Reconnecting…' : 'Connecting…'}
+                <span className="truncate">{activeConversation.listing.title}</span>
+                <span className="shrink-0" aria-hidden="true">•</span>
+                {!otherUserTyping && <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', realtimeState === 'live' ? 'bg-[var(--state-success)]' : 'bg-[var(--state-pending)]')} aria-hidden="true" />}
+                <span className="shrink-0">{otherUserTyping ? 'Typing…' : realtimeState === 'live' ? 'Live' : realtimeState === 'recovering' ? 'Reconnecting…' : 'Connecting…'}</span>
               </p>
               <span className="sr-only">
                 {realtimeState === 'live' ? 'Live messaging connected' : realtimeState === 'recovering' ? 'Reconnecting live messaging' : 'Connecting live messaging'}
@@ -964,9 +978,9 @@ export default function MessagesSection() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button type="button" variant="ghost" size="icon" aria-label="Conversation options">
-                <MoreVertical size={18} />
-              </Button>
+              <button type="button" data-keep-round className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-black text-white transition-transform active:scale-95" aria-label="Conversation options">
+                <MoreVertical size={20} />
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
@@ -989,18 +1003,6 @@ export default function MessagesSection() {
           </DropdownMenu>
           </div>
 
-          <Link
-            href={`/marketplace/${activeConversation.listing.slug || activeConversation.listing.id}`}
-            className="group flex items-center gap-3 border-t border-[var(--line-soft)] bg-white px-4 py-2.5 transition-colors hover:bg-[var(--sand)] md:px-5"
-          >
-            <ListingThumbnail conversation={activeConversation} size="small" />
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-[var(--muted-foreground)]">About this listing</p>
-              <p className="truncate text-sm font-bold text-foreground">{activeConversation.listing.title}</p>
-            </div>
-            <span className="ink-underline hidden pb-2 text-xs font-bold text-[var(--brand)] sm:inline">View listing</span>
-            <ChevronRight size={16} className="shrink-0 text-[var(--ink-soft)] transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-          </Link>
           {activeConversation.guestContact && (
             <div className="border-t border-[var(--line-soft)] bg-[#f7f7f7] px-4 py-3 md:px-5">
               <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
@@ -1027,7 +1029,7 @@ export default function MessagesSection() {
               viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
             shouldStickToBottomRef.current = distanceFromBottom < 96;
           }}
-          className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain bg-white px-3 py-4 [overflow-anchor:none] [scrollbar-gutter:stable] md:px-8 md:py-6"
+          className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain bg-white px-4 py-5 [overflow-anchor:none] [scrollbar-gutter:stable] md:px-8 md:py-7"
         >
           {loadingMessages ? (
             <LoadingState label="Loading messages" compact className="h-full" />
@@ -1060,6 +1062,7 @@ export default function MessagesSection() {
                 const previousMessage = messages[index - 1];
                 const nextMessage = messages[index + 1];
                 const showDay = !previousMessage || new Date(previousMessage.createdAt).toDateString() !== new Date(message.createdAt).toDateString();
+                const startsGroup = !previousMessage || previousMessage.senderId !== message.senderId;
                 const endsGroup = !nextMessage || nextMessage.senderId !== message.senderId;
 
                 if (message.type === 'SYSTEM') {
@@ -1072,31 +1075,35 @@ export default function MessagesSection() {
 
                 return (
                   <div key={message.id}>
-                    {showDay && (
-                      <div className="flex justify-center py-4" aria-label={formatMessageDay(message.createdAt)}>
-                        <span className="text-[11px] font-medium text-muted-foreground">{formatMessageDay(message.createdAt)}</span>
+                    {(showDay || startsGroup) && (
+                      <div className="flex justify-center pb-4 pt-3" aria-label={formatMessageDay(message.createdAt)}>
+                        <span className="text-[11px] font-medium text-[#666]">{formatMessageStamp(message.createdAt)}</span>
                       </div>
                     )}
-                    <div className={cn('flex items-end gap-2', endsGroup ? 'mb-3' : 'mb-1', mine ? 'justify-end' : 'justify-start')}>
+                    {!mine && startsGroup && (
+                      <p className="mb-1 ml-10 text-xs font-semibold text-[#333]">{otherUser.name}</p>
+                    )}
+                    <div className={cn('flex items-end gap-2', endsGroup ? 'mb-5' : 'mb-1.5', mine ? 'justify-end' : 'justify-start')}>
                       {!mine && (
                         endsGroup
-                          ? <NameAvatar name={otherUser.name} className="h-7 w-7 shrink-0 text-xs" />
-                          : <span className="w-7 shrink-0" aria-hidden="true" />
+                          ? <NameAvatar name={otherUser.name} className="h-8 w-8 shrink-0 border border-black/5 text-xs" />
+                          : <span className="w-8 shrink-0" aria-hidden="true" />
                       )}
-                      <div
-                        className={cn(
-                          'max-w-[82%] px-3.5 py-2.5 text-sm leading-5 md:max-w-[68%]',
-                          mine
-                            ? 'rounded-card rounded-br-[5px] border border-[#dce7f5] bg-[#edf4ff] text-[#174d88]'
-                            : 'rounded-card rounded-bl-[5px] bg-[#f1f1f0] text-foreground',
+                      <div className={cn('flex max-w-[80%] flex-col md:max-w-[68%]', mine ? 'items-end' : 'items-start')}>
+                        <div
+                          className={cn(
+                            'message-bubble px-4 py-3 text-[0.94rem] leading-5',
+                            mine ? 'message-bubble--outgoing' : 'message-bubble--incoming',
+                            endsGroup && 'message-bubble--tail',
+                          )}
+                        >
+                          <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                        </div>
+                        {mine && endsGroup && (
+                          <p className="mr-1 mt-1.5 text-[11px] font-medium text-[#666]">
+                            {message.clientState === 'sending' ? 'Sending…' : message.readAt ? 'Read' : 'Sent'}
+                          </p>
                         )}
-                      >
-                        <p className="whitespace-pre-wrap break-words">{message.content}</p>
-                        <p className={cn('mt-1.5 text-[11px] tabular-nums', mine ? 'text-[#55789d]' : 'text-muted-foreground')}>
-                          {message.clientState === 'sending'
-                            ? 'Sending…'
-                            : `${formatTime(message.createdAt)}${mine && message.readAt ? ' · Read' : ''}`}
-                        </p>
                       </div>
                     </div>
                   </div>
@@ -1110,22 +1117,23 @@ export default function MessagesSection() {
           <div className="shrink-0 border-t border-[var(--line-soft)] bg-white px-4 pb-[calc(0.75rem+var(--safe-area-bottom))] pt-3 text-center md:px-5 md:pb-4">
             <p className="text-xs font-semibold leading-5 text-[var(--muted-foreground)]">This guest will not see replies in Remnant. Use their contact button above.</p>
           </div>
-        ) : <div className="shrink-0 border-t border-[var(--line-soft)] bg-white px-3 pb-[calc(0.6rem+var(--safe-area-bottom))] pt-2.5 md:px-5 md:pb-4 md:pt-3">
+        ) : <div className="shrink-0 bg-white px-4 pb-[calc(0.8rem+var(--safe-area-bottom))] pt-2 md:px-6 md:pb-5 md:pt-3">
           <div className="mx-auto max-w-3xl">
           {!newMessage && (
-            <div className="mb-2 flex gap-2 overflow-x-auto pb-1 scrollbar-hide" aria-label="Suggested replies">
+            <div className="mb-3 flex gap-2 overflow-x-auto pb-1 scrollbar-hide md:justify-center" aria-label="Suggested replies">
               {quickReplies.map((reply) => (
-                <button key={reply} type="button" onClick={() => { setNewMessage(reply); composerRef.current?.focus(); }} className="shrink-0 rounded-control bg-[#f3f3f2] px-3 py-2 text-xs font-bold text-[var(--ink-soft)] transition-colors hover:text-foreground">
+                <button key={reply} type="button" data-keep-round onClick={() => { setNewMessage(reply); composerRef.current?.focus(); }} className="shrink-0 rounded-full bg-[#f3f3f3] px-4 py-2.5 text-[0.8rem] font-semibold text-[#202020] transition-colors hover:bg-[#e9e9e9]">
                   {reply}
                 </button>
               ))}
             </div>
           )}
-          <div className="flex items-end gap-2 rounded-card border border-[var(--input)] bg-white p-1.5 transition-colors focus-within:border-[var(--foreground)]">
+          <div className="flex items-end gap-2 rounded-feature border border-black/10 bg-white p-1.5 shadow-[0_2px_7px_rgba(0,0,0,0.16)] transition-shadow focus-within:shadow-[0_2px_9px_rgba(0,0,0,0.22)]">
             <textarea
+              data-keep-round
               ref={composerRef}
               aria-label="Message"
-              placeholder={`Message ${otherUser.name}`}
+              placeholder="Type your message"
               value={newMessage}
               onChange={(event) => handleMessageChange(event.target.value)}
               onBlur={() => sendTyping(false)}
@@ -1140,18 +1148,18 @@ export default function MessagesSection() {
               enterKeyHint="send"
               maxLength={2000}
               rows={1}
-              className="min-h-11 max-h-28 flex-1 resize-none overflow-y-auto bg-transparent px-2.5 py-2.5 text-base leading-6 outline-none placeholder:text-muted-foreground md:min-h-10 md:py-2 md:text-sm md:leading-5"
+              className="min-h-11 max-h-28 flex-1 resize-none overflow-y-auto rounded-surface bg-transparent px-3 py-2.5 text-base leading-6 outline-none placeholder:text-[#777] md:min-h-10 md:py-2 md:text-sm md:leading-5"
             />
-            <Button
+            <button
               type="button"
+              data-keep-round
               onClick={handleSendMessage}
               disabled={!newMessage.trim() || sending}
-              size="icon"
               aria-label={sending ? 'Sending message' : 'Send message'}
-              className="h-11 w-11 shrink-0 bg-[var(--foreground)] text-white hover:bg-[var(--ink-soft)] md:h-10 md:w-10"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-black text-white transition-colors disabled:bg-[#f2f2f2] disabled:text-black/25 md:h-10 md:w-10"
             >
-              {sending ? <Loader2 className="animate-spin" size={17} /> : <Send size={17} />}
-            </Button>
+              {sending ? <Loader2 className="animate-spin" size={17} /> : <ArrowUp size={18} />}
+            </button>
           </div>
           <p className="mt-2 hidden items-center justify-center gap-1.5 text-xs font-medium text-muted-foreground md:flex">
             <ShieldCheck size={13} className="text-[var(--brand)]" aria-hidden="true" />

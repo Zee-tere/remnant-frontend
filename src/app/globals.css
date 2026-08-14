@@ -345,9 +345,9 @@
 
   button:not([data-keep-round]),
   [data-slot="button"],
-  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
-  textarea,
-  select {
+  input:not([data-keep-round]):not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea:not([data-keep-round]),
+  select:not([data-keep-round]) {
     border-radius: var(--shape-radius-control) !important;
   }
 
@@ -731,6 +731,53 @@
   .lift-card:hover {
     transform: translate3d(0, -3px, 0);
   }
+}
+
+.message-bubble {
+  position: relative;
+  border-radius: 1.45rem;
+}
+
+.message-bubble--incoming {
+  border: 1px solid #dedede;
+  background: #f2f2f2;
+  color: #111111;
+}
+
+.message-bubble--outgoing {
+  border: 1px solid #d8e3f7;
+  background: #eef4ff;
+  color: #155a9b;
+}
+
+.message-bubble--tail::after {
+  position: absolute;
+  bottom: -1px;
+  width: 0.72rem;
+  height: 0.82rem;
+  content: "";
+}
+
+.message-bubble--incoming.message-bubble--tail {
+  border-bottom-left-radius: 0.55rem;
+}
+
+.message-bubble--incoming.message-bubble--tail::after {
+  left: -0.34rem;
+  border-bottom-right-radius: 0.8rem;
+  background: #f2f2f2;
+  transform: skewX(-24deg);
+}
+
+.message-bubble--outgoing.message-bubble--tail {
+  border-bottom-right-radius: 0.55rem;
+}
+
+.message-bubble--outgoing.message-bubble--tail::after {
+  right: -0.34rem;
+  border-bottom-left-radius: 0.8rem;
+  background: #eef4ff;
+  transform: skewX(24deg);
 }
 
 @media (max-width: 767px) {
