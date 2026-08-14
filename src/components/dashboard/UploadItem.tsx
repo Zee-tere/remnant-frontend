@@ -66,6 +66,15 @@ const steps = [
   { label: 'Review', icon: CheckCircle },
 ];
 
+function RequiredMark() {
+  return (
+    <>
+      <span className="ml-0.5 text-[var(--brand)]" aria-hidden="true">*</span>
+      <span className="sr-only"> required</span>
+    </>
+  );
+}
+
 function normalizePurpose(value?: string): PurposeValue | '' {
   if (value && purposeValues.includes(value as PurposeValue)) return value as PurposeValue;
   return '';
@@ -125,6 +134,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [validationError, setValidationError] = useState('');
+  const [descriptionTouched, setDescriptionTouched] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const validationErrorRef = useRef<HTMLDivElement>(null);
   const submittingRef = useRef(false);
@@ -132,6 +142,10 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
   const guestTokenRef = useRef<string | null>(null);
   const selectedPurpose = purposes.find((purpose) => purpose.value === formData.purpose);
   const maxImages = isGuest ? 4 : 8;
+  const descriptionLength = formData.description.trim().length;
+  const descriptionError = descriptionTouched && descriptionLength < 3
+    ? (descriptionLength === 0 ? 'Description is required.' : 'Description must be at least 3 characters.')
+    : '';
 
   useEffect(() => {
     const nextPurpose = normalizePurpose(initialPurpose);
@@ -167,8 +181,13 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
     }
 
     if (step === 3) {
-      if (!formData.name || !formData.description || !formData.category || !formData.location || !formData.condition) {
-        return showValidationError('Complete the item name, category, condition, state, and description.');
+      if (!formData.name.trim() || !formData.category || !formData.location || !formData.condition) {
+        return showValidationError('Complete the item name, category, condition, and state.');
+      }
+
+      if (descriptionLength < 3) {
+        setDescriptionTouched(true);
+        return showValidationError('Description must be at least 3 characters.');
       }
 
       if (formData.purpose === 'SELL' && (!formData.price || Number(formData.price) <= 0)) {
@@ -570,7 +589,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             </p>
           </div>
           <label className="space-y-1.5 md:col-span-2">
-            <span className="text-sm font-bold">Missing piece</span>
+            <span className="text-sm font-bold">Missing piece<RequiredMark /></span>
             <Input
               value={formData.pairNeeded}
               onChange={(event) => handleInputChange('pairNeeded', event.target.value)}
@@ -580,7 +599,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             />
           </label>
           <label className="space-y-1.5">
-            <span className="text-sm font-bold">Pair type</span>
+            <span className="text-sm font-bold">Pair type<RequiredMark /></span>
             <Select
               value={formData.pairType}
               onChange={(event) => handleInputChange('pairType', event.target.value)}
@@ -597,11 +616,15 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             </Select>
           </label>
           <label className="space-y-1.5">
-            <span className="text-sm font-bold">Side or position</span>
+            <span className="text-sm font-bold">
+              Side or position
+              {['SHOE', 'GLOVE', 'EARBUD'].includes(formData.pairType) && <RequiredMark />}
+            </span>
             <Select
               value={formData.pairSide}
               onChange={(event) => handleInputChange('pairSide', event.target.value)}
               className="h-12 w-full rounded-control border border-[var(--border)] bg-white px-3 text-base font-medium outline-none focus:border-[var(--brand)]"
+              required={['SHOE', 'GLOVE', 'EARBUD'].includes(formData.pairType)}
             >
               <option value="">Not applicable</option>
               {['left', 'right', 'top', 'bottom', 'front', 'back', 'upper', 'lower'].map((side) => (
@@ -610,27 +633,28 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             </Select>
           </label>
           <label className="space-y-1.5">
-            <span className="text-sm font-bold">Brand <span className="font-medium text-[var(--muted-foreground)]">(optional)</span></span>
-            <Input value={formData.pairBrand} onChange={(event) => handleInputChange('pairBrand', event.target.value)} className="bg-white" />
+            <span className="text-sm font-bold">Brand {formData.pairType === 'EARBUD' ? <RequiredMark /> : <span className="font-medium text-[var(--muted-foreground)]">(optional)</span>}</span>
+            <Input value={formData.pairBrand} onChange={(event) => handleInputChange('pairBrand', event.target.value)} className="bg-white" required={formData.pairType === 'EARBUD'} />
           </label>
           <label className="space-y-1.5">
-            <span className="text-sm font-bold">Model <span className="font-medium text-[var(--muted-foreground)]">(optional)</span></span>
-            <Input value={formData.pairModel} onChange={(event) => handleInputChange('pairModel', event.target.value)} className="bg-white" />
+            <span className="text-sm font-bold">Model {formData.pairType === 'EARBUD' ? <RequiredMark /> : <span className="font-medium text-[var(--muted-foreground)]">(optional)</span>}</span>
+            <Input value={formData.pairModel} onChange={(event) => handleInputChange('pairModel', event.target.value)} className="bg-white" required={formData.pairType === 'EARBUD'} />
           </label>
           <label className="space-y-1.5">
             <span className="text-sm font-bold">Generation <span className="font-medium text-[var(--muted-foreground)]">(optional)</span></span>
             <Input value={formData.pairGeneration} onChange={(event) => handleInputChange('pairGeneration', event.target.value)} className="bg-white" placeholder="For example: 2nd generation" />
           </label>
           <label className="space-y-1.5">
-            <span className="text-sm font-bold">Size <span className="font-medium text-[var(--muted-foreground)]">(when applicable)</span></span>
-            <Input value={formData.pairSize} onChange={(event) => handleInputChange('pairSize', event.target.value)} className="bg-white" inputMode="decimal" placeholder="10 or 10.5" />
+            <span className="text-sm font-bold">Size {['SHOE', 'GLOVE'].includes(formData.pairType) ? <RequiredMark /> : <span className="font-medium text-[var(--muted-foreground)]">(when applicable)</span>}</span>
+            <Input value={formData.pairSize} onChange={(event) => handleInputChange('pairSize', event.target.value)} className="bg-white" inputMode="decimal" placeholder="10 or 10.5" required={['SHOE', 'GLOVE'].includes(formData.pairType)} />
           </label>
           <label className="space-y-1.5">
-            <span className="text-sm font-bold">Size system</span>
+            <span className="text-sm font-bold">Size system{['SHOE', 'GLOVE'].includes(formData.pairType) && <RequiredMark />}</span>
             <Select
               value={formData.pairSizeSystem}
               onChange={(event) => handleInputChange('pairSizeSystem', event.target.value)}
               className="h-12 w-full rounded-control border border-[var(--border)] bg-white px-3 text-base font-medium outline-none focus:border-[var(--brand)]"
+              required={['SHOE', 'GLOVE'].includes(formData.pairType)}
             >
               <option value="">Not applicable</option>
               <option value="UK">UK</option>
@@ -655,7 +679,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             Sale details
           </h3>
           <label className="space-y-2">
-            <span className="text-sm font-bold">Selling price</span>
+            <span className="text-sm font-bold">Selling price<RequiredMark /></span>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--muted-foreground)]">
                 ₦
@@ -683,7 +707,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             Trade details
           </h3>
           <label className="space-y-2">
-            <span className="text-sm font-bold">What would you trade for?</span>
+            <span className="text-sm font-bold">What would you trade for?<RequiredMark /></span>
             <Input
               value={formData.tradeLookingFor}
               onChange={(event) => handleInputChange('tradeLookingFor', event.target.value)}
@@ -786,7 +810,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             What kind of help do you need?
           </h3>
           <label className="space-y-2">
-            <span className="text-sm font-bold">What needs fixing?</span>
+            <span className="text-sm font-bold">What needs fixing?<RequiredMark /></span>
             <Input
               value={formData.repairIssue}
               onChange={(event) => handleInputChange('repairIssue', event.target.value)}
@@ -796,7 +820,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             />
           </label>
           <label className="space-y-2">
-            <span className="text-sm font-bold">Desired outcome</span>
+            <span className="text-sm font-bold">Desired outcome<RequiredMark /></span>
             <Input
               value={formData.repairGoal}
               onChange={(event) => handleInputChange('repairGoal', event.target.value)}
@@ -842,7 +866,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             What can be reused?
           </h3>
           <label className="space-y-2">
-            <span className="text-sm font-bold">Main material or part type</span>
+            <span className="text-sm font-bold">Main material or part type<RequiredMark /></span>
             <Input
               value={formData.recycleMaterial}
               onChange={(event) => handleInputChange('recycleMaterial', event.target.value)}
@@ -852,7 +876,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             />
           </label>
           <label className="space-y-2">
-            <span className="text-sm font-bold">Handoff preference</span>
+            <span className="text-sm font-bold">Handoff preference<RequiredMark /></span>
             <Select
               value={formData.recyclePreference}
               onChange={(event) => handleInputChange('recyclePreference', event.target.value)}
@@ -905,7 +929,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="block space-y-1.5">
-            <span className="text-sm font-bold">Display name</span>
+            <span className="text-sm font-bold">Display name<RequiredMark /></span>
             <Input
               value={formData.guestName}
               onChange={(event) => handleInputChange('guestName', event.target.value)}
@@ -918,7 +942,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             />
           </label>
           <div className="space-y-1.5">
-            <span className="text-sm font-bold">Contact with</span>
+            <span className="text-sm font-bold">Contact with<RequiredMark /></span>
             <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Contact method">
               {directContactMethods.map((method) => {
                 const Icon = method === 'EMAIL' ? Mail : method === 'TELEGRAM' ? Send : MessageCircle;
@@ -941,7 +965,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
             </div>
           </div>
           <label className="block space-y-1.5 md:col-span-2">
-            <span className="text-sm font-bold">{directContactLabels[formData.guestContactMethod]} details</span>
+            <span className="text-sm font-bold">{directContactLabels[formData.guestContactMethod]} details<RequiredMark /></span>
             <Input
               value={formData.guestContactValue}
               onChange={(event) => handleInputChange('guestContactValue', event.target.value)}
@@ -973,11 +997,12 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         <p className="mt-2 text-sm font-medium text-[var(--ink-soft)] md:text-base">
           A few clear details help the right person find it.
         </p>
+        <p className="mt-1 text-xs font-medium text-[var(--muted-foreground)]"><span className="text-[var(--brand)]" aria-hidden="true">*</span> Required fields</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 md:gap-6">
         <label className="space-y-2">
-          <span className="text-sm font-bold">Item name</span>
+          <span className="text-sm font-bold">Item name<RequiredMark /></span>
           <Input
             value={formData.name}
             onChange={(event) => handleInputChange('name', event.target.value)}
@@ -987,7 +1012,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         </label>
 
         <label className="space-y-2">
-          <span className="text-sm font-bold">Category</span>
+          <span className="text-sm font-bold">Category<RequiredMark /></span>
           <Select
             value={formData.category}
             onChange={(event) => handleInputChange('category', event.target.value)}
@@ -1004,7 +1029,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         </label>
 
         <label className="space-y-2">
-          <span className="text-sm font-bold">Condition</span>
+          <span className="text-sm font-bold">Condition<RequiredMark /></span>
           <Select
             value={formData.condition}
             onChange={(event) => handleInputChange('condition', event.target.value)}
@@ -1023,6 +1048,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         <label className="space-y-2">
           <span className="text-sm font-bold">
             {formData.purpose === 'RECYCLE' ? 'Pickup or handoff state' : 'State'}
+            <RequiredMark />
           </span>
           <Select
             value={formData.location}
@@ -1036,13 +1062,28 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
         </label>
 
         <label className="space-y-2 md:col-span-2">
-          <span className="text-sm font-bold">Description</span>
+          <span className="text-sm font-bold">Description<RequiredMark /></span>
           <Textarea
             value={formData.description}
             onChange={(event) => handleInputChange('description', event.target.value)}
-            className="min-h-[112px] bg-white text-base md:min-h-[150px]"
+            onBlur={() => setDescriptionTouched(true)}
+            minLength={3}
+            maxLength={2000}
+            aria-invalid={Boolean(descriptionError)}
+            aria-describedby="listing-description-help"
+            className={cn(
+              'min-h-[112px] bg-white text-base md:min-h-[150px]',
+              descriptionError && 'border-red-500 focus-visible:ring-red-500/20',
+            )}
             required
           />
+          <p
+            id="listing-description-help"
+            role={descriptionError ? 'alert' : undefined}
+            className={cn('text-xs font-medium', descriptionError ? 'text-red-700' : 'text-[var(--muted-foreground)]')}
+          >
+            {descriptionError || `Minimum 3 characters · ${descriptionLength}/2000`}
+          </p>
         </label>
 
         <div className="md:col-span-2">

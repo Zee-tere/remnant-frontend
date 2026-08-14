@@ -72,7 +72,7 @@ export function ListingCard({
   return (
     <Link href={`/marketplace/${item.slug || item.id}`} className={`group block min-w-0 touch-manipulation ${className}`}>
       <article className="h-full">
-        <div className="relative h-32 overflow-hidden bg-white sm:h-40 md:h-auto md:aspect-[5/4] md:rounded-card md:bg-[#f3f3f3]">
+        <div className="relative aspect-square overflow-hidden rounded-lg bg-[#f3f3f3] md:aspect-[5/4] md:rounded-card">
           {item.images?.[0] ? (
             <Image
               src={item.images[0]}
@@ -81,7 +81,7 @@ export function ListingCard({
               priority={eager}
               sizes="(max-width: 767px) 50vw, (max-width: 1279px) 33vw, 25vw"
               quality={68}
-              className="h-full w-full object-contain p-2.5 transition-transform duration-200 motion-safe:group-hover:scale-[1.025] md:object-cover md:p-0"
+              className="h-full w-full object-cover transition-transform duration-200 motion-safe:group-hover:scale-[1.025]"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-black/30">

@@ -597,21 +597,23 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="space-y-2 sm:col-span-2">
-                <span className="text-sm font-medium">Title</span>
+                <span className="text-sm font-medium">Title <span className="text-[var(--brand)]" aria-hidden="true">*</span><span className="sr-only"> required</span></span>
                 <Input value={editForm.title} onChange={(event) => setEditForm({ ...editForm, title: event.target.value })} required />
               </label>
               <label className="space-y-2 sm:col-span-2">
-                <span className="text-sm font-medium">Description</span>
+                <span className="text-sm font-medium">Description <span className="text-[var(--brand)]" aria-hidden="true">*</span><span className="sr-only"> required</span></span>
                 <textarea
                   value={editForm.description}
                   onChange={(event) => setEditForm({ ...editForm, description: event.target.value })}
                   rows={4}
+                  minLength={3}
+                  maxLength={2000}
                   required
                   className="w-full rounded-lg border border-[var(--border)] bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--brand)]/20"
                 />
               </label>
               <label className="space-y-2">
-                <span className="text-sm font-medium">Category</span>
+                <span className="text-sm font-medium">Category <span className="text-[var(--brand)]" aria-hidden="true">*</span><span className="sr-only"> required</span></span>
                 <select value={editForm.category} onChange={(event) => setEditForm({ ...editForm, category: event.target.value })} required className="h-10 w-full rounded-md border border-[var(--border)] bg-background px-3 text-sm">
                   {listingCategories.map((category) => <option key={category.label} value={category.label}>{category.label}</option>)}
                 </select>
