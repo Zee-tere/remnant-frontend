@@ -64,46 +64,49 @@ export default function MobileBottomNav() {
   };
 
   return (
-    <nav
-      aria-label="Mobile primary navigation"
-      data-mobile-bottom-dock
-      className="mobile-bottom-dock md:hidden"
-    >
-      <div className="mobile-bottom-dock__bar mx-auto grid h-[4.6rem] max-w-lg grid-cols-5 border-t border-black/10 bg-white px-1.5">
-        {actions.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`relative flex min-w-0 touch-manipulation flex-col items-center justify-center gap-1 text-xs font-bold tracking-[0.01em] transition-colors duration-150 ${
-                item.primary
-                  ? "text-black"
-                  : active
+    <>
+      <div className="mobile-bottom-dock-spacer md:hidden" aria-hidden="true" />
+      <nav
+        aria-label="Mobile primary navigation"
+        data-mobile-bottom-dock
+        className="mobile-bottom-dock md:hidden"
+      >
+        <div className="mobile-bottom-dock__bar mx-auto grid h-[4.6rem] max-w-lg grid-cols-5 border-t border-black/10 bg-white px-1.5">
+          {actions.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative flex min-w-0 touch-manipulation flex-col items-center justify-center gap-1 text-xs font-bold tracking-[0.01em] transition-colors duration-150 ${
+                  item.primary
                     ? "text-black"
-                    : "text-black/45 hover:text-black"
-              }`}
-              aria-label={item.label}
-              aria-current={active ? "page" : undefined}
-            >
-              <span
-                data-preserve-icon-frame
-                className={`relative flex items-center justify-center transition-colors duration-150 ${item.primary ? "-mt-3 h-10 w-10 rounded-full bg-black text-white" : `h-7 w-8 ${active ? "text-black" : "opacity-80"}`}`}
+                    : active
+                      ? "text-black"
+                      : "text-black/45 hover:text-black"
+                }`}
+                aria-label={item.label}
+                aria-current={active ? "page" : undefined}
               >
-                <Icon className={item.primary ? "h-[18px] w-[18px]" : "h-[17px] w-[17px]"} aria-hidden="true" />
-              </span>
-              <span className={`${item.primary ? "-mt-1 text-black" : ""} leading-none`}>{item.label}</span>
-              {active && !item.primary && (
-                <span className="absolute bottom-1 flex items-center gap-0.5" aria-hidden="true">
-                  <span className="h-0.5 w-3 bg-black" />
-                  <span className="h-0.5 w-1 bg-black" />
+                <span
+                  data-preserve-icon-frame
+                  className={`relative flex items-center justify-center transition-colors duration-150 ${item.primary ? "-mt-3 h-10 w-10 rounded-full bg-black text-white" : `h-7 w-8 ${active ? "text-black" : "opacity-80"}`}`}
+                >
+                  <Icon className={item.primary ? "h-[18px] w-[18px]" : "h-[17px] w-[17px]"} aria-hidden="true" />
                 </span>
-              )}
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+                <span className={`${item.primary ? "-mt-1 text-black" : ""} leading-none`}>{item.label}</span>
+                {active && !item.primary && (
+                  <span className="absolute bottom-1 flex items-center gap-0.5" aria-hidden="true">
+                    <span className="h-0.5 w-3 bg-black" />
+                    <span className="h-0.5 w-1 bg-black" />
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    </>
   );
 }
