@@ -124,14 +124,14 @@ export default function HomePageClient({
             name="marketplace"
             priority
             className="absolute -right-2 top-8 h-52 w-52 opacity-40 lg:-right-10 lg:top-1/2 lg:h-[23rem] lg:w-[23rem] lg:-translate-y-1/2 lg:opacity-100"
-            imageClassName="motion-safe:animate-[quiet-art-float_7s_ease-in-out_infinite_alternate]"
+            imageClassName="motion-safe:animate-[quiet-art-float_6.2s_ease-in-out_infinite_alternate]"
           />
 
           <div className="relative z-10 w-full max-w-3xl">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-black/45">A marketplace for what still works</p>
             <h1 className="mt-3 max-w-[17rem] text-[2.15rem] font-bold leading-[1.01] tracking-[-0.05em] sm:mt-5 sm:max-w-xl sm:text-5xl lg:max-w-[42rem] lg:text-[4.6rem] lg:leading-[0.98]">
               Find the exact piece.{" "}
-              <span className="hero-flourish relative inline-block pb-1">
+              <span className="hero-flourish relative inline-block pb-1 text-[#3f82aa]">
                 Pass yours on
                 <svg className="hero-flourish__line" viewBox="0 0 150 12" preserveAspectRatio="none" aria-hidden="true">
                   <path d="M2 7.5 C36 2.5 92 11 148 4.5" />

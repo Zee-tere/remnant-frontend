@@ -34,6 +34,7 @@ import { nigerianStates } from '@/lib/nigeria-locations';
 import { NairaIcon } from '@/components/ui/naira-icon';
 import { optimizeImageFile } from '@/lib/image-optimization';
 import { listingConditions } from '@/lib/listing-conditions';
+import { formatMoneyInput, normalizeMoneyInput } from '@/lib/money-input';
 import { ActionArtwork, type ActionArtworkName } from '@/components/brand/ActionArtwork';
 import { IntentBadge } from '@/components/ui/intent-badge';
 import {
@@ -246,8 +247,8 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       for (const file of validFiles) {
         try {
           optimizedFiles.push(await optimizeImageFile(file));
-        } catch (error) {
-          toast.error(error instanceof Error ? error.message : `${file.name} could not be prepared.`);
+        } catch {
+          toast.error(`${file.name} couldn’t be added. Use a JPG, PNG or WebP image under 3 MB.`);
         }
       }
 
@@ -423,8 +424,7 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       }
       router.push(`/marketplace/${listing.slug || listing.id}`);
     } catch (error) {
-      console.error('Upload failed:', error);
-      toast.error(getApiErrorMessage(error, 'Failed to publish item. Please try again.'));
+      toast.error(getApiErrorMessage(error, 'We couldn’t publish your item. Your details are still here—please try again.'));
     } finally {
       submittingRef.current = false;
       setIsUploading(false);
@@ -661,10 +661,12 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
                 ₦
               </span>
               <Input
-                type="number"
-                value={formData.price}
-                onChange={(event) => handleInputChange('price', event.target.value)}
+                type="text"
+                inputMode="numeric"
+                value={formatMoneyInput(formData.price)}
+                onChange={(event) => handleInputChange('price', normalizeMoneyInput(event.target.value))}
                 className="bg-white pl-10"
+                placeholder="0"
                 required
               />
             </div>
@@ -810,9 +812,10 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
                 ₦
               </span>
               <Input
-                type="number"
-                value={formData.repairBudget}
-                onChange={(event) => handleInputChange('repairBudget', event.target.value)}
+                type="text"
+                inputMode="numeric"
+                value={formatMoneyInput(formData.repairBudget)}
+                onChange={(event) => handleInputChange('repairBudget', normalizeMoneyInput(event.target.value))}
                 className="bg-white pl-10"
                 placeholder="Optional"
               />

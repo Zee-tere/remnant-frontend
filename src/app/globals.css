@@ -135,7 +135,7 @@
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-left: env(safe-area-inset-left, 0px);
   --safe-area-right: env(safe-area-inset-right, 0px);
-  --mobile-dock-clearance: calc(5.6rem + var(--safe-area-bottom));
+  --mobile-dock-clearance: calc(4.75rem + var(--safe-area-bottom));
 }
 
 .dark {
@@ -270,7 +270,9 @@
 
   html {
     @apply scroll-smooth;
+    min-height: 100%;
     scroll-padding-top: 6.5rem;
+    overscroll-behavior-y: none;
   }
 
   body {
@@ -280,6 +282,8 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    min-height: 100dvh;
+    overscroll-behavior-y: none;
     font-size: 16px;
     line-height: 1.55;
     touch-action: manipulation;
@@ -1169,8 +1173,8 @@
 }
 
 @keyframes quiet-art-float {
-  from { transform: translate3d(0, 0.35rem, 0) rotate(-0.35deg); }
-  to { transform: translate3d(0, -0.55rem, 0) rotate(0.35deg); }
+  from { transform: translate3d(0, 0.55rem, 0) rotate(-0.8deg) scale(0.985); }
+  to { transform: translate3d(0, -0.9rem, 0) rotate(0.8deg) scale(1.015); }
 }
 
 @keyframes ambient-float {

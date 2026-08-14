@@ -133,7 +133,7 @@ export default function RootLayout({
         <JsonLd data={structuredData} />
       </head>
 
-      <body className="flex min-h-screen flex-col bg-background text-foreground font-sans antialiased">
+      <body className="flex min-h-[100dvh] flex-col bg-background text-foreground font-sans antialiased">
         <Providers>
           <a
             href="#main-content"

@@ -37,6 +37,7 @@ import { nigerianStates } from '@/lib/nigeria-locations';
 import { conditionLabels, listingConditions } from '@/lib/listing-conditions';
 import { DashboardSectionLoading } from '@/components/feedback/LoadingState';
 import { rememberDeletedListing } from '@/lib/listing-tombstones';
+import { formatMoneyInput, normalizeMoneyInput } from '@/lib/money-input';
 
 type DashboardSection = 'listings' | 'messages' | 'alerts' | 'upload' | 'profile' | 'settings';
 
@@ -648,7 +649,13 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
               </label>
               <label className="space-y-2">
                 <span className="text-sm font-medium">Price</span>
-                <Input value={editForm.price} onChange={(event) => setEditForm({ ...editForm, price: event.target.value })} type="number" />
+                <Input
+                  value={formatMoneyInput(editForm.price)}
+                  onChange={(event) => setEditForm({ ...editForm, price: normalizeMoneyInput(event.target.value) })}
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0"
+                />
               </label>
               <label className="space-y-2">
                 <span className="text-sm font-medium">Pairing keyword</span>

@@ -71,7 +71,7 @@ export default function AuthPageClient({ mode }: { mode: AuthMode }) {
       });
     } catch (error) {
       setLoading(null);
-      toast.error(error instanceof Error ? error.message : "Authentication could not start");
+      toast.error(getApiErrorMessage(error, "Authentication could not start. Please try again."));
     }
   };
 
