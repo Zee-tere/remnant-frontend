@@ -122,11 +122,11 @@ export default function FindPageClient({
       {showFilters && (
         <div className="fixed inset-0 z-[70] md:static md:z-auto">
           <div className="absolute inset-0 bg-black/35 md:hidden" onClick={() => setShowFilters(false)} />
-          <section className="mobile-filter-entry absolute inset-x-0 bottom-0 max-h-[84dvh] overflow-y-auto rounded-t-2xl bg-white px-4 pb-[calc(1rem+var(--safe-area-bottom))] pt-3 md:static md:mt-4 md:grid md:max-h-none md:grid-cols-[1fr_1fr_1fr_auto] md:items-end md:gap-3 md:overflow-visible md:rounded-none md:border-y md:border-[var(--line-soft)] md:bg-transparent md:px-1 md:py-4 md:[animation:none]" aria-label="Search filters">
+          <section className="mobile-filter-entry absolute inset-x-0 bottom-0 max-h-[84dvh] overscroll-contain overflow-y-auto rounded-t-2xl bg-white px-4 pb-[calc(1rem+var(--safe-area-bottom))] pt-3 md:static md:mt-4 md:grid md:max-h-none md:grid-cols-[1fr_1fr_1fr_auto] md:items-end md:gap-3 md:overflow-visible md:rounded-none md:border-y md:border-[var(--line-soft)] md:bg-transparent md:px-1 md:py-4 md:[animation:none]" role="dialog" aria-modal="true" aria-labelledby="find-filter-title">
           <div className="mb-4 flex items-center justify-between border-b border-[var(--line-soft)] pb-3 md:hidden">
             <div>
               <span className="mb-2 block h-1 w-10 rounded-full bg-[var(--border)]" aria-hidden="true" />
-              <h2 className="text-xl font-bold">Refine the search</h2>
+              <h2 id="find-filter-title" className="text-xl font-bold">Refine the search</h2>
             </div>
             <button type="button" onClick={() => setShowFilters(false)} className="flex h-11 w-11 items-center justify-center rounded-xl text-[var(--ink-soft)] hover:bg-[var(--brand-soft)]" aria-label="Close filters">
               <X size={19} aria-hidden="true" />

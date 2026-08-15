@@ -819,6 +819,11 @@
     display: none;
   }
 
+  body:has([role="dialog"][aria-modal="true"]) {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
   .brand-lockup--mark-only-mobile .brand-lockup__word {
     display: none;
   }

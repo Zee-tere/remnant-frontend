@@ -583,11 +583,14 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
         <div className="fixed inset-0 z-50 flex items-end bg-black/50 p-0 sm:items-center sm:justify-center sm:p-4">
           <form
             onSubmit={handleSaveEdit}
-            className="dashboard-section-entry max-h-[90vh] w-full overflow-y-auto rounded-t-2xl border border-[var(--border)] bg-card p-5 sm:max-w-2xl sm:rounded-2xl sm:p-6"
+            className="dashboard-section-entry max-h-[92dvh] w-full overscroll-contain overflow-y-auto rounded-t-2xl border border-[var(--border)] bg-card p-5 pb-[calc(1.25rem+var(--safe-area-bottom))] sm:max-w-2xl sm:rounded-2xl sm:p-6"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-listing-title"
           >
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl font-bold text-foreground">Edit listing</h2>
+                <h2 id="edit-listing-title" className="text-xl font-bold text-foreground">Edit listing</h2>
                 <p className="text-sm text-muted-foreground">Update the details currently supported by the API.</p>
               </div>
               <Button type="button" variant="ghost" size="icon" onClick={() => setEditingListing(null)}>

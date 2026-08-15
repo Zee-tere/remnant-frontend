@@ -4,7 +4,6 @@ import { useEffect, useState, type CSSProperties } from "react";
 
 interface MobileViewportStyle extends CSSProperties {
   height: string;
-  transform: string;
 }
 
 export function useMobileVisualViewport(active = true) {
@@ -27,11 +26,12 @@ export function useMobileVisualViewport(active = true) {
 
         const viewport = window.visualViewport;
         const height = Math.round(viewport?.height ?? window.innerHeight);
-        const offsetTop = Math.round(viewport?.offsetTop ?? 0);
-        setStyle({
-          height: `${height}px`,
-          transform: `translate3d(0, ${offsetTop}px, 0)`,
-        });
+        const nextHeight = `${height}px`;
+
+        // Keep the chat attached to one stable origin. Mobile browsers already
+        // pan the visual viewport for the keyboard; mirroring offsetTop here
+        // makes the interface chase that movement and visibly judder.
+        setStyle((current) => current?.height === nextHeight ? current : { height: nextHeight });
       });
     };
 
@@ -39,14 +39,12 @@ export function useMobileVisualViewport(active = true) {
     window.addEventListener("resize", update);
     window.addEventListener("orientationchange", update);
     window.visualViewport?.addEventListener("resize", update);
-    window.visualViewport?.addEventListener("scroll", update);
 
     return () => {
       window.cancelAnimationFrame(frame);
       window.removeEventListener("resize", update);
       window.removeEventListener("orientationchange", update);
       window.visualViewport?.removeEventListener("resize", update);
-      window.visualViewport?.removeEventListener("scroll", update);
     };
   }, [active]);
 

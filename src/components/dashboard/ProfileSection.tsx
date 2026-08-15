@@ -170,16 +170,19 @@ export default function ProfileSection() {
       </div>
 
       {isEditing && (
-        <div className="fixed inset-0 z-[70] flex items-end bg-black/30 p-0 backdrop-blur-[2px] sm:items-center sm:justify-center sm:p-4">
+        <div className="fixed inset-0 z-[70] flex items-end bg-black/30 p-0 backdrop-blur-[2px] sm:items-center sm:justify-center sm:p-4" role="presentation">
           <motion.form
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             onSubmit={handleSave}
-            className="max-h-[90vh] w-full overflow-y-auto rounded-t-feature bg-white p-5 pb-[calc(1.25rem+var(--safe-area-bottom))] shadow-[0_-8px_30px_rgba(0,0,0,0.12)] sm:max-w-2xl sm:rounded-feature sm:p-7"
+            className="max-h-[92dvh] w-full overscroll-contain overflow-y-auto rounded-t-feature bg-white p-5 pb-[calc(1.25rem+var(--safe-area-bottom))] shadow-[0_-8px_30px_rgba(0,0,0,0.12)] sm:max-w-2xl sm:rounded-feature sm:p-7"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="profile-editor-title"
           >
             <div className="mb-5 flex items-center justify-between sm:mb-6">
               <div>
-                <h2 className="text-xl font-bold tracking-[-0.025em] sm:text-2xl">Edit profile</h2>
+                <h2 id="profile-editor-title" className="text-xl font-bold tracking-[-0.025em] sm:text-2xl">Edit profile</h2>
                 <p className="mt-0.5 text-sm font-medium text-[#666]">Update what other members see.</p>
               </div>
               <button

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -596,21 +596,27 @@ export default function MessagesSection() {
     return () => window.cancelAnimationFrame(frame);
   }, [messages, activeConversationId, user?.id]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const composer = composerRef.current;
     if (!composer) return;
-    composer.style.height = '0px';
-    composer.style.height = `${Math.min(112, Math.max(44, composer.scrollHeight))}px`;
+    composer.style.height = 'auto';
+    const nextHeight = `${Math.min(112, Math.max(44, composer.scrollHeight))}px`;
+    if (composer.style.height !== nextHeight) composer.style.height = nextHeight;
+
+    if (shouldStickToBottomRef.current) {
+      const viewport = messagesViewportRef.current;
+      if (viewport) viewport.scrollTop = viewport.scrollHeight;
+    }
   }, [newMessage]);
 
   useEffect(() => {
     if (!activeConversationId || !shouldStickToBottomRef.current) return;
-    const frame = window.requestAnimationFrame(() => {
+    const timer = window.setTimeout(() => {
       const viewport = messagesViewportRef.current;
       if (viewport) viewport.scrollTop = viewport.scrollHeight;
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [activeConversationId, mobileViewportStyle]);
+    }, 80);
+    return () => window.clearTimeout(timer);
+  }, [activeConversationId, mobileViewportStyle?.height]);
 
   const activeConversation = conversations.find((conversation) => conversation.id === activeConversationId) ?? null;
 
@@ -1029,7 +1035,7 @@ export default function MessagesSection() {
               viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
             shouldStickToBottomRef.current = distanceFromBottom < 96;
           }}
-          className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain bg-white px-4 py-5 [overflow-anchor:none] [scrollbar-gutter:stable] md:px-8 md:py-7"
+          className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain bg-white px-4 py-5 [overflow-anchor:none] md:px-8 md:py-7 md:[scrollbar-gutter:stable]"
         >
           {loadingMessages ? (
             <LoadingState label="Loading messages" compact className="h-full" />
@@ -1117,18 +1123,16 @@ export default function MessagesSection() {
           <div className="shrink-0 border-t border-[var(--line-soft)] bg-white px-4 pb-[calc(0.75rem+var(--safe-area-bottom))] pt-3 text-center md:px-5 md:pb-4">
             <p className="text-xs font-semibold leading-5 text-[var(--muted-foreground)]">This guest will not see replies in Remnant. Use their contact button above.</p>
           </div>
-        ) : <div className="shrink-0 bg-white px-4 pb-[calc(0.8rem+var(--safe-area-bottom))] pt-2 md:px-6 md:pb-5 md:pt-3">
+        ) : <div className="shrink-0 border-t border-black/5 bg-white px-4 pb-[calc(0.8rem+var(--safe-area-bottom))] pt-2 md:px-6 md:pb-5 md:pt-3">
           <div className="mx-auto max-w-3xl">
-          {!newMessage && (
-            <div className="mb-3 flex gap-2 overflow-x-auto pb-1 scrollbar-hide md:justify-center" aria-label="Suggested replies">
+            <div className="mb-2.5 flex min-h-10 gap-2 overflow-x-auto pb-0.5 scrollbar-hide md:mb-3 md:justify-center" aria-label="Suggested replies">
               {quickReplies.map((reply) => (
-                <button key={reply} type="button" data-keep-round onClick={() => { setNewMessage(reply); composerRef.current?.focus(); }} className="shrink-0 rounded-full bg-[#f3f3f3] px-4 py-2.5 text-[0.8rem] font-semibold text-[#202020] transition-colors hover:bg-[#e9e9e9]">
+                <button key={reply} type="button" data-keep-round onClick={() => { setNewMessage(reply); composerRef.current?.focus(); }} className="shrink-0 rounded-full bg-[#f3f3f3] px-4 py-2 text-[0.8rem] font-semibold text-[#202020] transition-colors hover:bg-[#e9e9e9] active:bg-[#dedede]">
                   {reply}
                 </button>
               ))}
             </div>
-          )}
-          <div className="flex items-end gap-2 rounded-feature border border-black/10 bg-white p-1.5 shadow-[0_2px_7px_rgba(0,0,0,0.16)] transition-shadow focus-within:shadow-[0_2px_9px_rgba(0,0,0,0.22)]">
+          <div className="flex items-end gap-2 rounded-feature border border-black/10 bg-white p-1.5 shadow-[0_2px_7px_rgba(0,0,0,0.16)] focus-within:border-black/20">
             <textarea
               data-keep-round
               ref={composerRef}
@@ -1148,7 +1152,7 @@ export default function MessagesSection() {
               enterKeyHint="send"
               maxLength={2000}
               rows={1}
-              className="min-h-11 max-h-28 flex-1 resize-none overflow-y-auto rounded-surface bg-transparent px-3 py-2.5 text-base leading-6 outline-none placeholder:text-[#777] md:min-h-10 md:py-2 md:text-sm md:leading-5"
+              className="min-h-11 max-h-28 min-w-0 flex-1 resize-none overflow-y-auto rounded-surface bg-transparent px-3 py-2.5 text-base leading-6 outline-none placeholder:text-[#777] md:min-h-10 md:py-2 md:text-sm md:leading-5"
             />
             <button
               type="button"
@@ -1175,7 +1179,7 @@ export default function MessagesSection() {
     <div className="md:h-full">
       <div
         style={mobileViewportStyle}
-        className="fixed inset-0 z-[80] grid h-dvh min-h-[280px] grid-cols-1 overflow-hidden bg-white md:static md:z-auto md:h-[calc(100dvh-4rem)] md:max-h-[860px] md:min-h-[640px] md:grid-cols-[minmax(18rem,21.5rem)_minmax(0,1fr)] md:transform-none md:rounded-surface md:border md:border-[var(--border)]/80 lg:h-[calc(100dvh-5rem)]"
+        className="fixed left-0 top-0 z-[80] grid h-dvh w-full min-h-0 grid-cols-1 overflow-hidden overscroll-none bg-white md:static md:z-auto md:h-[calc(100dvh-4rem)] md:max-h-[860px] md:min-h-[640px] md:grid-cols-[minmax(18rem,21.5rem)_minmax(0,1fr)] md:rounded-surface md:border md:border-[var(--border)]/80 lg:h-[calc(100dvh-5rem)]"
       >
         <div className={cn('min-h-0 border-b border-[var(--border)]/70 md:block md:border-b-0 md:border-r', activeConversationId ? 'hidden' : 'block')}>
           {ConversationList()}
