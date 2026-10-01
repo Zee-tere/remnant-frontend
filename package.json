@@ -23,13 +23,13 @@
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@supabase/supabase-js": "^2.106.2",
-    "axios": "1.19.0",
+    "axios": "1.20.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.5.0",
     "lucide-react": "^0.482.0",
-    "next": "^15.2.2",
+    "next": "15.5.24",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
@@ -53,6 +53,6 @@
   "overrides": {
     "nanoid": "3.3.18",
     "postcss": "8.5.23",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.4"
   }
 }
