@@ -95,7 +95,6 @@ function createInitialFormData(initialPurpose?: string) {
     pairSide: '',
     pairBrand: '',
     pairModel: '',
-    pairGeneration: '',
     pairSize: '',
     pairSizeSystem: '',
     tradeLookingFor: '',
@@ -181,13 +180,14 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
     }
 
     if (step === 3) {
-      if (!formData.name.trim() || !formData.category || !formData.location || !formData.condition) {
-        return showValidationError('Complete the item name, category, condition, and state.');
-      }
+      if (!formData.name.trim()) return showValidationError('Add the item name.');
+      if (!formData.category) return showValidationError('Choose an item category.');
+      if (!formData.condition) return showValidationError('Choose the item condition.');
+      if (!formData.location) return showValidationError('Choose the state where the item is located.');
 
       if (descriptionLength < 3) {
         setDescriptionTouched(true);
-        return showValidationError('Description must be at least 3 characters.');
+        return showValidationError(descriptionLength === 0 ? 'Add an item description.' : 'Description must be at least 3 characters.');
       }
 
       if (formData.purpose === 'SELL' && (!formData.price || Number(formData.price) <= 0)) {
@@ -203,23 +203,23 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       if (formData.needsPair && ['SHOE', 'GLOVE', 'EARBUD'].includes(formData.pairType) && !formData.pairSide) {
         return showValidationError('Choose the side of the piece you already have.');
       }
-      if (formData.needsPair && ['SHOE', 'GLOVE'].includes(formData.pairType) && (!formData.pairSize || !formData.pairSizeSystem)) {
-        return showValidationError('Add the size and size system for this pair.');
+      if (formData.needsPair && ['SHOE', 'GLOVE'].includes(formData.pairType) && (!formData.pairSize.trim() || !formData.pairSizeSystem)) {
+        return showValidationError(!formData.pairSize.trim() ? 'Add the size of the piece you already have.' : 'Choose the size system (UK, US, or EU).');
       }
-      if (formData.needsPair && formData.pairType === 'EARBUD' && (!formData.pairBrand || !formData.pairModel)) {
-        return showValidationError('Add the earbud brand and model so incompatible parts are excluded.');
+      if (formData.needsPair && formData.pairType === 'EARBUD' && (!formData.pairBrand.trim() || !formData.pairModel.trim())) {
+        return showValidationError(!formData.pairBrand.trim() ? 'Add the earbud brand.' : 'Add the earbud model.');
       }
 
-      if (formData.purpose === 'TRADE' && !formData.tradeLookingFor) {
+      if (formData.purpose === 'TRADE' && !formData.tradeLookingFor.trim()) {
         return showValidationError('Tell people what you would like to receive in the trade.');
       }
 
-      if (formData.purpose === 'FIX' && (!formData.repairIssue || !formData.repairGoal)) {
-        return showValidationError('Add both the repair issue and the outcome you want.');
+      if (formData.purpose === 'FIX' && (!formData.repairIssue.trim() || !formData.repairGoal.trim())) {
+        return showValidationError(!formData.repairIssue.trim() ? 'Describe what needs repairing.' : 'Describe the repair outcome you want.');
       }
 
-      if (formData.purpose === 'RECYCLE' && (!formData.recycleMaterial || !formData.recyclePreference)) {
-        return showValidationError('Add the material type and a recycle handoff preference.');
+      if (formData.purpose === 'RECYCLE' && (!formData.recycleMaterial.trim() || !formData.recyclePreference)) {
+        return showValidationError(!formData.recycleMaterial.trim() ? 'Add the material type for recycling.' : 'Choose a recycle handoff preference.');
       }
 
       if (isGuest && formData.guestName.trim().length < 2) {
@@ -318,7 +318,6 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
       side: formData.needsPair ? formData.pairSide || undefined : undefined,
       brand: formData.needsPair ? formData.pairBrand || undefined : undefined,
       model: formData.needsPair ? formData.pairModel || undefined : undefined,
-      generation: formData.needsPair ? formData.pairGeneration || undefined : undefined,
       size: formData.needsPair ? formData.pairSize || undefined : undefined,
       sizeSystem: formData.needsPair ? formData.pairSizeSystem || undefined : undefined,
     };
@@ -639,10 +638,6 @@ export default function UploadItem({ initialPurpose, isGuest = false }: UploadIt
           <label className="space-y-1.5">
             <span className="text-sm font-bold">Model {formData.pairType === 'EARBUD' ? <RequiredMark /> : <span className="font-medium text-[var(--muted-foreground)]">(optional)</span>}</span>
             <Input value={formData.pairModel} onChange={(event) => handleInputChange('pairModel', event.target.value)} className="bg-white" required={formData.pairType === 'EARBUD'} />
-          </label>
-          <label className="space-y-1.5">
-            <span className="text-sm font-bold">Generation <span className="font-medium text-[var(--muted-foreground)]">(optional)</span></span>
-            <Input value={formData.pairGeneration} onChange={(event) => handleInputChange('pairGeneration', event.target.value)} className="bg-white" placeholder="For example: 2nd generation" />
           </label>
           <label className="space-y-1.5">
             <span className="text-sm font-bold">Size {['SHOE', 'GLOVE'].includes(formData.pairType) ? <RequiredMark /> : <span className="font-medium text-[var(--muted-foreground)]">(when applicable)</span>}</span>

@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { ArrowRight, ChevronRight, PackagePlus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -58,36 +57,24 @@ export default function HomePageClient({
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-white text-[#111]">
-      <div className="home-ambient-field" aria-hidden="true">
-        <span className="ambient-dot ambient-dot--page-one" />
-        <span className="ambient-dot ambient-dot--page-two" />
-        <span className="ambient-dot ambient-dot--page-three" />
-      </div>
-
-      <section className="relative border-b border-black/10 px-4 pb-7 pt-5 md:hidden">
-        <div className="pointer-events-none absolute right-3 top-3 h-16 w-16 opacity-[0.14]" aria-hidden="true">
-          <ActionArtwork name="marketplace" className="h-full w-full" />
-        </div>
-        <p className="relative z-10 w-full tracking-[-0.025em]">
-          <span className="block max-w-[19rem] text-[1.35rem] font-bold leading-[1.12] text-black">
-            Search for or list parts of a pair
-          </span>
-          <span className="mt-2 block text-base font-semibold leading-6 text-black/55">
-            or whole products for sale, trade, donation, repair or recycling.
-          </span>
-          <span className="mt-4 block h-px w-full bg-black/20" aria-hidden="true" />
+      <section className="border-b border-black/10 px-4 py-6 md:hidden">
+        <h1 className="max-w-sm text-[1.75rem] font-bold leading-[1.15] tracking-[-0.03em]">
+          Find the missing piece.<br />Pass yours on.
+        </h1>
+        <p className="mt-3 max-w-sm text-sm leading-6 text-[var(--ink-soft)]">
+          Find parts or whole items to buy, trade, repair or reuse, from people across Nigeria.
         </p>
-        <form onSubmit={handleSearch} className="mt-4" role="search">
-          <div className="flex h-10 items-center rounded-full border border-black bg-white px-3 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.07)]">
-            <button type="submit" className="flex h-8 w-8 shrink-0 items-center justify-center text-black/55" aria-label="Search">
-              <Search className="search-glyph" size={16} strokeWidth={2.1} aria-hidden="true" />
+        <form onSubmit={handleSearch} className="mt-5" role="search">
+          <div className="flex h-12 items-center rounded-control border border-[var(--border)] bg-white focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]/15">
+            <button type="submit" className="flex h-11 w-11 shrink-0 items-center justify-center text-[var(--brand)]" aria-label="Search">
+              <Search size={20} aria-hidden="true" />
             </button>
             <Input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               aria-label="Search the marketplace"
-              placeholder="Search items or missing pieces"
-              className="h-9 min-w-0 flex-1 border-0 bg-transparent px-2.5 text-sm shadow-none focus-visible:ring-0"
+              placeholder="Search items or parts"
+              className="h-11 min-w-0 flex-1 border-0 bg-transparent pl-0 pr-3 text-base shadow-none focus-visible:ring-0"
             />
           </div>
         </form>
@@ -95,7 +82,7 @@ export default function HomePageClient({
 
       <section className="relative mx-auto hidden max-w-7xl overflow-hidden border-b border-black/10 px-4 md:block md:px-6 lg:grid lg:grid-cols-[14rem_minmax(0,1fr)] lg:px-8">
         <aside className="hidden border-r border-black/10 py-10 pr-7 lg:block" aria-label="Browse categories">
-          <p className="mb-4 text-xs font-bold uppercase tracking-[0.14em] text-black/45">Browse categories</p>
+          <p className="mb-4 text-xs font-bold uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Browse categories</p>
           <nav className="space-y-0.5">
             {listingCategories.slice(0, 10).map((category) => (
               <Link
@@ -114,21 +101,14 @@ export default function HomePageClient({
         </aside>
 
         <div className="relative flex min-h-[27rem] items-center overflow-hidden py-8 lg:min-h-[32rem] lg:py-10 lg:pl-14">
-          <div className="home-motion-field" aria-hidden="true">
-            <span className="home-motion-dot home-motion-dot--one" />
-            <span className="home-motion-dot home-motion-dot--two" />
-            <span className="home-motion-dot home-motion-dot--three" />
-            <span className="home-motion-orbit" />
-          </div>
           <ActionArtwork
             name="marketplace"
             priority
             className="absolute -right-2 top-8 h-52 w-52 opacity-40 lg:-right-10 lg:top-1/2 lg:h-[23rem] lg:w-[23rem] lg:-translate-y-1/2 lg:opacity-100"
-            imageClassName="motion-safe:animate-[quiet-art-float_6.2s_ease-in-out_infinite_alternate]"
           />
 
           <div className="relative z-10 w-full max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-black/45">A marketplace for what still works</p>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--muted-foreground)]">A marketplace for what still works</p>
             <h1 className="mt-3 max-w-[17rem] text-[2.15rem] font-bold leading-[1.01] tracking-[-0.05em] sm:mt-5 sm:max-w-xl sm:text-5xl lg:max-w-[42rem] lg:text-[4.6rem] lg:leading-[0.98]">
               Find the exact piece.{" "}
               <span className="hero-flourish relative inline-block pb-1 text-[#3f82aa]">
@@ -164,13 +144,13 @@ export default function HomePageClient({
         </div>
 
         {initialFeaturedListings.length > 0 ? (
-          <div className="grid grid-cols-2 gap-x-2 gap-y-7 sm:gap-x-6 md:grid-cols-3 md:gap-y-10 lg:gap-x-8">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-x-6 md:grid-cols-3 md:gap-y-10 lg:gap-x-8">
             {initialFeaturedListings.map((item) => <ListingCard key={item.id} item={item} />)}
           </div>
         ) : (
-          <div className="border-y border-black/10 py-16 text-center">
-            <ActionArtwork name="sell" className="mx-auto h-24 w-24" />
-            <h3 className="mt-5 text-2xl font-bold">Be the first to list something useful</h3>
+          <div className="border-y border-black/10 px-4 py-8 text-center md:py-16">
+            <ActionArtwork name="sell" className="mx-auto h-16 w-16 md:h-24 md:w-24" />
+            <h3 className="mt-4 text-lg font-bold md:text-2xl">Be the first to list something useful</h3>
             <Button asChild className="mt-6 bg-[#111] text-white hover:bg-black"><Link href="/sell-item">List an item</Link></Button>
           </div>
         )}
@@ -179,33 +159,31 @@ export default function HomePageClient({
         </Link>
       </section>
 
-      <section className="border-y border-black/10 bg-[#fafafa] py-12 md:px-6 md:py-20 lg:px-8">
+      <section className="border-y border-black/10 bg-[#fafafa] py-8 md:px-6 md:py-16 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <h2 className="px-4 text-2xl font-bold tracking-[-0.035em] sm:px-6 sm:text-3xl md:px-0 md:text-4xl">Choose what happens next</h2>
-          <div className="mt-6 grid auto-cols-[4.75rem] grid-flow-col gap-2 overflow-x-auto px-4 pb-2 scrollbar-hide sm:px-6 md:mt-10 md:grid-flow-row md:grid-cols-6 md:gap-6 md:overflow-visible md:px-0">
-            {listingActions.map((action, index) => (
-              <motion.div key={action.href} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.06 }}>
-                <Link href={action.href} onClick={(event) => handleActionClick(event, action)} className="group flex snap-start flex-col items-center text-center">
-                  <ActionArtwork name={action.artwork} className="h-[2.65rem] w-[2.65rem] md:h-24 md:w-24" imageClassName="transition-transform duration-300 motion-safe:group-hover:-translate-y-1 motion-safe:group-hover:scale-105" />
-                  <h3 className="mt-1.5 text-xs font-bold md:mt-4 md:text-lg">{action.label}</h3>
-                  <p className="mt-1 hidden text-sm leading-6 text-black/50 md:block">{action.copy}</p>
-                </Link>
-              </motion.div>
+          <div className="mt-5 grid grid-cols-3 gap-x-3 gap-y-5 px-4 sm:px-6 md:mt-8 md:grid-cols-6 md:gap-6 md:px-0">
+            {listingActions.map((action) => (
+              <Link key={action.href} href={action.href} onClick={(event) => handleActionClick(event, action)} className="flex min-w-0 flex-col items-center py-2 text-center hover:text-[var(--brand)]">
+                <ActionArtwork name={action.artwork} className="h-14 w-14 md:h-20 md:w-20" />
+                <h3 className="mt-2 text-sm font-semibold leading-5 md:text-base">{action.label}</h3>
+                <p className="mt-1 hidden text-sm leading-6 text-[var(--muted-foreground)] md:block">{action.copy}</p>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="border-t border-black/10 px-4 py-14 sm:px-6 md:py-20 lg:px-8">
+      <section className="px-4 py-8 sm:px-6 md:py-16 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-black/40">Simple by design</p>
+          <p className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--muted-foreground)]">Simple by design</p>
           <h2 className="mt-2 text-2xl font-bold tracking-[-0.035em] sm:text-3xl md:text-4xl">How Remnant works</h2>
-          <div className="mt-6 grid grid-cols-3 md:mt-10">
+          <div className="mt-5 grid gap-5 md:mt-10 md:grid-cols-3 md:gap-0">
             {howItWorks.map((step, index) => (
-              <article key={step.number} className={`${index > 0 ? "border-l border-black/20" : ""} min-w-0 px-2 py-1 sm:px-5 md:px-8`}>
-                <span className="text-xs font-bold tabular-nums text-black/35">{step.number}</span>
-                <h3 className="mt-3 text-xs font-bold leading-4 sm:text-base md:text-xl">{step.title}</h3>
-                <p className="mt-2 text-xs leading-5 text-black/55 md:max-w-sm md:text-sm md:leading-6">{step.text}</p>
+              <article key={step.number} className={`${index > 0 ? "border-t border-black/10 pt-5 md:border-l md:border-t-0 md:pt-0" : ""} grid min-w-0 grid-cols-[2rem_minmax(0,1fr)] gap-x-3 md:block md:px-8`}>
+                <span className="pt-0.5 text-sm font-semibold tabular-nums text-[var(--brand)]">{step.number}</span>
+                <h3 className="text-base font-semibold leading-6 md:mt-3 md:text-xl">{step.title}</h3>
+                <p className="col-start-2 mt-1 text-sm leading-6 text-[var(--ink-soft)] md:max-w-sm">{step.text}</p>
               </article>
             ))}
           </div>

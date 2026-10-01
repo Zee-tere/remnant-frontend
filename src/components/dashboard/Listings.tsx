@@ -341,7 +341,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
 
   return (
     <div className="space-y-3 md:space-y-6">
-      <div className="flex items-center justify-between gap-3 md:flex-row md:items-center">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-foreground md:text-3xl">My Listings</h1>
           <p className="text-xs text-muted-foreground md:text-sm">
@@ -349,7 +349,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
           </p>
         </div>
 
-        <div className="flex shrink-0 items-center gap-1.5 sm:w-auto sm:flex-row md:gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
           <Button
             type="button"
             variant="outline"
@@ -380,7 +380,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
               placeholder="Search your listings"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              className="h-10 pl-10 text-sm md:h-12"
+              className="h-12 pl-10 text-base"
             />
           </div>
 
@@ -419,13 +419,13 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-1.5 md:gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 md:gap-4">
         {stats.map((stat, index) => (
           <Card key={stat.label} className="min-w-0 rounded-lg border-[var(--border)] bg-card md:rounded-xl">
             <CardContent className="flex min-w-0 flex-col p-2 md:flex-row md:items-center md:justify-between md:p-5">
               <div className="min-w-0">
                 <p className="line-clamp-2 min-h-7 text-xs font-semibold leading-4 text-muted-foreground md:min-h-0 md:text-sm">{stat.label}</p>
-                <p className="mt-1 truncate text-sm font-bold text-foreground md:mt-2 md:text-2xl">{stat.value}</p>
+                <p className="mt-1 break-words text-sm font-bold text-foreground md:mt-2 md:text-2xl">{stat.value}</p>
               </div>
               <div className={cn('mt-1 hidden w-fit rounded-full p-1.5 md:mt-0 md:block md:p-3', statIconClasses[index])}>
                 <stat.icon size={22} />
@@ -459,9 +459,9 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-2 gap-2.5 md:gap-5 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 md:gap-5 lg:grid-cols-2 xl:grid-cols-3">
           {filteredListings.map((listing) => (
-            <div key={listing.id}>
+            <div key={listing.id} className="min-w-0">
               <Card className="flex h-full flex-col overflow-hidden rounded-lg border-[var(--border)] bg-card transition-colors hover:border-[var(--brand)]/45 md:rounded-xl">
                 <div className="relative aspect-[5/3] overflow-hidden bg-[var(--sand)] md:aspect-[4/3]">
                   {listing.images?.[0] ? (
@@ -488,14 +488,14 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                 <CardHeader className="p-2.5 pb-1.5 md:p-6 md:pb-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <CardTitle className="line-clamp-1 text-xs md:text-base">{listing.title}</CardTitle>
-                      <p className="mt-1 truncate text-sm font-bold text-[var(--brand)] md:text-lg">
+                      <CardTitle className="break-words text-sm md:text-base">{listing.title}</CardTitle>
+                      <p className="mt-1 break-words text-sm font-bold text-[var(--brand)] md:text-lg">
                         {getListingValue(listing)}
                       </p>
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button type="button" variant="ghost" size="icon" className="h-7 w-7 md:h-8 md:w-8">
+                        <Button type="button" variant="ghost" size="icon" aria-label={`Actions for ${listing.title}`} className="h-7 w-7 shrink-0 md:h-8 md:w-8">
                           <MoreVertical size={16} />
                         </Button>
                       </DropdownMenuTrigger>
@@ -536,8 +536,8 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                 </CardHeader>
 
                 <CardContent className="space-y-1.5 px-2.5 pb-2 md:space-y-3 md:px-6 md:pb-3">
-                  <div className="flex min-w-0 gap-1 overflow-hidden text-xs md:flex-wrap md:gap-2">
-                    <span className="truncate rounded-full bg-neutral-100 px-1.5 py-0.5 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 md:px-2.5 md:py-1">
+                  <div className="flex min-w-0 flex-wrap gap-1 text-xs md:gap-2">
+                    <span className="break-words rounded-full bg-neutral-100 px-1.5 py-0.5 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 md:px-2.5 md:py-1">
                       {listing.category}
                     </span>
                     <span className="hidden rounded-full bg-neutral-100 px-2.5 py-1 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 md:inline">
@@ -556,7 +556,7 @@ export default function ListingsSection({ onSelectSection }: ListingsSectionProp
                   </div>
                 </CardContent>
 
-                <CardFooter className="mt-auto grid grid-cols-2 gap-1.5 px-2.5 pb-2.5 pt-0 md:gap-2 md:px-6 md:pb-6">
+                <CardFooter className="mt-auto grid grid-cols-[repeat(auto-fit,minmax(6rem,1fr))] gap-1.5 px-2.5 pb-2.5 pt-0 md:gap-2 md:px-6 md:pb-6">
                   {listing.status === 'ACTIVE' ? (
                     <Button type="button" variant="outline" size="sm" asChild className="h-9 border-[var(--border)] px-2 text-xs md:text-sm">
                       <Link href={`/marketplace/${listing.slug || listing.id}`}>View</Link>

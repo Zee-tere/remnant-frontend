@@ -72,7 +72,7 @@ export function IntentBadge({
         className,
       )}
     >
-      <Icon size={compact ? 10 : 14} className={compact ? "sm:h-3 sm:w-3" : undefined} aria-hidden="true" />
+      <Icon size={compact ? 12 : 16} aria-hidden="true" />
       {meta.label}
     </span>
   );

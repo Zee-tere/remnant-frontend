@@ -100,13 +100,13 @@ export function ListingCard({
         </div>
 
         <div className="pt-2 md:pt-4">
-          <h3 className="line-clamp-2 min-h-8 text-xs font-semibold leading-4 text-[#111] md:min-h-0 md:text-base md:font-bold md:leading-snug">
+          <h3 className="line-clamp-2 min-h-10 break-words text-sm font-semibold leading-5 text-[#111] md:min-h-0 md:text-base md:leading-snug">
             {item.title}
           </h3>
-          <p className="mt-0.5 truncate text-sm font-bold leading-5 text-[#111] md:mt-1 md:text-lg md:leading-6">
+          <p className="mt-1 break-words text-base font-bold leading-6 text-[#111] md:text-lg">
             {getListingValue(item)}
           </p>
-          <div className="mt-1.5 hidden min-w-0 items-center gap-1 text-xs font-semibold leading-4 text-black/45 md:mt-2 md:flex">
+          <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1 text-xs leading-4 text-[var(--muted-foreground)] md:mt-2">
             <MapPin size={12} className="shrink-0" aria-hidden="true" />
             <span className="truncate">{item.city || 'Location not set'}</span>
             <span className="hidden md:inline" aria-hidden="true">·</span>

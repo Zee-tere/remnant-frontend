@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { BellRing, Filter, Search, X } from "lucide-react";
+import { Filter, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,36 +82,36 @@ export default function FindPageClient({
 
   return (
     <main className="mx-auto min-h-screen max-w-7xl bg-white px-4 pb-10 pt-4 sm:px-5 md:px-8 md:pb-20 md:pt-7">
-      <section className="mb-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--line-soft)] px-0.5 pb-3 md:mb-5 md:pb-4" aria-label="Pair alerts">
-        <span className="flex h-9 w-9 items-center justify-center text-[var(--amber)]"><BellRing size={17} aria-hidden="true" /></span>
-        <p className="min-w-0 truncate text-sm font-bold text-[var(--foreground)]">Can’t find the exact piece?</p>
+      <h1 className="mb-4 text-2xl font-bold leading-tight md:text-3xl">Find a missing piece</h1>
+      <section className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--line-soft)] px-0.5 pb-3 md:mb-5 md:pb-4" aria-label="Pair alerts">
+        <p className="min-w-0 text-sm font-bold text-[var(--foreground)]">Can’t find the exact piece?</p>
         <Link onClick={explainAlertAccount} href={isAuthenticated ? alertPath : `/login?redirect=${encodeURIComponent(alertPath)}`} className="inline-flex h-8 items-center border-b border-transparent px-1 text-xs font-bold text-[var(--brand)] hover:border-[var(--brand)] md:text-sm">
           Set alert
         </Link>
       </section>
       <form onSubmit={handleSearch} className="flex items-center gap-2">
-        <div className="relative h-13 min-w-0 flex-1 overflow-hidden rounded-xl border border-[var(--border)]/75 bg-white transition-colors focus-within:border-[var(--brand)]">
+        <div className="relative h-12 min-w-0 flex-1 overflow-hidden rounded-xl border border-[var(--border)]/75 bg-white transition-colors focus-within:border-[var(--brand)]">
           <Input
             type="search"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
             aria-label="Search listings"
-            placeholder="Try: iPhone 13 case, left AirPod"
-            className="h-13 border-0 bg-transparent pl-4 pr-14 text-base font-medium shadow-none focus-visible:ring-0"
+            placeholder="Search a missing piece"
+            className="h-12 border-0 bg-transparent pl-4 pr-14 text-base font-medium shadow-none focus-visible:ring-0"
           />
           <button
             type="submit"
-            className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center bg-white text-[var(--aqua)] transition-[color,transform] hover:text-[var(--brand)] active:scale-[0.97]"
+            className="absolute right-0.5 top-0.5 flex h-11 w-11 items-center justify-center bg-white text-[var(--aqua)] transition-[color,transform] hover:text-[var(--brand)] active:scale-[0.97]"
             aria-label="Search"
           >
-            <Search className="search-glyph" size={17} strokeWidth={2.15} aria-hidden="true" />
+            <Search size={20} strokeWidth={2.15} aria-hidden="true" />
           </button>
         </div>
         <Button
           type="button"
           variant="outline"
           onClick={() => setShowFilters((current) => !current)}
-          className="h-13 shrink-0 border-[var(--border)] bg-white px-3 text-sm font-bold shadow-none md:px-4"
+          className="h-12 shrink-0 border-[var(--border)] bg-white px-3 text-sm font-bold shadow-none md:px-4"
         >
           {showFilters ? <X size={15} /> : <Filter size={15} />}
           Filter
@@ -167,7 +167,7 @@ export default function FindPageClient({
       {loading ? (
         <ListingGridSkeleton />
       ) : listings.length > 0 ? (
-        <section className="grid grid-cols-3 gap-1.5 sm:gap-3 md:gap-4 xl:grid-cols-4">
+        <section className="grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
           {listings.map((item, index) => <ListingCard key={item.id} item={item} eager={index === 0} />)}
         </section>
       ) : (

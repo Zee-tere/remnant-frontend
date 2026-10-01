@@ -804,6 +804,10 @@ export default function MessagesSection() {
   const ConversationList = () => (
     <div className="flex h-full min-h-0 flex-col bg-white">
       <div className="border-b border-black/10 px-4 pb-4 pt-[calc(1rem+var(--safe-area-top))] md:px-5 md:pb-5 md:pt-5">
+        <Link href="/user/dashboard" className="mb-2 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[var(--brand)] md:hidden">
+          <ArrowLeft size={20} aria-hidden="true" />
+          Back to dashboard
+        </Link>
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">

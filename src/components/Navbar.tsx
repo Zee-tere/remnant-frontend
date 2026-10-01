@@ -56,7 +56,7 @@ export default function Navbar() {
   const isAuthRoute = ["/login", "/signup", "/forgot-password", "/reset-password", "/auth/callback"].some(
     (route) => pathname.startsWith(route),
   );
-  const pageOwnsMobileSearch = pathname === "/" || pathname.startsWith("/marketplace");
+  const pageOwnsMobileSearch = pathname === "/" || pathname.startsWith("/marketplace") || pathname.startsWith("/find-a-pair");
 
   useEffect(() => {
     setMenuOpen(false);
@@ -102,9 +102,9 @@ export default function Navbar() {
         </Link>
 
         <form onSubmit={handleSearch} className="hidden w-full min-w-0 justify-self-center md:flex" role="search">
-          <div className="flex h-10 w-full items-center rounded-full border border-black bg-white p-1 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.07)]">
-            <button type="submit" className="ml-1 flex h-8 w-8 shrink-0 items-center justify-center text-black/45" aria-label="Search">
-              <Search className="search-glyph" size={17} strokeWidth={2.1} aria-hidden="true" />
+          <div className="flex h-12 w-full items-center rounded-control border border-[var(--border)] bg-white transition-shadow focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.07)]">
+            <button type="submit" className="flex h-11 w-11 shrink-0 items-center justify-center text-[var(--muted-foreground)]" aria-label="Search">
+              <Search size={20} strokeWidth={2.1} aria-hidden="true" />
             </button>
             <input
               type="search"
@@ -112,7 +112,7 @@ export default function Navbar() {
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search the marketplace"
               aria-label="Search marketplace listings"
-              className="h-full min-w-0 flex-1 border-0 bg-transparent px-2.5 text-sm font-medium text-black outline-none placeholder:text-black/40"
+              className="h-full min-w-0 flex-1 border-0 bg-transparent px-2.5 text-sm font-medium text-black outline-none placeholder:text-[var(--muted-foreground)]"
             />
           </div>
         </form>
@@ -136,14 +136,14 @@ export default function Navbar() {
               >
                 <NameAvatar name={displayName} className="h-8 w-8 text-sm" />
                 <span className="hidden max-w-24 truncate text-sm font-bold text-black xl:inline">{displayName.split(" ")[0]}</span>
-                <ChevronDown size={14} className={`text-black/45 transition-transform ${profileOpen ? "rotate-180" : ""}`} aria-hidden="true" />
+                <ChevronDown size={14} className={`text-[var(--muted-foreground)] transition-transform ${profileOpen ? "rotate-180" : ""}`} aria-hidden="true" />
               </button>
 
               {profileOpen && (
                 <div className="absolute right-0 mt-2 w-64 overflow-hidden rounded-card border border-black/10 bg-white py-2 shadow-[0_16px_45px_rgba(0,0,0,0.12)]">
                   <div className="border-b border-black/10 px-5 py-4">
                     <p className="text-sm font-bold text-black">{displayName}</p>
-                    <p className="mt-0.5 truncate text-xs text-black/45">{user?.email}</p>
+                    <p className="mt-0.5 truncate text-xs text-[var(--muted-foreground)]">{user?.email}</p>
                   </div>
                   {accountActions.slice(0, 3).map((item) => {
                     const Icon = item.icon;
@@ -177,17 +177,9 @@ export default function Navbar() {
 
         <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-1 md:hidden">
           {!pageOwnsMobileSearch && (
-            <form onSubmit={handleSearch} className="flex h-10 min-w-0 max-w-[11rem] flex-1 items-center rounded-full border border-black/15 bg-white pl-3 focus-within:border-black" role="search">
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search items"
-                aria-label="Search marketplace listings"
-                className="h-full min-w-0 flex-1 border-0 bg-transparent text-xs font-semibold text-black outline-none placeholder:text-black/40"
-              />
-              <button type="submit" className="flex h-10 w-10 shrink-0 items-center justify-center text-black" aria-label="Search"><Search className="search-glyph" size={17} strokeWidth={2.1} aria-hidden="true" /></button>
-            </form>
+            <Link href="/marketplace" className="flex h-11 w-11 shrink-0 items-center justify-center text-[var(--foreground)]" aria-label="Search marketplace">
+              <Search size={22} aria-hidden="true" />
+            </Link>
           )}
 
           <button
@@ -211,7 +203,7 @@ export default function Navbar() {
         <div className="fixed inset-x-0 bottom-0 top-[4rem] z-[var(--layer-overlay)] md:hidden">
           <button type="button" className="absolute inset-0 h-full w-full bg-black/25" onClick={() => setMenuOpen(false)} aria-label="Close menu" />
           <aside className="navbar-menu mobile-menu-entry absolute right-0 h-full w-[min(74vw,18rem)] overflow-y-auto border-l border-black/10 bg-white px-4 pb-28 pt-5 text-left" aria-label="Mobile navigation">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-black/40">Explore</p>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Explore</p>
             <nav className="mt-3" aria-label="Explore Remnant">
               <Link href="/" onClick={() => setMenuOpen(false)} className={`flex min-h-12 items-center border-b border-black/10 text-sm font-bold ${isActive("/") ? "text-black" : "text-black/60"}`}>Home</Link>
               {exploreActions.map((item) => (
@@ -221,7 +213,7 @@ export default function Navbar() {
               ))}
             </nav>
 
-            <p className="mt-7 text-xs font-bold uppercase tracking-[0.14em] text-black/40">Browse categories</p>
+            <p className="mt-7 text-xs font-bold uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Browse categories</p>
             <nav className="mt-3" aria-label="Browse categories">
               {listingCategories.map((category) => (
                 <Link
@@ -237,7 +229,7 @@ export default function Navbar() {
 
             {isAuthenticated && (
               <>
-              <p className="mt-7 text-xs font-bold uppercase tracking-[0.14em] text-black/40">Account</p>
+              <p className="mt-7 text-xs font-bold uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Account</p>
               <nav className="mt-3" aria-label="Account">
                 <Link href="/user/dashboard?section=settings" onClick={() => setMenuOpen(false)} className="flex min-h-11 items-center gap-3 border-b border-black/10 text-sm font-bold text-black/60">
                   <Settings size={16} aria-hidden="true" />Settings
@@ -246,6 +238,11 @@ export default function Navbar() {
               </nav>
               </>
             )}
+            <nav className="mt-7 border-t border-black/10 pt-3" aria-label="Help and policies">
+              <Link href="/help" onClick={() => setMenuOpen(false)} className="flex min-h-11 items-center text-sm text-[var(--ink-soft)]">Help & support</Link>
+              <Link href="/privacy" onClick={() => setMenuOpen(false)} className="flex min-h-11 items-center text-sm text-[var(--ink-soft)]">Privacy policy</Link>
+              <Link href="/terms" onClick={() => setMenuOpen(false)} className="flex min-h-11 items-center text-sm text-[var(--ink-soft)]">Terms & conditions</Link>
+            </nav>
           </aside>
         </div>
       )}

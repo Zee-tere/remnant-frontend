@@ -37,6 +37,8 @@ function SellItemPageContent() {
       <main className="flex min-h-[calc(100dvh-7rem)] items-center bg-[var(--background)] px-4 py-8 md:block md:min-h-0 md:px-8 md:py-16">
         <section className="mx-auto max-w-md">
           <div className="surface-card rounded-card bg-white p-4 md:rounded-feature md:p-8">
+            <h1 className="text-2xl font-bold leading-tight md:text-3xl">List an item</h1>
+            <p className="mb-6 mt-2 text-sm leading-6 text-[var(--muted-foreground)]">Choose how you’d like to get started.</p>
             <div className="space-y-3">
               <Button asChild className="h-13 w-full bg-[var(--brand)] text-base font-bold text-white hover:bg-[var(--brand-dark)] md:h-14">
                 <Link href={`/signup?redirect=${encodeURIComponent(listingPath)}`}>

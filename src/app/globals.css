@@ -130,12 +130,12 @@
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
   --touch-target-min: 44px;
-  --touch-target-min-mobile: 48px;
+  --touch-target-min-mobile: 44px;
   --safe-area-top: env(safe-area-inset-top, 0px);
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-left: env(safe-area-inset-left, 0px);
   --safe-area-right: env(safe-area-inset-right, 0px);
-  --mobile-dock-clearance: calc(5.2rem + var(--safe-area-bottom));
+  --mobile-dock-clearance: calc(4.5rem + var(--safe-area-bottom));
 }
 
 .dark {
@@ -1061,17 +1061,6 @@
   0%, 100% { opacity: 0.36; transform: translate3d(-0.78rem, 0.55rem, 0) scale(0.78); }
   33% { opacity: 1; transform: translate3d(0, -0.82rem, 0) scale(1); }
   66% { opacity: 0.66; transform: translate3d(0.78rem, 0.55rem, 0) scale(0.88); }
-}
-
-.search-glyph {
-  transform-origin: 48% 48%;
-  animation: search-glyph-look 2.8s ease-in-out infinite;
-}
-
-@keyframes search-glyph-look {
-  0%, 72%, 100% { transform: translate3d(0, 0, 0) rotate(0); }
-  80% { transform: translate3d(-1px, 1px, 0) rotate(-7deg); }
-  90% { transform: translate3d(1px, -1px, 0) rotate(5deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -38,7 +38,7 @@ export function LoadingState({
 
 export function ListingGridSkeleton({ count = 8 }: { count?: number }) {
   return (
-    <div className="grid auto-rows-fr grid-cols-3 gap-2 md:gap-4 xl:grid-cols-4" role="status" aria-label="Loading marketplace items" aria-busy="true">
+    <div className="grid auto-rows-fr grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4" role="status" aria-label="Loading marketplace items" aria-busy="true">
       {Array.from({ length: count }, (_, index) => (
         <div key={index} className="overflow-hidden rounded-xl border border-[var(--border)]/70 bg-white md:rounded-2xl">
           <div className="skeleton aspect-[4/3] md:aspect-[5/4]" />

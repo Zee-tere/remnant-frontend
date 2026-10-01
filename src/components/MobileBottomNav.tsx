@@ -71,7 +71,7 @@ export default function MobileBottomNav() {
         data-mobile-bottom-dock
         className="mobile-bottom-dock md:hidden"
       >
-        <div className="mobile-bottom-dock__bar mx-auto grid h-[4.6rem] max-w-lg grid-cols-5 border-t border-black/10 bg-white px-1.5">
+        <div className="mobile-bottom-dock__bar mx-auto grid h-16 max-w-lg grid-cols-5 border-t border-black/10 bg-white px-1.5">
           {actions.map((item) => {
             const Icon = item.icon;
             const active = isActive(item);
@@ -84,23 +84,20 @@ export default function MobileBottomNav() {
                     ? "text-black"
                     : active
                       ? "text-black"
-                      : "text-black/45 hover:text-black"
+                      : "text-[var(--muted-foreground)] hover:text-black"
                 }`}
                 aria-label={item.label}
                 aria-current={active ? "page" : undefined}
               >
                 <span
                   data-preserve-icon-frame
-                  className={`relative flex items-center justify-center transition-colors duration-150 ${item.primary ? "-mt-3 h-10 w-10 rounded-full bg-black text-white" : `h-7 w-8 ${active ? "text-black" : "opacity-80"}`}`}
+                  className={`relative flex h-8 w-10 items-center justify-center transition-colors duration-150 ${item.primary ? "rounded-control bg-[var(--brand)] text-white" : active ? "text-[var(--brand)]" : ""}`}
                 >
-                  <Icon className={item.primary ? "h-[18px] w-[18px]" : "h-[17px] w-[17px]"} aria-hidden="true" />
+                  <Icon className="h-[22px] w-[22px]" aria-hidden="true" />
                 </span>
-                <span className={`${item.primary ? "-mt-1 text-black" : ""} leading-none`}>{item.label}</span>
+                <span className="leading-4">{item.label}</span>
                 {active && !item.primary && (
-                  <span className="absolute bottom-1 flex items-center gap-0.5" aria-hidden="true">
-                    <span className="h-0.5 w-3 bg-black" />
-                    <span className="h-0.5 w-1 bg-black" />
-                  </span>
+                  <span className="absolute top-0 h-0.5 w-6 bg-[var(--brand)]" aria-hidden="true" />
                 )}
               </Link>
             );

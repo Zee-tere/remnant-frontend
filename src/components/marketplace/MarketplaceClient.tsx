@@ -167,17 +167,18 @@ export default function MarketplaceClient({
   return (
     <div className="min-h-screen bg-white text-[#111]">
       <main className="mx-auto max-w-7xl px-4 pb-24 pt-6 sm:px-6 md:pt-8 lg:px-8">
+        <h1 className="mb-4 text-2xl font-bold leading-tight md:text-3xl">Marketplace</h1>
         <form onSubmit={submitSearch} className="max-w-3xl" role="search">
-          <div className="flex h-11 items-center rounded-full border border-black bg-white p-1 focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.07)]">
-            <button type="submit" className="ml-1 flex h-8 w-8 shrink-0 items-center justify-center text-black/50" aria-label="Search">
-              <Search className="search-glyph" size={17} strokeWidth={2.1} aria-hidden="true" />
+          <div className="flex h-12 items-center rounded-control border border-[var(--border)] bg-white focus-within:shadow-[0_0_0_3px_rgba(0,0,0,0.07)]">
+            <button type="submit" className="flex h-11 w-11 shrink-0 items-center justify-center text-[var(--muted-foreground)]" aria-label="Search">
+              <Search size={20} strokeWidth={2.1} aria-hidden="true" />
             </button>
             <Input
               value={draftSearch}
               onChange={(event) => setDraftSearch(event.target.value)}
-              placeholder="Search an item, model, size or missing piece"
+              placeholder="Search items, models or parts"
               aria-label="Search marketplace listings"
-              className="h-9 min-w-0 flex-1 border-0 bg-transparent px-2.5 text-sm shadow-none focus-visible:ring-0"
+              className="h-11 min-w-0 flex-1 border-0 bg-transparent pl-0 pr-3 text-base shadow-none focus-visible:ring-0"
             />
           </div>
         </form>
@@ -203,7 +204,7 @@ export default function MarketplaceClient({
         <div className="mt-8 grid items-start gap-10 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-12">
           <aside className="sticky top-28 hidden border-r border-black/10 pr-7 lg:block">
             <div className="flex items-center justify-between">
-              <h2 className="text-xs font-bold uppercase tracking-[0.14em] text-black/40">Browse categories</h2>
+              <h2 className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Browse categories</h2>
               {hasActiveFilters && (
                 <button type="button" onClick={clearFilters} className="text-xs font-bold text-black/55 underline underline-offset-4 hover:text-black">
                   Reset
@@ -214,7 +215,7 @@ export default function MarketplaceClient({
               <CategoryList />
             </div>
             <div className="mt-7 border-t border-black/10 pt-6">
-              <label htmlFor="marketplace-state" className="mb-3 block text-xs font-bold uppercase tracking-[0.14em] text-black/40">
+              <label htmlFor="marketplace-state" className="mb-3 block text-xs font-bold uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
                 Location
               </label>
               <Select
@@ -233,7 +234,7 @@ export default function MarketplaceClient({
           </aside>
 
           <section className="min-w-0" aria-label="Marketplace listings">
-            <div className="mb-7 flex items-center justify-between gap-4">
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm font-semibold text-black/55">
                 <span className="font-bold text-black">{total}</span> item{total !== 1 && "s"}
                 {submittedSearch ? <> for <span className="font-bold text-black">“{submittedSearch}”</span></> : null}
@@ -277,12 +278,12 @@ export default function MarketplaceClient({
               <div className="border-y border-black/10 px-5 py-20 text-center" role="alert">
                 <Package className="mx-auto text-black/25" size={38} aria-hidden="true" />
                 <h2 className="mt-5 text-xl font-bold">The marketplace did not load</h2>
-                <p className="mx-auto mt-2 max-w-sm text-sm font-medium text-black/50">Check your connection and try again.</p>
+                <p className="mx-auto mt-2 max-w-sm text-sm font-medium text-[var(--muted-foreground)]">Check your connection and try again.</p>
                 <Button type="button" variant="outline" onClick={() => void fetchListings()} className="mt-6 border-black/20 bg-white font-bold text-black">Try again</Button>
               </div>
             ) : listings.length > 0 ? (
               <>
-                <div className="grid auto-rows-fr grid-cols-2 gap-x-2 gap-y-7 sm:gap-x-5 md:grid-cols-3 md:gap-x-6 md:gap-y-11">
+                <div className="grid auto-rows-fr grid-cols-2 gap-x-3 gap-y-6 sm:gap-x-5 md:grid-cols-3 md:gap-x-6 md:gap-y-11">
                   {listings.map((item, index) => <ListingCard key={item.id} item={item} eager={index === 0} />)}
                 </div>
 
@@ -323,7 +324,7 @@ export default function MarketplaceClient({
               <div className="border-t border-black/10 px-6 py-20 text-center">
                 <Package className="mx-auto text-black/25" size={42} aria-hidden="true" />
                 <h2 className="mt-5 text-2xl font-bold">No items found</h2>
-                <p className="mx-auto mt-3 max-w-md font-medium text-black/50">Try a wider search, clear a filter, or list the first useful item in this category.</p>
+                <p className="mx-auto mt-3 max-w-md font-medium text-[var(--muted-foreground)]">Try a wider search, clear a filter, or list the first useful item in this category.</p>
                 <Button asChild className="mt-7 bg-black px-6 font-bold text-white hover:bg-black/85">
                   <Link href="/sell-item">List an item</Link>
                 </Button>
@@ -341,17 +342,17 @@ export default function MarketplaceClient({
               <div>
                 <span className="mb-3 block h-1 w-10 rounded-full bg-black/15" aria-hidden="true" />
                 <h2 id="marketplace-filter-title" className="text-xl font-bold">Browse</h2>
-                <p className="mt-0.5 text-xs font-medium text-black/45">Choose a category and location</p>
+                <p className="mt-0.5 text-xs font-medium text-[var(--muted-foreground)]">Choose a category and location</p>
               </div>
               <button type="button" onClick={() => setShowFilters(false)} className="flex h-11 w-11 items-center justify-center rounded-full text-black hover:bg-black/5" aria-label="Close filters">
                 <X size={20} aria-hidden="true" />
               </button>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
-              <h3 className="text-xs font-bold uppercase tracking-[0.14em] text-black/40">Categories</h3>
+              <h3 className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Categories</h3>
               <div className="mt-3"><CategoryList mobile /></div>
               <div className="mt-6 border-t border-black/10 pt-6">
-                <label htmlFor="mobile-marketplace-state" className="mb-3 block text-xs font-bold uppercase tracking-[0.14em] text-black/40">Location</label>
+                <label htmlFor="mobile-marketplace-state" className="mb-3 block text-xs font-bold uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Location</label>
                 <Select
                   id="mobile-marketplace-state"
                   value={city}
